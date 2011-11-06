@@ -89,7 +89,13 @@ class Octave(object):
             raise OctaveError('Please put the Octave executable in your PATH')
         atexit.register(lambda handle=session: close(handle))
         return session
-
+        
+    def run(self, script, **kwargs):
+        ''' Runs a script or an m-file
+        '''
+        kwargs['nout'] = 0
+        self.call(script, **kwargs)
+        
     def call(self, func, *inputs, **kwargs):
         """  Calls an M file using Octave
         If inputs are provided, they are passed to octave
@@ -171,14 +177,13 @@ class Octave(object):
             ascii_code = 65
             for var in inputs:
                 argin_list.append(chr(ascii_code))
-                pdb.set_trace()
+                #pdb.set_trace()
                 # for structs - recursively add the elements
                 if isinstance(var, dict):
                     sub = fid.create_group(chr(ascii_code))
                     self._putvals(sub, var)
                 else:
-                    self._putval(sub, chr(ascii_code), var)
-                    fid.create_dataset(chr(ascii_code), data=var)
+                    self._putval(fid, chr(ascii_code), var)
                 ascii_code += 1
             fid.close()
             load_line.append('load "-hdf5" "%s" "' % in_file)
@@ -186,10 +191,13 @@ class Octave(object):
             load_line.append('"')
             call_line.append('%s(' % func)  # foo
             call_line.append(', '.join(argin_list))  # A, B, C, ...
-            call_line.append(')')
+            call_line.append(');')
         else:
-            # foo - no arguments
-            call_line += '%s()' % func
+            if nout:
+                # foo - no arguments
+                call_line += '%s();' % func
+            else:
+                call_line += '%s;' % func
             
         # create the command and execute in octave
         cmd = []
@@ -199,19 +207,18 @@ class Octave(object):
         if save_line:
             cmd.append(''.join(save_line))
         resp = self._eval(cmd, verbose=verbose)
-
+            
         if inputs:
             os.remove(in_file)
 
-        if nout and self._session and not resp == 'error':
+        if nout:
             fid = h5py.File(out_file)
             outputs = []
             for arg in argout_list:
-               
                try:
                    val = self._getval(fid[arg])
                except:
-                   pdb.set_trace()
+                   #pdb.set_trace()
                    val = self._getvals(fid[arg]['value'])
                outputs.append(val)
             fid.close()
@@ -220,10 +227,6 @@ class Octave(object):
                 return tuple(outputs)
             else:
                 return outputs[0]
-        output = None
-        if nout:
-            output = tuple((None for i in range(nout)))
-        return output
         
     def _getval(self, group):
         ''' Handle variable types that do not translate directly
@@ -276,7 +279,6 @@ class Octave(object):
         ''' Put a nested dict into the HDF file as a struct
         '''
         for key in dict_.keys():
-            pdb.set_trace()
             if isinstance(dict_[key], dict):
                 sub = group.create_group(key)
                 self._putvals(sub, dict_[key])
@@ -363,25 +365,27 @@ class Octave(object):
         return dummy
 
     def _eval(self, cmds, verbose=False):
-        if isinstance(cmds, str):
-            cmds = cmds.split('\n')
         resp = []
-        for cmd in cmds:
-            # use ascii code 201 to signal an error and 200 
-            # to signal action complete
-            eval_ = "eval('%s; disp(char(200))', 'disp(char(201))')\n" % cmd
-            self._session.stdin.write(eval_)
-            #pdb.set_trace()
-            while 1:
-                line = self._session.stdout.readline().rstrip()
-                #import pdb; pdb.set_trace()
-                if line == chr(200):
-                    break
-                elif line == chr(201):
-                    raise OctaveError('Octave returned an error for %s' % cmd)
-                elif verbose:
-                    print line
-                resp.append(line)
+        # use ascii code 201 to signal an error and 200 
+        # to signal action complete
+        #pdb.set_trace()
+        if isinstance(cmds, str):
+            cmds = [cmds]
+        lines = ['try', '\n'.join(cmds), 'disp(char(200))',
+                 'catch', 'disp(lasterr())', 'disp(char(201))', 
+                 'end', '']
+        eval_ = '\n'.join(lines)
+        self._session.stdin.write(eval_)
+        while 1:
+            line = self._session.stdout.readline().rstrip()
+            #import pdb; pdb.set_trace()
+            if line == chr(200):
+                break
+            elif line == chr(201):
+                raise OctaveError('\n'.join(resp))
+            elif verbose:
+                print line
+            resp.append(line)
         return '\n'.join(resp)
 
     def __getattr__(self, attr):
@@ -439,33 +443,97 @@ if __name__ == '__main__':
     from pprint import pprint
     x = 2.
     y = 2.
-    octave = Octave()
+    oc = Octave()
     #pdb.set_trace()
-    out = octave.test_datatypes()
-    pprint(out)
-    pdb.set_trace()
+    import time
+    time.sleep(1)  
+    
+    # speed checks
+    raws = """
+    disp('Eig');tic;data=rand(500,500);eig(data);toc;
+    disp('Svd');tic;data=rand(500,500);[u,s,v]=svd(data);s=svd(data);toc;
+    disp('Inv');tic;data=rand(1000,1000);result=inv(data);toc;
+    disp('Det');tic;data=rand(1000,1000);result=det(data);toc;
+    disp('Dot');tic;a=rand(1000,1000);b=inv(a);result=a*b-eye(1000);toc;
+    """
+    wrapped = """
+    data=oc.rand(500,500); oc.eig(data);
+    data=oc.rand(500,500); (u,s,v)=oc.svd(data); s=oc.svd(data);
+    data=oc.rand(1000,1000); result=oc.inv(data);
+    data=oc.rand(1000,1000); result=oc.det(data);
+    a=oc.rand(1000,1000); b=oc.inv(a); result=(oc.dot(a,b)-oc.eye(1000))
+    """
     '''
-    a = octave.zeros(3,3)
+    runs = zip(raws.split('\n'), wrapped.split('\n'))
+    for run in runs:
+        if run[0].strip():
+            t1 = time.clock()
+            oc.run(run[0], verbose=True)
+            raw = time.clock() - t1
+            print "Raw:", raw
+            t1 = time.clock()
+            exec(run[1].strip())
+            wrapped = time.clock() -t1 
+            print "Wrapped:", wrapped
+            print "Penalty: %s%%" % int(((wrapped - raw) / raw) * 100)
+    '''
+    
+    out = oc.test_datatypes()
+    pprint(out)
+    
+    # next, we traverse through out, calling roundtrip.m, making sure it 
+    # comes back the same
+    def check_data(data):
+        for key in data.keys():
+            if key in ['cell', 'char_array', 'cell_array', 'basic', 'name']:
+                continue
+            elif isinstance(data[key], dict):
+                check_data(data[key])
+            else:
+                print 'Checking:', key
+                result = oc.roundtrip(data[key])
+                print data[key], result
+                try:
+                    if isinstance(data[key], np.ndarray):
+                        assert data[key].dtype == result.dtype
+                    assert data[key] == result
+                    assert type(data[key]) == type(result)
+                except ValueError:
+                    assert np.allclose(data[key], result)
+                except AssertionError:
+                    # need to test for NaN explicitly
+                    if np.isnan(result) and np.isnan(data[key]):
+                        pass
+                    # floats are converted to doubles by Matlab
+                    elif (type(data[key]) == np.float32 and 
+                          type(result) == np.float64):
+                        pass
+                    else:
+                        raise
+    check_data(out)
+    
+    '''
+    a = oc.zeros(3,3)
     print a
     try:
-        help(octave.disp2)
+        help(oc.disp2)
     except OctaveError:
         print 'oopsy'
-    a = octave.call('zeros', 1, verbose=True)
+    a = oc.call('zeros', 1, verbose=True)
     print a
     # XXX the error is here
     #pdb.set_trace()
-    help(octave.bar)
+    help(oc.bar)
     print 'calling bar'
     try:
-        d  = octave.call('bar',  x, verbose=True)
+        d  = oc.call('bar',  x, verbose=True)
     except OctaveError:
         print 'woops'
     a, b, c, d= None, None, None, None
-    #a, b = octave.call('foo', x, verbose=True)
+    #a, b = oc.call('foo', x, verbose=True)
     print 'calling ones'
     
-    #c = octave.call('ones', x, y, verbose=True)
+    #c = oc.call('ones', x, y, verbose=True)
     print 'a', a, type(a)
     print 'b', b, type(b)
     print 'c', c, type(c)
