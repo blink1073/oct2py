@@ -1,6 +1,5 @@
 import os
 import subprocess
-import sys
 import atexit
 import re
 import pdb
@@ -16,8 +15,6 @@ except:
 #       nested dictionaries
 #       cell arrays in dictionaries, cell arrays, scripts, functions
 # NOTE: talk about the limitations of Octave up front - nested functions class
-# TODO: Do a try/catch block in an m-file and capture the error
-
 
 def close(handle):
     """ Closes an octave session
@@ -55,10 +52,7 @@ class OctaveStruct(dict):
 class Octave(object):
 
     def __init__(self):
-        self._session = self.start_octave()
-
-    def start_octave(self):
-        ''' Start an octave session in a subprocess and return the handle
+        ''' Start an octave session in a subprocess
 
         Attempts to call "octave" or raise an error
         '''
@@ -88,12 +82,24 @@ class Octave(object):
         except OSError:
             raise OctaveError('Please put the Octave executable in your PATH')
         atexit.register(lambda handle=session: close(handle))
-        return session
+        self._session = session
         
     def run(self, script, **kwargs):
         ''' Runs a script or an m-file
+        
+        Keywords implemented:
+            verbose : If true, all m-file prints will be displayed
+            
         '''
-        kwargs['nout'] = 0
+        # don't return a value from a script
+        kwargs['nout'] =0
+        # this line is needed to force the plot to display
+        for cmd in ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog', 
+                    'polar', 'semilogx', 'stairs', 'gsplot', 'mesh', 
+                    'meshdom']:
+            if cmd in script:
+                script += ';print -deps foo.eps;'
+                break
         self.call(script, **kwargs)
         
     def call(self, func, *inputs, **kwargs):
@@ -109,10 +115,14 @@ class Octave(object):
         The function must either exist as an m-file in this directory or
         on Octave's path.
 
-        The function must have documentation, or we ca
-
         The first command will take about 0.5s for Octave to load up.
         The subsequent commands will be much faster.
+        
+        Plotting commands within an m file do not work 
+        Unless you add this after every plot line: print -deps foo.eps
+        The following plots are supported by GNU Octave:
+        ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog', 
+         'polar', 'semilogx', 'stairs', 'gsplot', 'mesh', 'meshdom']
 
         Usage:
 
@@ -192,12 +202,17 @@ class Octave(object):
             call_line.append('%s(' % func)  # foo
             call_line.append(', '.join(argin_list))  # A, B, C, ...
             call_line.append(');')
+        elif nout:
+            # call foo() - no arguments
+            call_line += '%s();' % func
         else:
-            if nout:
-                # foo - no arguments
-                call_line += '%s();' % func
-            else:
-                call_line += '%s;' % func
+            # run foo
+            call_line += '%s;' % func
+        # this line is needed to force the plot to display
+        if func in ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog', 
+                    'polar', 'semilogx', 'stairs', 'gsplot', 'mesh', 
+                    'meshdom']:
+            call_line += ';print -deps foo.eps;'
             
         # create the command and execute in octave
         cmd = []
@@ -206,7 +221,7 @@ class Octave(object):
         cmd.append(''.join(call_line))
         if save_line:
             cmd.append(''.join(save_line))
-        resp = self._eval(cmd, verbose=verbose)
+        self._eval(cmd, verbose=verbose)
             
         if inputs:
             os.remove(in_file)
@@ -218,7 +233,6 @@ class Octave(object):
                try:
                    val = self._getval(fid[arg])
                except:
-                   #pdb.set_trace()
                    val = self._getvals(fid[arg]['value'])
                outputs.append(val)
             fid.close()
@@ -228,28 +242,6 @@ class Octave(object):
             else:
                 return outputs[0]
         
-    def _getval(self, group):
-        ''' Handle variable types that do not translate directly
-        '''
-        type_ = group['type'].value
-        val = group['value'].value
-        
-        # strings come in as byte arrays
-        if type_ == 'sq_string':
-            val = [chr(char) for char in val]
-            val = ''.join(val)
-        # complex scalars come in as tuples
-        elif type_ == 'complex scalar':
-            val = val[0] + val[1] * 1j
-        # complex matrices come in as ndarrays with real and imag parts
-        elif type_ == 'complex matrix':
-            temp = [x + y * 1j for x, y in val.ravel()]
-            val = np.array(temp).reshape(val.shape)
-        # Matlab reads the data in Fortran order, not 'C' order
-        if isinstance(val, np.ndarray):
-            val = val.T
-        return val
-        
     def _putval(self, group, name, data):
         ''' Handle variable types that do not translate directly
         '''
@@ -257,7 +249,7 @@ class Octave(object):
         if isinstance(data, str):
             data += '_'
         # lists get mangled unless you make them an ndarray
-        # NOTE: they will still get mangled for cell arrays
+        # XXX NOTE: they will still get mangled for cell arrays
         elif isinstance(data, list):
             data = np.array(data)
         # matlab expects a specific array type for complex nums
@@ -285,6 +277,28 @@ class Octave(object):
             else:
                 self._putval(group, key, dict_[key])
 
+    def _getval(self, group):
+        ''' Handle variable types that do not translate directly
+        '''
+        type_ = group['type'].value
+        val = group['value'].value
+        
+        # strings come in as byte arrays
+        if type_ == 'sq_string':
+            val = [chr(char) for char in val]
+            val = ''.join(val)
+        # complex scalars come in as tuples
+        elif type_ == 'complex scalar':
+            val = val[0] + val[1] * 1j
+        # complex matrices come in as ndarrays with real and imag parts
+        elif type_ == 'complex matrix':
+            temp = [x + y * 1j for x, y in val.ravel()]
+            val = np.array(temp).reshape(val.shape)
+        # Matlab reads the data in Fortran order, not 'C' order
+        if isinstance(val, np.ndarray):
+            val = val.T
+        return val
+        
     def _getvals(self, group):
        ''' Extract a nested struct / cell array from the HDF file
 
@@ -354,16 +368,6 @@ class Octave(object):
             doc = doc.split('\n')[0]
         return doc
 
-    def _dummy(self, name=None):
-        def dummy():
-            nout = self._get_nout()
-            if nout > 1:
-                return tuple(None for i in range(nout))
-        #print name
-        dummy.__doc__ = ('Octave does not contain the function, '
-                        'procedure, or object "%s"' % name)
-        return dummy
-
     def _eval(self, cmds, verbose=False):
         resp = []
         # use ascii code 201 to signal an error and 200 
@@ -382,7 +386,8 @@ class Octave(object):
             if line == chr(200):
                 break
             elif line == chr(201):
-                raise OctaveError('\n'.join(resp))
+                msg = '"""\n%s\n"""\n%s' % ('\n'.join(cmds), '\n'.join(resp))
+                raise OctaveError(msg)
             elif verbose:
                 print line
             resp.append(line)
@@ -404,15 +409,10 @@ class Octave(object):
         else:
             name = attr
         doc = self._get_doc(name)
-        #print 'doc:', doc
-        if not doc == 'error':
-            octave_command = self._make_octave_command(name, doc)
-            #!!! attr, *not* name, because we might have python keyword name!
-            setattr(self, attr, octave_command)
-            return octave_command
-        else:
-            dummy = self._dummy(name)
-            return dummy
+        octave_command = self._make_octave_command(name, doc)
+        #!!! attr, *not* name, because we might have python keyword name!
+        setattr(self, attr, octave_command)
+        return octave_command
 
     def _get_nout(self):
         """Return how many values the caller is expecting.
@@ -481,18 +481,18 @@ if __name__ == '__main__':
     out = oc.test_datatypes()
     pprint(out)
     
-    # next, we traverse through out, calling roundtrip.m, making sure it 
-    # comes back the same
+    # next, we traverse through "out", calling roundtrip.m, making sure it 
+    # comes back the same - value and type
     def check_data(data):
-        for key in data.keys():
+        for key in sorted(data.keys()):
             if key in ['cell', 'char_array', 'cell_array', 'basic', 'name']:
                 continue
             elif isinstance(data[key], dict):
+                print 'Checking dictionary: ', key
                 check_data(data[key])
             else:
                 print 'Checking:', key
                 result = oc.roundtrip(data[key])
-                print data[key], result
                 try:
                     if isinstance(data[key], np.ndarray):
                         assert data[key].dtype == result.dtype
