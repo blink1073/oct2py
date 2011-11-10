@@ -10,11 +10,12 @@ except:
     'Please install h5py from "http://code.google.com/p/h5py/downloads/list"'
     raise
 
-# TODO: test, documentation, setup.py, add to bitbucket, send linFk to Scipy
-#       add a test harness - simple functions, dictionaries,
-#       nested dictionaries
-#       cell arrays in dictionaries, cell arrays, scripts, functions
+# TODO: documentation, setup.py, add to bitbucket, send link to Scipy
+#       speed test file - large data and the tests from mlabwrap
+#       future enhancements: add compability check using octave library
+#                             add cell array write capability
 # NOTE: talk about the limitations of Octave up front - nested functions class
+# TODO: implement LOOKFOR
 
 def close(handle):
     """ Closes an octave session
@@ -150,19 +151,13 @@ class Octave(object):
             func = func[:-2]
 
         # create our temporary hdf files
-        in_file = '__input__.hdf'
-        out_file = '__output__.hdf'
-        for fname in in_file, out_file:
-            if os.path.exists(fname):
-                os.remove(fname)
-
+        in_file, out_file = '__input__.hdf', '__output__.hdf'
+        
         # these three lines will form the commands sent to Octave
         # load("-hdf5", "infile", "invar1", ...)
         # [a, b, c] = foo(A, B, C)
         # save("-hdf5", "outfile", "outvar1", ...)
-        load_line = []
-        call_line = []
-        save_line = []
+        load_line, call_line, save_line = '', '', ''
 
         if nout:
             # create a dummy list of var names ("a", "b", "c", ...)
@@ -170,38 +165,16 @@ class Octave(object):
             argout_list = []
             ascii_code = 97
             for i in range(nout):
-                argout_list.append(chr(ascii_code))
+                argout_list.append("%s__" % chr(ascii_code))
                 ascii_code += 1
-            call_line.append('[')
-            call_line.append(', '.join(argout_list))
-            call_line.append('] = ')
-            save_line.append('save "-hdf5" "%s" "' % out_file)
-            save_line.append('" "'.join(argout_list))
-            save_line.append('"')
-
+            call_line = '[%s] = ' %  (', '.join(argout_list))
+            save_line = 'save "-hdf5" "%s" "%s"' % (out_file, 
+                                                   '" "'.join(argout_list))
         if inputs:
-            fid = h5py.File(in_file, "w")
-            # create a dummy list of var names ("A", "B", "C" ...)
-            # use ascii char codes so we can increment
-            argin_list = []
-            ascii_code = 65
-            for var in inputs:
-                argin_list.append(chr(ascii_code))
-                #pdb.set_trace()
-                # for structs - recursively add the elements
-                if isinstance(var, dict):
-                    sub = fid.create_group(chr(ascii_code))
-                    self._putvals(sub, var)
-                else:
-                    self._putval(fid, chr(ascii_code), var)
-                ascii_code += 1
-            fid.close()
-            load_line.append('load "-hdf5" "%s" "' % in_file)
-            load_line.append('" "'.join(argin_list))  # A, B, C, ...
-            load_line.append('"')
-            call_line.append('%s(' % func)  # foo
-            call_line.append(', '.join(argin_list))  # A, B, C, ...
-            call_line.append(');')
+            argin_list = self._create_file(in_file, inputs)
+            load_line = 'load "-hdf5" "%s" "%s"' % (in_file,
+                                                    '" "'.join(argin_list))
+            call_line += '%s(%s);' % (func, ', '.join(argin_list))  
         elif nout:
             # call foo() - no arguments
             call_line += '%s();' % func
@@ -211,36 +184,69 @@ class Octave(object):
         # this line is needed to force the plot to display
         if func in ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog', 
                     'polar', 'semilogx', 'stairs', 'gsplot', 'mesh', 
-                    'meshdom']:
+                    'meshdom', 'surf']:
             call_line += ';print -deps foo.eps;'
-            
+
         # create the command and execute in octave
-        cmd = []
-        if load_line:
-            cmd.append(''.join(load_line))
-        cmd.append(''.join(call_line))
-        if save_line:
-            cmd.append(''.join(save_line))
+        cmd = [load_line, call_line, save_line]
         self._eval(cmd, verbose=verbose)
-            
+        
         if inputs:
             os.remove(in_file)
-
         if nout:
-            fid = h5py.File(out_file)
-            outputs = []
-            for arg in argout_list:
-               try:
-                   val = self._getval(fid[arg])
-               except:
-                   val = self._getvals(fid[arg]['value'])
-               outputs.append(val)
-            fid.close()
-            os.remove(out_file)
+            outputs = self._extract_file(out_file, argout_list)
             if len(outputs) > 1:
                 return tuple(outputs)
             else:
                 return outputs[0]
+    
+    def put(self, name, var):
+        self._create_file('__inputs__.hdf', [var], [name])
+        self._eval('load "__inputs__.hdf" "-hdf5" "%s"' % name)
+           
+    def get(self, var):
+        self._eval('save "__outputs__.hdf" "-hdf5" "%s"' % var)
+        return self._extract_file('__outputs__.hdf', [var])
+    
+    def _create_file(self, in_file, inputs, names=None):
+        ''' Create an HDF file, loading the input variables 
+        
+        If names are given, use those, otherwise use dummies
+        '''
+        fid = h5py.File(in_file, "w")
+        # create a dummy list of var names ("A", "B", "C" ...)
+        # use ascii char codes so we can increment
+        argin_list = []
+        ascii_code = 65
+        for var in inputs:
+            if names:
+                argin_list.append(names.pop(0))
+            else:
+                argin_list.append("%s__" % chr(ascii_code))
+            #pdb.set_trace()
+            # for structs - recursively add the elements
+            if isinstance(var, dict):
+                sub = fid.create_group(argin_list[-1])
+                self._putvals(sub, var)
+            else:
+                self._putval(fid, argin_list[-1], var)
+            ascii_code += 1
+        fid.close()
+        return argin_list
+        
+    def _extract_file(self, out_file, argout_list):
+        ''' Extract the variables in argout_list from the HDF file '''
+        fid = h5py.File(out_file)
+        outputs = []
+        for arg in argout_list:
+           try:
+               val = self._getval(fid[arg])
+           except:
+               val = self._getvals(fid[arg]['value'])
+           outputs.append(val)
+        fid.close()
+        os.remove(out_file)
+        return outputs
         
     def _putval(self, group, name, data):
         ''' Handle variable types that do not translate directly
@@ -248,10 +254,17 @@ class Octave(object):
         # the last char is stripped off in transit
         if isinstance(data, str):
             data += '_'
-        # lists get mangled unless you make them an ndarray
-        # XXX NOTE: they will still get mangled for cell arrays
+        # lists get mangled unless you make them an ndarrays
+        # XXX they will still get mangled for cell arrays 
+        #      (vectors work though)
         elif isinstance(data, list):
             data = np.array(data)
+            # pad the strings here too
+            if '|S' in data.dtype.str:
+                if len(data.shape) > 1:
+                    raise OctaveError('Cannot pass nested lists:\n%s' % data)
+                nchars = int(data.dtype.str[2:])
+                data = data.astype(np.dtype('|S%s' % (nchars + 1)))
         # matlab expects a specific array type for complex nums
         elif isinstance(data, complex):
             data = np.array((data.real, data.imag), 
@@ -282,9 +295,8 @@ class Octave(object):
         '''
         type_ = group['type'].value
         val = group['value'].value
-        
         # strings come in as byte arrays
-        if type_ == 'sq_string':
+        if type_ == 'sq_string' or type_ == 'string':
             val = [chr(char) for char in val]
             val = ''.join(val)
         # complex scalars come in as tuples
@@ -299,47 +311,64 @@ class Octave(object):
             val = val.T
         return val
         
+    def lookfor(self, string):
+        ''' Calls the octave "lookfor" command, with the -all switch '''
+        self.run('lookfor -all %s' % string, verbose=True)
+
+        
     def _getvals(self, group):
        ''' Extract a nested struct / cell array from the HDF file
 
        Structs become dictionaries, cell arrays become lists
        '''
-       #pdb.set_trace()
        data = OctaveStruct()
-       for key in group.keys():
-           if key ==  'dims':
-               data['dims'] = group[key].value
-           elif isinstance(group[key]['value'], h5py.Group):
-               if key.startswith('_'):
-                   data[int(key[1:])] = self._getvals(group[key]['value'])
+       try:
+           for key in group.keys():
+               if key ==  'dims':
+                   data['dims'] = group[key].value
+               elif isinstance(group[key]['value'], h5py.Group):
+                   if key.startswith('_'):
+                       data[int(key[1:])] = self._getvals(group[key]['value'])
+                   else:
+                       data[key] = self._getvals(group[key]['value'])
                else:
-                   data[key] = self._getvals(group[key]['value'])
-           else:
-               val = self._getval(group[key])
-               if key.startswith('_'):
-                   key = int(key[1:])
-               data[key] = val
-       # handle cell arrays
+                   val = self._getval(group[key])
+                   if key.startswith('_'):
+                       key = int(key[1:])
+                   data[key] = val
+       except AttributeError:
+           # handle top-level cell arrays
+           temp = [chr(item) for item in group.value.ravel()]
+           temp = np.array(temp).reshape(group.value.shape)
+           data = []
+           for row in range(temp.shape[1]):
+               data.append(''.join(temp[:, row]))
+       # handle nested cell arrays
        if 'dims' in data:
-           dims = data['dims']
-           # only worry about 1-d and 2-d
-           if len(dims) == 2:
-               # singleton
-               if dims[0] == 1 and dims[1] == 1:
-                   data = data[0]
-               # array
-               elif dims[0] == 1 or dims[1] == 1:
-                   del data['dims']
-                   data = [data[key] for key in sorted(data.keys())]
-               # matrix
-               else:
-                   temp = []
-                   for row in range(dims[0]):
-                       start = row * dims[1]
-                       stop = (row + 1) * dims[1]
-                       temp.append([data[key] for key in range(start, stop)])
-                   data = temp
+           data = self._extract_cell_array(data)
        return data
+       
+    def _extract_cell_array(self, data):
+        ''' Extract a nested cell array from a dictionary  '''
+        dims = data['dims']
+        # only worry about 1-d and 2-d
+        if len(dims) == 2:
+           # singleton
+           if dims[0] == 1 and dims[1] == 1:
+               data = data[0]
+           # array
+           elif dims[0] == 1 or dims[1] == 1:
+               del data['dims']
+               data = [data[key] for key in sorted(data.keys())]
+           # matrix
+           else:
+               temp = []
+               for row in range(dims[0]):
+                   start = row * dims[1]
+                   stop = (row + 1) * dims[1]
+                   temp.append([data[key] for key in range(start, stop)])
+               data = temp
+        return data
         
     def _make_octave_command(self, name, doc=None):
         """ Called by __getattr__ to create a wrapper to a matlab,
@@ -367,6 +396,7 @@ class Octave(object):
             # grab only the first line
             doc = doc.split('\n')[0]
         return doc
+        
 
     def _eval(self, cmds, verbose=False):
         resp = []
@@ -437,7 +467,7 @@ class Octave(object):
 
     def __del__(self):
         close(self._session)
-
+        
 
 if __name__ == '__main__':
     from pprint import pprint
@@ -448,7 +478,12 @@ if __name__ == '__main__':
     import time
     time.sleep(1)  
     
-    # speed checks
+    oc.lookfor('singular value')
+    a, b, c = oc.svd([[1,2], [1,3]])
+    print b
+    pdb.set_trace()
+    
+    # speed checks - large datasets
     raws = """
     disp('Eig');tic;data=rand(500,500);eig(data);toc;
     disp('Svd');tic;data=rand(500,500);[u,s,v]=svd(data);s=svd(data);toc;
@@ -461,10 +496,11 @@ if __name__ == '__main__':
     data=oc.rand(500,500); (u,s,v)=oc.svd(data); s=oc.svd(data);
     data=oc.rand(1000,1000); result=oc.inv(data);
     data=oc.rand(1000,1000); result=oc.det(data);
-    a=oc.rand(1000,1000); b=oc.inv(a); result=(oc.dot(a,b)-oc.eye(1000))
+    a=oc.rand(1000,1000); b=oc.inv(a); result=(oc.mtimes(a,b)-oc.eye(1000))
     """
-    '''
+    
     runs = zip(raws.split('\n'), wrapped.split('\n'))
+    print 'Testing large datasets...'
     for run in runs:
         if run[0].strip():
             t1 = time.clock()
@@ -476,16 +512,20 @@ if __name__ == '__main__':
             wrapped = time.clock() -t1 
             print "Wrapped:", wrapped
             print "Penalty: %s%%" % int(((wrapped - raw) / raw) * 100)
-    '''
     
     out = oc.test_datatypes()
     pprint(out)
+    
+    import timeit
+    
+    
+    
     
     # next, we traverse through "out", calling roundtrip.m, making sure it 
     # comes back the same - value and type
     def check_data(data):
         for key in sorted(data.keys()):
-            if key in ['cell', 'char_array', 'cell_array', 'basic', 'name']:
+            if key in ['char_array', 'cell']:
                 continue
             elif isinstance(data[key], dict):
                 print 'Checking dictionary: ', key
@@ -511,7 +551,7 @@ if __name__ == '__main__':
                     else:
                         raise
     check_data(out)
-    
+    pdb.set_trace()
     '''
     a = oc.zeros(3,3)
     print a
