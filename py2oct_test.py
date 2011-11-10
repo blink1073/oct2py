@@ -112,4 +112,6 @@ class OctaveIncomingTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    print 'py2oct test'
+    print '*' * 20
     unittest.main()

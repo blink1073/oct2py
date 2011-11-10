@@ -14,14 +14,16 @@ def large_array_put():
 
 def large_array_get():
     """ Retrieve the large matrix "x" from the octave session """
-    oc.get('x')
-
+    oc.get('a')
         
 if __name__ == '__main__':
+    
+    print 'py2oct speed test'
+    print '*' * 20
+    
     oc = Octave()
     time.sleep(1) 
     a = np.reshape(np.arange(100000),(-1,))
-    oc.run('x=1:100000')
     
     print 'raw_overhead: ',
     t = timeit.timeit(raw_overhead, number=200) / 200
