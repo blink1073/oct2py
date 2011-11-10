@@ -10,7 +10,7 @@ except:
     'Please install h5py from "http://code.google.com/p/h5py/downloads/list"'
     raise
 
-# TODO: documentation, run against m-files, setup.py, add to bitbucket, send link to Scipy
+# TODO: documentation, setup.py, add to bitbucket, send link to Scipy
 #       future enhancements: add compability check using octave library
 #                             add cell array write capability
 # NOTE: talk about the limitations of Octave up front - nested functions class
@@ -400,7 +400,6 @@ class Octave(object):
         resp = []
         # use ascii code 201 to signal an error and 200 
         # to signal action complete
-        #pdb.set_trace()
         if isinstance(cmds, str):
             cmds = [cmds]
         lines = ['try', '\n'.join(cmds), 'disp(char(200))',
@@ -410,7 +409,6 @@ class Octave(object):
         self._session.stdin.write(eval_)
         while 1:
             line = self._session.stdout.readline().rstrip()
-            #import pdb; pdb.set_trace()
             if line == chr(200):
                 break
             elif line == chr(201):
