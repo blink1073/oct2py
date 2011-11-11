@@ -41,18 +41,41 @@ def _open():
         raise OctaveError('Please put the Octave executable in your PATH')
     atexit.register(lambda handle=session: _close(handle))
     return session
-
+    
+def _register_del(fname):
+    """ Register an HDF file for deletion at program exit """
+    atexit.register(lambda filename=fname : _remove_hdfs(filename))
 
 def _close(handle):
     """ Closes an octave session
 
     Called when the octave object is deleted or at program exit
+    
+    Also remove any unnessary HDF files
+    Make sure they haven't been accessed in the last minute
     """
     try:
         handle.stdin.write('exit')
-    except ValueError:
+    except (ValueError, TypeError):
         pass
-
+    
+                
+def _remove_hdfs(filename=None):
+    """ Remove the desired hdf and any HDFs that haven't been accessed in 
+    over a minute
+    """
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+    files = os.listdir(os.getcwd())
+    for fname in files:
+        if re.match(r'(load|save)_.{10}\.hdf', fname):
+            if (time.time() - os.path.getatime(fname) > 60):
+                try:
+                    os.remove(fname)
+                except OSError:
+                    pass
 
 def _get_nout():
     """ Return how many values the caller is expecting.
@@ -75,26 +98,11 @@ def _get_nout():
 
 def _create_hdf(type_):
     """ Create an HDF file of the given type with a random name """
-    name = [type_]
-    name.extend([random.choice(range(x)) for x in range(10)])
+    name = [type_, '_']
+    name.extend([str(random.choice(range(10))) for x in range(10)])
     name.append('.hdf')
     return ''.join(name)
-
-
-def _remove_hdfs():
-    """ Remove any HDF files in this directory that we have created
-
-    Make sure they haven't been accessed in the last five minutes
-    """
-    files = os.listdir(os.getcwd())
-    for fname in files:
-        if re.match(r'(load|save)_.{10}\.hdf', fname):
-            if time.time() - os.path.getatime(fname) > 60 * 5:
-                try:
-                    os.remove(fname)
-                except OSError:
-                    pass
-
+    
 
 class OctaveError(Exception):
     """ Called when we can't open Octave or octave throws an error """

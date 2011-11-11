@@ -1,10 +1,12 @@
 ''' py2oct - Python to GNU Octave bridge
 
-Opens an Octave session to run commands and m-files.
+Overview
+--------
+Uses Octave to run commands and m-files.
 Run py2oct_demo.py for a live demo of features.
 
 Supports the running of any Octave function or m-file, and passing the
-data seamlessly between Python and Octave using HDF files.
+data seamlessly between Python and Octave using HDF files.  
 
 If you want to run legacy m-files, don't have Matlab(R), and don't fully trust
 a code translator, this is your library.
@@ -12,7 +14,15 @@ a code translator, this is your library.
 All Octave variable types are mapped to comparable Python types.
 Almost all Python types can be sent to Octave (including ndarrays),
    with the exception of cell arrays (lists with strings in them) of rank > 1.
+   
+Installation
+------------
+TDB
+You must have Octave installed and in your path.  
+Additionally, you must have the numpy and h5py libraries installed.
 
+Peformance
+-----------
 There is a penalty for passing data via HDF files.  Running py2oct_speed.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
@@ -22,6 +32,8 @@ larger, the delay begins to increase (somewhere around a 100x100 array).
 If you have any loops, you would be better served using a raw "run" command
 for the loop rather than implementing the loop in python.
 
+Plotting
+--------
 Plotting commands do not automatically result in the window being displayed
 by Python.  In order to force the plot to be drawn, I have hacked the command
 "print -deps foo.eps;'" onto anything that looks like a plot command, when
@@ -29,18 +41,23 @@ called using this package. If you have plot statements in your function that
 you would like to display,you must add that line (replacing foo.eps
 with the filename of your choice), after each plot statement.
 
+Thread Safety
+------------
 Each instance of the Octave object has an independent session of Octave.
 The library appears to be thread safe.  See py2oct_thread.py for an example of
 several objects writing a different value for the same variable name
 simultaneously and sucessfully retrieving their own result.
 
-Future enhancements :
-    - Add support for arbitrary outgoing cell arrays (rank > 1)
-    - Add a Octave code compability check function
-    - Add a feature to scan a file for plot statements and automatically
-         add a line to print the plot, allowing Python to render it.
+Future enhancements
+-------------------
+- Add support for arbitrary outgoing cell arrays (rank > 1)
+- Add a Octave code compability check function
+- Add a feature to scan a file for plot statements and automatically
+     add a line to print the plot, allowing Python to render it.
 
-Note for Matlab(R) users: Octave supports most but not all of the core syntax
+Note for Matlab(R) users
+------------------------
+Octave supports most but not all of the core syntax
 and commands.  See:
     http://www.gnu.org/software/octave/FAQ.html#MATLAB-compatibility
 
@@ -51,24 +68,26 @@ There are several Octave packages (think toolboxes),
     including image and statistics:
     http://octave.sourceforge.net/packages.php
 
-Similar work:
-    pytave - Python to Octave bridge, but limited to POSIX systems (which is
-                 why I made this one).
-    mlabwrap - Python to Matlab bridge, requires a Matlab license.  I based
-                my API on theirs.
-    ompc, smop - Matlab to Python conversion tools.  Both rely on effective
-                 parsing of code and a runtime helper library.  I would
-                 love to see one or both of these projects render my project
-                 unnecessary.  I borrowed the idea from ompc of using
-                 introspection to find nargout dynamically.
+Similar work
+------------
+pytave - Python to Octave bridge, but does not run on Windows (which is
+             why I made this one).
+mlabwrap - Python to Matlab bridge, requires a Matlab license.  I based
+            my API on theirs.
+ompc, smop - Matlab to Python conversion tools.  Both rely on effective
+             parsing of code and a runtime helper library.  I would
+             love to see one or both of these projects render this one
+             unnecessary.  I borrowed the idea from ompc of using
+             introspection to find "nargout" dynamically.
 '''
 import os
 import re
-from h5write import OctaveH5Write
-from h5read import OctaveH5Read
+from h5write import _OctaveH5Write
+from h5read import _OctaveH5Read
 from helpers import _open, _close, _get_nout, OctaveError, OctaveStruct
 
-# TODO: setup.py, test on linux, add to bitbucket, send link to Scipy
+# TODO: setup.py, test on linux, add to bitbucket, send link to Scipy,
+#       add unit tests to flex API - including errors
 
 
 class Octave(object):
@@ -90,8 +109,8 @@ class Octave(object):
         ''' Start Octave and create our HDF helpers
         '''
         self._session = _open()
-        self._reader = OctaveH5Read()
-        self._writer = OctaveH5Write()
+        self._reader = _OctaveH5Read()
+        self._writer = _OctaveH5Write()
 
     def run(self, script, **kwargs):
         ''' Runs artibrary octave code or an m-file
@@ -222,13 +241,14 @@ class Octave(object):
             var = [var]
         # make sure the variable(s) exist
         for variable in var:
-            self._eval("type('%s')" % variable, verbose=False)
+            if not self._eval("exist %s" % variable, verbose=False):
+                raise OctaveError('%s does not exist' % variable)
         argout_list, save_line = self._reader.setup(1, var)
         self._eval(save_line)
         return self._reader.extract_file(argout_list)
 
     def lookfor(self, string):
-        ''' Calls the octave "lookfor" command, with the -all switch '''
+        ''' Calls the Octave "lookfor" command, with the -all switch '''
         return self.run('lookfor -all %s' % string, verbose=True)
 
     def _eval(self, cmds, verbose=True):
@@ -319,7 +339,8 @@ if __name__ == '__main__':
     oc = Octave()
     from py2oct_demo import demo
     from py2oct_speed import OctaveSpeed
-    speed_test = OctaveSpeed()
+    speed = OctaveSpeed()
+    speed_test = speed.run
     print "oc = Octave"
     print 'demo() runs the demo'
     print 'speed_test() runs the speed test'

@@ -9,17 +9,17 @@ except:
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
 import numpy as np
-from helpers import OctaveStruct, _remove_hdfs, _create_hdf
+from helpers import OctaveStruct, _create_hdf, _register_del
 
 
-class OctaveH5Read(object):
+class _OctaveH5Read(object):
     ''' Read Python values from an HDF file made by Octave
 
     Strives to preserve both value and type in transit
     '''
     def __init__(self):
         self.out_file = _create_hdf('save')
-        _remove_hdfs()
+        _register_del(self.out_file)
 
     def setup(self, nout, names=None):
         ''' Generate the argout list and the Octave save command '''

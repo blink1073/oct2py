@@ -9,17 +9,17 @@ except:
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
 import numpy as np
-from helpers import OctaveError, _remove_hdfs, _create_hdf
+from helpers import OctaveError, _register_del, _create_hdf
 
 
-class OctaveH5Write(object):
+class _OctaveH5Write(object):
     '''Used to write Python values into an HDF file for Octave
 
     Strives to preserve both value and type in transit
     '''
     def __init__(self):
         self.in_file = _create_hdf('load')
-        _remove_hdfs()
+        _register_del(self.in_file)
 
     def create_file(self, inputs, names=None):
         ''' Create an HDF file, loading the input variables
@@ -36,7 +36,6 @@ class OctaveH5Write(object):
                 argin_list.append(names.pop(0))
             else:
                 argin_list.append("%s__" % chr(ascii_code))
-            #pdb.set_trace()
             # for structs - recursively add the elements
             if isinstance(var, dict):
                 sub = fid.create_group(argin_list[-1])
