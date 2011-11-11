@@ -9,7 +9,6 @@ except:
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
 import numpy as np
-import time
 from helpers import OctaveError, _remove_hdfs, _create_hdf
 
 

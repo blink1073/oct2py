@@ -1,18 +1,8 @@
 ''' helpers - Miscellaneous helper constructs
-
-_open  - called to open an Octave session
-_close - called to close an Octave session atexit or when an octave object is
-        deleted
-_get_nout - used to detect the number of output arguments requested on a
-            function call
-OctaveError - used to raise Octave specific errors
-OctaveStruct - new object type that supports dictionary and attribute based
-                access, allowing it to be used like an Octave structure
 '''
 import os
 import time
 import subprocess
-import string
 import random
 import atexit
 import inspect
@@ -81,17 +71,19 @@ def _get_nout():
         # OCTAVE always assumes at least 1 value
         return 1
     return 1
-    
+
+
 def _create_hdf(type_):
     """ Create an HDF file of the given type with a random name """
     name = [type_]
-    name.extend([random.choice(string.ascii_letters) for x in range(10)])
+    name.extend([random.choice(range(x)) for x in range(10)])
     name.append('.hdf')
     return ''.join(name)
-    
+
+
 def _remove_hdfs():
-    """ Remove any HDF files in this directory that we have created 
-    
+    """ Remove any HDF files in this directory that we have created
+
     Make sure they haven't been accessed in the last five minutes
     """
     files = os.listdir(os.getcwd())
@@ -102,6 +94,7 @@ def _remove_hdfs():
                     os.remove(fname)
                 except OSError:
                     pass
+
 
 class OctaveError(Exception):
     """ Called when we can't open Octave or octave throws an error """

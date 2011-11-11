@@ -54,7 +54,7 @@ class OctaveSpeed(object):
             print 'Get %sx%s: ' % (side, side),
             avg = timeit.timeit(self.large_array_get, number=nruns) / nruns
             print '%0.1f msec' % (avg * 1e3)
-            
+
         print '*' * 20
         print 'Test complete!'
 

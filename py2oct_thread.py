@@ -1,17 +1,22 @@
+""" py2oct_thread - Test Starting Multiple Threads
 
+Verify that they each have their own session
+"""
 import threading
 import datetime
 from py2oct import Octave
 
 
 class ThreadClass(threading.Thread):
+    """ Octave instance thread """
+
     def run(self):
         """ Create a unique instance of Octave and verify namespace uniqueness
         """
-        oc = Octave()
+        octave = Octave()
         # write the same variable name in each thread and read it back
-        oc.put('name', self.getName())
-        name = oc.get('name')
+        octave.put('name', self.getName())
+        name = octave.get('name')
         now = datetime.datetime.now()
         print "%s got '%s' at %s" % (self.getName(), name, now)
         assert self.getName() == name

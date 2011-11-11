@@ -37,9 +37,9 @@ def demo(delay=2):
     print oc.get('y')
     from py2oct import OctaveStruct
     y = OctaveStruct()
-    y.b = 'foo'
-    y.c.d = 'bar'
-    print y['b']
+    y.b = 'spam'
+    y.c.d = 'eggs'
+    print y.c['d']
     print y
     """
 

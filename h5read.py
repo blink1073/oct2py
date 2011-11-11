@@ -97,15 +97,6 @@ class OctaveH5Read(object):
                 if key.startswith('_'):
                     key = int(key[1:])
                 data[key] = val
-        '''
-        # handle top-level cell arrays
-        #import pdb;pdb.set_trace()
-        temp = [chr(item) for item in group.value.ravel()]
-        temp = np.array(temp).reshape(group.value.shape)
-        data = []
-        for row in range(temp.shape[1]):
-            data.append(''.join(temp[:, row]))
-        '''
         # handle cell arrays
         if 'dims' in data:
             data = self._extract_cell_array(data)
@@ -133,4 +124,3 @@ class OctaveH5Read(object):
                     temp.append([data[key] for key in range(start, stop)])
                 data = temp
         return data
-
