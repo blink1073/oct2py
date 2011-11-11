@@ -1,18 +1,22 @@
 ''' py2oct - Python to GNU Octave bridge
 
-Opens a GNU Octave session to run commands and m-files.  
+Opens an Octave session to run commands and m-files.  
 Run py2oct_demo.py for a live demo of features.
 
-Supports the running of any GNU Octave function or m-file, and passing the 
-data seamlessly between Python and Octave using HDF files.
+Supports the running of any Octave function or m-file, and passing the 
+data seamlessly between Python and Octave using HDF files.  
+
+If you want to run legacy m-files, don't have Matlab(R), and don't fully trust 
+a code translator, this is your library.
 
 All Octave variable types are mapped to comparable Python types.  
 Almost all Python types can be sent to Octave (including ndarrays), 
-   with the exception of cell arrays of rank > 1.
+   with the exception of cell arrays (lists with strings in them) of rank > 1.
 
 There is a penalty for passing data via HDF files.  Running py2oct_speed.py
-shows the effect.  Raw Matlab calls take almost no penalty, but the penalty
-for reading and writing from the HDF file is around 5-10ms on my machine.  This 
+shows the effect.  After a startup time for the Octave engine (<1s), 
+raw function calls take almost no penalty.  The penalty for reading and 
+writing from the HDF file is around 5-10ms on my machine.  This 
 penalty is felt for both incoming and outgoing values.  As the data becomes
 larger, the delay begins to increase (somewhere around a 100x100 array).
 If you have any loops, you would be better served using a raw "run" command
@@ -21,14 +25,18 @@ for the loop rather than implementing the loop in python.
 Plotting commands do not automatically result in the window being displayed 
 by Python.  In order to force the plot to be drawn, I have hacked the command
 "print -deps foo.eps;'" onto anything that looks like a plot command, when
-called using this package.  By saving the figure, it is also displayed.
-If you have plot statements in your function that you would like to display,
-you must add that line (replacing foo.eps with the filename of your choice),
-after each plot statement.
+called using this package. If you have plot statements in your function that 
+you would like to display,you must add that line (replacing foo.eps 
+with the filename of your choice), after each plot statement.
+
+Each instance of the Octave object has an independent session of Octave.
+The library appears to be thread safe.  See py2oct_thread.py for an example of 
+several objects writing a different value for the same variable name 
+simultaneously and sucessfully retrieving their own result.
 
 Future enhancements :
     - Add support for arbitrary outgoing cell arrays (rank > 1)
-    - Add a compability check function
+    - Add a Octave code compability check function
     - Add a feature to scan a file for plot statements and automatically
          add a line to print the plot, allowing Python to render it.
 
@@ -42,12 +50,23 @@ The main noticable differences are nested functions are not allowed,
 There are several Octave packages (think toolboxes), 
     including image and statistics:
     http://octave.sourceforge.net/packages.php
+    
+Similar work:
+    pytave - Python to Octave bridge, but limited to POSIX systems (which is
+                 why I made this one).
+    mlabwrap - Python to Matlab bridge, requires a Matlab license.  I based 
+                my API on theirs.
+    ompc, smop - Matlab to Python conversion tools.  Both rely on effective
+                 parsing of code and a runtime helper library.  I would 
+                 love to see one or both of these projects render my project
+                 unnecessary.  I borrowed the idea from ompc of using 
+                 introspection to find nargout dynamically.
 '''
 import os
 import re
 from h5write import OctaveH5Write
 from h5read import OctaveH5Read
-from helpers import _open, _get_nout, _close, OctaveError
+from helpers import _open, _get_nout, _close, OctaveError, OctaveStruct
 
 # TODO: setup.py, test on linux, add to bitbucket, send link to Scipy
 
@@ -192,8 +211,9 @@ class Octave(object):
             var (str or list) - the name of the variable to retrieve
                                  or a list of variable names
         Returns:
-            If more than one variable, returns a tuple of variables
-            Otherwise, returns the variable
+            If more than one variable, returns a tuple of variables.
+            Otherwise, returns the variable.
+            Raises an error if one of the variables does not exist.
 
         Usage:
             x= get('x')
@@ -201,6 +221,9 @@ class Octave(object):
         """
         if isinstance(var, str):
             var = [var]
+        # make sure the variable(s) exist
+        for variable in var:
+            self._eval("type('%s')" % variable, verbose=False)
         argout_list, save_line = self._reader.setup(1, var)
         self._eval(save_line)
         return self._reader.extract_file(argout_list)

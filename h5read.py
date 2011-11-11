@@ -8,10 +8,8 @@ except:
     print 'Please install h5py from'
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
-import os
-import time
 import numpy as np
-from helpers import OctaveStruct
+from helpers import OctaveStruct, _remove_hdfs, _create_hdf
 
 
 class OctaveH5Read(object):
@@ -20,7 +18,8 @@ class OctaveH5Read(object):
     Strives to preserve both value and type in transit
     '''
     def __init__(self):
-        self.out_file = time.strftime("save_%d%m%y%H%M%S.hdf")
+        self.out_file = _create_hdf('save')
+        _remove_hdfs()
 
     def setup(self, nout, names=None):
         ''' Generate the argout list and the Octave save command '''
@@ -30,8 +29,6 @@ class OctaveH5Read(object):
                 argout_list.append(names.pop(0))
             else:
                 argout_list.append("%s__" % chr(i + 97))
-        if os.path.exists(self.out_file):
-            os.remove(self.out_file)
         save_line = 'save "-hdf5" "%s" "%s"' % (self.out_file,
                                                 '" "'.join(argout_list))
         return argout_list, save_line
@@ -47,7 +44,6 @@ class OctaveH5Read(object):
                 val = self._getvals(fid[arg]['value'])
             outputs.append(val)
         fid.close()
-        os.remove(self.out_file)
         if len(outputs) > 1:
             return tuple(outputs)
         else:
@@ -137,9 +133,4 @@ class OctaveH5Read(object):
                     temp.append([data[key] for key in range(start, stop)])
                 data = temp
         return data
-        
-    def __del__(self):
-        try:
-            os.remove(self.out_file)
-        except OSError:
-            pass
+

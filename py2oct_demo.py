@@ -35,6 +35,12 @@ def demo(delay=2):
     y = np.zeros((3,3))
     oc.put('y', y)
     print oc.get('y')
+    from py2oct import OctaveStruct
+    y = OctaveStruct()
+    y.b = 'foo'
+    y.c.d = 'bar'
+    print y['b']
+    print y
     """
 
     print 'py2oct demo'

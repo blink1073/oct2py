@@ -2,7 +2,6 @@
 
 Strives to preserve both value and type in transit
 '''
-import os
 try:
     import h5py
 except:
@@ -11,7 +10,7 @@ except:
     raise
 import numpy as np
 import time
-from helpers import OctaveError
+from helpers import OctaveError, _remove_hdfs, _create_hdf
 
 
 class OctaveH5Write(object):
@@ -20,7 +19,8 @@ class OctaveH5Write(object):
     Strives to preserve both value and type in transit
     '''
     def __init__(self):
-        self.in_file = time.strftime("load_%d%m%y%H%M%S.hdf")
+        self.in_file = _create_hdf('load')
+        _remove_hdfs()
 
     def create_file(self, inputs, names=None):
         ''' Create an HDF file, loading the input variables
@@ -92,9 +92,3 @@ class OctaveH5Write(object):
             # Matlab reads the data in Fortran order, not 'C' order
             data = data.T
         group.create_dataset(name, data=data)
-        
-    def __del__(self):
-        try:
-            os.remove(self.in_file)
-        except OSError:
-            pass

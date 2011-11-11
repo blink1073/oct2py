@@ -10,7 +10,10 @@ OctaveStruct - new object type that supports dictionary and attribute based
                 access, allowing it to be used like an Octave structure
 '''
 import os
+import time
 import subprocess
+import string
+import random
 import atexit
 import inspect
 import dis
@@ -79,15 +82,26 @@ def _get_nout():
         return 1
     return 1
     
-def _remove_hdfs(type_):
-    """ Remove any HDF files in this directory that we have created """
+def _create_hdf(type_):
+    """ Create an HDF file of the given type with a random name """
+    name = [type_]
+    name.extend([random.choice(string.ascii_letters) for x in range(10)])
+    name.append('.hdf')
+    return ''.join(name)
+    
+def _remove_hdfs():
+    """ Remove any HDF files in this directory that we have created 
+    
+    Make sure they haven't been accessed in the last five minutes
+    """
     files = os.listdir(os.getcwd())
     for fname in files:
-        if re.match(r'%s_\d{12}.hdf' % type_, fname):
-            try:
-                os.remove(fname)
-            except OSError:
-                pass
+        if re.match(r'(load|save)_.{10}\.hdf', fname):
+            if time.time() - os.path.getatime(fname) > 60 * 5:
+                try:
+                    os.remove(fname)
+                except OSError:
+                    pass
 
 class OctaveError(Exception):
     """ Called when we can't open Octave or octave throws an error """
