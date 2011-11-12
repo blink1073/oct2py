@@ -1,7 +1,7 @@
 ''' oct2py - Python to GNU Octave bridge
 
 Overview
---------
+========
 Uses Octave to run commands and m-files.
 Run oct2py_demo.py for a live demo of features.
 
@@ -12,17 +12,18 @@ If you want to run legacy m-files, don't have Matlab(R), and don't fully trust
 a code translator, this is your library.
 
 All Octave variable types are mapped to comparable Python types.
-Almost all Python types can be sent to Octave (including ndarrays),
-   with the exception of cell arrays (lists with strings in them) of rank > 1.
+Almost all Python types can be sent to Octave (including ndarrays of arbitrary 
+rank), with the exception of cell arrays (lists with strings in them) of 
+rank > 1.
    
 Installation
-------------
-TDB
+============
+pip install oct2py
 You must have Octave installed and in your path.  
 Additionally, you must have the numpy and h5py libraries installed.
 
 Peformance
------------
+==========
 There is a penalty for passing data via HDF files.  Running oct2py_speed.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
@@ -33,7 +34,7 @@ If you have any loops, you would be better served using a raw "run" command
 for the loop rather than implementing the loop in python.
 
 Plotting
---------
+========
 Plotting commands do not automatically result in the window being displayed
 by Python.  In order to force the plot to be drawn, I have hacked the command
 "print -deps foo.eps;'" onto anything that looks like a plot command, when
@@ -42,21 +43,21 @@ you would like to display,you must add that line (replacing foo.eps
 with the filename of your choice), after each plot statement.
 
 Thread Safety
-------------
+=============
 Each instance of the Octave object has an independent session of Octave.
 The library appears to be thread safe.  See oct2py_thread.py for an example of
 several objects writing a different value for the same variable name
 simultaneously and sucessfully retrieving their own result.
 
 Future enhancements
--------------------
+===================
 - Add support for arbitrary outgoing cell arrays (rank > 1)
 - Add a Octave code compability check function
 - Add a feature to scan a file for plot statements and automatically
      add a line to print the plot, allowing Python to render it.
 
 Note for Matlab(R) users
-------------------------
+========================
 Octave supports most but not all of the core syntax
 and commands.  See:
     http://www.gnu.org/software/octave/FAQ.html#MATLAB-compatibility
@@ -69,7 +70,7 @@ There are several Octave packages (think toolboxes),
     http://octave.sourceforge.net/packages.php
 
 Similar work
-------------
+============
 pytave - Python to Octave bridge, but does not run on Windows (which is
              why I made this one).
 mlabwrap - Python to Matlab bridge, requires a Matlab license.  I based
