@@ -6,17 +6,17 @@ Then tests progressively larger array passing.
 import time
 import timeit
 import numpy as np
-from py2oct import Octave
+from oct2py import Oct2Py
 
 
-class OctaveSpeed(object):
+class SpeedCheck(object):
     ''' Checks the speed penalty of the Python to Octave bridge
 
     Uses timeit to test the raw execution of a matlab command,
     Then tests progressively larger array passing.
     '''
     def __init__(self):
-        self.octave = Octave()
+        self.octave = Oct2Py()
         self.array = []
 
     def raw_speed(self):
@@ -46,6 +46,8 @@ class OctaveSpeed(object):
         nruns = [200, 200, 200, 50, 1]
         for ind, nruns in enumerate(nruns):
             side = 10 ** ind
+            if side == 1e4:
+                side = 2000
             self.array = np.reshape(np.arange(side ** 2), (-1))
             print 'Put %sx%s: ' % (side, side),
             avg = timeit.timeit(self.large_array_put, number=nruns) / nruns
@@ -55,9 +57,20 @@ class OctaveSpeed(object):
             avg = timeit.timeit(self.large_array_get, number=nruns) / nruns
             print '%0.1f msec' % (avg * 1e3)
 
+        self.octave._close()
         print '*' * 20
         print 'Test complete!'
 
+
+def speed_test():
+    ''' Checks the speed penalty of the Python to Octave bridge
+
+    Uses timeit to test the raw execution of a matlab command,
+    Then tests progressively larger array passing.
+    '''
+    test = SpeedCheck()
+    test.run()
+
+
 if __name__ == '__main__':
-    speed_test = OctaveSpeed()
-    speed_test.run()
+    speed_test()

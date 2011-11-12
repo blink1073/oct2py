@@ -4,11 +4,11 @@ import time
 
 
 def demo(delay=2):
-    """ Play a demo script showing most of the p2oct api features """
+    """ Play a demo script showing most of the oct2py api features """
     script = """
     import numpy as np
-    from py2oct import Octave
-    oc = Octave()
+    from oct2py import Oct2Py
+    oc = Oct2Py()
     # basic commands
     print oc.abs(-1)
     print oc.upper('xyz')
@@ -35,15 +35,15 @@ def demo(delay=2):
     y = np.zeros((3,3))
     oc.put('y', y)
     print oc.get('y')
-    from py2oct import OctaveStruct
-    y = OctaveStruct()
+    from oct2py import Struct
+    y = Struct()
     y.b = 'spam'
     y.c.d = 'eggs'
     print y.c['d']
     print y
     """
 
-    print 'py2oct demo'
+    print 'oct2py demo'
     print '*' * 20
     for line in script.strip().split('\n'):
         line = line.strip()
@@ -53,6 +53,7 @@ def demo(delay=2):
             time.sleep(delay)
         exec(line)
     time.sleep(delay)
+    oc._close()
     print '*' * 20
     print 'DEMO COMPLETE!'
 

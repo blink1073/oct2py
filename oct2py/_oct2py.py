@@ -1,94 +1,18 @@
-''' oct2py - Python to GNU Octave bridge
+''' main - Main module for oct2py package
 
-Overview
---------
-Uses Octave to run commands and m-files.
-Run oct2py_demo.py for a live demo of features.
-
-Supports the running of any Octave function or m-file, and passing the
-data seamlessly between Python and Octave using HDF files.  
-
-If you want to run legacy m-files, don't have Matlab(R), and don't fully trust
-a code translator, this is your library.
-
-All Octave variable types are mapped to comparable Python types.
-Almost all Python types can be sent to Octave (including ndarrays),
-   with the exception of cell arrays (lists with strings in them) of rank > 1.
-   
-Installation
-------------
-TDB
-You must have Octave installed and in your path.  
-Additionally, you must have the numpy and h5py libraries installed.
-
-Peformance
------------
-There is a penalty for passing data via HDF files.  Running oct2py_speed.py
-shows the effect.  After a startup time for the Octave engine (<1s),
-raw function calls take almost no penalty.  The penalty for reading and
-writing from the HDF file is around 5-10ms on my machine.  This
-penalty is felt for both incoming and outgoing values.  As the data becomes
-larger, the delay begins to increase (somewhere around a 100x100 array).
-If you have any loops, you would be better served using a raw "run" command
-for the loop rather than implementing the loop in python.
-
-Plotting
---------
-Plotting commands do not automatically result in the window being displayed
-by Python.  In order to force the plot to be drawn, I have hacked the command
-"print -deps foo.eps;'" onto anything that looks like a plot command, when
-called using this package. If you have plot statements in your function that
-you would like to display,you must add that line (replacing foo.eps
-with the filename of your choice), after each plot statement.
-
-Thread Safety
-------------
-Each instance of the Octave object has an independent session of Octave.
-The library appears to be thread safe.  See oct2py_thread.py for an example of
-several objects writing a different value for the same variable name
-simultaneously and sucessfully retrieving their own result.
-
-Future enhancements
--------------------
-- Add support for arbitrary outgoing cell arrays (rank > 1)
-- Add a Octave code compability check function
-- Add a feature to scan a file for plot statements and automatically
-     add a line to print the plot, allowing Python to render it.
-
-Note for Matlab(R) users
-------------------------
-Octave supports most but not all of the core syntax
-and commands.  See:
-    http://www.gnu.org/software/octave/FAQ.html#MATLAB-compatibility
-
-The main noticable differences are nested functions are not allowed,
-  and GUIs (including uigetfile, etc.) are not supported.
-
-There are several Octave packages (think toolboxes),
-    including image and statistics:
-    http://octave.sourceforge.net/packages.php
-
-Similar work
-------------
-pytave - Python to Octave bridge, but does not run on Windows (which is
-             why I made this one).
-mlabwrap - Python to Matlab bridge, requires a Matlab license.  I based
-            my API on theirs.
-ompc, smop - Matlab to Python conversion tools.  Both rely on effective
-             parsing of code and a runtime helper library.  I would
-             love to see one or both of these projects render this one
-             unnecessary.  I borrowed the idea from ompc of using
-             introspection to find "nargout" dynamically.
+Contains the Octave session object Oct2Py, and an instance of the object,
+octave
 '''
 import os
 import re
-from h5write import _H5Write
-from h5read import _H5Read
-from helpers import _open, _close, _get_nout, Oct2PyError, Struct
+import atexit
+from _h5write import H5Write
+from _h5read import H5Read
+from _utils import open_, get_nout, register_del, Oct2PyError
 
 # TODO: setup.py, test on linux, add to bitbucket, send link to Scipy,
 #       add unit tests to flex API - including errors
-#       change name to Oct2Py
+
 
 class Oct2Py(object):
     """  Manages an Octave session
@@ -108,9 +32,19 @@ class Oct2Py(object):
     def __init__(self):
         ''' Start Octave and create our HDF helpers
         '''
-        self._session = _open()
-        self._reader = _H5Read()
-        self._writer = _H5Write()
+        self._session = open_()
+        atexit.register(lambda handle=self._session : self._close(handle))
+        self._reader = H5Read()
+        self._writer = H5Write()
+
+    def _close(self, handle=None):
+        """ Closes this octave session  """
+        if not handle:
+            handle = self._session
+        try:
+            handle.stdin.write('exit\n')
+        except (ValueError, TypeError, IOError):
+            pass
 
     def run(self, script, **kwargs):
         ''' Runs artibrary octave code or an m-file
@@ -130,6 +64,7 @@ class Oct2Py(object):
                     'meshdom']:
             if cmd in script:
                 script += ';print -deps foo.eps;'
+                register_del('foo.eps')
                 break
         return self.call(script, **kwargs)
 
@@ -156,7 +91,7 @@ class Oct2Py(object):
           U, S, V = call('svd', ([[1,2], [1,3]]))
         """
         verbose = kwargs.get('verbose', False)
-        nout = kwargs.get('nout', _get_nout())
+        nout = kwargs.get('nout', get_nout())
 
         # handle references to script names - and paths to them
         if func.endswith('.m'):
@@ -291,7 +226,7 @@ class Oct2Py(object):
         """
         def octave_command(*args, **kwargs):
             """ Octave command """
-            kwargs['nout'] = _get_nout()
+            kwargs['nout'] = get_nout()
             kwargs['verbose'] = False
             return self.call(name, *args, **kwargs)
         octave_command.__doc__ = "\n" + doc
@@ -332,16 +267,9 @@ class Oct2Py(object):
 
     def __del__(self):
         """ Closes the Octave session before deletion """
-        _close(self._session)
+        self._close()
 
 
 if __name__ == '__main__':
-    from oct2py_demo import demo
-    from oct2py_speed import Oct2PySpeed
-    speed = Oct2PySpeed()
-    speed_test = speed.run
-    print "oc = Octave"
-    print 'demo() runs the demo'
-    print 'speed_test() runs the speed test'
     import code
     code.interact('', local=locals())

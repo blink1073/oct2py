@@ -8,10 +8,9 @@ making sure the value and the type are preserved.
 '''
 import unittest
 import numpy as np
-from py2oct import Octave
+from oct2py import Oct2Py
 
-
-class OctaveRoundtripTest(unittest.TestCase):
+class RoundtripTest(unittest.TestCase):
     ''' Test roundtrip value and type preservation between Python and Octave
 
     Uses test_datatypes.m to read in a dictionary with all Matlab types
@@ -22,7 +21,7 @@ class OctaveRoundtripTest(unittest.TestCase):
         ''' Open an instance of Octave and get a struct with all
              of the datatypes
         '''
-        self.octave = Octave()
+        self.octave = Oct2Py()
         self.data = self.octave.test_datatypes()
 
     def helper(self, outgoing):
@@ -88,7 +87,7 @@ class OctaveRoundtripTest(unittest.TestCase):
             #self.helper(self.data.cell[key])
 
 
-class OctaveIncomingTest(unittest.TestCase):
+class IncomingTest(unittest.TestCase):
     ''' Test the importing of all Matlab data types, checking their type
 
     Uses test_datatypes.m to read in a dictionary with all Matlab types
@@ -99,7 +98,7 @@ class OctaveIncomingTest(unittest.TestCase):
         ''' Open an instance of Octave and get a struct with all of the
             datatypes
         '''
-        self.octave = Octave()
+        self.octave = Oct2Py()
         self.data = self.octave.test_datatypes()
 
     def helper(self, base, keys, types):

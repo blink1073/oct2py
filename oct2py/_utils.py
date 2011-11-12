@@ -11,7 +11,7 @@ import re
 from glob import glob
 
 
-def _open():
+def open_():
     ''' Start an octave session in a subprocess
 
     Attempts to call "octave" or raise an error
@@ -30,7 +30,7 @@ def _open():
             msg = ('Please install Octave at "c:/Octave" '
                      '  or put it in your path:\n'
                      'setx PATH "%PATH%;<path-to-octave-bin-dir>"')
-            raise OctaveError(msg)
+            raise Oct2PyError(msg)
         else:
             cmd = 'octave -q --braindead'
             session = subprocess.Popen(cmd, shell=True,
@@ -38,30 +38,17 @@ def _open():
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE)
     except OSError:
-        raise OctaveError('Please put the Octave executable in your PATH')
-    atexit.register(lambda handle=session: _close(handle))
+        raise Oct2PyError('Please put the Octave executable in your PATH')
     return session
-    
-def _register_del(fname):
+
+
+def register_del(fname):
     """ Register an HDF file for deletion at program exit """
-    atexit.register(lambda filename=fname : _remove_hdfs(filename))
+    atexit.register(lambda filename=fname : remove_hdfs(filename))
 
-def _close(handle):
-    """ Closes an octave session
 
-    Called when the octave object is deleted or at program exit
-    
-    Also remove any unnessary HDF files
-    Make sure they haven't been accessed in the last minute
-    """
-    try:
-        handle.stdin.write('exit')
-    except (ValueError, TypeError):
-        pass
-    
-                
-def _remove_hdfs(filename=None):
-    """ Remove the desired hdf and any HDFs that haven't been accessed in 
+def remove_hdfs(filename=None):
+    """ Remove the desired hdf and any HDFs that haven't been accessed in
     over a minute
     """
     try:
@@ -77,7 +64,7 @@ def _remove_hdfs(filename=None):
                 except OSError:
                     pass
 
-def _get_nout():
+def get_nout():
     """ Return how many values the caller is expecting.
     Adapted from the ompc project
     """
@@ -96,20 +83,20 @@ def _get_nout():
     return 1
 
 
-def _create_hdf(type_):
+def create_hdf(type_):
     """ Create an HDF file of the given type with a random name """
     name = [type_, '_']
     name.extend([str(random.choice(range(10))) for x in range(10)])
     name.append('.hdf')
     return ''.join(name)
-    
 
-class OctaveError(Exception):
+
+class Oct2PyError(Exception):
     """ Called when we can't open Octave or octave throws an error """
     pass
 
 
-class OctaveStruct(dict):
+class Struct(dict):
     ''' Octave style struct.
 
     Supports dictionary and attribute style access.
@@ -122,7 +109,7 @@ class OctaveStruct(dict):
         try:
             return self[attr]
         except KeyError:
-            self[attr] = OctaveStruct()
+            self[attr] = Struct()
             return self[attr]
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__

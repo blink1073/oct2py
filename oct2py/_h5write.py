@@ -9,17 +9,17 @@ except:
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
 import numpy as np
-from helpers import OctaveError, _register_del, _create_hdf
+from _utils import Oct2PyError, register_del, create_hdf
 
 
-class _OctaveH5Write(object):
+class H5Write(object):
     '''Used to write Python values into an HDF file for Octave
 
     Strives to preserve both value and type in transit
     '''
     def __init__(self):
-        self.in_file = _create_hdf('load')
-        _register_del(self.in_file)
+        self.in_file = create_hdf('load')
+        register_del(self.in_file)
 
     def create_file(self, inputs, names=None):
         ''' Create an HDF file, loading the input variables
@@ -73,7 +73,7 @@ class _OctaveH5Write(object):
             # pad the strings here too
             if '|S' in data.dtype.str:
                 if len(data.shape) > 1:
-                    raise OctaveError('Cannot pass nested lists:\n%s' % data)
+                    raise Oct2PyError('Cannot pass nested lists:\n%s' % data)
                 nchars = int(data.dtype.str[2:])
                 data = data.astype(np.dtype('|S%s' % (nchars + 1)))
         # matlab expects a specific array type for complex nums
