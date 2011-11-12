@@ -63,8 +63,9 @@ class H5Write(object):
         ''' Handle variable types that do not translate directly
         '''
         # the last char is stripped off in transit
-        if isinstance(data, str):
+        if isinstance(data, str) or isinstance(data, unicode):
             data += '_'
+            data = str(data)
         # lists get mangled unless you make them an ndarrays
         # XXX they will still get mangled for cell arrays
         #      (vectors work though)
@@ -89,4 +90,4 @@ class H5Write(object):
                 data = temp.reshape(data.shape)
             # Matlab reads the data in Fortran order, not 'C' order
             data = data.T
-        group.create_dataset(name, data=data)
+        group.create_dataset(name, data=np.array(data))

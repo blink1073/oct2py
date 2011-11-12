@@ -1,37 +1,55 @@
-''' oct2py - Python to GNU Octave bridge
+''' 
+====================================
+oct2py - Python to GNU Octave bridge
+====================================
 
 Overview
 ========
-Uses Octave to run commands and m-files.
-Run oct2py_demo.py for a live demo of features.
+Uses Octave to run commands and m-files. Run demo.py for a live demo of 
+features.
 
-Supports the running of any Octave function or m-file, and passing the
-data seamlessly between Python and Octave using HDF files.  
+Supports the running of any Octave function or m-file, and passing the data 
+seamlessly between Python and Octave using HDF files.  
 
 If you want to run legacy m-files, don't have Matlab(R), and don't fully trust
 a code translator, this is your library.
 
-All Octave variable types are mapped to comparable Python types.
+Datatypes
+=========
+All Octave variable types are mapped to comparable Python types.  If you pull 
+tests/test_datatypes.m into your working directory and try the following::
+    
+    from oct2py import octave
+    out = octave.test_datatypes()
+    
+You can compare the variables in the "out" variable to the ones in 
+test_datatypes.m.  These variable values and types are preserved on a 
+roundtrip to Octave (e.g. writing passing an int8 ndarray to Octave and reading
+back the result gives an int8 ndarray with the same values.
+    
 Almost all Python types can be sent to Octave (including ndarrays of arbitrary 
-rank), with the exception of cell arrays (lists with strings in them) of 
-rank > 1.
+rank) and read back in the same form.  The exceptions of nested lists with 
+strings in them, or an ndarray with 'S' type fields.  I have not yet tested 
+corner cases like sparse or empty  matrices.
    
 Installation
 ============
 pip install oct2py
-You must have Octave installed and in your path.  
-Additionally, you must have the numpy and h5py libraries installed.
+You must have GNU Octave installed and in your PATH.  
+Additionally, you must have the numpy and h5py libraries installed 
+(pip will actually install these for you, unless you are on a Unix machine and 
+do not have the required HDF libaries installed).
 
 Peformance
 ==========
-There is a penalty for passing data via HDF files.  Running oct2py_speed.py
+There is a penalty for passing data via HDF files.  Running speed_test.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
 writing from the HDF file is around 5-10ms on my machine.  This
 penalty is felt for both incoming and outgoing values.  As the data becomes
 larger, the delay begins to increase (somewhere around a 100x100 array).
 If you have any loops, you would be better served using a raw "run" command
-for the loop rather than implementing the loop in python.
+for the loop rather than implementing the loop in python. 
 
 Plotting
 ========
@@ -45,7 +63,7 @@ with the filename of your choice), after each plot statement.
 Thread Safety
 =============
 Each instance of the Octave object has an independent session of Octave.
-The library appears to be thread safe.  See oct2py_thread.py for an example of
+The library appears to be thread safe.  See thread_test.py for an example of
 several objects writing a different value for the same variable name
 simultaneously and sucessfully retrieving their own result.
 
@@ -68,7 +86,12 @@ The main noticable differences are nested functions are not allowed,
 There are several Octave packages (think toolboxes),
     including image and statistics:
     http://octave.sourceforge.net/packages.php
-
+             
+Testing
+=======
+Unit tests are in the tests directory, and can be run individually or by
+running all_tests.py.  
+    
 Similar work
 ============
 pytave - Python to Octave bridge, but does not run on Windows (which is
@@ -80,6 +103,7 @@ ompc, smop - Matlab to Python conversion tools.  Both rely on effective
              love to see one or both of these projects render this one
              unnecessary.  I borrowed the idea from ompc of using
              introspection to find "nargout" dynamically.
+    
 '''
 from _oct2py import Oct2Py, Oct2PyError
 

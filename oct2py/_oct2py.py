@@ -1,11 +1,9 @@
 ''' main - Main module for oct2py package
 
-Contains the Octave session object Oct2Py, and an instance of the object,
-octave
+Contains the Octave session object Oct2Py
 '''
 import os
 import re
-import numpy as np
 import atexit
 from _h5write import H5Write
 from _h5read import H5Read
@@ -49,13 +47,13 @@ class Oct2Py(object):
             pass
 
     def run(self, script, **kwargs):
-        ''' Runs artibrary octave code or an m-file
+        ''' Runs artibrary Octave code or an m-file
 
         Parameters
         ----------
         script : str
             Command script to send to Octave for execution
-    
+
         Keywords
         --------
         verbose : bool
@@ -64,24 +62,24 @@ class Oct2Py(object):
         Returns
         -------
         Octave printed output
-        
+
         Raises
         ------
         Oct2PyError
             If the script cannot be run by Octave
-        
+
         Examples
         --------
-        >> y = octave.run('y=ones(3,3)')
-        >> print y  
-        y =
-        
+        >> out = octave.run('y=ones(3,3)')
+        >> print out
+        out =
+
                 1        1        1
                 1        1        1
                 1        1        1
         >> octave.run('x = mean([1, 2], [3, 4]))
         'x =  2.5000'
-        
+
         '''
         # don't return a value from a script
         kwargs['nout'] = 0
@@ -104,12 +102,12 @@ class Oct2Py(object):
             The function name to call
         inputs : array_like
             List of variables to pass to the function
-            
+
         Keywords
         --------
         nout : int
             Number of output arguments.  This is set automatically based on
-            the number of return values requested (see example below). 
+            the number of return values requested (see example below).
             You can override this behavior by passing a different value.
         verbose : bool
             If True, print the displayed messages from Octave
@@ -118,7 +116,7 @@ class Oct2Py(object):
         -------
         If nout > 0, returns the values from Octave as a tuple.
         Otherwise, returns the output displayed by Octave.
-        
+
         Raises
         ------
         Oct2PyError
@@ -132,7 +130,7 @@ class Oct2Py(object):
         >>> x, y = 1, 2
         >>> a = octave.call('zeros', x, y, verbose=True)
         a__ =
-        
+
                 0        0
         >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
         >>> print U, S, V
@@ -140,7 +138,7 @@ class Oct2Py(object):
          [-0.81741556  0.57604844]] [[ 3.86432845  0.        ]
          [ 0.          0.25877718]] [[-0.36059668 -0.93272184]
          [-0.93272184  0.36059668]]
-        
+
         """
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
@@ -198,19 +196,13 @@ class Oct2Py(object):
             The name of the variable
         var : object
             The value to pass
-        
-        Returns
-        -------
-        The output printed by Octave
-        
+
         Examples
         --------
         >>> octave.put('y', y)
-        ''
         >>> octave.get('y')
         array([[1, 2]])
-        octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
-        ''
+        >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.get(['x', 'y'])
         ('spam', array([[1, 2, 3, 4]]))
         """
@@ -218,7 +210,7 @@ class Oct2Py(object):
             var = [var]
             name = [name]
         _, load_line = self._writer.create_file(var, name)
-        return self._eval(load_line, verbose=False)
+        self._eval(load_line, verbose=False)
 
     def get(self, var):
         """ Retrieves a value from the Octave session
@@ -227,27 +219,25 @@ class Oct2Py(object):
         ----------
         var : str
             The name of the variable to retrieve
-            
+
         Returns
         -------
         x : object returned by Octave
-        
+
         Raises
         ------
         Oct2PyError
             If the variable does not exist in the Octave session
-            
+
         Examples
         --------
         >>> octave.put('y', y)
-        ''
         >>> octave.get('y')
         array([[1, 2]])
-        octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
-        ''
+        >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.get(['x', 'y'])
         ('spam', array([[1, 2, 3, 4]]))
-        
+
         """
         if isinstance(var, str):
             var = [var]
@@ -261,7 +251,7 @@ class Oct2Py(object):
 
     def lookfor(self, string):
         ''' Calls the Octave "lookfor" command
-        
+
         Uses with the "-all" switch to search within help strings
         '''
         return self.run('lookfor -all %s' % string, verbose=True)
@@ -271,23 +261,23 @@ class Oct2Py(object):
 
         This is a low-level command, and should not technically be used
         directly.  The API could change. You have been warned.
-        
+
         Parameters
         ----------
         cmds : str or list
             Commands(s) to pass directly to octave
         verbose : bool
             If True, prints the Octave output
-            
+
         Returns
         -------
         The results printed by Octave
-        
+
         Raises
         ------
         Oct2PyError
             If the command(s) fail
-            
+
         """
         resp = []
         # use ascii code 201 to signal an error and 200
@@ -327,7 +317,7 @@ class Oct2Py(object):
 
     def _get_doc(self, name):
         """ Attempt to get the documentation of a name
-        
+
         Return None if the name does not exist
         """
         try:
@@ -341,7 +331,7 @@ class Oct2Py(object):
     def __getattr__(self, attr):
         """ Magically creates a wapper to an octave function, procedure or
         object on-the-fly.
-        
+
         Adapted from the mlabwrap project
         """
         if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
@@ -366,5 +356,6 @@ class Oct2Py(object):
 
 
 if __name__ == '__main__':
+    octave = Oct2Py()
     import code
     code.interact('', local=locals())

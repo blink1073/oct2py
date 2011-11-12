@@ -48,7 +48,7 @@ def register_del(fname):
 
 
 def remove_hdfs(filename=None):
-    """ Remove the desired hdf and any HDFs that haven't been accessed in
+    """ Remove the desired file and any HDFs that haven't been accessed in
     over a minute
     """
     try:
@@ -109,7 +109,8 @@ class Struct(dict):
         try:
             return self[attr]
         except KeyError:
-            self[attr] = Struct()
-            return self[attr]
+            if not attr.startswith('_'):
+                self[attr] = Struct()
+                return self[attr]
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__

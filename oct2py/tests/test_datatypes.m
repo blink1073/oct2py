@@ -28,6 +28,7 @@ test.num.matrix = [1 2; 3 4]
 test.num.vector = [1 2 3 4]
 test.num.column_vector = [1;2;3;4]
 test.num.matrix3d = rand([2 3 4])
+test.num.matrix5d = rand(1,2,3,4,5)
 
 
 %%%%%%%%%%%%%%%
