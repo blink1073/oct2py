@@ -1,9 +1,9 @@
-''' py2oct - Python to GNU Octave bridge
+''' oct2py - Python to GNU Octave bridge
 
 Overview
 --------
 Uses Octave to run commands and m-files.
-Run py2oct_demo.py for a live demo of features.
+Run oct2py_demo.py for a live demo of features.
 
 Supports the running of any Octave function or m-file, and passing the
 data seamlessly between Python and Octave using HDF files.  
@@ -23,7 +23,7 @@ Additionally, you must have the numpy and h5py libraries installed.
 
 Peformance
 -----------
-There is a penalty for passing data via HDF files.  Running py2oct_speed.py
+There is a penalty for passing data via HDF files.  Running oct2py_speed.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
 writing from the HDF file is around 5-10ms on my machine.  This
@@ -44,7 +44,7 @@ with the filename of your choice), after each plot statement.
 Thread Safety
 ------------
 Each instance of the Octave object has an independent session of Octave.
-The library appears to be thread safe.  See py2oct_thread.py for an example of
+The library appears to be thread safe.  See oct2py_thread.py for an example of
 several objects writing a different value for the same variable name
 simultaneously and sucessfully retrieving their own result.
 
@@ -82,15 +82,15 @@ ompc, smop - Matlab to Python conversion tools.  Both rely on effective
 '''
 import os
 import re
-from h5write import _OctaveH5Write
-from h5read import _OctaveH5Read
-from helpers import _open, _close, _get_nout, OctaveError, OctaveStruct
+from h5write import _H5Write
+from h5read import _H5Read
+from helpers import _open, _close, _get_nout, Oct2PyError, Struct
 
 # TODO: setup.py, test on linux, add to bitbucket, send link to Scipy,
 #       add unit tests to flex API - including errors
+#       change name to Oct2Py
 
-
-class Octave(object):
+class Oct2Py(object):
     """  Manages an Octave session
 
         Uses HDF5 files to pass data between Octave and Numpy - requires h5py
@@ -109,8 +109,8 @@ class Octave(object):
         ''' Start Octave and create our HDF helpers
         '''
         self._session = _open()
-        self._reader = _OctaveH5Read()
-        self._writer = _OctaveH5Write()
+        self._reader = _H5Read()
+        self._writer = _H5Write()
 
     def run(self, script, **kwargs):
         ''' Runs artibrary octave code or an m-file
@@ -242,7 +242,7 @@ class Octave(object):
         # make sure the variable(s) exist
         for variable in var:
             if not self._eval("exist %s" % variable, verbose=False):
-                raise OctaveError('%s does not exist' % variable)
+                raise Oct2PyError('%s does not exist' % variable)
         argout_list, save_line = self._reader.setup(1, var)
         self._eval(save_line)
         return self._reader.extract_file(argout_list)
@@ -277,7 +277,7 @@ class Octave(object):
                 break
             elif line == chr(201):
                 msg = '"""\n%s\n"""\n%s' % ('\n'.join(cmds), '\n'.join(resp))
-                raise OctaveError(msg)
+                raise Oct2PyError(msg)
             elif verbose:
                 print line
             resp.append(line)
@@ -303,7 +303,7 @@ class Octave(object):
         """
         try:
             doc = self._eval('help %s' % name, verbose=False)
-        except OctaveError:
+        except Oct2PyError:
             doc = self._eval('type %s' % name, verbose=False)
             # grab only the first line
             doc = doc.split('\n')[0]
@@ -336,10 +336,9 @@ class Octave(object):
 
 
 if __name__ == '__main__':
-    oc = Octave()
-    from py2oct_demo import demo
-    from py2oct_speed import OctaveSpeed
-    speed = OctaveSpeed()
+    from oct2py_demo import demo
+    from oct2py_speed import Oct2PySpeed
+    speed = Oct2PySpeed()
     speed_test = speed.run
     print "oc = Octave"
     print 'demo() runs the demo'
