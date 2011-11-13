@@ -3,8 +3,8 @@
 Known limitations
 -----------------
 * Nested lists with strings in them cannot be sent to Octave. This applies to
-Numpy arrays of rank > 1 and type S, U, m, or M as well.  I will try and
-figure this out for future releases.
+Numpy arrays of rank > 1 that are string or unicode as well.  
+I will try and figure this out for future releases.
 
 * The following Numpy array types cannot be sent directly via an HDF.  The
 float96 and complex192 can be recast as float64 and complex128.  The other
@@ -66,6 +66,70 @@ class TypeConversions(unittest.TestCase):
             self.assertEqual(octave_type, oct_type)
             self.assertEqual(type(incoming), in_type)
 
+
+class IncomingTest(unittest.TestCase):
+    ''' Test the importing of all Octave data types, checking their type
+
+    Uses test_datatypes.m to read in a dictionary with all Octave types
+    Tests the types of all the values to make sure they were
+        brought in properly.
+    '''
+    def setUp(self):
+        ''' Open an instance of Octave and get a struct with all of the
+            datatypes
+        '''
+        self.data = octave.test_datatypes()
+
+    def helper(self, base, keys, types):
+        ''' Performs the actual type checking of the values '''
+        for key, type_ in zip(keys, types):
+            self.assertEqual(type(base[key]), type_)
+
+    def test_int(self):
+        ''' Test incoming integer types '''
+        keys = ['int8', 'int16', 'int32', 'int64',
+                    'uint8', 'uint16', 'uint32', 'uint64']
+        types = [np.int8, np.int16, np.int32, np.int64,
+                    np.uint8, np.uint16, np.uint32, np.uint64]
+        self.helper(self.data.num.int, keys, types)
+
+    def test_floats(self):
+        ''' Test incoming float types '''
+        keys = ['float32', 'float64', 'complex', 'complex_matrix']
+        types = [np.float32, np.float64, np.complex128, np.ndarray]
+        self.helper(self.data.num, keys, types)
+        self.assertEqual(self.data.num.complex_matrix.dtype,
+                         np.dtype('complex128'))
+
+    def test_misc_num(self):
+        ''' Test incoming misc numeric types '''
+        keys = ['inf', 'NaN', 'matrix', 'vector', 'column_vector', 'matrix3d',
+                'matrix5d']
+        types = [np.float64, np.float64, np.ndarray, np.ndarray, np.ndarray,
+                 np.ndarray, np.ndarray]
+        self.helper(self.data.num, keys, types)
+
+    def test_logical(self):
+        ''' Test incoming logical type '''
+        self.assertEqual(type(self.data.logical), np.ndarray)
+
+    def test_string(self):
+        ''' Test incoming string types '''
+        keys = ['basic', 'char_array', 'cell_array']
+        types = [str, list, list]
+        self.helper(self.data.string, keys, types)
+
+    def test_struct(self):
+        ''' Test incoming struct types '''
+        keys = ['name', 'age']
+        types = [list, list]
+        self.helper(self.data.struct.array, keys, types)
+
+    def test_cell_array(self):
+        ''' Test incoming cell array types '''
+        keys = ['vector', 'matrix']
+        types = [list, list]
+        self.helper(self.data.cell, keys, types)
 
 class RoundtripTest(unittest.TestCase):
     ''' Test roundtrip value and type preservation between Python and Octave
@@ -141,71 +205,6 @@ class RoundtripTest(unittest.TestCase):
         pass
         #for key in ['vector', 'matrix']:
             #self.helper(self.data.cell[key])
-
-
-class IncomingTest(unittest.TestCase):
-    ''' Test the importing of all Octave data types, checking their type
-
-    Uses test_datatypes.m to read in a dictionary with all Octave types
-    Tests the types of all the values to make sure they were
-        brought in properly.
-    '''
-    def setUp(self):
-        ''' Open an instance of Octave and get a struct with all of the
-            datatypes
-        '''
-        self.data = octave.test_datatypes()
-
-    def helper(self, base, keys, types):
-        ''' Performs the actual type checking of the values '''
-        for key, type_ in zip(keys, types):
-            self.assertEqual(type(base[key]), type_)
-
-    def test_int(self):
-        ''' Test incoming integer types '''
-        keys = ['int8', 'int16', 'int32', 'int64',
-                    'uint8', 'uint16', 'uint32', 'uint64']
-        types = [np.int8, np.int16, np.int32, np.int64,
-                    np.uint8, np.uint16, np.uint32, np.uint64]
-        self.helper(self.data.num.int, keys, types)
-
-    def test_floats(self):
-        ''' Test incoming float types '''
-        keys = ['float32', 'float64', 'complex', 'complex_matrix']
-        types = [np.float32, np.float64, np.complex128, np.ndarray]
-        self.helper(self.data.num, keys, types)
-        self.assertEqual(self.data.num.complex_matrix.dtype,
-                         np.dtype('complex128'))
-
-    def test_misc_num(self):
-        ''' Test incoming misc numeric types '''
-        keys = ['inf', 'NaN', 'matrix', 'vector', 'column_vector', 'matrix3d',
-                'matrix5d']
-        types = [np.float64, np.float64, np.ndarray, np.ndarray, np.ndarray,
-                 np.ndarray, np.ndarray]
-        self.helper(self.data.num, keys, types)
-
-    def test_logical(self):
-        ''' Test incoming logical type '''
-        self.assertEqual(type(self.data.logical), np.ndarray)
-
-    def test_string(self):
-        ''' Test incoming string types '''
-        keys = ['basic', 'char_array', 'cell_array']
-        types = [str, list, list]
-        self.helper(self.data.string, keys, types)
-
-    def test_struct(self):
-        ''' Test incoming struct types '''
-        keys = ['name', 'age']
-        types = [list, list]
-        self.helper(self.data.struct.array, keys, types)
-
-    def test_cell_array(self):
-        ''' Test incoming cell array types '''
-        keys = ['vector', 'matrix']
-        types = [list, list]
-        self.helper(self.data.cell, keys, types)
 
 
 class BuiltinsTest(unittest.TestCase):

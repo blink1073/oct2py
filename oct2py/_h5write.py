@@ -94,6 +94,9 @@ class H5Write(object):
             nchars = int(data.dtype.str[2:]) + 1
             data = data.astype(np.dtype('|S%s' % nchars))
             if len(data.shape) > 1:
+                # TODO: implement this
+                # Note: will probably have to fully mimic what the cell
+                #      array looks like coming out of Octave
                 raise Oct2PyError('Cannot send string objects of rank > 1')
         else:
             if data.dtype in [np.dtype('float96'),
