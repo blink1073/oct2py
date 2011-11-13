@@ -1,5 +1,7 @@
-function x = roundtrip(y)
+function x, class = roundtrip(y)
   % returns the variable it was given
   x = y
-  disp(['type: ' class(x)])
+  if nargout == 2
+	 class = class(x)
+  end
 end

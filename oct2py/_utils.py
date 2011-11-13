@@ -44,7 +44,7 @@ def open_():
 
 def register_del(fname):
     """ Register an HDF file for deletion at program exit """
-    atexit.register(lambda filename=fname : remove_hdfs(filename))
+    atexit.register(lambda filename=fname: remove_hdfs(filename))
 
 
 def remove_hdfs(filename=None):
@@ -63,6 +63,7 @@ def remove_hdfs(filename=None):
                     os.remove(fname)
                 except OSError:
                     pass
+
 
 def get_nout():
     """ Return how many values the caller is expecting.

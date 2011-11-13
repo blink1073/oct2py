@@ -4,6 +4,7 @@ Contains the Octave session object Oct2Py
 '''
 import os
 import re
+import doctest
 import atexit
 from _h5write import H5Write
 from _h5read import H5Read
@@ -33,7 +34,7 @@ class Oct2Py(object):
         ''' Start Octave and create our HDF helpers
         '''
         self._session = open_()
-        atexit.register(lambda handle=self._session : self._close(handle))
+        atexit.register(lambda handle=self._session: self._close(handle))
         self._reader = H5Read()
         self._writer = H5Write()
 
@@ -70,14 +71,16 @@ class Oct2Py(object):
 
         Examples
         --------
-        >> out = octave.run('y=ones(3,3)')
-        >> print out
-        out =
-
+        >>> from oct2py import octave
+        >>> out = octave.run('y=ones(3,3)')
+        >>> print out
+        y =
+        <BLANKLINE>
                 1        1        1
                 1        1        1
                 1        1        1
-        >> octave.run('x = mean([1, 2], [3, 4]))
+        <BLANKLINE>
+        >>> octave.run('x = mean([[1, 2], [3, 4]])')
         'x =  2.5000'
 
         '''
@@ -124,14 +127,16 @@ class Oct2Py(object):
 
         Examples
         --------
+        >>> from oct2py import octave
         >>> b = octave.call('ones', 1, 2)
         >>> print b
         (1.0, 1.0, 0.0)
         >>> x, y = 1, 2
         >>> a = octave.call('zeros', x, y, verbose=True)
         a__ =
-
+        <BLANKLINE>
                 0        0
+        <BLANKLINE>
         >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
         >>> print U, S, V
         [[-0.57604844 -0.81741556]
@@ -187,29 +192,35 @@ class Oct2Py(object):
         else:
             return resp
 
-    def put(self, name, var):
+    def put(self, names, var):
         """ Puts a variable into the Octave session
 
         Parameters
         ----------
-        name : str
-            The name of the variable
-        var : object
-            The value to pass
+        names : str or list
+            The name of the variable(s)
+        var : object or list
+            The value(s) to pass
 
         Examples
         --------
+        >>> from oct2py import octave
+        >>> y = [1, 2]
         >>> octave.put('y', y)
         >>> octave.get('y')
         array([[1, 2]])
         >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.get(['x', 'y'])
         ('spam', array([[1, 2, 3, 4]]))
+
         """
-        if isinstance(name, str):
+        if isinstance(names, str):
             var = [var]
-            name = [name]
-        _, load_line = self._writer.create_file(var, name)
+            names = [names]
+        for name in names:
+            if name.startswith('_'):
+                raise Oct2PyError('Invalid name %s' % name)
+        _, load_line = self._writer.create_file(var, names)
         self._eval(load_line, verbose=False)
 
     def get(self, var):
@@ -231,6 +242,8 @@ class Oct2Py(object):
 
         Examples
         --------
+        >>> from oct2py import octave
+        >>> y = [1, 2]
         >>> octave.put('y', y)
         >>> octave.get('y')
         array([[1, 2]])
@@ -243,18 +256,18 @@ class Oct2Py(object):
             var = [var]
         # make sure the variable(s) exist
         for variable in var:
-            if not self._eval("exist %s" % variable, verbose=False):
+            if self._eval("exist %s" % variable, verbose=False) == 'ans = 0':
                 raise Oct2PyError('%s does not exist' % variable)
         argout_list, save_line = self._reader.setup(len(var), var)
         self._eval(save_line)
         return self._reader.extract_file(argout_list)
 
-    def lookfor(self, string):
+    def lookfor(self, string, verbose=False):
         ''' Calls the Octave "lookfor" command
 
         Uses with the "-all" switch to search within help strings
         '''
-        return self.run('lookfor -all %s' % string, verbose=True)
+        return self.run('lookfor -all %s' % string, verbose=verbose)
 
     def _eval(self, cmds, verbose=True):
         """ Performs the raw Octave command
@@ -355,7 +368,9 @@ class Oct2Py(object):
         self._close()
 
 
-if __name__ == '__main__':
-    octave = Oct2Py()
-    import code
-    code.interact('', local=locals())
+def _test():
+    ''' Run the doctests for this module '''
+    doctest.testmod()
+
+if __name__ == "__main__":
+    _test()

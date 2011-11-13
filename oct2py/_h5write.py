@@ -37,11 +37,15 @@ class H5Write(object):
             else:
                 argin_list.append("%s__" % chr(ascii_code))
             # for structs - recursively add the elements
-            if isinstance(var, dict):
-                sub = fid.create_group(argin_list[-1])
-                self._putvals(sub, var)
-            else:
-                self._putval(fid, argin_list[-1], var)
+            try:
+                if isinstance(var, dict):
+                    sub = fid.create_group(argin_list[-1])
+                    self._putvals(sub, var)
+                else:
+                    self._putval(fid, argin_list[-1], var)
+            except Oct2PyError:
+                fid.close()
+                raise
             ascii_code += 1
         fid.close()
         load_line = 'load "-hdf5" "%s" "%s"' % (self.in_file,
@@ -60,34 +64,43 @@ class H5Write(object):
 
     @staticmethod
     def _putval(group, name, data):
-        ''' Handle variable types that do not translate directly
+        ''' Convert data into a state suitable for transfer.
+
+        All data is sent as an ndarray.  Several considerations must be made
+        for data type to ensure proper read/write of the HDF.
+
+        Currently string arrays of rank > 2 and the following types are not
+        supported: float96, complex192, object
         '''
-        # the last char is stripped off in transit
-        if isinstance(data, str) or isinstance(data, unicode):
-            data += '_'
-            data = str(data)
-        # lists get mangled unless you make them an ndarrays
-        # XXX they will still get mangled for cell arrays
-        #      (vectors work though)
-        elif isinstance(data, list):
-            data = np.array(data)
-            # pad the strings here too
-            if '|S' in data.dtype.str:
-                if len(data.shape) > 1:
-                    raise Oct2PyError('Cannot pass nested lists:\n%s' % data)
-                nchars = int(data.dtype.str[2:])
-                data = data.astype(np.dtype('|S%s' % (nchars + 1)))
-        # matlab expects a specific array type for complex nums
-        elif isinstance(data, complex):
-            data = np.array((data.real, data.imag),
-                           dtype=np.dtype([('real', '<f8'),
-                                           ('imag', '<f8')]))
-        if isinstance(data, np.ndarray):
-            if data.dtype == np.dtype('complex128'):
-                temp = [(item.real, item.imag) for item in data.ravel()]
-                temp = np.array(temp, dtype=np.dtype([('real', '<f8'),
-                                           ('imag', '<f8')]))
-                data = temp.reshape(data.shape)
-            # Matlab reads the data in Fortran order, not 'C' order
-            data = data.T
+        if isinstance(data, set):
+            data = np.array(tuple(data))
+        data = np.array(data)
+        if data.dtype == np.dtype('complex64'):
+            data = data.astype(np.complex128)
+        if '<U' in data.dtype.str:
+            data = data.astype(np.dtype('|S' + data.dtype.str[2:]))
+        if data.dtype in [np.dtype('timedelta64'), np.dtype('datetime64')]:
+            data = data.astype(np.uint64)
+        if data.dtype == np.dtype('complex128'):
+            temp = [(item.real, item.imag) for item in data.ravel()]
+            temp = np.array(temp, dtype=np.dtype([('real', '<f8'),
+                                       ('imag', '<f8')]))
+            data = temp.reshape(data.shape)
+        elif data.dtype == np.dtype('bool'):
+            data = data.astype(np.int32)
+        elif data.dtype == np.dtype('float16'):
+            data = data.astype(np.float32)
+        elif '|S' in data.dtype.str:
+            nchars = int(data.dtype.str[2:]) + 1
+            data = data.astype(np.dtype('|S%s' % nchars))
+            if len(data.shape) > 1:
+                raise Oct2PyError('Cannot send string objects of rank > 1')
+        else:
+            if data.dtype in [np.dtype('float96'),
+                              np.dtype('complex192'),
+                              np.dtype('object')]:
+                raise Oct2PyError('Datatype not supported: %s' %
+                                  data.dtype)
+        # Octave reads the data in Fortran order, not 'C' order
+        data = data.T
         group.create_dataset(name, data=np.array(data))

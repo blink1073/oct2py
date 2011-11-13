@@ -32,12 +32,12 @@ def thread_test(nthreads=3):
     print "Starting %s threads at %s" % (nthreads, datetime.datetime.now())
     threads = []
     for i in range(nthreads):
-        t = ThreadClass()
-        t.setDaemon(True)
-        t.start()
-        threads.append(t)
-    for t in threads:
-        t.join()
+        thread = ThreadClass()
+        thread.setDaemon(True)
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
     print 'All threads closed at %s' % datetime.datetime.now()
 
 

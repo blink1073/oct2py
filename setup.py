@@ -1,3 +1,11 @@
+'''
+=====
+Setup script for oct2py package.
+=====
+
+Run as::
+    python setup.py install
+'''
 from distutils.core import setup
 
 setup(
