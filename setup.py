@@ -32,7 +32,6 @@ setup(
     long_description=open('README.txt').read(),
     classifiers=filter(None, classifiers.split('\n')),
     install_requires=[
-        "h5py >= 2.0.0",
-        "numpy >= 1.3.1",
+        "h5py >= 2.0.0"
     ],
 )
