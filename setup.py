@@ -6,7 +6,7 @@ Setup script for oct2py package.
 Run as::
     python setup.py install
 '''
-from setuptools import setup
+from distutils.core import setup
 
 classifiers = """\
 Development Status :: 4 - Beta
@@ -31,7 +31,5 @@ setup(
     description='Python to GNU Octave bridge --> run m-files from python',
     long_description=open('README.txt').read(),
     classifiers=filter(None, classifiers.split('\n')),
-    install_requires=[
-        "h5py>=2.0.0"
-    ],
+    requires=["h5py (>=2.0.0)"],
 )
