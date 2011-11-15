@@ -21,7 +21,7 @@ Topic :: Software Development
 
 setup(
     name='oct2py',
-    version='0.1.3',
+    version='0.1.4',
     author='Steven M. Silvester',
     author_email='steven.silvester@ieee.org',
     packages=['oct2py', 'oct2py.tests'],
