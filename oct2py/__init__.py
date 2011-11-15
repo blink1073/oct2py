@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 ====================================
 oct2py - Python to GNU Octave bridge
@@ -11,7 +12,7 @@ features.
 Supports the running of any Octave function or m-file, and passing the data
 seamlessly between Python and Octave using HDF files.
 
-If you want to run legacy m-files, don't have Matlab(R), and don't fully trust
+If you want to run legacy m-files, do not have MATLAB®, and don't fully trust
 a code translator, this is your library.
 
 Datatypes
@@ -74,7 +75,7 @@ Future enhancements
 - Add a feature to scan a file for plot statements and automatically
      add a line to print the plot, allowing Python to render it.
 
-Note for Matlab(R) users
+Note for MATLAB® users
 ========================
 Octave supports most but not all of the core syntax
 and commands.  See:
@@ -89,20 +90,22 @@ There are several Octave packages (think toolboxes),
 
 Testing
 =======
-Unit tests are in the tests directory, and can be run individually or by
-running all_tests.py.
+Unit tests are in the tests directory, and can be run individually, by
+running all_tests.py, or using a test discovery tool like nose.
 
 Similar work
 ============
-pytave - Python to Octave bridge, but does not run on Windows (which is
+* pytave - Python to Octave bridge, but does not run on win32 (which is
              why I made this one).
-mlabwrap - Python to Matlab bridge, requires a Matlab license.  I based
+* mlabwrap - Python to MATLAB® bridge, requires a MATLAB® license.  I based
             my API on theirs.
-ompc, smop - Matlab to Python conversion tools.  Both rely on effective
+* ompc, smop - Matlab to Python conversion tools.  Both rely on effective
              parsing of code and a runtime helper library.  I would
              love to see one or both of these projects render this one
              unnecessary.  I borrowed the idea from ompc of using
              introspection to find "nargout" dynamically.
+
+MATLAB® is registered trademark of The MathWorks.
 
 '''
 from _oct2py import Oct2Py, Oct2PyError

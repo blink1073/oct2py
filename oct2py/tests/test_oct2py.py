@@ -3,12 +3,12 @@
 Known limitations
 -----------------
 * Nested lists with strings in them cannot be sent to Octave. This applies to
-Numpy arrays of rank > 1 that are string or unicode as well.  
+Numpy arrays of rank > 1 that are string or unicode as well.  Also, lists
+cannot contain mixed type (strings and sublists for example).
 I will try and figure this out for future releases.
 
 * The following Numpy array types cannot be sent directly via an HDF.  The
-float96 and complex192 can be recast as float64 and complex128.  The other
-two are pretty obscure anyway.
+float96 and complex192 can be recast as float64 and complex128.
    ** float96('g')
    ** complex192('G')
    ** object('o')
@@ -21,47 +21,44 @@ import unittest
 import numpy as np
 from oct2py import octave, Struct, Oct2PyError
 
+TYPE_CONVERSIONS = [(int, 'int32', np.int32),
+               (long, 'int64', np.int64),
+                (float, 'double', np.float64),
+                (complex, 'double', np.complex128),
+                (str, 'char', str),
+                (unicode, 'char', str),
+                (bool, 'int32', np.int32),
+                (None, 'double', np.float64),
+                (dict, 'struct', Struct),
+                (np.int8, 'int8', np.int8),
+                (np.int16, 'int16', np.int16),
+                (np.int32, 'int32', np.int32),
+                (np.int64, 'int64', np.int64),
+                (np.uint8, 'uint8', np.uint8),
+                (np.uint16, 'uint16', np.uint16),
+                (np.uint32, 'uint32', np.uint32),
+                (np.uint64, 'uint64', np.uint64),
+                (np.float16, 'double', np.float64),
+                (np.float32, 'double', np.float64),
+                (np.float64, 'double', np.float64),
+                (np.str, 'char', np.str),
+                (np.double, 'double', np.float64),
+                (np.complex64, 'double', np.complex128),
+                (np.complex128, 'double', np.complex128),]
 
-class TypeConversions(unittest.TestCase):
+
+class ATypeConversions(unittest.TestCase):
     ''' Test roundtrip datatypes starting from Python '''
-
-    python_conversions = [(int, 'int32', np.int32),
-                        (float, 'double', np.float64),
-                        (str, 'char', str),
-                        (unicode, 'char', str),
-                        (bool, 'int32', np.int32)]
-
-    numpy_conversions = [(np.int8, 'int8', np.int8),
-                    (np.int16, 'int16', np.int16),
-                    (np.int32, 'int32', np.int32),
-                    (np.int64, 'int64', np.int64),
-                    (np.uint8, 'uint8', np.uint8),
-                    (np.uint16, 'uint16', np.uint16),
-                    (np.uint32, 'uint32', np.uint32),
-                    (np.uint64, 'uint64', np.uint64),
-                    (np.float32, 'double', np.float64),
-                    (np.float64, 'double', np.float64),
-                    (np.complex128, 'double', np.complex128)]
 
     def test_python_conversions(self):
         ''' Test roundtrip python type conversions '''
-        for out_type, oct_type, in_type in self.python_conversions:
-            outgoing = out_type('1')
-            incoming, octave_type = octave.roundtrip(outgoing)
-            self.assertEqual(octave_type, oct_type)
-            self.assertEqual(type(incoming), in_type)
-
-    def test_dict_conversion(self):
-        ''' Test roundtrip dictionary type conversion '''
-        outgoing = dict(x=1)
-        incoming, octave_type = octave.roundtrip(outgoing)
-        self.assertEqual(octave_type, 'struct')
-        self.assertEqual(type(incoming), Struct)
-
-    def test_numpy_conversions(self):
-        ''' Test roundtrip numpy type conversion '''
-        for out_type, oct_type, in_type in self.numpy_conversions:
-            outgoing = out_type(1)
+        for out_type, oct_type, in_type in TYPE_CONVERSIONS:
+            if out_type == dict:
+                outgoing = dict(x=1)
+            elif out_type == None:
+                outgoing = None
+            else:
+                outgoing = out_type(1)
             incoming, octave_type = octave.roundtrip(outgoing)
             self.assertEqual(octave_type, oct_type)
             self.assertEqual(type(incoming), in_type)
@@ -130,6 +127,7 @@ class IncomingTest(unittest.TestCase):
         keys = ['vector', 'matrix']
         types = [list, list]
         self.helper(self.data.cell, keys, types)
+
 
 class RoundtripTest(unittest.TestCase):
     ''' Test roundtrip value and type preservation between Python and Octave
@@ -201,9 +199,10 @@ class RoundtripTest(unittest.TestCase):
     def test_cell_array(self):
         ''' Test roundtrip value and type preservation for cell array types
         '''
-        # TODO implement nested strings
-        pass
-        #for key in ['vector', 'matrix']:
+        # TODO implement nested strings and arbitrary data arrays
+        for key in ['vector', 'matrix']:
+            self.assertRaises(Oct2PyError, octave.roundtrip,
+                              self.data.cell[key])
             #self.helper(self.data.cell[key])
 
 
@@ -219,20 +218,18 @@ class BuiltinsTest(unittest.TestCase):
         '''
         if incoming is None:
             incoming = octave.roundtrip(outgoing)
+        expected_type = type(outgoing)
+        for out_type, _, in_type in TYPE_CONVERSIONS:
+            if out_type == type(outgoing):
+                expected_type = in_type
+                break
         try:
             self.assertEqual(incoming, outgoing)
-            self.assertEqual(type(incoming), type(outgoing))
+            self.assertEqual(type(incoming), expected_type)
         except ValueError:
             # np arrays must be compared specially
             #import pdb; pdb.set_trace()
             assert np.allclose(incoming, outgoing)
-        except AssertionError:
-            if type(incoming) == np.float64 and type(outgoing) == float:
-                pass
-            elif type(incoming) == np.int32 and type(outgoing) == int:
-                pass
-            else:
-                raise
 
     def test_dict(self):
         ''' Test python dictionary '''
@@ -273,30 +270,35 @@ class BuiltinsTest(unittest.TestCase):
         for test in tests:
             self.helper(test)
 
-    def test_int(self):
-        ''' Test python int type '''
-        test = np.random.randint(1000)
+    def test_list_of_tuples(self):
+        ''' Test python list of tuples '''
+        test = [(1, 2), (1.5, 3.2)]
         self.helper(test)
 
-    def test_float(self):
-        ''' Test python float type '''
-        test = np.pi
-        self.helper(test)
+    def test_numeric(self):
+        ''' Test python numeric types '''
+        test = np.random.randint(1000)
+        self.helper(int(test))
+        self.helper(long(test))
+        self.helper(float(test))
+        self.helper(complex(1, 2))
 
     def test_string(self):
         ''' Test python str and unicode types '''
         tests = ['spam', u'eggs']
-        self.helper(tests[0])
-        incoming = octave.roundtrip(tests[1])
-        self.assertEqual(incoming, tests[1])
-        self.assertEqual(type(incoming), str)
+        for test in tests:
+            self.helper(test)
 
     def test_nested_list(self):
         ''' Test python nested lists '''
-        #test = [['spam', 'eggs'], ['foo ', 'bar ']]
         #TODO implement nested strings
+        test = [['spam', 'eggs'], ['foo ', 'bar ']]
+        self.assertRaises(Oct2PyError, octave.roundtrip, test)
         test = [[1, 2], [3, 4]]
         self.helper(test)
+        # TODO implement arbitrary object passing
+        test = [[1, 2], [3, 4, 5]]
+        self.assertRaises(Oct2PyError, octave.roundtrip, test)
 
     def test_bool(self):
         ''' Test boolean values '''
@@ -305,6 +307,11 @@ class BuiltinsTest(unittest.TestCase):
             incoming = octave.roundtrip(test)
             self.assertEqual(incoming, test)
             self.assertEqual(type(incoming), np.int32)
+
+    def test_none(self):
+        ''' Test sending None type '''
+        incoming = octave.roundtrip(None)
+        assert np.isnan(incoming)
 
 
 class NumpyTest(unittest.TestCase):
@@ -355,7 +362,7 @@ class NumpyTest(unittest.TestCase):
             try:
                 assert np.allclose(incoming, outgoing)
             except AssertionError:
-                assert np.count_nonzero(incoming - outgoing) == 0
+                assert np.alltrue((incoming - outgoing) == 0)
 
 
 class BasicUsageTest(unittest.TestCase):

@@ -53,7 +53,6 @@ def demo(delay=2):
             time.sleep(delay)
         exec(line)
     time.sleep(delay)
-    oc._close()
     print '*' * 20
     print 'DEMO COMPLETE!'
 

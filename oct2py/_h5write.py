@@ -72,15 +72,23 @@ class H5Write(object):
         Currently string arrays of rank > 2 and the following types are not
         supported: float96, complex192, object
         '''
+        if data is None:
+            data = np.nan
         if isinstance(data, set):
             data = np.array(tuple(data))
-        data = np.array(data)
+        try:
+            data = np.array(data)
+        except ValueError as err:
+            raise Oct2PyError(err)
         if data.dtype == np.dtype('complex64'):
             data = data.astype(np.complex128)
-        if '<U' in data.dtype.str:
-            data = data.astype(np.dtype('|S' + data.dtype.str[2:]))
-        if data.dtype in [np.dtype('timedelta64'), np.dtype('datetime64')]:
-            data = data.astype(np.uint64)
+        try:
+            if data.dtype in [np.dtype('timedelta64'),
+                              np.dtype('datetime64')]:
+                data = data.astype(np.uint64)
+        except AttributeError:
+            # older version of numpy, not implemented
+            pass
         if data.dtype == np.dtype('complex128'):
             temp = [(item.real, item.imag) for item in data.ravel()]
             temp = np.array(temp, dtype=np.dtype([('real', '<f8'),
@@ -90,7 +98,7 @@ class H5Write(object):
             data = data.astype(np.int32)
         elif data.dtype == np.dtype('float16'):
             data = data.astype(np.float32)
-        elif '|S' in data.dtype.str:
+        elif '|S' in data.dtype.str or '<U' in data.dtype.str:
             nchars = int(data.dtype.str[2:]) + 1
             data = data.astype(np.dtype('|S%s' % nchars))
             if len(data.shape) > 1:
@@ -102,8 +110,9 @@ class H5Write(object):
             if data.dtype in [np.dtype('float96'),
                               np.dtype('complex192'),
                               np.dtype('object')]:
+                # TODO: implement objects
                 raise Oct2PyError('Datatype not supported: %s' %
                                   data.dtype)
         # Octave reads the data in Fortran order, not 'C' order
         data = data.T
-        group.create_dataset(name, data=np.array(data))
+        group.create_dataset(name, data=data)

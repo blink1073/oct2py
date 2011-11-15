@@ -98,13 +98,18 @@ class Oct2PyError(Exception):
 
 
 class Struct(dict):
-    ''' Octave style struct.
-
+    '''
+    Octave style struct.
+    --------------------
     Supports dictionary and attribute style access.
 
-    a = OctaveStruct()
-    a.b = 'spam'  # a["b"] == 'spam'
-    a.c["d"] = 'eggs'  # a.c.d == 'eggs'
+    Usage
+    -----
+    >>> from oct2py import Struct
+    >>> a = Struct()
+    >>> a.b = 'spam'  # a["b"] == 'spam'
+    >>> a.c["d"] = 'eggs'  # a.c.d == 'eggs'
+
     '''
     def __getattr__(self, attr):
         try:
