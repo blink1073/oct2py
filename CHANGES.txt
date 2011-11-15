@@ -1,1 +1,2 @@
+v0.1.1, 15 November 2011 -- Improved README file.
 v0.1.0, 11 November 2011 -- Initial release.
