@@ -12,7 +12,7 @@ classifiers = """\
 Development Status :: 4 - Beta
 Intended Audience :: Developers
 Intended Audience :: Science/Research
-License :: MIT License
+License :: OSI Approved :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
 Topic :: Scientific/Engineering
