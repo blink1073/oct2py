@@ -6,16 +6,16 @@ Setup script for oct2py package.
 Run as::
     python setup.py install
 '''
-from distutils.core import setup
+from setuptools import setup
 
 classifiers = """\
-Development Status :: 4 - Beta 
+Development Status :: 4 - Beta
 Intended Audience :: Developers
 Intended Audience :: Science/Research
 License :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
-Topic :: Scientific/Engineering 
+Topic :: Scientific/Engineering
 Topic :: Software Development
 """
 
