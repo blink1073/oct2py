@@ -1,0 +1,4 @@
+* Add support for arbitrary outgoing "cell arrays" and ndarray "objects"
+* Add a Octave code compability check function
+* Add a feature to scan a file for plot statements and automatically add a line to print the plot, allowing Python to render it.
+* Add a Python 3.0 version

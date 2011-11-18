@@ -1,0 +1,3 @@
+Alexander Schmolck and Vivek Rathod for mlabwrap libary, upon which this is based.
+Peter Jurica (juricap.pip.verisignlabs.com), RIKEN Brain Science Institute, for the ompc library and the nargout method.
+
