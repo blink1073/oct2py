@@ -100,8 +100,8 @@ Similar work
             my API on theirs.
 * ompc, smop - Matlab to Python conversion tools.  Both rely on effective
              parsing of code and a runtime helper library.  I would
-             love to see one or both of these projects render this one
-             unnecessary.  I borrowed the idea from ompc of using
+             love to see one or both of these projects will render this one
+             unnecessary.  I borrowed the method from ompc of using
              introspection to find "nargout" dynamically.
 
 MATLAB® is registered trademark of The MathWorks.

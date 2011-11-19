@@ -25,6 +25,20 @@ class H5Write(object):
         ''' Create an HDF file, loading the input variables
 
         If names are given, use those, otherwise use dummies
+
+        Parameters
+        ==========
+        inputs : array-like
+            List of variables to write to a file
+        names : array-like
+            Optional list of names to assign to the variables
+
+        Returns
+        =======
+        argin_list : str or array
+            List of variable names to be sent
+        load_line : str
+            Octave "load" command
         '''
         fid = h5py.File(self.in_file, "w")
         # create a dummy list of var names ("A", "B", "C" ...)
@@ -54,6 +68,13 @@ class H5Write(object):
 
     def _putvals(self, group, dict_):
         ''' Put a nested dict into the HDF file as a struct
+
+        Parameters
+        ==========
+        group : h5py group object
+            Location to store the value
+        dict_ : dict
+            Dictionary of object(s) to store
         '''
         for key in dict_.keys():
             if isinstance(dict_[key], dict):
@@ -66,6 +87,17 @@ class H5Write(object):
     def _putval(group, name, data):
         ''' Convert data into a state suitable for transfer.
 
+        Parameters
+        ==========
+        group : h5py group object
+            Location to store the object
+        name : str
+            Name of the object
+        data : object
+            Value to write to file
+
+        Notes
+        =====
         All data is sent as an ndarray.  Several considerations must be made
         for data type to ensure proper read/write of the HDF.
 

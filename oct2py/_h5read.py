@@ -18,11 +18,27 @@ class H5Read(object):
     Strives to preserve both value and type in transit
     '''
     def __init__(self):
+        ''' initialize our output file and register it for deletion '''
         self.out_file = create_hdf('save')
         register_del(self.out_file)
 
     def setup(self, nout, names=None):
-        ''' Generate the argout list and the Octave save command '''
+        ''' Generate the argout list and the Octave save command
+
+        Parameters
+        ==========
+        nout : int
+            Number of output arguments required
+        names : array-like
+            Optional list of variable names to use
+
+        Returns
+        =======
+        argout_list : list
+            List of variable names
+        save_line : str
+            The octave "save" command line
+        '''
         argout_list = []
         for i in range(nout):
             if names:
@@ -34,7 +50,17 @@ class H5Read(object):
         return argout_list, save_line
 
     def extract_file(self, argout_list):
-        ''' Extract the variables in argout_list from the HDF file '''
+        ''' Extract the variables in argout_list from the HDF file
+
+        Parameters
+        ==========
+        argout_list : array-like
+            List of variables to extract from the file
+
+        Returns
+        =======
+        variable or tuple of variables extracted
+        '''
         fid = h5py.File(self.out_file)
         outputs = []
         for arg in argout_list:
@@ -52,6 +78,16 @@ class H5Read(object):
     @staticmethod
     def _getval(group):
         ''' Handle variable types that do not translate directly
+
+        Parameters
+        ==========
+        group : h5py Group object
+            The location from which to extract the value from the file
+
+        Returns
+        =======
+        python object extracted from file
+
         '''
         type_ = group['type'].value
         val = group['value'].value
@@ -82,6 +118,16 @@ class H5Read(object):
         ''' Extract a nested struct / cell array from the HDF file
 
         Structs become dictionaries, cell arrays become lists
+
+        Parameters
+        ==========
+        group : h5py group object
+            The location from which to extract the values from the file
+
+        Returns
+        =======
+            object or dictionary of objects extracted from file
+
         '''
         data = Struct()
         for key in group.keys():
@@ -104,7 +150,19 @@ class H5Read(object):
 
     @staticmethod
     def _extract_cell_array(data):
-        ''' Extract a nested cell array from a dictionary  '''
+        ''' Extract a nested cell array from a dictionary
+
+        Parameters
+        ==========
+        data : dict
+            Cell array data in a dictionary
+
+        Returns
+        =======
+        scalar, list, or list of lists, depending on the
+            shape of the cell array
+
+        '''
         dims = data['dims']
         # only worry about 1-d and 2-d
         if len(dims) == 2:

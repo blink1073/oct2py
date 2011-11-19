@@ -1,4 +1,6 @@
-''' main - Main module for oct2py package
+'''
+main - Main module for oct2py package
+=====================================
 
 Contains the Octave session object Oct2Py
 '''
@@ -9,9 +11,6 @@ import atexit
 from _h5write import H5Write
 from _h5read import H5Read
 from _utils import open_, get_nout, register_del, Oct2PyError
-
-# TODO: setup.py, test on linux, add to bitbucket, send link to Scipy,
-#       add unit tests to flex API - including errors
 
 
 class Oct2Py(object):
@@ -266,6 +265,20 @@ class Oct2Py(object):
         ''' Calls the Octave "lookfor" command
 
         Uses with the "-all" switch to search within help strings
+
+        Parameters
+        ==========
+        string : str
+            Search string for the lookfor command
+
+        Keywords
+        ========
+        verbose : bool
+            If true, print the lookfor command output as it is received
+
+        Returns
+        =======
+        Output from the Octave lookfor command
         '''
         return self.run('lookfor -all %s' % string, verbose=verbose)
 

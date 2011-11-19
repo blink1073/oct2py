@@ -44,7 +44,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.str, 'char', np.str),
                 (np.double, 'double', np.float64),
                 (np.complex64, 'double', np.complex128),
-                (np.complex128, 'double', np.complex128),]
+                (np.complex128, 'double', np.complex128), ]
 
 
 class ATypeConversions(unittest.TestCase):
@@ -78,7 +78,18 @@ class IncomingTest(unittest.TestCase):
         self.data = octave.test_datatypes()
 
     def helper(self, base, keys, types):
-        ''' Performs the actual type checking of the values '''
+        ''' Performs the actual type checking of the values
+
+        Parameters
+        ==========
+        base : dict
+            sub dictionary we are accessing
+        keys : array-like
+            list of keys to test in base
+        types : array-like
+            list of expected return types for the keys
+
+        '''
         for key, type_ in zip(keys, types):
             self.assertEqual(type(base[key]), type_)
 
@@ -145,6 +156,11 @@ class RoundtripTest(unittest.TestCase):
     def helper(self, outgoing):
         ''' Uses roundtrip.m to make sure the data goes out
             and comes back intact
+
+        Parameters
+        ==========
+        outgoing : object
+            Object to send to octave
         '''
         incoming = octave.roundtrip(outgoing)
         try:
@@ -215,6 +231,13 @@ class BuiltinsTest(unittest.TestCase):
     def helper(self, outgoing, incoming=None):
         ''' Uses roundtrip.m to make sure the data goes out
             and comes back intact
+
+        Parameters
+        ==========
+        outgoing : object
+            Object to send to Octave
+        incoming : object
+            Optional object already retreived from Octave
         '''
         if incoming is None:
             incoming = octave.roundtrip(outgoing)

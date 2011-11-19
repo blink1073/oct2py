@@ -16,6 +16,12 @@ def open_():
 
     Attempts to call "octave" or raise an error
      -q is quiet startup, --braindead is Matlab compatibilty mode
+
+    Note
+    ====
+    On Windows, it attempts to find octave in c:\Octave if it is not
+        on the path
+
     '''
     session = None
     try:
@@ -43,13 +49,24 @@ def open_():
 
 
 def register_del(fname):
-    """ Register an HDF file for deletion at program exit """
+    """ Register an HDF file for deletion at program exit
+
+    Parameters
+    ==========
+    fname : str
+        Name of file to register
+    """
     atexit.register(lambda filename=fname: remove_hdfs(filename))
 
 
 def remove_hdfs(filename=None):
     """ Remove the desired file and any HDFs that haven't been accessed in
     over a minute
+
+    Parameters
+    ==========
+    filename : str
+        Optional specific file to delete
     """
     try:
         os.remove(filename)
@@ -68,6 +85,11 @@ def remove_hdfs(filename=None):
 def get_nout():
     """ Return how many values the caller is expecting.
     Adapted from the ompc project
+
+    Returns
+    ======
+    Number of arguments expected by caller, default is 1
+
     """
     frame = inspect.currentframe()
     # step into the function that called us
@@ -85,7 +107,18 @@ def get_nout():
 
 
 def create_hdf(type_):
-    """ Create an HDF file of the given type with a random name """
+    """ Create an HDF file of the given type with a random name
+
+    Parameters
+    ==========
+    type_ : str
+        'load' or 'save' type file
+
+    Returns
+    =======
+    Random HDF file name "load_##########.hdf" or "save_##########.hdf"
+
+    """
     name = [type_, '_']
     name.extend([str(random.choice(range(10))) for x in range(10)])
     name.append('.hdf')

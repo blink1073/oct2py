@@ -4,7 +4,7 @@ Verify that they each have their own session
 """
 import threading
 import datetime
-from oct2py import Oct2Py
+from oct2py import Oct2Py, Oct2PyError
 
 
 class ThreadClass(threading.Thread):
@@ -12,6 +12,11 @@ class ThreadClass(threading.Thread):
 
     def run(self):
         """ Create a unique instance of Octave and verify namespace uniqueness
+
+        Raises
+        ======
+        Oct2PyError
+            If the thread does not sucessfully demonstrate independence
         """
         octave = Oct2Py()
         # write the same variable name in each thread and read it back
@@ -20,14 +25,25 @@ class ThreadClass(threading.Thread):
         now = datetime.datetime.now()
         print "%s got '%s' at %s" % (self.getName(), name, now)
         octave._close()
-        assert self.getName() == name
+        try:
+            assert self.getName() == name
+        except AssertionError:
+            raise Oct2PyError('Thread collision detected')
         return
 
 
 def thread_test(nthreads=3):
     """ Start a number of threads and verify each has a unique Octave session
 
-    Input : nthreads (int) - the number of threads to use
+    Parameters
+    ==========
+    nthreads : int
+        Number of threads to use
+
+    Raises
+    ======
+    Oct2PyError
+        If the thread does not sucessfully demonstrate independence
     """
     print "Starting %s threads at %s" % (nthreads, datetime.datetime.now())
     threads = []

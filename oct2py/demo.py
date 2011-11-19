@@ -4,7 +4,13 @@ import time
 
 
 def demo(delay=2):
-    """ Play a demo script showing most of the oct2py api features """
+    """ Play a demo script showing most of the oct2py api features
+
+    Parameters
+    ==========
+    delay : float
+        Time between each command in seconds
+    """
     script = """
     import numpy as np
     from oct2py import Oct2Py
