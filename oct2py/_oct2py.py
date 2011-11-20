@@ -16,8 +16,7 @@ from _utils import _open, _get_nout, _register_del, Oct2PyError
 
 
 class Oct2Py(object):
-    """
-    Manages an Octave session.
+    """Manages an Octave session.
 
     Uses HDF5 files to pass data between Octave and Numpy.
     The function must either exist as an m-file in this directory or

@@ -13,7 +13,7 @@ Uses Octave to run commands and m-files. Run::
 
 for a live demo of features.  Supports the running of any Octave function or
 m-file, and passing the data seamlessly between Python and Octave using HDF
-files.  If you want to run legacy m-files, do not have MATLAB®, and do not
+files.  If you want to run legacy m-files, do not have MATLAB(R), and do not
 fully trust a code translator, this is your library.
 
 Installation
@@ -92,7 +92,7 @@ Future enhancements
 * Add a feature to scan a file for plot statements and automatically add a
 line to print the plot, allowing Python to render it.
 
-Note for MATLAB® users
+Note for MATLAB(R) users
 ========================
 Octave supports most but not all of the core syntax and commands.  See
 http://www.gnu.org/software/octave/FAQ.html#MATLAB-compatibility. The main
@@ -110,16 +110,16 @@ Similar work
 ============
 * pytave - Python to Octave bridge, but does not run on win32 (which is the
 reason for this library).
-* mlabwrap - Python to MATLAB® bridge, requires a MATLAB® license.  The oct2py
-library API is modeled after mlabwrap.
-* ompc, smop - Matlab® to Python conversion tools.  Both rely on effective
+* mlabwrap - Python to MATLAB(R) bridge, requires a MATLAB(R) license.  The 
+oct2py library API is modeled after mlabwrap.
+* ompc, smop - Matlab(R) to Python conversion tools.  Both rely on effective
 parsing of code and a run-time helper library.  Ideally one or both of these
 projects will render this one unnecessary.  The method of using introspection
 to find "nargout" was borrowed from the ompc project.
 
 Disclaimer
 ==========
-MATLAB® is registered trademark of The MathWorks.
+MATLAB(R) is registered trademark of The MathWorks.
 
 """
 
