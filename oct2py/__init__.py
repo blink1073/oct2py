@@ -90,7 +90,7 @@ Future enhancements
 * Add support for arbitrary outgoing "cell arrays" and ndarray "objects"
 * Add an Octave code compatibility check function
 * Add a feature to scan a file for plot statements and automatically add a
-line to print the plot, allowing Python to render it.
+  line to print the plot, allowing Python to render it.
 
 Note for MATLAB(R) users
 ========================
@@ -109,13 +109,13 @@ running all_tests.py, or using a test discovery tool like nose.
 Similar work
 ============
 * pytave - Python to Octave bridge, but does not run on win32 (which is the
-reason for this library).
-* mlabwrap - Python to MATLAB(R) bridge, requires a MATLAB(R) license.  The 
-oct2py library API is modeled after mlabwrap.
+  reason for this library).
+* mlabwrap - Python to MATLAB(R) bridge, requires a MATLAB(R) license.  The
+  oct2py library API is modeled after mlabwrap.
 * ompc, smop - Matlab(R) to Python conversion tools.  Both rely on effective
-parsing of code and a run-time helper library.  Ideally one or both of these
-projects will render this one unnecessary.  The method of using introspection
-to find "nargout" was borrowed from the ompc project.
+  parsing of code and a run-time helper library.  Ideally one or both of these
+  projects will render this one unnecessary.  The method of using introspection
+  to find "nargout" was borrowed from the ompc project.
 
 Disclaimer
 ==========
