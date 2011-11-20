@@ -1,15 +1,22 @@
-""" py2oct_demo -  Play a demo script showing most of the p2oct api features
+"""
+.. module:: demo
+   :synopsis: Play a demo script showing most of the p2oct api features.
+
+.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
+
 """
 import time
 
 
 def demo(delay=2):
-    """ Play a demo script showing most of the oct2py api features
+    """
+    Play a demo script showing most of the oct2py api features.
 
     Parameters
     ==========
     delay : float
-        Time between each command in seconds
+        Time between each command in seconds.
+
     """
     script = """
     import numpy as np

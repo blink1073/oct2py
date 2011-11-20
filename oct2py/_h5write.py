@@ -1,7 +1,11 @@
-''' h5write - Used to write Python values into an HDF file for Octave
+"""
+.. module:: _h5write
+   :synopsis: Write Python values into an HDF file for Octave.
+              Strives to preserve both value and type in transit.
 
-Strives to preserve both value and type in transit
-'''
+.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
+
+"""
 try:
     import h5py
 except:
@@ -9,37 +13,39 @@ except:
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
 import numpy as np
-from _utils import Oct2PyError, register_del, create_hdf
+from _utils import Oct2PyError, _register_del, _create_hdf
 
 
 class H5Write(object):
-    '''Used to write Python values into an HDF file for Octave
+    """Write Python values into an HDF file for Octave.
 
-    Strives to preserve both value and type in transit
-    '''
+    Strives to preserve both value and type in transit.
+    """
     def __init__(self):
-        self.in_file = create_hdf('load')
-        register_del(self.in_file)
+        self.in_file = _create_hdf('load')
+        _register_del(self.in_file)
 
     def create_file(self, inputs, names=None):
-        ''' Create an HDF file, loading the input variables
+        """
+        Create an HDF file, loading the input variables.
 
-        If names are given, use those, otherwise use dummies
+        If names are given, use those, otherwise use dummies.
 
         Parameters
         ==========
         inputs : array-like
-            List of variables to write to a file
+            List of variables to write to a file.
         names : array-like
-            Optional list of names to assign to the variables
+            Optional list of names to assign to the variables.
 
         Returns
         =======
         argin_list : str or array
-            List of variable names to be sent
+            Name or list of variable names to be sent.
         load_line : str
-            Octave "load" command
-        '''
+            Octave "load" command.
+
+        """
         fid = h5py.File(self.in_file, "w")
         # create a dummy list of var names ("A", "B", "C" ...)
         # use ascii char codes so we can increment
@@ -67,7 +73,8 @@ class H5Write(object):
         return argin_list, load_line
 
     def _putvals(self, group, dict_):
-        ''' Put a nested dict into the HDF file as a struct
+        """
+        Put a nested dict into the HDF file as a struct
 
         Parameters
         ==========
@@ -75,7 +82,8 @@ class H5Write(object):
             Location to store the value
         dict_ : dict
             Dictionary of object(s) to store
-        '''
+
+        """
         for key in dict_.keys():
             if isinstance(dict_[key], dict):
                 sub = group.create_group(key)
@@ -85,25 +93,26 @@ class H5Write(object):
 
     @staticmethod
     def _putval(group, name, data):
-        ''' Convert data into a state suitable for transfer.
+        """
+        Convert data into a state suitable for transfer.
 
         Parameters
         ==========
         group : h5py group object
-            Location to store the object
+            Location to store the object.
         name : str
-            Name of the object
+            Name of the object.
         data : object
-            Value to write to file
+            Value to write to file.
 
         Notes
         =====
         All data is sent as an ndarray.  Several considerations must be made
         for data type to ensure proper read/write of the HDF.
-
         Currently string arrays of rank > 2 and the following types are not
-        supported: float96, complex192, object
-        '''
+        supported: float96, complex192, object.
+
+        """
         if data is None:
             data = np.nan
         if isinstance(data, set):

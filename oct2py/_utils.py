@@ -1,5 +1,10 @@
-''' helpers - Miscellaneous helper constructs
-'''
+"""
+.. module:: _utils
+   :synopsis: Miscellaneous helper constructs
+
+.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
+
+"""
 import os
 import time
 import subprocess
@@ -11,18 +16,28 @@ import re
 from glob import glob
 
 
-def open_():
-    ''' Start an octave session in a subprocess
+def _open():
+    """
+    Start an octave session in a subprocess.
 
-    Attempts to call "octave" or raise an error
-     -q is quiet startup, --braindead is Matlab compatibilty mode
+    Returns
+    =======
+    out : fid
+        File descriptor for the Octave subprocess
 
-    Note
-    ====
+    Raises
+    ======
+    Oct2PyError
+        If the session is not opened sucessfully.
+
+    Notes
+    =====
+    Options sent to Octave: -q is quiet startup, --braindead is
+    Matlab compatibilty mode.
     On Windows, it attempts to find octave in c:\Octave if it is not
-        on the path
+    on the path.
 
-    '''
+    """
     session = None
     try:
         cmd = 'octave -q --braindead'
@@ -48,25 +63,28 @@ def open_():
     return session
 
 
-def register_del(fname):
-    """ Register an HDF file for deletion at program exit
+def _register_del(fname):
+    """
+    Register an HDF file for deletion at program exit.
 
     Parameters
     ==========
     fname : str
-        Name of file to register
+        Name of file to register.
+
     """
-    atexit.register(lambda filename=fname: remove_hdfs(filename))
+    atexit.register(lambda filename=fname: _remove_files(filename))
 
 
-def remove_hdfs(filename=None):
-    """ Remove the desired file and any HDFs that haven't been accessed in
-    over a minute
+def _remove_files(filename=None):
+    """
+    Remove the desired file and any old HDF files,
 
     Parameters
     ==========
-    filename : str
-        Optional specific file to delete
+    filename : str, optional
+        Specific file to delete.
+
     """
     try:
         os.remove(filename)
@@ -82,13 +100,16 @@ def remove_hdfs(filename=None):
                     pass
 
 
-def get_nout():
-    """ Return how many values the caller is expecting.
-    Adapted from the ompc project
+def _get_nout():
+    """
+    Return the number of return values the caller is expecting.
+
+    Adapted from the ompc project.
 
     Returns
-    ======
-    Number of arguments expected by caller, default is 1
+    =======
+    out : int
+        Number of arguments expected by caller, default is 1.
 
     """
     frame = inspect.currentframe()
@@ -106,17 +127,19 @@ def get_nout():
     return 1
 
 
-def create_hdf(type_):
-    """ Create an HDF file of the given type with a random name
+def _create_hdf(type_):
+    """
+    Create an HDF file of the given type with a random name.
 
     Parameters
     ==========
     type_ : str
-        'load' or 'save' type file
+        Either 'load' or 'save' type file.
 
     Returns
     =======
-    Random HDF file name "load_##########.hdf" or "save_##########.hdf"
+    out : str
+        Random HDF file name e.g. "load_4932048302.hdf".
 
     """
     name = [type_, '_']
@@ -126,24 +149,27 @@ def create_hdf(type_):
 
 
 class Oct2PyError(Exception):
-    """ Called when we can't open Octave or octave throws an error """
+    """ Called when we can't open Octave or Octave throws an error
+    """
     pass
 
 
 class Struct(dict):
-    '''
+    """
     Octave style struct.
-    --------------------
+
     Supports dictionary and attribute style access.
 
-    Usage
-    -----
+    Examples
+    ========
     >>> from oct2py import Struct
     >>> a = Struct()
     >>> a.b = 'spam'  # a["b"] == 'spam'
     >>> a.c["d"] = 'eggs'  # a.c.d == 'eggs'
+    >>> print a
+    {'c': {'d': 'eggs'}, 'b': 'spam'}
 
-    '''
+    """
     def __getattr__(self, attr):
         try:
             return self[attr]
@@ -153,3 +179,14 @@ class Struct(dict):
                 return self[attr]
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
+
+
+def _test():
+    """Run the doctests for this module
+    """
+    doctest.testmod()
+
+
+if __name__ == "__main__":
+    import doctest
+    _test()

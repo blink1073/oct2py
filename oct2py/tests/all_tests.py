@@ -1,11 +1,13 @@
-''' Run all tests for oct2py '''
+"""Run all tests for oct2py
+"""
 import glob
 import os
 import unittest
 
 
 def run():
-    ''' Run all tests for oct2py '''
+    """Run all tests for oct2py
+    """
     test_file_strings = glob.glob('test_*.py')
     test_file_strings = [os.path.basename(fname) for fname
                             in test_file_strings]

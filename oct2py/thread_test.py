@@ -1,6 +1,10 @@
-""" py2oct_thread - Test Starting Multiple Threads
+"""
+.. module:: thread_test
+   :synopsis: Test Starting Multiple Threads.
+              Verify that they each have their own session
 
-Verify that they each have their own session
+.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
+
 """
 import threading
 import datetime
@@ -8,22 +12,25 @@ from oct2py import Oct2Py, Oct2PyError
 
 
 class ThreadClass(threading.Thread):
-    """ Octave instance thread """
+    """Octave instance thread
+    """
 
     def run(self):
-        """ Create a unique instance of Octave and verify namespace uniqueness
+        """
+        Create a unique instance of Octave and verify namespace uniqueness.
 
         Raises
         ======
         Oct2PyError
             If the thread does not sucessfully demonstrate independence
+
         """
         octave = Oct2Py()
         # write the same variable name in each thread and read it back
         octave.put('name', self.getName())
         name = octave.get('name')
         now = datetime.datetime.now()
-        print "%s got '%s' at %s" % (self.getName(), name, now)
+        print "{0} got '{1}' at {2}".format(self.getName(), name, now)
         octave._close()
         try:
             assert self.getName() == name
@@ -33,19 +40,22 @@ class ThreadClass(threading.Thread):
 
 
 def thread_test(nthreads=3):
-    """ Start a number of threads and verify each has a unique Octave session
+    """
+    Start a number of threads and verify each has a unique Octave session.
 
     Parameters
     ==========
     nthreads : int
-        Number of threads to use
+        Number of threads to use.
 
     Raises
     ======
     Oct2PyError
-        If the thread does not sucessfully demonstrate independence
+        If the thread does not sucessfully demonstrate independence.
+
     """
-    print "Starting %s threads at %s" % (nthreads, datetime.datetime.now())
+    print "Starting {0} threads at {1}".format(nthreads,
+                                               datetime.datetime.now())
     threads = []
     for i in range(nthreads):
         thread = ThreadClass()
@@ -54,7 +64,7 @@ def thread_test(nthreads=3):
         threads.append(thread)
     for thread in threads:
         thread.join()
-    print 'All threads closed at %s' % datetime.datetime.now()
+    print 'All threads closed at {1}'.format(datetime.datetime.now())
 
 
 if __name__ == '__main__':

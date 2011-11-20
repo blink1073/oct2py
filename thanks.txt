@@ -1,3 +1,19 @@
-Alexander Schmolck and Vivek Rathod for mlabwrap libary, upon which this is based.
-Peter Jurica (juricap.pip.verisignlabs.com), RIKEN Brain Science Institute, for the ompc library and the nargout method.
+Thanks
 
+Details
+=======
+J. Eaton and friends, for the GNU Octave project.  There would be no bridge without a suitable destination.
+Andrew Collette, for the h5py library, the glue for this package.
+Alexander Schmolck and Vivek Rathod for mlabwrap library, upon which this is based.
+Peter Jurica, for the ompc library and the nargout method.
+Travis Oliphant and friends, for the numpy library, *the* reason to switch to Python for scientific computing.
+And of course, our Benevolent Dictactor for Life, Guido van Rossum.
+
+Citations
+=========
+J. Eaton, GNU Octave, 2002 (http://gnu.org/software/octave)
+A. Collette, HDF5 for Python, 2008 (http://h5py.alfven.org)
+A. Schmolck and V. Rathod, Mlabwrap, 2011 (http://mlabwrap.sourceforge.net)
+P. Jurica, One MATLAB(R) per Child, 2008 (http://ompc.juricap.com)
+T. Oliphant, Python for Scientific Computing, 2007 (http://numpy.scipy.org)
+G. van Rossum, Python Programming Language, 1995 (http://www.python.org)

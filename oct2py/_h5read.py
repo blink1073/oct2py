@@ -1,7 +1,11 @@
-''' h5read - Used to read Python values from an HDF file made by Octave
+"""
+.. module:: _h5read
+   :synopsis: Read Python values from an HDF file made by Octave.
+              Strives to preserve both value and type in transit.
 
-Strives to preserve both value and type in transit
-'''
+.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
+
+"""
 try:
     import h5py
 except:
@@ -9,36 +13,38 @@ except:
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
 import numpy as np
-from _utils import Struct, create_hdf, register_del
+from _utils import Struct, _create_hdf, _register_del
 
 
 class H5Read(object):
-    ''' Read Python values from an HDF file made by Octave
+    """Read Python values from an HDF file made by Octave.
 
-    Strives to preserve both value and type in transit
-    '''
+    Strives to preserve both value and type in transit.
+
+    """
     def __init__(self):
-        ''' initialize our output file and register it for deletion '''
-        self.out_file = create_hdf('save')
-        register_del(self.out_file)
+        """Initialize our output file and register it for deletion
+        """
+        self.out_file = _create_hdf('save')
+        _register_del(self.out_file)
 
     def setup(self, nout, names=None):
-        ''' Generate the argout list and the Octave save command
+        """
+        Generate the argout list and the Octave save command.
 
         Parameters
-        ==========
+        ----------
         nout : int
-            Number of output arguments required
-        names : array-like
-            Optional list of variable names to use
+            Number of output arguments required.
+        names : array-like, optional
+            Variable names to use.
 
         Returns
-        =======
-        argout_list : list
-            List of variable names
-        save_line : str
-            The octave "save" command line
-        '''
+        -------
+        out : tuple (list, str)
+            List of variable names, Octave "save" command line
+
+        """
         argout_list = []
         for i in range(nout):
             if names:
@@ -50,17 +56,20 @@ class H5Read(object):
         return argout_list, save_line
 
     def extract_file(self, argout_list):
-        ''' Extract the variables in argout_list from the HDF file
+        """
+        Extract the variables in argout_list from the HDF file
 
         Parameters
-        ==========
+        ----------
         argout_list : array-like
             List of variables to extract from the file
 
         Returns
-        =======
-        variable or tuple of variables extracted
-        '''
+        -------
+        out : object or tuple
+            Variable or tuple of variables extracted.
+
+        """
         fid = h5py.File(self.out_file)
         outputs = []
         for arg in argout_list:
@@ -77,18 +86,20 @@ class H5Read(object):
 
     @staticmethod
     def _getval(group):
-        ''' Handle variable types that do not translate directly
+        """
+        Handle variable types that do not translate directly.
 
         Parameters
-        ==========
+        ----------
         group : h5py Group object
-            The location from which to extract the value from the file
+            The location from which to extract the value from the file.
 
         Returns
         =======
-        python object extracted from file
+        out : object
+            Python object extracted from file.
 
-        '''
+        """
         type_ = group['type'].value
         val = group['value'].value
         # strings come in as byte arrays
@@ -115,20 +126,22 @@ class H5Read(object):
         return val
 
     def _getvals(self, group):
-        ''' Extract a nested struct / cell array from the HDF file
+        """
+        Extract a nested struct / cell array from the HDF file.
 
-        Structs become dictionaries, cell arrays become lists
+        Structs become dictionaries, cell arrays become lists.
 
         Parameters
         ==========
         group : h5py group object
-            The location from which to extract the values from the file
+            Location from which to extract the values from the file.
 
         Returns
         =======
-            object or dictionary of objects extracted from file
+        out : object or dict
+            Object(s) extracted from file.
 
-        '''
+        """
         data = Struct()
         for key in group.keys():
             if key == 'dims':
@@ -150,19 +163,21 @@ class H5Read(object):
 
     @staticmethod
     def _extract_cell_array(data):
-        ''' Extract a nested cell array from a dictionary
+        """
+        Extract a nested cell array from a dictionary.
 
         Parameters
         ==========
         data : dict
-            Cell array data in a dictionary
+            Cell array data in a dictionary.
 
         Returns
         =======
-        scalar, list, or list of lists, depending on the
-            shape of the cell array
+        out : scalar, list, or list of lists
+            Return the array contents, matching the shape of the
+            cell array.
 
-        '''
+        """
         dims = data['dims']
         # only worry about 1-d and 2-d
         if len(dims) == 2:

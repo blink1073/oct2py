@@ -1,14 +1,13 @@
-'''
-=====
-Setup script for oct2py package.
-=====
+"""Setup script for oct2py package.
 
 Run as::
     python setup.py install
-'''
-from distutils.core import setup
 
-classifiers = """\
+"""
+from distutils.core import setup
+from oct2py import __version__
+
+CLASSIFIERS = """\
 Development Status :: 4 - Beta
 Intended Audience :: Developers
 Intended Audience :: Science/Research
@@ -21,15 +20,15 @@ Topic :: Software Development
 
 setup(
     name='oct2py',
-    version='0.1.4',
-    author='Steven M. Silvester',
+    version=__version__,
+    author='Steven Silvester',
     author_email='steven.silvester@ieee.org',
     packages=['oct2py', 'oct2py.tests'],
     url='https://bitbucket.org/blink1073/oct2py/',
     license='LICENSE.txt',
     platforms=["Any"],
-    description='Python to GNU Octave bridge --> run m-files from python',
+    description='Python to GNU Octave bridge --> run m-files from python.',
     long_description=open('README.txt').read(),
-    classifiers=filter(None, classifiers.split('\n')),
+    classifiers=filter(None, CLASSIFIERS.split('\n')),
     requires=["h5py (>=2.0.0)"],
-)
+    )
