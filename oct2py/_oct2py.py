@@ -23,8 +23,10 @@ class Oct2Py(object):
     on Octave's path.
     The first command will take about 0.5s for Octave to load up.
     The subsequent commands will be much faster.
-    Plotting commands within an m file do not work unless you add this
-    after every plot line: print -deps foo.eps
+    Plotting commands within an m-file do not work unless you add this
+    after every plot line::
+
+       print -deps foo.eps
 
     """
     def __init__(self):
@@ -73,9 +75,9 @@ class Oct2Py(object):
         >>> print out
         y =
         <BLANKLINE>
-            1        1        1
-            1        1        1
-            1        1        1
+                1        1        1
+                1        1        1
+                1        1        1
         <BLANKLINE>
         >>> octave.run('x = mean([[1, 2], [3, 4]])')
         'x =  2.5000'
@@ -95,7 +97,7 @@ class Oct2Py(object):
 
     def call(self, func, *inputs, **kwargs):
         """
-        Calls a function using Octave.
+        Call am Octave function with optional arguments.
 
         Parameters
         ----------
@@ -138,9 +140,9 @@ class Oct2Py(object):
         >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
         >>> print U, S, V
         [[-0.57604844 -0.81741556]
-        [-0.81741556  0.57604844]] [[ 3.86432845  0.        ]
-        [ 0.          0.25877718]] [[-0.36059668 -0.93272184]
-        [-0.93272184  0.36059668]]
+         [-0.81741556  0.57604844]] [[ 3.86432845  0.        ]
+         [ 0.          0.25877718]] [[-0.36059668 -0.93272184]
+         [-0.93272184  0.36059668]]
 
         """
         verbose = kwargs.get('verbose', False)
@@ -224,7 +226,7 @@ class Oct2Py(object):
 
     def get(self, var):
         """
-        Retrieves a value from the Octave session
+        Retrieve a value from the Octave session.
 
         Parameters
         ----------
@@ -238,7 +240,7 @@ class Oct2Py(object):
 
         Raises:
           Oct2PyError
-            If the variable does not exist in the Octave session
+            If the variable does not exist in the Octave session.
 
         Examples:
           >>> from oct2py import octave
@@ -264,9 +266,9 @@ class Oct2Py(object):
 
     def lookfor(self, string, verbose=False):
         """
-        Calls the Octave "lookfor" command
+        Call the Octave "lookfor" command.
 
-        Uses with the "-all" switch to search within help strings
+        Uses with the "-all" switch to search within help strings.
 
         Parameters
         ----------
@@ -374,9 +376,9 @@ class Oct2Py(object):
         return doc
 
     def __getattr__(self, attr):
-        """Magically creates a wapper to an Octave function or object
+        """Magically creates a wapper to an Octave function or object.
 
-        Adapted from the mlabwrap project
+        Adapted from the mlabwrap project.
 
         """
         if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
@@ -397,13 +399,13 @@ class Oct2Py(object):
         return octave_command
 
     def __del__(self):
-        """Closes the Octave session before deletion
+        """Close the Octave session before deletion.
         """
         self._close()
 
 
 def _test():
-    """Run the doctests for this module
+    """Run the doctests for this module.
     """
     doctest.testmod()
 

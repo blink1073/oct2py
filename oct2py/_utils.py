@@ -78,7 +78,12 @@ def _register_del(fname):
 
 def _remove_files(filename=None):
     """
-    Remove the desired file and any old HDF files,
+    Remove the desired file and any old HDF files.
+
+    All HDF files in the current working directory over a minute old are
+    deleted.
+    This helps clean up orphaned HDF files in case the previous session did
+    not close properly.
 
     Parameters
     ==========
@@ -133,13 +138,13 @@ def _create_hdf(type_):
 
     Parameters
     ==========
-    type_ : str
-        Either 'load' or 'save' type file.
+    type_ : str {'load', 'save'}
+        Type of file to create (used for Octave 'save' or 'load' commands).
 
     Returns
     =======
     out : str
-        Random HDF file name e.g. "load_4932048302.hdf".
+        Random HDF file name e.g. 'load_4932048302.hdf'.
 
     """
     name = [type_, '_']
@@ -156,7 +161,7 @@ class Oct2PyError(Exception):
 
 class Struct(dict):
     """
-    Octave style struct.
+    Octave style struct, enhanced.
 
     Supports dictionary and attribute style access.
 

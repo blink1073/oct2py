@@ -64,7 +64,7 @@ def thread_test(nthreads=3):
         threads.append(thread)
     for thread in threads:
         thread.join()
-    print 'All threads closed at {1}'.format(datetime.datetime.now())
+    print 'All threads closed at {0}'.format(datetime.datetime.now())
 
 
 if __name__ == '__main__':

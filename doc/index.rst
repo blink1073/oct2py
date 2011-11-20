@@ -6,5 +6,6 @@ Documentation for Oct2Py
    reference
    conversions
    demo
+   code
 
 

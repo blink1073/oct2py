@@ -5,6 +5,7 @@ Oct2py Demo
 Output of oct2py demo script, showing most of the features of the library.  Note that the two
 plot commands will generate a plot in the actual demo.
 To run interactively::
+
    >>> import oct2py
    >>> oct2py.demo()
 
