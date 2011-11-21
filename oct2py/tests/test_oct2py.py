@@ -449,7 +449,10 @@ class BasicUsageTest(unittest.TestCase):
                              [0., 0.25877718]]))
         assert np.allclose(V,  ([[-0.36059668, -0.93272184],
          [-0.93272184, 0.36059668]]))
+        out = octave.call('roundtrip.m', 1)
+        self.assertEqual(out, 1)
         self.assertRaises(Oct2PyError, octave.call, '_spam')
+
 
     def test_put_get(self):
         """Test putting and getting values

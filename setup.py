@@ -18,6 +18,13 @@ Topic :: Scientific/Engineering
 Topic :: Software Development
 """
 
+try:
+   from sphinx.setup_command import BuildDoc
+   cmdclss = {'build_sphinx': BuildDoc},
+except ImportError:
+   print 'Warning: Could not build sphinx documentation'
+   cmdclss = {}
+
 setup(
     name='oct2py',
     version=__version__,
@@ -31,4 +38,5 @@ setup(
     long_description=open('README.txt').read(),
     classifiers=filter(None, CLASSIFIERS.split('\n')),
     requires=["h5py (>=2.0.0)"],
+    cmdclss=cmdclss,
     )
