@@ -55,8 +55,8 @@ can be accessed as a dictionary as well::
        >>> print a
        {'c': {'d': 'eggs'}, 'b': 'spam'}
 
-Peformance
-==========
+Performance
+===========
 There is a penalty for passing data via HDF files.  Running speed_test.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
@@ -91,8 +91,8 @@ their own result::
 
 Future enhancements
 ===================
-* Add support for arbitrary outgoing "cell arrays" and ndarray "objects"
-* Add a Octave code compability check function
+* Add support for arbitrary outgoing "cell arrays" and ndarray "objects".
+* Add a Octave code compability check function.
 * Add a feature to scan a file for plot statements and automatically add a
   line to print the plot, allowing Python to render it.
 

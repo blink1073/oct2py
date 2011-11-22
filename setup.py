@@ -1,10 +1,18 @@
 """Setup script for oct2py package.
 
 Run as::
+
     python setup.py install
 
 """
-from distutils.core import setup
+import sys
+
+try:
+    from setuptools import setup
+except ImportError:
+    from distribute_setup import use_setuptools
+    use_setuptools()
+
 from oct2py import __version__
 
 CLASSIFIERS = """\
@@ -18,12 +26,19 @@ Topic :: Scientific/Engineering
 Topic :: Software Development
 """
 
+extra = {}
 try:
    from sphinx.setup_command import BuildDoc
-   cmdclss = {'build_sphinx': BuildDoc},
+   extra['cmdclss'] = {'build_sphinx': BuildDoc}
 except ImportError:
-   print 'Warning: Could not build sphinx documentation'
-   cmdclss = {}
+   print 'Warning: Could not build local documentation:'
+   print 'easy_install sphinx'
+   print 'python setup.py build_sphinx'
+
+if sys.version_info >= (3,):
+    extra['use_2to3'] = True
+    #extra['convert_2to3_doctests'] = ['src/your/module/README.txt']
+    #extra['use_2to3_fixers'] = ['your.fixers']
 
 setup(
     name='oct2py',
@@ -39,4 +54,5 @@ setup(
     classifiers=filter(None, CLASSIFIERS.split('\n')),
     requires=["h5py (>=2.0.0)"],
     cmdclss=cmdclss,
+    **extra
     )
