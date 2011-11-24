@@ -34,7 +34,7 @@ except ImportError:
     BuildDoc = object
 
 # Sphinx build (documentation) - taken from the spyder project
-# Copyright © 2009-2011 Pierre Raybaut
+# Copyright 2009-2011 Pierre Raybaut
 # Licensed under the terms of the MIT License
 class MyBuild(build):
    def has_doc(self):
@@ -72,6 +72,6 @@ setup(
     description='Python to GNU Octave bridge --> run m-files from python.',
     long_description=open('README.txt').read(),
     classifiers=filter(None, CLASSIFIERS.split('\n')),
-    requires=["h5py (>=2.0.0)"],
+    requires=["h5py (>=2.0.0)", "numpy (>=1.4.1)"],
     cmdclass=cmdclass,
     )
