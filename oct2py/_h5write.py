@@ -12,6 +12,7 @@ except:
     print 'Please install h5py from'
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
+import os
 import numpy as np
 from _utils import Oct2PyError, _register_del, _create_hdf
 
@@ -121,24 +122,19 @@ class H5Write(object):
             data = np.array(data)
         except ValueError as err:
             raise Oct2PyError(err)
-        if data.dtype == np.dtype('complex64'):
+        if data.dtype.str == '<c8':
             data = data.astype(np.complex128)
-        try:
-            if data.dtype in [np.dtype('timedelta64'),
-                              np.dtype('datetime64')]:
-                data = data.astype(np.uint64)
-        except AttributeError:
-            # older version of numpy, not implemented
-            pass
-        if data.dtype == np.dtype('complex128'):
+        if data.dtype.str == '<m8[us]' or data.dtype.str == '<M8[us]':
+            data = data.astype(np.uint64)
+        if data.dtype.str == '<c16':
             temp = [(item.real, item.imag) for item in data.ravel()]
             temp = np.array(temp, dtype=np.dtype([('real', '<f8'),
                                        ('imag', '<f8')]))
             data = temp.reshape(data.shape)
-        elif data.dtype == np.dtype('bool'):
+        elif data.dtype.str == '|b1':
             data = data.astype(np.int32)
-        elif data.dtype == np.dtype('float16'):
-            data = data.astype(np.float32)
+        elif 'f' in data.dtype.str and not '12' in data.dtype.str:
+            data = data.astype(np.float64)
         elif '|S' in data.dtype.str or '<U' in data.dtype.str:
             nchars = int(data.dtype.str[2:]) + 1
             data = data.astype(np.dtype('|S%s' % nchars))
@@ -147,13 +143,9 @@ class H5Write(object):
                 # Note: will probably have to fully mimic what the cell
                 #      array looks like coming out of Octave
                 raise Oct2PyError('Cannot send string objects of rank > 1')
-        else:
-            if data.dtype in [np.dtype('float96'),
-                              np.dtype('complex192'),
-                              np.dtype('object')]:
-                # TODO: implement objects
-                raise Oct2PyError('Datatype not supported: %s' %
-                                  data.dtype)
+        elif data.dtype.str in ['<f12', '<c24', '|O4']:
+            # TODO: implement objects
+            raise Oct2PyError('Datatype not supported: %s' % data.dtype)
         # Octave reads the data in Fortran order, not 'C' order
         data = data.T
         group.create_dataset(name, data=data)

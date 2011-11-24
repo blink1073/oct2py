@@ -1,2 +1,4 @@
 include *.txt
 recursive-include doc *.rst
+recursive-include oct2py *.m
+recursive-include example *.m

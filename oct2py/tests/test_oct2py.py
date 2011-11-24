@@ -20,7 +20,7 @@ float96 and complex192 can be recast as float64 and complex128.
 """
 import unittest
 import numpy as np
-from oct2py import octave, Struct, Oct2PyError
+from oct2py import octave, Struct, Oct2Py, Oct2PyError, _utils
 
 TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                (long, 'int64', np.int64),
@@ -39,7 +39,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.uint16, 'uint16', np.uint16),
                 (np.uint32, 'uint32', np.uint32),
                 (np.uint64, 'uint64', np.uint64),
-                (np.float16, 'double', np.float64),
+                #(np.float16, 'double', np.float64),
                 (np.float32, 'double', np.float64),
                 (np.float64, 'double', np.float64),
                 (np.str, 'char', np.str),
@@ -79,6 +79,9 @@ class IncomingTest(unittest.TestCase):
         """Open an instance of Octave and get a struct with all datatypes.
         """
         self.data = octave.test_datatypes()
+
+    def tearDown(self):
+        _utils._remove_files()
 
     def helper(self, base, keys, types):
         """
@@ -186,6 +189,8 @@ class RoundtripTest(unittest.TestCase):
             # floats are converted to doubles by Octave
             elif (type(outgoing) == np.float32 and
                   type(incoming) == np.float64):
+                pass
+            elif np.allclose(incoming, outgoing):
                 pass
             else:
                 raise
@@ -389,9 +394,14 @@ class NumpyTest(unittest.TestCase):
                 continue
             incoming = octave.roundtrip(outgoing)
             if typecode in 'Mm':
-                self.assertEqual(incoming, outgoing.astype(np.uint64))
+                assert np.allclose(incoming, outgoing.astype(np.uint64))
+            elif typecode == '|b1':
+                self.assertEqual(bool(outgoing), bool(incoming))
             else:
-                self.assertEqual(outgoing, incoming)
+                try:
+                   assert np.allclose(np.array(incoming), np.array(outgoing))
+                except NotImplementedError:
+                   self.assertEqual(np.array(incoming), np.array(outgoing))
 
     def test_ndarrays(self):
         """Send an ndarray and make sure we get the same array back
@@ -411,12 +421,13 @@ class NumpyTest(unittest.TestCase):
                 continue
             incoming = octave.roundtrip(outgoing)
             if typecode in 'Mm':
-                assert np.alltrue(incoming == outgoing.astype(np.uint64))
+                assert np.allclose(incoming, outgoing.astype(np.uint64))
                 continue
             try:
                 assert np.allclose(incoming, outgoing)
             except AssertionError:
-                assert np.alltrue((incoming - outgoing) == 0)
+                assert np.alltrue(abs(incoming - outgoing) < 1e-3)
+
 
 
 class BasicUsageTest(unittest.TestCase):
@@ -433,7 +444,7 @@ class BasicUsageTest(unittest.TestCase):
         1        1        1
 """
         self.assertEqual(out, desired)
-        out = octave.run('x = mean([[1, 2], [3, 4]])')
+        out = octave.run('x = mean([[1, 2], [3, 4]])', verbose=True)
         self.assertEqual(out, 'x =  2.5000')
         self.assertRaises(Oct2PyError, octave.run, '_spam')
 
@@ -450,6 +461,10 @@ class BasicUsageTest(unittest.TestCase):
         assert np.allclose(V,  ([[-0.36059668, -0.93272184],
          [-0.93272184, 0.36059668]]))
         out = octave.call('roundtrip.m', 1)
+        self.assertEqual(out, 1)
+        import os
+        fname = os.path.join(__file__, 'roundtrip.m')
+        out = octave.call(fname, 1)
         self.assertEqual(out, 1)
         self.assertRaises(Oct2PyError, octave.call, '_spam')
 
@@ -482,7 +497,26 @@ class BasicUsageTest(unittest.TestCase):
         for test in tests:
             self.assertEqual(repr(type(test)), "<type 'function'>")
         self.assertRaises(Oct2PyError, octave.__getattr__, 'aaldkfasd')
+        self.assertRaises(Oct2PyError, octave.__getattr__, '_foo')
+        self.assertRaises(Oct2PyError, octave.__getattr__, 'foo\W')
+        out = octave.list()
+        self.assertEqual(out, dict())
 
+    def test_open_close(self):
+        """Test opening and closing the Octave session
+        """
+        oct_ = Oct2Py()
+        oct_._close()
+        self.assertEqual(True, True)
+
+    def test_struct(self):
+        """Test Struct construct
+        """
+        test = Struct()
+        test.spam = 'eggs'
+        test.eggs.spam = 'eggs'
+        self.assertEqual(test['spam'], 'eggs')
+        self.assertEqual(test['eggs']['spam'], 'eggs')
 
 if __name__ == '__main__':
     print 'py2oct test'

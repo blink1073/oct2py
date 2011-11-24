@@ -76,7 +76,7 @@ def _register_del(fname):
     atexit.register(lambda filename=fname: _remove_files(filename))
 
 
-def _remove_files(filename=None):
+def _remove_files(filename=''):
     """
     Remove the desired file and any old HDF files.
 
@@ -122,9 +122,15 @@ def _get_nout():
     # nout is two frames back
     frame = frame.f_back.f_back
     bytecode = frame.f_code.co_code
-    instruction = ord(bytecode[frame.f_lasti + 3])
+    try:
+        instruction = ord(bytecode[frame.f_lasti + 3])
+    except TypeError:
+        instruction = ord(chr(bytecode[frame.f_lasti + 3]))
     if instruction == dis.opmap['UNPACK_SEQUENCE']:
-        howmany = ord(bytecode[frame.f_lasti + 4])
+        try:
+            howmany = ord(bytecode[frame.f_lasti + 4])
+        except TypeError:
+            howmany = ord(chr(bytecode[frame.f_lasti + 4]))
         return howmany
     elif instruction == dis.opmap['POP_TOP']:
         # OCTAVE always assumes at least 1 value

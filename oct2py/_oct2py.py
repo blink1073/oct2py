@@ -222,7 +222,7 @@ class Oct2Py(object):
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
         _, load_line = self._writer.create_file(var, names)
-        self._eval(load_line, verbose=False)
+        self._eval(load_line, verbose=True)
 
     def get(self, var):
         """
@@ -318,10 +318,15 @@ class Oct2Py(object):
         lines = ['try', '\n'.join(cmds), 'disp(char(200))',
                  'catch', 'disp(lasterr())', 'disp(char(201))',
                  'end', '']
-        eval_ = '\n'.join(lines)
+        eval_ = b'\n'.join(lines)
         self._session.stdin.write(eval_)
+        self._session.stdin.flush()
         while 1:
             line = self._session.stdout.readline().rstrip()
+            try:
+                line = ''.join([chr(char) for char in line])
+            except TypeError:
+                pass
             if line == chr(200):
                 break
             elif line == chr(201):
@@ -382,10 +387,10 @@ class Oct2Py(object):
 
         """
         if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
-            raise ValueError(
+            raise Oct2PyError(
                     "Attributes don't look like this: {0}".format(attr))
         if attr.startswith('_'):
-            raise AttributeError(
+            raise Oct2PyError(
                     "Octave commands do not start with _: {0}".format(attr))
         # print_ -> print
         if attr[-1] == "_":
