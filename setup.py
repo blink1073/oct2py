@@ -23,6 +23,16 @@ Topic :: Scientific/Engineering
 Topic :: Software Development
 """
 
+try:
+    from sphinx.setup_command import BuildDoc
+    sphinx = True
+except ImportError:
+    msg = """No Sphinx module found. You have to install Sphinx to be able to
+              generate the documentation."""
+    print(' '.join(msg.split()))
+    sphinx = False
+    BuildDoc = object
+
 # Sphinx build (documentation)
 class MyBuild(build):
    def has_doc(self):
@@ -30,15 +40,23 @@ class MyBuild(build):
         return os.path.isdir(os.path.join(setup_dir, 'doc'))
    sub_commands = build.sub_commands + [('build_sphinx', has_doc)]
 
+class MyBuildDoc(BuildDoc):
+    def run(self):
+        build = self.get_finalized_command('build')
+        sys.path.insert(0, os.path.abspath(build.build_lib))
+        dirname = self.distribution.get_command_obj('build').build_purelib
+        self.builder_target_dir = os.path.join(dirname, 'oct2py', 'doc')
+        try:
+            BuildDoc.run(self)
+        except UnicodeDecodeError:
+            print >>sys.stderr, "ERROR: unable to build documentation because Sphinx do not handle source path with non-ASCII characters. Please try to move the source package to another location (path with *only* ASCII characters)."
+        sys.path.pop(0)
 
-try:
-    from sphinx.setup_command import BuildDoc
-    cmdclass = {'build': MyBuild, 'build_sphinx': BuildDoc}
-except ImportError:
-    msg = """No Sphinx module found. You have to install Sphinx to be able to
-              generate the documentation."""
-    print(' '.join(msg.split()))
-    cmdclass = {}
+if sphinx:
+   cmdclass = {'build': MyBuild, 'build_sphinx': MyBuildDoc}
+else:
+   cmdclass = {}
+
 
 setup(
     name='oct2py',
