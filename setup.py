@@ -33,7 +33,9 @@ except ImportError:
     sphinx = False
     BuildDoc = object
 
-# Sphinx build (documentation)
+# Sphinx build (documentation) - taken from the spyder project
+# Copyright © 2009-2011 Pierre Raybaut
+# Licensed under the terms of the MIT License
 class MyBuild(build):
    def has_doc(self):
         setup_dir = os.path.dirname(os.path.abspath(__file__))
@@ -56,7 +58,6 @@ if sphinx:
    cmdclass = {'build': MyBuild, 'build_sphinx': MyBuildDoc}
 else:
    cmdclass = {}
-
 
 setup(
     name='oct2py',

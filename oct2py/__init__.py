@@ -139,7 +139,7 @@ from .speed_test import speed_test
 
 from .thread_test import thread_test
 
-__version__ = '0.1.6'
+__version__ = '0.1.5'
 
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
           'thread_test']
