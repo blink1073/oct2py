@@ -388,20 +388,27 @@ class NumpyTest(unittest.TestCase):
             if typecode == 'V':
                 outgoing = np.array('spam').astype('V')
             else:
-                outgoing = outgoing.astype(typecode)
+                try:
+                    outgoing = outgoing.astype(typecode)
+                except TypeError:
+                    pass
             if typecode in self.blacklist:
                 self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                 continue
             incoming = octave.roundtrip(outgoing)
+            '''
             if typecode in 'Mm':
                 assert np.allclose(incoming, outgoing.astype(np.uint64))
-            elif typecode == '|b1':
+            '''
+            if typecode == '|b1':
                 self.assertEqual(bool(outgoing), bool(incoming))
             else:
                 try:
-                   assert np.allclose(np.array(incoming), np.array(outgoing))
+                   assert np.allclose(np.array(incoming), outgoing)
                 except NotImplementedError:
-                   self.assertEqual(np.array(incoming), np.array(outgoing))
+                   self.assertEqual(np.array(incoming), outgoing)
+                except IndexError:
+                    assert np.alltrue(np.array(incoming) == outgoing)
 
     def test_ndarrays(self):
         """Send an ndarray and make sure we get the same array back
@@ -414,21 +421,19 @@ class NumpyTest(unittest.TestCase):
             if typecode == 'V':
                 outgoing = np.array('spam').astype('V')
             else:
-                outgoing = outgoing.astype(typecode)
+                try:
+                    outgoing = outgoing.astype(typecode)
+                except TypeError:
+                    pass
             # TODO implement when string matrices are working
             if typecode in self.blacklist or typecode in 'SU':
                 self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                 continue
             incoming = octave.roundtrip(outgoing)
-            if typecode in 'Mm':
-                assert np.allclose(incoming, outgoing.astype(np.uint64))
-                continue
             try:
                 assert np.allclose(incoming, outgoing)
             except AssertionError:
                 assert np.alltrue(abs(incoming - outgoing) < 1e-3)
-
-
 
 class BasicUsageTest(unittest.TestCase):
     """Excercise the basic interface of the package
@@ -483,12 +488,10 @@ class BasicUsageTest(unittest.TestCase):
         self.assertRaises(Oct2PyError, octave.get, '_spam')
 
     def test_help(self):
-        """Testing help and lookfor commands
+        """Testing help command
         """
         out = octave.cos.__doc__
         self.assertEqual(out[:5], '\n`cos')
-        out = octave.lookfor('mean', verbose=False)
-        self.assertEqual(out[:4], 'fftw')
 
     def test_dynamic(self):
         """Test the creation of a dynamic function
