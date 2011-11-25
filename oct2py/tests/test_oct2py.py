@@ -409,6 +409,8 @@ class NumpyTest(unittest.TestCase):
                    self.assertEqual(np.array(incoming), outgoing)
                 except IndexError:
                     assert np.alltrue(np.array(incoming) == outgoing)
+                except TypeError:
+                    assert np.allclose(incoming, outgoing.astype(np.uint64))
 
     def test_ndarrays(self):
         """Send an ndarray and make sure we get the same array back
@@ -434,6 +436,9 @@ class NumpyTest(unittest.TestCase):
                 assert np.allclose(incoming, outgoing)
             except AssertionError:
                 assert np.alltrue(abs(incoming - outgoing) < 1e-3)
+            except TypeError:
+                assert np.allclose(incoming, outgoing.astype(np.uint64))
+
 
 class BasicUsageTest(unittest.TestCase):
     """Excercise the basic interface of the package

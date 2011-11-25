@@ -7,7 +7,11 @@ Run as::
 """
 import sys
 import os
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+
 from distutils.command.build import build
 from oct2py import __version__
 
