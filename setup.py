@@ -7,11 +7,8 @@ Run as::
 """
 import sys
 import os
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
 
+from distutils.core import setup
 from distutils.command.build import build
 from oct2py import __version__
 
@@ -60,8 +57,14 @@ class MyBuildDoc(BuildDoc):
 
 if sphinx:
    cmdclass = {'build': MyBuild, 'build_sphinx': MyBuildDoc}
+   try:
+       from sphinx_pypi_upload import UploadDoc
+       cmdclass['upload_sphinx'] = UploadDoc
+   except ImportError:
+       pass
 else:
    cmdclass = {}
+
 
 setup(
     name='oct2py',
@@ -70,9 +73,8 @@ setup(
     author_email='steven.silvester@ieee.org',
     packages=['oct2py', 'oct2py.tests'],
     url='https://bitbucket.org/blink1073/oct2py/',
-    license='LICENSE.txt',
+    license='MIT',
     platforms=["Any"],
-    package_data={'oct2py': ['tests/*.m']},
     description='Python to GNU Octave bridge --> run m-files from python.',
     long_description=open('README.txt').read(),
     classifiers=filter(None, CLASSIFIERS.split('\n')),

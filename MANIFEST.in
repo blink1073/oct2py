@@ -3,4 +3,11 @@ recursive-include doc *.rst
 recursive-include doc *.png
 recursive-include doc *.py
 recursive-include oct2py *.m
-recursive-include example *.*
+recursive-include example *.m
+recursive-include example *.py
+recursive-include numpydoc *.py
+recursive-include licenses *.txt
+prune .hg
+prune doc/build
+prune dist
+prune build

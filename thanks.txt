@@ -6,6 +6,9 @@ J. Eaton and friends, for the GNU Octave project.  There would be no bridge with
 Andrew Collette, for the h5py library, the glue for this package.
 Alexander Schmolck and Vivek Rathod for mlabwrap library, upon which this is based.
 Peter Jurica, for the ompc library and the nargout method.
+Dan MacKinlay, for the sphinx library, which as used to create the project documentation.
+Stefan van der Walt and Pauli Virtanen, for the numpdoc library, which was used to render numpy-style docstrings in the documentation.
+Pierre Reybaut, for the sphinx build commands in setup.py from spyder.
 Travis Oliphant and friends, for the numpy library, *the* reason to switch to Python for scientific computing.
 And of course, our Benevolent Dictactor for Life, Guido van Rossum.
 
@@ -15,5 +18,8 @@ J. Eaton, GNU Octave, 2002 (http://gnu.org/software/octave)
 A. Collette, HDF5 for Python, 2008 (http://h5py.alfven.org)
 A. Schmolck and V. Rathod, Mlabwrap, 2011 (http://mlabwrap.sourceforge.net)
 P. Jurica, One MATLAB(R) per Child, 2008 (http://ompc.juricap.com)
+D. MacKinlay, sphinx, 2011 (http://sphinx.pocoo.org/index.html)
+S. van der Walt & P. Virtanen, numpydoc, 2008 (http://pypi.python.org/pypi/numpydoc)
+P. Reybaut, spyder, 2010 (http://pypi.python.org/pypi/spyder)
 T. Oliphant, Python for Scientific Computing, 2007 (http://numpy.scipy.org)
 G. van Rossum, Python Programming Language, 1995 (http://www.python.org)
