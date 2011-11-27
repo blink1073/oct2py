@@ -13,7 +13,7 @@ except:
     print '"http://code.google.com/p/h5py/downloads/list"'
     raise
 import numpy as np
-from _utils import Struct, _create_hdf, _register_del
+from _utils import Struct, _create_file, _register_del
 
 
 class H5Read(object):
@@ -25,7 +25,7 @@ class H5Read(object):
     def __init__(self):
         """Initialize our output file and register it for deletion
         """
-        self.out_file = _create_hdf('save')
+        self.out_file = _create_file('save', 'hdf')
         _register_del(self.out_file)
 
     def setup(self, nout, names=None):

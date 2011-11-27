@@ -10,7 +10,7 @@ import os
 import re
 import doctest
 import atexit
-from _h5write import H5Write
+from _matwrite import MatWrite
 from _h5read import H5Read
 from _utils import _open, _get_nout, _register_del, Oct2PyError
 
@@ -35,7 +35,7 @@ class Oct2Py(object):
         self._session = _open()
         atexit.register(lambda handle=self._session: self._close(handle))
         self._reader = H5Read()
-        self._writer = H5Write()
+        self._writer = MatWrite()
 
     def _close(self, handle=None):
         """Closes this octave session
@@ -318,8 +318,8 @@ class Oct2Py(object):
         lines = ['try', '\n'.join(cmds), 'disp(char(200))',
                  'catch', 'disp(lasterr())', 'disp(char(201))',
                  'end', '']
-        eval_ = b'\n'.join(lines)
-        self._session.stdin.write(eval_)
+        eval_ = '\n'.join(lines)
+        self._session.stdin.write(bytes(eval_).encode('ascii'))
         self._session.stdin.flush()
         while 1:
             line = self._session.stdout.readline().rstrip()
@@ -334,7 +334,7 @@ class Oct2Py(object):
                                                   '\n'.join(resp))
                 raise Oct2PyError(msg)
             elif verbose:
-                print line
+                print(line)
             resp.append(line)
         return '\n'.join(resp)
 

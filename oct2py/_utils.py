@@ -78,7 +78,7 @@ def _register_del(fname):
 
 def _remove_files(filename=''):
     """
-    Remove the desired file and any old HDF files.
+    Remove the desired file and any old MAT and HDF files.
 
     All HDF files in the current working directory over a minute old are
     deleted.
@@ -97,7 +97,7 @@ def _remove_files(filename=''):
         pass
     files = os.listdir(os.getcwd())
     for fname in files:
-        if re.match(r'(load|save)_.{10}\.hdf', fname):
+        if re.match(r'(load|save)_.{10}\.(mat|hdf)', fname):
             if (time.time() - os.path.getatime(fname) > 60):
                 try:
                     os.remove(fname)
@@ -138,24 +138,26 @@ def _get_nout():
     return 1
 
 
-def _create_hdf(type_):
+def _create_file(type_, ext):
     """
-    Create an HDF file of the given type with a random name.
+    Create a file of the given type and extension with a random name.
 
     Parameters
     ==========
     type_ : str {'load', 'save'}
         Type of file to create (used for Octave 'save' or 'load' commands).
+    ext : str {'mat', 'hdf'}
+        File extension.
 
     Returns
     =======
     out : str
-        Random HDF file name e.g. 'load_4932048302.hdf'.
+        Random MAT file name e.g. 'load_4932048302.mat'.
 
     """
     name = [type_, '_']
     name.extend([str(random.choice(range(10))) for x in range(10)])
-    name.append('.hdf')
+    name.append('.{0}'.format(ext))
     return ''.join(name)
 
 
