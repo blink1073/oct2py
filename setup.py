@@ -11,7 +11,12 @@ import os
 from distutils.core import setup
 from distutils.command.build import build
 from oct2py import __version__
-
+try:
+    from distutils.command.build_py import build_py_2to3 as build_py
+    print('Porting to Python 3...')
+except ImportError:
+    # 2.x
+    from distutils.command.build_py import build_py
 
 CLASSIFIERS = """\
 Development Status :: 4 - Beta
@@ -37,7 +42,7 @@ except ImportError:
 # Sphinx build (documentation) - taken from the spyder project
 # Copyright 2009-2011 Pierre Raybaut
 # Licensed under the terms of the MIT License
-class MyBuild(build):
+class MyBuild(build_py):
    def has_doc(self):
         setup_dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.isdir(os.path.join(setup_dir, 'doc'))
@@ -56,14 +61,14 @@ class MyBuildDoc(BuildDoc):
         sys.path.pop(0)
 
 if sphinx:
-   cmdclass = {'build': MyBuild, 'build_sphinx': MyBuildDoc}
+   cmdclass = {'build_py': MyBuild, 'build_sphinx': MyBuildDoc}
    try:
        from sphinx_pypi_upload import UploadDoc
        cmdclass['upload_sphinx'] = UploadDoc
    except ImportError:
        pass
 else:
-   cmdclass = {}
+   cmdclass = {'build_py': build_py}
 
 
 setup(

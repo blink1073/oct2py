@@ -30,7 +30,7 @@ class ThreadClass(threading.Thread):
         octave.put('name', self.getName())
         name = octave.get('name')
         now = datetime.datetime.now()
-        print "{0} got '{1}' at {2}".format(self.getName(), name, now)
+        print("{0} got '{1}' at {2}".format(self.getName(), name, now))
         octave._close()
         try:
             assert self.getName() == name
@@ -54,8 +54,8 @@ def thread_test(nthreads=3):
         If the thread does not sucessfully demonstrate independence.
 
     """
-    print "Starting {0} threads at {1}".format(nthreads,
-                                               datetime.datetime.now())
+    print("Starting {0} threads at {1}".format(nthreads,
+                                               datetime.datetime.now()))
     threads = []
     for i in range(nthreads):
         thread = ThreadClass()
@@ -64,7 +64,7 @@ def thread_test(nthreads=3):
         threads.append(thread)
     for thread in threads:
         thread.join()
-    print 'All threads closed at {0}'.format(datetime.datetime.now())
+    print('All threads closed at {0}'.format(datetime.datetime.now()))
 
 
 if __name__ == '__main__':

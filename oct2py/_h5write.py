@@ -9,12 +9,12 @@
 try:
     import h5py
 except:
-    print 'Please install h5py from'
-    print '"http://code.google.com/p/h5py/downloads/list"'
+    print('Please install h5py from')
+    print('"http://code.google.com/p/h5py/downloads/list"')
     raise
 import os
 import numpy as np
-from _utils import Oct2PyError, _register_del, _create_hdf
+from oct2py._utils import Oct2PyError, _register_del, _create_hdf
 
 
 class H5Write(object):

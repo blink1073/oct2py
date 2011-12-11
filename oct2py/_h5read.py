@@ -9,11 +9,11 @@
 try:
     import h5py
 except:
-    print 'Please install h5py from'
-    print '"http://code.google.com/p/h5py/downloads/list"'
+    print('Please install h5py from')
+    print('"http://code.google.com/p/h5py/downloads/list"')
     raise
 import numpy as np
-from _utils import Struct, _create_file, _register_del
+from oct2py._utils import Struct, _create_file, _register_del
 
 
 class H5Read(object):
@@ -100,7 +100,7 @@ class H5Read(object):
             Python object extracted from file.
 
         """
-        type_ = group['type'].value
+        type_ = group['type'].value.decode('ascii')
         val = group['value'].value
         # strings come in as byte arrays
         if type_ == 'sq_string' or type_ == 'string':
@@ -173,9 +173,9 @@ class H5Read(object):
 
         Returns
         =======
-        out : scalar, list, or list of lists
+        out : scalar, list, list of lists, or np.ndarray
             Return the array contents, matching the shape of the
-            cell array.
+            cell array.  If rank is > 2, return an ndarray.
 
         """
         dims = data['dims']
@@ -196,4 +196,11 @@ class H5Read(object):
                     stop = (row + 1) * dims[1]
                     temp.append([data[key] for key in range(start, stop)])
                 data = temp
+        else:
+            # treat it is an np object array
+            out = []
+            for key in sorted(data.keys()):
+                if not key == 'dims':
+                    out.append(data[key])
+            data = np.array(out).reshape(data['dims'])
         return data

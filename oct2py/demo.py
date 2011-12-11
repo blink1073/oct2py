@@ -56,18 +56,18 @@ def demo(delay=2):
     print y
     """
 
-    print 'oct2py demo'
-    print '*' * 20
+    print('oct2py demo')
+    print('*' * 20)
     for line in script.strip().split('\n'):
         line = line.strip()
         if not line.startswith('raw_input'):
             time.sleep(delay)
-            print ">>>", line
+            print(">>> {0}".format(line))
             time.sleep(delay)
         exec(line)
     time.sleep(delay)
-    print '*' * 20
-    print 'DEMO COMPLETE!'
+    print('*' * 20)
+    print('DEMO COMPLETE!')
 
 if __name__ == '__main__':
     demo(delay=2)

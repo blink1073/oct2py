@@ -10,9 +10,9 @@ import os
 import re
 import doctest
 import atexit
-from _matwrite import MatWrite
-from _h5read import H5Read
-from _utils import _open, _get_nout, _register_del, Oct2PyError
+from oct2py._matwrite import MatWrite
+from oct2py._h5read import H5Read
+from oct2py._utils import _open, _get_nout, _register_del, Oct2PyError
 
 
 class Oct2Py(object):
@@ -311,26 +311,22 @@ class Oct2Py(object):
 
         """
         resp = []
-        # use ascii code 201 to signal an error and 200
-        # to signal action complete
+        # use ascii code 21 to signal an error and 3
+        # to signal end of text
         if isinstance(cmds, str):
             cmds = [cmds]
-        lines = ['try', '\n'.join(cmds), 'disp(char(200))',
-                 'catch', 'disp(lasterr())', 'disp(char(201))',
+        lines = ['try', '\n'.join(cmds), 'disp(char(3))',
+                 'catch', 'disp(lasterr())', 'disp(char(21))',
                  'end', '']
-        eval_ = '\n'.join(lines)
-        self._session.stdin.write(bytes(eval_).encode('ascii'))
+        eval_ = '\n'.join(lines).encode('ascii')
+        self._session.stdin.write(eval_)
         self._session.stdin.flush()
         while 1:
-            line = self._session.stdout.readline().rstrip()
-            try:
-                line = ''.join([chr(char) for char in line])
-            except TypeError:
-                pass
-            if line == chr(200):
+            line = self._session.stdout.readline().rstrip().decode('ascii')
+            if line == '\x03':
                 break
-            elif line == chr(201):
-                msg = '"""\n{0}\n"""\n{0}'.format('\n'.join(cmds),
+            elif line == '\x15':
+                msg = '"""\n{0}\n"""\n{1}'.format('\n'.join(cmds),
                                                   '\n'.join(resp))
                 raise Oct2PyError(msg)
             elif verbose:
@@ -350,6 +346,7 @@ class Oct2Py(object):
             kwargs['verbose'] = False
             return self.call(name, *args, **kwargs)
         octave_command.__doc__ = "\n" + doc
+        octave_command.__name__ = name
         return octave_command
 
     def _get_doc(self, name):

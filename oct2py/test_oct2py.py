@@ -20,11 +20,12 @@ float96 and complex192 can be recast as float64 and complex128.
 """
 import unittest
 import numpy as np
-from _oct2py import Oct2Py, Oct2PyError
-import _utils
-Struct = _utils.Struct
+from oct2py import Oct2Py, Oct2PyError
+import oct2py._utils as _utils
+from oct2py._utils import Struct
 octave = Oct2Py()
 octave.addpath('tests')
+
 
 TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                (long, 'int64', np.int64),
@@ -32,7 +33,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (complex, 'double', np.complex128),
                 (str, 'char', str),
                 (unicode, 'char', str),
-                (bool, 'int32', np.int32),
+                (bool, 'int8', np.int8),
                 (None, 'double', np.float64),
                 (dict, 'struct', Struct),
                 (np.int8, 'int8', np.int8),
@@ -70,13 +71,11 @@ class TypeConversions(unittest.TestCase):
             try:
                 self.assertEqual(octave_type, oct_type)
             except AssertionError:
-                import pdb; pdb.set_trace()
-                pass
+                raise
             try:
                 self.assertEqual(type(incoming), in_type)
             except AssertionError:
-                import pdb; pdb.set_trace()
-                pass
+                raise
 
 class IncomingTest(unittest.TestCase):
     """Test the importing of all Octave data types, checking their type
@@ -175,8 +174,24 @@ class RoundtripTest(unittest.TestCase):
         """Open an instance of Octave and get a struct all datatypes.
         """
         self.data = octave.test_datatypes()
+        
+    def nested_equal(self, val1, val2):
+        """Test for equality in a nested list or ndarray
+        """
+        if isinstance(val1, list):
+            for (subval1, subval2) in zip(val1, val2):
+                if isinstance(subval1, list):
+                    self.nested_equal(subval1, subval2)
+                elif isinstance(subval1, np.ndarray):
+                    np.allclose(subval1, subval2)
+                else:
+                    self.assertEqual(subval1, subval2)
+        elif isinstance(val1, np.ndarray):
+            np.allclose(val1, np.array(val2))
+        else:
+            self.assertEqual(val1, val2)
 
-    def helper(self, outgoing):
+    def helper(self, outgoing, expected_type=None):
         """
         Use roundtrip.m to make sure the data goes out and back intact.
 
@@ -187,25 +202,16 @@ class RoundtripTest(unittest.TestCase):
 
         """
         incoming = octave.roundtrip(outgoing)
+        if expected_type is None:
+            expected_type = type(outgoing)
         try:
-            self.assertEqual(incoming, outgoing)
-            self.assertEqual(type(incoming), type(outgoing))
-        except ValueError:
-            # np arrays must be compared specially
-            assert np.allclose(incoming, outgoing)
+            self.nested_equal(incoming, outgoing)
         except AssertionError:
             # need to test for NaN explicitly
-            if np.isnan(outgoing) and np.isnan(incoming):
-                pass
-            # floats are converted to doubles by Octave
-            elif (type(outgoing) == np.float32 and
-                  type(incoming) == np.float64):
-                pass
-            elif np.allclose(incoming, outgoing):
-                pass
-            else:
+            if not (np.isnan(outgoing) and np.isnan(incoming)):
                 raise
-
+        self.assertEqual(type(incoming), expected_type)
+                
     def test_int(self):
         """Test roundtrip value and type preservation for integer types
         """
@@ -216,8 +222,9 @@ class RoundtripTest(unittest.TestCase):
     def test_float(self):
         """Test roundtrip value and type preservation for float types
         """
-        for key in ['float32', 'float64', 'complex', 'complex_matrix']:
+        for key in ['float64', 'complex', 'complex_matrix']:
             self.helper(self.data.num[key])
+        self.helper(self.data.num['float32'], np.float64)
 
     def test_misc_num(self):
         """Test roundtrip value and type preservation for misc numeric types
@@ -240,17 +247,14 @@ class RoundtripTest(unittest.TestCase):
     def test_struct(self):
         """Test roundtrip value and type preservation for struct types
         """
-        for key in ['name', 'age']:
-            self.helper(self.data.struct.array[key])
+        self.helper(self.data.struct.array['name'])
+        self.helper(self.data.struct.array['age'], np.ndarray)
 
     def test_cell_array(self):
         """Test roundtrip value and type preservation for cell array types
         """
-        # TODO implement nested strings and arbitrary data arrays
         for key in ['vector', 'matrix']:
-            self.assertRaises(Oct2PyError, octave.roundtrip,
-                              self.data.cell[key])
-            #self.helper(self.data.cell[key])
+            self.helper(self.data.cell[key])
 
 
 class BuiltinsTest(unittest.TestCase):
@@ -260,7 +264,7 @@ class BuiltinsTest(unittest.TestCase):
     were brought in properly.
 
     """
-    def helper(self, outgoing, incoming=None):
+    def helper(self, outgoing, incoming=None, expected_type=None):
         """
         Uses roundtrip.m to make sure the data goes out and back intact.
 
@@ -276,20 +280,19 @@ class BuiltinsTest(unittest.TestCase):
             try:
                 incoming = octave.roundtrip(outgoing)
             except Oct2PyError:
-                import pdb; pdb.set_trace()
-                pass
-        expected_type = type(outgoing)
-        for out_type, _, in_type in TYPE_CONVERSIONS:
-            if out_type == type(outgoing):
-                expected_type = in_type
-                break
+                raise
+        if not expected_type:
+            for out_type, _, in_type in TYPE_CONVERSIONS:
+                if out_type == type(outgoing):
+                    expected_type = in_type
+                    break
+        if not expected_type:
+            expected_type = np.ndarray
         try:
             self.assertEqual(incoming, outgoing)
-            self.assertEqual(type(incoming), expected_type)
         except ValueError:
-            # np arrays must be compared specially
-            #import pdb; pdb.set_trace()
             assert np.allclose(incoming, outgoing)
+        self.assertEqual(type(incoming), expected_type)
 
     def test_dict(self):
         """Test python dictionary
@@ -307,11 +310,10 @@ class BuiltinsTest(unittest.TestCase):
         incoming = octave.roundtrip(test)
         incoming = dict(incoming)
         for key in test:
-            #import pdb; pdb.set_trace()
             if isinstance(test[key], dict):
                 for subkey in test[key]:
                     self.helper(test[key][subkey], incoming[key][subkey])
-            else:
+            else:                
                 self.helper(test[key], incoming[key])
 
     def test_set(self):
@@ -326,14 +328,14 @@ class BuiltinsTest(unittest.TestCase):
         """Test python tuple type
         """
         test = tuple((1, 2, 3))
-        self.helper(test)
+        self.helper(test, expected_type=np.ndarray)
 
     def test_list(self):
         """Test python list type
         """
         tests = [[1, 2], ['a', 'b']]
-        for test in tests:
-            self.helper(test)
+        self.helper(tests[0])
+        self.helper(tests[1], expected_type=list)
 
     def test_list_of_tuples(self):
         """Test python list of tuples
@@ -353,21 +355,20 @@ class BuiltinsTest(unittest.TestCase):
     def test_string(self):
         """Test python str and unicode types
         """
-        tests = ['spam', u'eggs']
+        tests = ['spam', unicode('eggs')]
         for test in tests:
             self.helper(test)
 
     def test_nested_list(self):
         """Test python nested lists
         """
-        #TODO implement nested strings
         test = [['spam', 'eggs'], ['foo ', 'bar ']]
-        self.assertRaises(Oct2PyError, octave.roundtrip, test)
+        self.helper(test, expected_type=list)
         test = [[1, 2], [3, 4]]
         self.helper(test)
-        # TODO implement arbitrary object passing
         test = [[1, 2], [3, 4, 5]]
-        self.assertRaises(Oct2PyError, octave.roundtrip, test)
+        # must be a regular matrix
+        self.assertRaises(Oct2PyError, self.helper, test)
 
     def test_bool(self):
         """Test boolean values
@@ -376,7 +377,7 @@ class BuiltinsTest(unittest.TestCase):
         for test in tests:
             incoming = octave.roundtrip(test)
             self.assertEqual(incoming, test)
-            self.assertEqual(type(incoming), np.int32)
+            self.assertEqual(type(incoming), np.int8)
 
     def test_none(self):
         """Test sending None type
@@ -392,7 +393,7 @@ class NumpyTest(unittest.TestCase):
         """Create the numpy code types to check and blacklist some.
         """
         self.codes = np.typecodes['All']
-        self.blacklist = 'gGVO'
+        self.blacklist = 'gGV'
 
     def test_scalars(self):
         """Send a scalar numpy type and make sure we get the same number back.
@@ -411,22 +412,11 @@ class NumpyTest(unittest.TestCase):
                 self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                 continue
             incoming = octave.roundtrip(outgoing)
-            '''
-            if typecode in 'Mm':
-                assert np.allclose(incoming, outgoing.astype(np.uint64))
-            '''
-            if typecode == '|b1':
-                self.assertEqual(bool(outgoing), bool(incoming))
-            else:
-                try:
-                   assert np.allclose(np.array(incoming), outgoing)
-                except NotImplementedError:
-                   self.assertEqual(np.array(incoming), outgoing)
-                except IndexError:
-                    assert np.alltrue(np.array(incoming) == outgoing)
-                except TypeError:
-                    assert np.allclose(incoming, outgoing.astype(np.uint64))
-
+            try:
+                assert np.allclose(incoming, outgoing)
+            except (ValueError, TypeError, NotImplementedError):
+                assert np.alltrue(np.array(incoming) == outgoing)
+                
     def test_ndarrays(self):
         """Send an ndarray and make sure we get the same array back
         """
@@ -435,24 +425,25 @@ class NumpyTest(unittest.TestCase):
             size = [np.random.randint(1, 10) for i in range(ndims)]
             outgoing = (np.random.randint(-255, 255, tuple(size)))
             outgoing += np.random.rand(*size)
-            if typecode == 'V':
+            if typecode in ['U', 'S']:
+                outgoing = [[['spam', 'eggs'],['spam', 'eggs']],[['spam', 'eggs'],['spam', 'eggs']]]
+                outgoing = np.array(outgoing).astype(typecode)
+            elif typecode == 'V':
                 outgoing = np.array('spam').astype('V')
             else:
                 try:
                     outgoing = outgoing.astype(typecode)
                 except TypeError:
                     pass
-            # TODO implement when string matrices are working
-            if typecode in self.blacklist or typecode in 'SU':
+            if typecode in self.blacklist:
                 self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                 continue
             incoming = octave.roundtrip(outgoing)
+            incoming = np.array(incoming)
             try:
                 assert np.allclose(incoming, outgoing)
-            except AssertionError:
-                assert np.alltrue(abs(incoming - outgoing) < 1e-3)
-            except TypeError:
-                assert np.allclose(incoming, outgoing.astype(np.uint64))
+            except (ValueError, TypeError, NotImplementedError):
+                assert np.alltrue(np.array(incoming) == outgoing)
 
 
 class BasicUsageTest(unittest.TestCase):
@@ -493,7 +484,6 @@ class BasicUsageTest(unittest.TestCase):
         self.assertEqual(out, 1)
         self.assertRaises(Oct2PyError, octave.call, '_spam')
 
-
     def test_put_get(self):
         """Test putting and getting values
         """
@@ -502,8 +492,7 @@ class BasicUsageTest(unittest.TestCase):
         try:
             assert np.allclose(out, np.array([1, 2]))
         except AssertionError:
-            import pdb; pdb.set_trace()
-            pass
+            raise
         octave.put(['spam', 'eggs'], ['foo', [1, 2, 3, 4]])
         spam, eggs = octave.get(['spam', 'eggs'])
         self.assertEqual(spam, 'foo')
@@ -522,7 +511,10 @@ class BasicUsageTest(unittest.TestCase):
         """
         tests = [octave.zeros, octave.ones, octave.plot]
         for test in tests:
-            self.assertEqual(repr(type(test)), "<type 'function'>")
+            try: 
+                self.assertEqual(repr(type(test)), "<type 'function'>")
+            except AssertionError:
+                self.assertEqual(repr(type(test)), "<class 'function'>")
         self.assertRaises(Oct2PyError, octave.__getattr__, 'aaldkfasd')
         self.assertRaises(Oct2PyError, octave.__getattr__, '_foo')
         self.assertRaises(Oct2PyError, octave.__getattr__, 'foo\W')
@@ -546,6 +538,6 @@ class BasicUsageTest(unittest.TestCase):
         self.assertEqual(test['eggs']['spam'], 'eggs')
 
 if __name__ == '__main__':
-    print 'py2oct test'
+    print 'py2oct test here'
     print '*' * 20
     unittest.main()
