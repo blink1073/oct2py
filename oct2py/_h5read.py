@@ -199,8 +199,10 @@ class H5Read(object):
         else:
             # treat it is an np object array
             out = []
+            dims = data['dims']
+            del data['dims']
             for key in sorted(data.keys()):
                 if not key == 'dims':
                     out.append(data[key])
-            data = np.array(out).reshape(data['dims'])
+            data = np.array(out).reshape(dims)
         return data

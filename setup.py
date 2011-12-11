@@ -84,6 +84,6 @@ setup(
     description='Python to GNU Octave bridge --> run m-files from python.',
     long_description=open('README.txt').read(),
     classifiers=filter(None, CLASSIFIERS.split('\n')),
-    requires=["h5py (>=2.0.0)", "numpy (>=1.4.1)"],
+    requires=["h5py (>=2.0.0)", "numpy (>=1.4.1)", "scipy (>=0.9.0)"],
     cmdclass=cmdclass,
     )

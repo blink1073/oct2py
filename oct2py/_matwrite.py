@@ -76,7 +76,7 @@ class MatWrite(object):
         ==========
         dict_ : dict
             Dictionary of object(s) to store
-        
+
         Returns
         =======
         out : array
@@ -90,7 +90,7 @@ class MatWrite(object):
             else:
                 data[key] = self._putval(dict_[key])
         return data
-        
+
     def _putval(self, data):
         """
         Convert data into a state suitable for transfer.
@@ -99,7 +99,7 @@ class MatWrite(object):
         ==========
         data : object
             Value to write to file.
-            
+
         Returns
         =======
         out : object
@@ -127,7 +127,7 @@ class MatWrite(object):
         try:
             data = np.array(data)
         except ValueError as err:
-            raise Oct2PyError(err)
+            data = np.array(data, dtype=object)
         dstr = data.dtype.str
         if 'c' in dstr and dstr[-2:] == '24':
             raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
