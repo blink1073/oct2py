@@ -98,7 +98,11 @@ def _remove_files(filename=''):
     files = os.listdir(os.getcwd())
     for fname in files:
         if re.match(r'(load|save)_.{10}\.(mat|hdf)', fname):
-            if (time.time() - os.path.getatime(fname) > 60):
+            try:
+                atime = os.path.getatime(fname)
+            except OSError:
+                continue
+            if (time.time() - atime  > 60):
                 try:
                     os.remove(fname)
                 except OSError:
@@ -179,7 +183,7 @@ class Struct(dict):
     >>> a = Struct()
     >>> a.b = 'spam'  # a["b"] == 'spam'
     >>> a.c["d"] = 'eggs'  # a.c.d == 'eggs'
-    >>> print a
+    >>> print(a)
     {'c': {'d': 'eggs'}, 'b': 'spam'}
 
     """

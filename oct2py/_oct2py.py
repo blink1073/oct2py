@@ -72,7 +72,7 @@ class Oct2Py(object):
         --------
         >>> from oct2py import octave
         >>> out = octave.run('y=ones(3,3)')
-        >>> print out
+        >>> print(out)
         y =
         <BLANKLINE>
                 1        1        1
@@ -80,7 +80,7 @@ class Oct2Py(object):
                 1        1        1
         <BLANKLINE>
         >>> octave.run('x = mean([[1, 2], [3, 4]])')
-        'x =  2.5000'
+        u'x =  2.5000'
 
         """
         # don't return a value from a script
@@ -129,7 +129,7 @@ class Oct2Py(object):
         --------
         >>> from oct2py import octave
         >>> b = octave.call('ones', 1, 2)
-        >>> print b
+        >>> print(b)
         (1.0, 1.0, 0.0)
         >>> x, y = 1, 2
         >>> a = octave.call('zeros', x, y, verbose=True)
@@ -138,7 +138,7 @@ class Oct2Py(object):
                 0        0
         <BLANKLINE>
         >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
-        >>> print U, S, V
+        >>> print(U, S, V)
         [[-0.57604844 -0.81741556]
          [-0.81741556  0.57604844]] [[ 3.86432845  0.        ]
          [ 0.          0.25877718]] [[-0.36059668 -0.93272184]

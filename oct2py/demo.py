@@ -23,8 +23,8 @@ def demo(delay=2):
     from oct2py import Oct2Py
     oc = Oct2Py()
     # basic commands
-    print oc.abs(-1)
-    print oc.upper('xyz')
+    print(oc.abs(-1))
+    print(oc.upper('xyz'))
     # plotting
     oc.plot([1,2,3],'-o')
     raw_input('Press Enter to continue...')
@@ -35,15 +35,15 @@ def demo(delay=2):
     oc.lookfor('singular value')
     help(oc.svd)
     # single vs. multiple return values
-    print oc.svd(np.array([[1,2], [1,3]]))
+    print(oc.svd(np.array([[1,2], [1,3]])))
     U, S, V = oc.svd([[1,2], [1,3]])
-    print U, S, V
+    print(U, S, V)
     # low level constructs
     oc.run("y=ones(3,3)")
-    print oc.get("y")
+    print(oc.get("y"))
     oc.run("x=zeros(3,3)", verbose=True)
     x = oc.call('rand', 1, 4)
-    print x
+    print(x)
     t = oc.call('rand', 1, 2, verbose=True)
     y = np.zeros((3,3))
     oc.put('y', y)
@@ -52,8 +52,8 @@ def demo(delay=2):
     y = Struct()
     y.b = 'spam'
     y.c.d = 'eggs'
-    print y.c['d']
-    print y
+    print(y.c['d'])
+    print(y)
     """
 
     print('oct2py demo')
