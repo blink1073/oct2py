@@ -10,9 +10,10 @@ import os
 import re
 import doctest
 import atexit
-from oct2py._matwrite import MatWrite
-from oct2py._h5read import H5Read
-from oct2py._utils import _open, _get_nout, _register_del, Oct2PyError
+import signal
+from _matwrite import MatWrite
+from _h5read import H5Read
+from _utils import _open, _get_nout, _register_del, Oct2PyError
 
 
 class Oct2Py(object):
@@ -33,20 +34,19 @@ class Oct2Py(object):
         """Start Octave and create our HDF helpers
         """
         self._session = _open()
-        atexit.register(lambda handle=self._session: self._close(handle))
+        atexit.register(lambda handle=self._session: self.close(handle))
         self._reader = H5Read()
         self._writer = MatWrite()
+        
 
-    def _close(self, handle=None):
+    def close(self, handle=None):
         """Closes this octave session
         """
         if not handle:
             handle = self._session
-        try:
-            handle.stdin.write('exit\n')
-        except (ValueError, TypeError, IOError):
-            pass
-
+        # Send the terminate signal to all the process groups
+        os.killpg(self._session.pid, signal.SIGTERM)  
+              
     def run(self, script, **kwargs):
         """
         Run artibrary Octave code.
@@ -319,15 +319,25 @@ class Oct2Py(object):
                  'catch', 'disp(lasterr())', 'disp(char(21))',
                  'end', '']
         eval_ = '\n'.join(lines).encode('ascii')
-        self._session.stdin.write(eval_)
+        try:
+            self._session.stdin.write(eval_)
+        except IOError:
+            raise Oct2PyError('The session is closed')
         self._session.stdin.flush()
+        syntax_error = False
         while 1:
             line = self._session.stdout.readline().rstrip().decode('ascii')
             if line == '\x03':
                 break
             elif line == '\x15':
                 msg = '"""\n{0}\n"""\n{1}'.format('\n'.join(cmds),
-                                                  '\n'.join(resp))
+                                                   '\n'.join(resp))
+                raise Oct2PyError(msg)
+            elif "syntax error" in line:
+                syntax_error = True
+            elif syntax_error and "^" in line:
+                resp.append(line)
+                msg = '\n'.join(resp)
                 raise Oct2PyError(msg)
             elif verbose:
                 print(line)
@@ -403,7 +413,7 @@ class Oct2Py(object):
     def __del__(self):
         """Close the Octave session before deletion.
         """
-        self._close()
+        self.close()
 
 
 def _test():

@@ -14,7 +14,7 @@ except:
     raise
 import os
 import numpy as np
-from oct2py._utils import Oct2PyError, _register_del, _create_hdf
+from ._utils import Oct2PyError, _register_del, _create_hdf
 
 
 class H5Write(object):

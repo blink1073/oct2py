@@ -127,17 +127,17 @@ MATLAB® is registered trademark of The MathWorks.
 
 """
 
-from oct2py._oct2py import Oct2Py, Oct2PyError
+from _oct2py import Oct2Py, Oct2PyError
 
 octave = Oct2Py()
 
-from oct2py._utils import Struct
+from _utils import Struct
 
-from oct2py.demo import demo
+from demo import demo
 
-from oct2py.speed_test import speed_test
+from speed_test import speed_test
 
-from oct2py.thread_test import thread_test
+from thread_test import thread_test
 
 __version__ = '0.2.1'
 

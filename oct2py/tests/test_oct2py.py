@@ -22,9 +22,9 @@ import unittest
 import os
 import sys
 import numpy as np
-from oct2py import Oct2Py, Oct2PyError
-import oct2py._utils as _utils
-from oct2py._utils import Struct
+sys.path.append('..')
+from _oct2py import Oct2Py, Oct2PyError
+from _utils import Struct, _remove_files
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
 
@@ -104,7 +104,7 @@ class IncomingTest(unittest.TestCase):
         self.data = octave.test_datatypes()
 
     def tearDown(self):
-        _utils._remove_files()
+        _remove_files()
 
     def helper(self, base, keys, types):
         """
@@ -201,6 +201,10 @@ class RoundtripTest(unittest.TestCase):
                     self.assertEqual(subval1, subval2)
         elif isinstance(val1, np.ndarray):
             np.allclose(val1, np.array(val2))
+        elif isinstance(val1, basestring):
+            self.assertEqual(val1, val2)
+        elif np.alltrue(np.isnan(val1)) and np.alltrue(np.isnan(val2)):
+            pass
         else:
             self.assertEqual(val1, val2)
 
@@ -538,8 +542,9 @@ class BasicUsageTest(unittest.TestCase):
         """Test opening and closing the Octave session
         """
         oct_ = Oct2Py()
-        oct_._close()
-        self.assertEqual(True, True)
+        oct_.close()
+        self.assertRaises(Oct2PyError, oct_.put, names=['a'], 
+                          var=[1.0])
 
     def test_struct(self):
         """Test Struct construct

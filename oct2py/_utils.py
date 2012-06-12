@@ -44,7 +44,8 @@ def _open():
         session = subprocess.Popen(cmd, shell=True,
                                  stderr=subprocess.STDOUT,
                                  stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE)
+                                 stdout=subprocess.PIPE,
+                                 preexec_fn=os.setsid)
     except WindowsError:
         octave_path = glob('c:/Octave/*/bin/octave.exe')[0]
         if not os.path.exists(octave_path):
@@ -57,7 +58,8 @@ def _open():
             session = subprocess.Popen(cmd, shell=True,
                                  stderr=subprocess.STDOUT,
                                  stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE)
+                                 stdout=subprocess.PIPE,
+                                 preexec_fn=os.setsid)
     except OSError:
         raise Oct2PyError('Please put the Octave executable in your PATH')
     return session
@@ -183,7 +185,7 @@ class Struct(dict):
     >>> a = Struct()
     >>> a.b = 'spam'  # a["b"] == 'spam'
     >>> a.c["d"] = 'eggs'  # a.c.d == 'eggs'
-    >>> print(a)
+    >>> print(
     {'c': {'d': 'eggs'}, 'b': 'spam'}
 
     """

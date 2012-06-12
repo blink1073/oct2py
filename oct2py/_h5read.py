@@ -13,7 +13,7 @@ except:
     print('"http://code.google.com/p/h5py/downloads/list"')
     raise
 import numpy as np
-from oct2py._utils import Struct, _create_file, _register_del
+from _utils import Struct, _create_file, _register_del
 
 
 class H5Read(object):

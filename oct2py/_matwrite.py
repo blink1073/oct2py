@@ -8,7 +8,7 @@
 """
 from scipy.io import savemat
 import numpy as np
-from oct2py._utils import Oct2PyError, _register_del, _create_file
+from _utils import Oct2PyError, _register_del, _create_file
 
 
 class MatWrite(object):

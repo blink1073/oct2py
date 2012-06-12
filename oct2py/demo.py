@@ -6,6 +6,8 @@
 
 """
 import time
+import sys
+sys.path.append('..')
 
 
 def demo(delay=2):
@@ -47,7 +49,7 @@ def demo(delay=2):
     t = oc.call('rand', 1, 2, verbose=True)
     y = np.zeros((3,3))
     oc.put('y', y)
-    print oc.get('y')
+    print(oc.get('y'))
     from oct2py import Struct
     y = Struct()
     y.b = 'spam'
@@ -55,6 +57,9 @@ def demo(delay=2):
     print(y.c['d'])
     print(y)
     """
+    import sys
+    if sys.version_info[0] == 3:
+        script = script.replace('raw_input', 'input')
 
     print('oct2py demo')
     print('*' * 20)
