@@ -8,7 +8,11 @@
 """
 import threading
 import datetime
-from _oct2py import Oct2Py, Oct2PyError
+
+try:
+    from ._oct2py import Oct2Py, Oct2PyError
+except ValueError:
+    from _oct2py import Oct2Py, Oct2PyError
 
 
 class ThreadClass(threading.Thread):
@@ -31,7 +35,7 @@ class ThreadClass(threading.Thread):
         name = octave.get('name')
         now = datetime.datetime.now()
         print("{0} got '{1}' at {2}".format(self.getName(), name, now))
-        octave._close()
+        octave.close()
         try:
             assert self.getName() == name
         except AssertionError:

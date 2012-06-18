@@ -11,9 +11,15 @@ import re
 import doctest
 import atexit
 import signal
-from _matwrite import MatWrite
-from _h5read import H5Read
-from _utils import _open, _get_nout, _register_del, Oct2PyError
+
+try:
+    from ._matwrite import MatWrite
+    from ._matread import MatRead
+    from ._utils import _open, _get_nout, _register_del, Oct2PyError
+except ValueError:
+    from _matwrite import MatWrite
+    from _matread import MatRead
+    from _utils import _open, _get_nout, _register_del, Oct2PyError
 
 
 class Oct2Py(object):
@@ -35,9 +41,8 @@ class Oct2Py(object):
         """
         self._session = _open()
         atexit.register(lambda handle=self._session: self.close(handle))
-        self._reader = H5Read()
+        self._reader = MatRead()
         self._writer = MatWrite()
-        
 
     def close(self, handle=None):
         """Closes this octave session
@@ -45,8 +50,13 @@ class Oct2Py(object):
         if not handle:
             handle = self._session
         # Send the terminate signal to all the process groups
-        os.killpg(self._session.pid, signal.SIGTERM)  
-              
+        os.killpg(self._session.pid, signal.SIGTERM)
+
+    def _close(self, handle=None):
+        '''Depracated, call close instead
+        '''
+        self.close(handle)
+
     def run(self, script, **kwargs):
         """
         Run artibrary Octave code.
@@ -130,7 +140,7 @@ class Oct2Py(object):
         >>> from oct2py import octave
         >>> b = octave.call('ones', 1, 2)
         >>> print(b)
-        (1.0, 1.0, 0.0)
+        [ 1.  1.]
         >>> x, y = 1, 2
         >>> a = octave.call('zeros', x, y, verbose=True)
         a__ =
@@ -139,10 +149,10 @@ class Oct2Py(object):
         <BLANKLINE>
         >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
         >>> print(U, S, V)
-        [[-0.57604844 -0.81741556]
-         [-0.81741556  0.57604844]] [[ 3.86432845  0.        ]
-         [ 0.          0.25877718]] [[-0.36059668 -0.93272184]
-         [-0.93272184  0.36059668]]
+        (array([[-0.57604844, -0.81741556],
+               [-0.81741556,  0.57604844]]), array([[ 3.86432845,  0.        ],
+               [ 0.        ,  0.25877718]]), array([[-0.36059668, -0.93272184],
+               [-0.93272184,  0.36059668]]))
 
         """
         verbose = kwargs.get('verbose', False)
@@ -209,10 +219,10 @@ class Oct2Py(object):
         >>> y = [1, 2]
         >>> octave.put('y', y)
         >>> octave.get('y')
-        array([[1, 2]])
+        array([1, 2])
         >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.get(['x', 'y'])
-        ('spam', array([[1, 2, 3, 4]]))
+        (u'spam', array([1, 2, 3, 4]))
 
         """
         if isinstance(names, str):
@@ -247,10 +257,10 @@ class Oct2Py(object):
           >>> y = [1, 2]
           >>> octave.put('y', y)
           >>> octave.get('y')
-          array([[1, 2]])
+          array([1, 2])
           >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
           >>> octave.get(['x', 'y'])
-          ('spam', array([[1, 2, 3, 4]]))
+          (u'spam', array([1, 2, 3, 4]))
 
         """
         if isinstance(var, str):

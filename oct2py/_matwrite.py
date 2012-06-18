@@ -8,7 +8,12 @@
 """
 from scipy.io import savemat
 import numpy as np
-from _utils import Oct2PyError, _register_del, _create_file
+import sys
+
+try:
+    from ._utils import Oct2PyError, _register_del, _create_file
+except ValueError:
+    from _utils import Oct2PyError, _register_del, _create_file
 
 
 class MatWrite(object):
@@ -63,9 +68,9 @@ class MatWrite(object):
         try:
             savemat(self.in_file, data, do_compression=False, oned_as='row')
         except KeyError:
-            import pdb; pdb.set_trace()
             pass
-        load_line = 'load "%s" "%s"' % (self.in_file, '" "'.join(argin_list))
+        load_line = 'load -v7 "%s" "%s"' % (self.in_file,
+                                            '" "'.join(argin_list))
         return argin_list, load_line
 
     def _putvals(self, dict_):
@@ -122,7 +127,8 @@ class MatWrite(object):
                     data = np.array(data, dtype=np.object)
                 except ValueError as err:
                     raise Oct2PyError(err)
-        if isinstance(data, str) or isinstance(data, unicode):
+        if (isinstance(data, str) or
+            (sys.version.startswith('2') and isinstance(data, unicode))):
             return data
         try:
             data = np.array(data)
@@ -148,8 +154,11 @@ class MatWrite(object):
         return data
 
     def str_in_list(self, list_):
+        '''See if there are any strings in the given list
+        '''
         for item in list_:
-            if isinstance(item, str):
+            if (isinstance(item, str) or
+                (sys.version.startswith('2') and isinstance(item, unicode))):
                 return True
             elif isinstance(item, list):
                 if self.str_in_list(item):

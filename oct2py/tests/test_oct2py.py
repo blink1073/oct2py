@@ -22,9 +22,14 @@ import unittest
 import os
 import sys
 import numpy as np
-sys.path.append('..')
-from _oct2py import Oct2Py, Oct2PyError
-from _utils import Struct, _remove_files
+
+try:
+    from oct2py._oct2py import Oct2Py, Oct2PyError
+    from oct2py._utils import Struct, _remove_files
+except ValueError:
+    from .._oct2py import Oct2Py, Oct2PyError
+    from .._utils import Struct, _remove_files
+
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
 
@@ -36,8 +41,8 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (long, 'int64', np.int64),
                 (float, 'double', np.float64),
                 (complex, 'double', np.complex128),
-                (str, 'char', str),
-                (unicode, 'cell', str),
+                (str, 'char', unicode),
+                (unicode, 'cell', unicode),
                 (bool, 'int8', np.int8),
                 (None, 'double', np.float64),
                 (dict, 'struct', Struct),
@@ -52,7 +57,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 #(np.float16, 'double', np.float64),
                 (np.float32, 'double', np.float64),
                 (np.float64, 'double', np.float64),
-                (np.str, 'char', np.str),
+                (np.str, 'char', np.unicode),
                 (np.double, 'double', np.float64),
                 (np.complex64, 'double', np.complex128),
                 (np.complex128, 'double', np.complex128), ]
@@ -81,7 +86,7 @@ class TypeConversions(unittest.TestCase):
                 elif octave_type == 'char' and oct_type == 'cell':
                     pass
                 else:
-                   raise
+                    raise
             try:
                 self.assertEqual(type(incoming), in_type)
             except AssertionError:
@@ -89,6 +94,7 @@ class TypeConversions(unittest.TestCase):
                     pass
                 else:
                     raise
+
 
 class IncomingTest(unittest.TestCase):
     """Test the importing of all Octave data types, checking their type
@@ -136,7 +142,7 @@ class IncomingTest(unittest.TestCase):
         """Test incoming float types
         """
         keys = ['float32', 'float64', 'complex', 'complex_matrix']
-        types = [np.float32, np.float64, np.complex128, np.ndarray]
+        types = [np.float64, np.float64, np.complex128, np.ndarray]
         self.helper(self.data.num, keys, types)
         self.assertEqual(self.data.num.complex_matrix.dtype,
                          np.dtype('complex128'))
@@ -159,7 +165,7 @@ class IncomingTest(unittest.TestCase):
         """Test incoming string types
         """
         keys = ['basic', 'char_array', 'cell_array']
-        types = [str, list, list]
+        types = [unicode, list, list]
         self.helper(self.data.string, keys, types)
 
     def test_struct(self):
@@ -225,7 +231,10 @@ class RoundtripTest(unittest.TestCase):
             self.nested_equal(incoming, outgoing)
         except AssertionError:
             # need to test for NaN explicitly
-            if not (np.isnan(outgoing) and np.isnan(incoming)):
+            try:
+                if not (np.isnan(outgoing) and np.isnan(incoming)):
+                    raise
+            except (NotImplementedError, TypeError):
                 raise
         self.assertEqual(type(incoming), expected_type)
 
@@ -309,14 +318,17 @@ class BuiltinsTest(unittest.TestCase):
             self.assertEqual(incoming, outgoing)
         except ValueError:
             assert np.allclose(incoming, outgoing)
-        self.assertEqual(type(incoming), expected_type)
+        try:
+            self.assertEqual(type(incoming), expected_type)
+        except AssertionError:
+            self.assertEqual(incoming[0], expected_type)
 
     def test_dict(self):
         """Test python dictionary
         """
         test = dict(x='spam', y=[1, 2, 3])
         incoming = octave.roundtrip(test)
-        incoming = dict(incoming)
+        #incoming = dict(incoming)
         for key in incoming:
             self.helper(test[key], incoming[key])
 
@@ -395,7 +407,7 @@ class BuiltinsTest(unittest.TestCase):
         for test in tests:
             incoming = octave.roundtrip(test)
             self.assertEqual(incoming, test)
-            self.assertEqual(type(incoming), np.int8)
+            self.assertEqual(incoming.dtype, np.dtype('int8'))
 
     def test_none(self):
         """Test sending None type
@@ -431,8 +443,10 @@ class NumpyTest(unittest.TestCase):
                 outgoing = outgoing.astype(np.uint64)
             try:
                 assert np.allclose(incoming, outgoing)
-            except (ValueError, TypeError, NotImplementedError, AssertionError):
-                assert np.alltrue(np.array(incoming).astype(typecode) == outgoing)
+            except (ValueError, TypeError, NotImplementedError,
+                     AssertionError):
+                assert np.alltrue(np.array(incoming).astype(typecode) ==
+                                   outgoing)
 
     def test_ndarrays(self):
         """Send an ndarray and make sure we get the same array back
@@ -443,7 +457,8 @@ class NumpyTest(unittest.TestCase):
             outgoing = (np.random.randint(-255, 255, tuple(size)))
             outgoing += np.random.rand(*size)
             if typecode in ['U', 'S']:
-                outgoing = [[['spam', 'eggs'],['spam', 'eggs']],[['spam', 'eggs'],['spam', 'eggs']]]
+                outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
+                            [['spam', 'eggs'], ['spam', 'eggs']]]
                 outgoing = np.array(outgoing).astype(typecode)
             else:
                 try:
@@ -458,9 +473,11 @@ class NumpyTest(unittest.TestCase):
             if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
                 outgoing = outgoing.astype(np.uint64)
             try:
-                assert np.allclose(incoming, outgoing)
-            except (AssertionError, ValueError, TypeError, NotImplementedError):
-                assert np.alltrue(np.array(incoming).astype(typecode) == outgoing)
+                assert np.allclose(incoming.squeeze(), outgoing.squeeze())
+            except (AssertionError, ValueError, TypeError,
+                     NotImplementedError):
+                assert np.alltrue(np.array(incoming.squeeze()).astype(typecode)
+                                   == outgoing.squeeze())
 
 
 class BasicUsageTest(unittest.TestCase):
@@ -485,7 +502,7 @@ class BasicUsageTest(unittest.TestCase):
         """Test the call command
         """
         out = octave.call('ones', 1, 2)
-        self.assertEqual(repr(out), '(1.0, 1.0, 0.0)')
+        assert np.allclose(out, np.ones((1, 2)))
         U, S, V = octave.call('svd', [[1, 2], [1, 3]])
         assert np.allclose(U, ([[-0.57604844, -0.81741556],
                             [-0.81741556, 0.57604844]]))
@@ -495,7 +512,6 @@ class BasicUsageTest(unittest.TestCase):
          [-0.93272184, 0.36059668]]))
         out = octave.call('roundtrip.m', 1)
         self.assertEqual(out, 1)
-        import os
         fname = os.path.join(__file__, 'roundtrip.m')
         out = octave.call(fname, 1)
         self.assertEqual(out, 1)
@@ -521,7 +537,10 @@ class BasicUsageTest(unittest.TestCase):
         """Testing help command
         """
         out = octave.cos.__doc__
-        self.assertEqual(out[:5], '\n`cos')
+        try:
+            self.assertEqual(out[:5], '\n`cos')
+        except AssertionError:
+            self.assertEqual(out[:5], '\ncos ')
 
     def test_dynamic(self):
         """Test the creation of a dynamic function
@@ -535,15 +554,13 @@ class BasicUsageTest(unittest.TestCase):
         self.assertRaises(Oct2PyError, octave.__getattr__, 'aaldkfasd')
         self.assertRaises(Oct2PyError, octave.__getattr__, '_foo')
         self.assertRaises(Oct2PyError, octave.__getattr__, 'foo\W')
-        out = octave.list()
-        self.assertEqual(out, dict())
 
     def test_open_close(self):
         """Test opening and closing the Octave session
         """
         oct_ = Oct2Py()
         oct_.close()
-        self.assertRaises(Oct2PyError, oct_.put, names=['a'], 
+        self.assertRaises(Oct2PyError, oct_.put, names=['a'],
                           var=[1.0])
 
     def test_struct(self):
@@ -553,7 +570,14 @@ class BasicUsageTest(unittest.TestCase):
         test.spam = 'eggs'
         test.eggs.spam = 'eggs'
         self.assertEqual(test['spam'], 'eggs')
-        self.assertEqual(test['eggs']['spam'], 'eggs')
+        self.assertEqual(test['eggs']['spam'], 'eggs') 
+        
+    def test_syntax_error(self):
+        """Make sure a syntax error in Octave throws an Oct2PyError
+        """
+        oct_ = Oct2Py()
+        self.assertRaises(Oct2PyError, oct_.eval, cmds="a='1")
+
 
 if __name__ == '__main__':
     print('py2oct test')

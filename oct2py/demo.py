@@ -6,8 +6,6 @@
 
 """
 import time
-import sys
-sys.path.append('..')
 
 
 def demo(delay=2):
@@ -34,7 +32,6 @@ def demo(delay=2):
     oc.surf(np.subtract.outer(np.sin(xx), np.cos(xx)))
     raw_input('Press Enter to continue...')
     # getting help
-    oc.lookfor('singular value')
     help(oc.svd)
     # single vs. multiple return values
     print(oc.svd(np.array([[1,2], [1,3]])))
@@ -75,4 +72,4 @@ def demo(delay=2):
     print('DEMO COMPLETE!')
 
 if __name__ == '__main__':
-    demo(delay=2)
+    demo(delay=0.5)
