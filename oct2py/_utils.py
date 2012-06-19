@@ -13,7 +13,10 @@ import atexit
 import inspect
 import dis
 import re
+import sys
 from glob import glob
+
+sys.path.append('..')
 
 
 def _open():
@@ -46,7 +49,7 @@ def _open():
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  preexec_fn=os.setsid)
-    except WindowsError:
+    except OSError:
         octave_path = glob('c:/Octave/*/bin/octave.exe')[0]
         if not os.path.exists(octave_path):
             msg = ('Please install Octave at "c:/Octave" '
@@ -67,7 +70,7 @@ def _open():
 
 def _register_del(fname):
     """
-    Register an HDF file for deletion at program exit.
+    Register a MAT file for deletion at program exit.
 
     Parameters
     ==========
@@ -80,9 +83,9 @@ def _register_del(fname):
 
 def _remove_files(filename=''):
     """
-    Remove the desired file and any old MAT and HDF files.
+    Remove the desired file and any old MAT files.
 
-    All HDF files in the current working directory over a minute old are
+    All MAT files in the current working directory over a minute old are
     deleted.
     This helps clean up orphaned HDF files in case the previous session did
     not close properly.
@@ -104,7 +107,7 @@ def _remove_files(filename=''):
                 atime = os.path.getatime(fname)
             except OSError:
                 continue
-            if (time.time() - atime  > 60):
+            if (time.time() - atime > 60):
                 try:
                     os.remove(fname)
                 except OSError:
@@ -185,7 +188,7 @@ class Struct(dict):
     >>> a = Struct()
     >>> a.b = 'spam'  # a["b"] == 'spam'
     >>> a.c["d"] = 'eggs'  # a.c.d == 'eggs'
-    >>> print(
+    >>> print(a)
     {'c': {'d': 'eggs'}, 'b': 'spam'}
 
     """

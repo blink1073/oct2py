@@ -3,13 +3,12 @@ Thanks
 Details
 =======
 J. Eaton and friends, for the GNU Octave project.  There would be no bridge without a suitable destination.
-Andrew Collette, for the h5py library, the glue for this package.
 Alexander Schmolck and Vivek Rathod for mlabwrap library, upon which this is based.
 Peter Jurica, for the ompc library and the nargout method.
 Dan MacKinlay, for the sphinx library, which as used to create the project documentation.
-Stefan van der Walt and Pauli Virtanen, for the numpdoc library, which was used to render numpy-style docstrings in the documentation.
+Stefan van der Walt and Pauli Virtanen, for the numpdoc library, which was used to render numpy-style docstrings in the documentation.  And Stefan also for two patches to oct2py and for creating the octavemagic plugin for IPython.
 Pierre Reybaut, for the sphinx build commands in setup.py from spyder.
-Travis Oliphant and friends, for the numpy library, *the* reason to switch to Python for scientific computing.
+Travis Oliphant and friends, for the numpy and scipy libraries, *the* reason to switch to Python for scientific computing.
 And of course, our Benevolent Dictactor for Life, Guido van Rossum.
 
 Citations

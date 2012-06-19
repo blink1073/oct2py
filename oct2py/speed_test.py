@@ -9,7 +9,11 @@
 import time
 import timeit
 import numpy as np
-from _oct2py import Oct2Py
+
+try:
+    from ._oct2py import Oct2Py
+except ValueError:
+    from _oct2py import Oct2Py
 
 
 class SpeedCheck(object):
@@ -55,7 +59,7 @@ class SpeedCheck(object):
         avg = timeit.timeit(self.raw_speed, number=200) / 200
         print('    {0:0.01f} usec per loop'.format(avg * 1e6))
         sides = [1, 10, 100, 1000]
-        runs = [200, 200, 200, 50]
+        runs = [200, 200, 100, 10]
         for (side, nruns) in zip(sides, runs):
             self.array = np.reshape(np.arange(side ** 2), (-1))
             print('Put {0}x{1}: '.format(side, side))
@@ -66,7 +70,7 @@ class SpeedCheck(object):
             avg = timeit.timeit(self.large_array_get, number=nruns) / nruns
             print('    {0:0.01f} msec'.format(avg * 1e3))
 
-        self.octave._close()
+        self.octave.close()
         print('*' * 20)
         print('Test complete!')
 

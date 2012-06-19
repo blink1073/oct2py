@@ -25,6 +25,8 @@ Intended Audience :: Science/Research
 License :: OSI Approved :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
+Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3.2
 Topic :: Scientific/Engineering
 Topic :: Software Development
 """
@@ -43,10 +45,10 @@ except ImportError:
 # Copyright 2009-2011 Pierre Raybaut
 # Licensed under the terms of the MIT License
 class MyBuild(build_py):
-   def has_doc(self):
+    def has_doc(self):
         setup_dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.isdir(os.path.join(setup_dir, 'doc'))
-   sub_commands = build.sub_commands + [('build_sphinx', has_doc)]
+    sub_commands = build.sub_commands + [('build_sphinx', has_doc)]
 
 class MyBuildDoc(BuildDoc):
     def run(self):
@@ -61,14 +63,14 @@ class MyBuildDoc(BuildDoc):
         sys.path.pop(0)
 
 if sphinx:
-   cmdclass = {'build_py': MyBuild, 'build_sphinx': MyBuildDoc}
-   try:
-       from sphinx_pypi_upload import UploadDoc
-       cmdclass['upload_sphinx'] = UploadDoc
-   except ImportError:
-       pass
+    cmdclass = {'build_py': MyBuild, 'build_sphinx': MyBuildDoc}
+    try:
+        from sphinx_pypi_upload import UploadDoc
+        cmdclass['upload_sphinx'] = UploadDoc
+    except ImportError:
+        pass
 else:
-   cmdclass = {'build_py': build_py}
+    cmdclass = {'build_py': build_py}
 
 
 setup(
@@ -84,6 +86,6 @@ setup(
     description='Python to GNU Octave bridge --> run m-files from python.',
     long_description=open('README.txt').read(),
     classifiers=filter(None, CLASSIFIERS.split('\n')),
-    requires=["h5py (>=2.0.0)", "numpy (>=1.4.1)", "scipy (>=0.9.0)"],
+    requires=["numpy (>= 1.4.1)", "scipy (>= 0.9.0)"],
     cmdclass=cmdclass,
     )

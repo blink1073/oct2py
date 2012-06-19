@@ -1,3 +1,5 @@
+v0.3.0, 16 June 2012     -- Added Python 3 support, support for numpy "objects"
+v0.2.1, 25 November 2011 -- Added Sphinx documentation
 v0.1.4, 15 November 2011 -- One more try to get pip to work.
 v0.1.3, 15 November 2011 -- Still trying to get pip to work.
 v0.1.2, 15 November 2011 -- Removed explicit numpy setup.py dependence, fixed package docstring.

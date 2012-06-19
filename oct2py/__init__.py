@@ -12,7 +12,7 @@ Uses Octave to run commands and m-files. Run::
     >>> oct2py.demo()
 
 for a live demo of features.  Supports any Octave function or m-file,
-passing the data seamlessly between Python and Octave using HDF files.
+passing the data seamlessly between Python and Octave using MAT files.
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 
@@ -41,8 +41,7 @@ matrix, and the value returned would be the original array, of type np.int8.
 Almost all Python types can be sent to Octave (including ndarrays of
 arbitrary rank) and read back in the same form.
 Currently the library does not support nested lists with strings in them, or
-an ndarray of string dtype of rank > 1.  Ndarrays of dtype "object" are not
-implemented either.
+an ndarray of string dtype of rank > 1.
 Corner cases like sparse or empty  matrices have not been tested.
 Note that dictionaries are mapped to Octave structures, which are returned
 as Struct objects.  These objects behave just like an Octave struct, but
@@ -57,10 +56,10 @@ can be accessed as a dictionary as well::
 
 Performance
 ===========
-There is a penalty for passing data via HDF files.  Running speed_test.py
+There is a penalty for passing data via MAT files.  Running speed_test.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
-writing from the HDF file is around 5-10ms on my laptop.  This penalty is
+writing from the MAT file is around 10-20ms on my laptop.  This penalty is
 felt  for both incoming and outgoing values.  As the data becomes
 larger, the delay begins to increase (somewhere around a 100x100 array).
 If you have any loops, you would be better served using a raw "run"
@@ -81,7 +80,7 @@ foo.eps with the file name of your choice), after each plot statement.
 Thread Safety
 =============
 Each instance of the Octave object has an independent session of Octave and
-uses independent random HDF files. The library appears to be thread safe.
+uses independent random MAT files. The library appears to be thread safe.
 See thread_test.py for an example of several objects writing a different
 value for the same variable name simultaneously and successfully retrieving
 their own result::
@@ -91,7 +90,6 @@ their own result::
 
 Future enhancements
 ===================
-* Add support for arbitrary outgoing "cell arrays" and ndarray "objects".
 * Add a Octave code compability check function.
 * Add a feature to scan a file for plot statements and automatically add a
   line to print the plot, allowing Python to render it.
@@ -127,19 +125,22 @@ MATLAB® is registered trademark of The MathWorks.
 
 """
 
-from _oct2py import Oct2Py, Oct2PyError
+__version__ = '0.3.0'
 
-octave = Oct2Py()
-
-from _utils import Struct
-
-from demo import demo
-
-from speed_test import speed_test
-
-from thread_test import thread_test
-
-__version__ = '0.2.1'
+try:
+    from ._oct2py import Oct2Py, Oct2PyError
+    octave = Oct2Py()
+    from ._utils import Struct
+    from .demo import demo
+    from .speed_test import speed_test
+    from .thread_test import thread_test
+except ImportError:
+    from _oct2py import Oct2Py, Oct2PyError
+    octave = Oct2Py()
+    from _utils import Struct
+    from demo import demo
+    from speed_test import speed_test
+    from thread_test import thread_test
 
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
           'thread_test']

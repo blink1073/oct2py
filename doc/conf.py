@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'oct2py'
-copyright = u'2011, Steven Silvester'
+copyright = u'2012, Steven Silvester'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
