@@ -40,7 +40,6 @@ To run interactively::
 ::
 
    >>> # getting help
-   >>> oc.lookfor('singular value')
    >>> help(oc.svd)
    Help on function octave_command in module oct2py._oct2py
 

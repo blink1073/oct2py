@@ -12,6 +12,14 @@ passing the data seamlessly between Python and Octave using MAT files.
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 
+
+New in Version 0.3.0
+====================
+- Support for Python 3.2
+- Support for numpy "object" type and Octave cell arrays
+- Uses MAT files and scipy.io instead of HDF files
+
+
 Installation
 ============
 You must have GNU Octave installed and in your PATH. Additionally, you must

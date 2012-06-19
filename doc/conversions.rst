@@ -14,8 +14,8 @@ int             int32          np.int32
 long            int64          np.int64
 float           double         np.float64
 complex         double         np.complex128
-str             char           str
-unicode         char           str
+str             char           unicode
+unicode         cell           unicode
 bool            int32          np.int32
 None            double         np.float64
 dict            struct         Struct
@@ -37,7 +37,7 @@ np.uint8        uint8          np.uint8
 np.uint16       uint16         np.uint16
 np.uint32       uint32         np.uint32
 np.uint64       uint64         np.uint64
-np.float16      double         *np.float64*
+np.float16      ERROR          ERROR
 np.float32      double         *np.float64*
 np.float64      double         np.float64
 np.float96      ERROR          ERROR
@@ -46,7 +46,7 @@ np.double       double         *np.float64*
 np.complex64    double         *np.complex128*
 np.complex128   double         np.complex128
 np.complex192   ERROR          ERROR
-np.object       ERROR          ERROR
+np.object       cell           list
 =============   ===========    =============
 
 Python to Octave Compound Types
@@ -56,8 +56,8 @@ Python to Octave Compound Types
 Python               Octave         Python
 ==================   ===========    ===============
 list of strings      cell (1-d)     list of strings
-list of mixed type   ERROR          ERROR
-nested string list   ERROR          ERROR
+list of mixed type   cell           list of mixed type
+nested string list   cell           list of strings
 tuple of strings     cell           list of strings
 nested dict          struct         Struct
 set of int32         int32          np.int32
@@ -74,7 +74,7 @@ Octave           Python
 matrix           ndarray
 cell (2-d)       list of lists
 cell (scalar)    scalar
-cell array       ERROR
+cell array       list of lists
 struct           Struct
 struct (nested)  Struct (nested)
 struct array     Struct (of lists)

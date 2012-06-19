@@ -25,6 +25,8 @@ Intended Audience :: Science/Research
 License :: OSI Approved :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
+Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3.2
 Topic :: Scientific/Engineering
 Topic :: Software Development
 """
@@ -61,14 +63,14 @@ class MyBuildDoc(BuildDoc):
         sys.path.pop(0)
 
 if sphinx:
-   cmdclass = {'build_py': MyBuild, 'build_sphinx': MyBuildDoc}
-   try:
-       from sphinx_pypi_upload import UploadDoc
-       cmdclass['upload_sphinx'] = UploadDoc
-   except ImportError:
-       pass
+    cmdclass = {'build_py': MyBuild, 'build_sphinx': MyBuildDoc}
+    try:
+        from sphinx_pypi_upload import UploadDoc
+        cmdclass['upload_sphinx'] = UploadDoc
+    except ImportError:
+        pass
 else:
-   cmdclass = {'build_py': build_py}
+    cmdclass = {'build_py': build_py}
 
 
 setup(
