@@ -125,7 +125,7 @@ MATLAB® is registered trademark of The MathWorks.
 
 """
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 try:
     from ._oct2py import Oct2Py, Oct2PyError
@@ -134,7 +134,7 @@ try:
     from .demo import demo
     from .speed_test import speed_test
     from .thread_test import thread_test
-except ImportError:
+except ValueError:
     from _oct2py import Oct2Py, Oct2PyError
     octave = Oct2Py()
     from _utils import Struct
