@@ -42,29 +42,23 @@ def _open():
 
     """
     session = None
-    try:
-        cmd = 'octave -q --braindead'
-        session = subprocess.Popen(cmd, shell=True,
+    if 'linux' in sys.platform:
+        session = subprocess.Popen('octave -q --braindead', 
+                                 shell=True,
                                  stderr=subprocess.STDOUT,
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE,
                                  preexec_fn=os.setsid)
-    except OSError:
-        octave_path = glob('c:/Octave/*/bin/octave.exe')[0]
-        if not os.path.exists(octave_path):
-            msg = ('Please install Octave at "c:/Octave" '
-                     '  or put it in your path:\n'
-                     'setx PATH "%PATH%;<path-to-octave-bin-dir>"')
+    else:
+        try:
+            session = subprocess.Popen('octave -q --braindead', 
+                                 stderr=subprocess.STDOUT,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE)
+        except OSError:
+            msg = ('\n\nPlease install octave and put it in your path:\n'
+                         'setx PATH "%PATH%;<path-to-octave-bin-dir>"\n\n')
             raise Oct2PyError(msg)
-        else:
-            cmd = 'octave -q --braindead'
-            session = subprocess.Popen(cmd, shell=True,
-                                 stderr=subprocess.STDOUT,
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 preexec_fn=os.setsid)
-    except OSError:
-        raise Oct2PyError('Please put the Octave executable in your PATH')
     return session
 
 

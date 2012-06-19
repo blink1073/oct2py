@@ -6,7 +6,7 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
-import os
+import os, sys
 import re
 import doctest
 import atexit
@@ -50,7 +50,13 @@ class Oct2Py(object):
         if not handle:
             handle = self._session
         # Send the terminate signal to all the process groups
-        os.killpg(self._session.pid, signal.SIGTERM)
+        if 'win' in sys.platform:
+            try:
+                handle.write('exit\n')
+            except Exception:
+                pass
+        else:
+            os.killpg(handle.pid, signal.SIGTERM)
 
     def _close(self, handle=None):
         '''Depracated, call close instead
