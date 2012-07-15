@@ -125,7 +125,7 @@ MATLAB® is registered trademark of The MathWorks.
 
 """
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 try:
     from ._oct2py import Oct2Py, Oct2PyError
