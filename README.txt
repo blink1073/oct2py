@@ -13,11 +13,13 @@ If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 
 
-New in Version 0.3.0
+New in Version 0.3
 ====================
 - Support for Python 3.2
 - Support for numpy "object" type and Octave cell arrays
 - Uses MAT files and scipy.io instead of HDF files
+- Octave Magic now available in IPython 0.13
+- Version 0.3.2 fixes a bug where column vectors are collapsed
 
 
 Installation

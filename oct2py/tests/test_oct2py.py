@@ -23,10 +23,12 @@ import os
 import sys
 import numpy as np
 
+sys.path.append(os.path.abspath('../..'))
+
 try:
     from oct2py._oct2py import Oct2Py, Oct2PyError
     from oct2py._utils import Struct, _remove_files
-except ValueError:
+except (ValueError, ImportError):
     from .._oct2py import Oct2Py, Oct2PyError
     from .._utils import Struct, _remove_files
 
@@ -317,11 +319,11 @@ class BuiltinsTest(unittest.TestCase):
         try:
             self.assertEqual(incoming, outgoing)
         except ValueError:
-            assert np.allclose(incoming, outgoing)
+            assert np.allclose(np.array(incoming), np.array(outgoing))
         try:
             self.assertEqual(type(incoming), expected_type)
         except AssertionError:
-            self.assertEqual(incoming[0], expected_type)
+            self.assertEqual(incoming, expected_type)
 
     def test_dict(self):
         """Test python dictionary
@@ -470,14 +472,19 @@ class NumpyTest(unittest.TestCase):
                 continue
             incoming = octave.roundtrip(outgoing)
             incoming = np.array(incoming)
+            if 1 in outgoing.shape:
+                if outgoing.shape[1] == 1 and len(outgoing.shape) == 2:
+                    pass
+                else:
+                    outgoing = outgoing.squeeze()
             if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
                 outgoing = outgoing.astype(np.uint64)
             try:
-                assert np.allclose(incoming.squeeze(), outgoing.squeeze())
+                assert np.allclose(incoming, outgoing)
             except (AssertionError, ValueError, TypeError,
                      NotImplementedError):
-                assert np.alltrue(np.array(incoming.squeeze()).astype(typecode)
-                                   == outgoing.squeeze())
+                assert np.alltrue(np.array(incoming).astype(typecode)
+                                   == outgoing)
 
 
 class BasicUsageTest(unittest.TestCase):
@@ -580,6 +587,6 @@ class BasicUsageTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print('py2oct test')
+    print('oct2py test')
     print('*' * 20)
     unittest.main()

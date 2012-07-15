@@ -1,3 +1,4 @@
+v0.3.1, 12 July 2012     -- Fixed column vector bug
 v0.3.0, 16 June 2012     -- Added Python 3 support, support for numpy "objects"
 v0.2.1, 25 November 2011 -- Added Sphinx documentation
 v0.1.4, 15 November 2011 -- One more try to get pip to work.

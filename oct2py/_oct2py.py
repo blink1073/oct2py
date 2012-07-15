@@ -435,7 +435,9 @@ class Oct2Py(object):
 def _test():
     """Run the doctests for this module.
     """
+    print('Starting doctest')
     doctest.testmod()
+    print('Completed doctest')
 
 
 if __name__ == "__main__":
