@@ -84,7 +84,7 @@ setup(
     license='MIT',
     platforms=["Any"],
     description='Python to GNU Octave bridge --> run m-files from python.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.rst').read(),
     classifiers=filter(None, CLASSIFIERS.split('\n')),
     requires=["numpy (>= 1.4.1)", "scipy (>= 0.9.0)"],
     cmdclass=cmdclass,
