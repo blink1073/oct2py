@@ -6,14 +6,10 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
+import sys
 from scipy.io import savemat
 import numpy as np
-import sys
-
-try:
-    from ._utils import Oct2PyError, _register_del, _create_file
-except ValueError:
-    from _utils import Oct2PyError, _register_del, _create_file
+from ._utils import Oct2PyError, _register_del, _create_file
 
 
 class MatWrite(object):

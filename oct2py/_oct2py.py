@@ -12,14 +12,9 @@ import doctest
 import atexit
 import signal
 
-try:
-    from ._matwrite import MatWrite
-    from ._matread import MatRead
-    from ._utils import _open, _get_nout, _register_del, Oct2PyError
-except ValueError:
-    from _matwrite import MatWrite
-    from _matread import MatRead
-    from _utils import _open, _get_nout, _register_del, Oct2PyError
+from ._matwrite import MatWrite
+from ._matread import MatRead
+from ._utils import _open, _get_nout, _register_del, Oct2PyError
 
 
 class Oct2Py(object):
@@ -40,6 +35,7 @@ class Oct2Py(object):
         """Start Octave and create our HDF helpers
         """
         self._session = _open()
+        self._isopen = True
         atexit.register(lambda handle=self._session: self.close(handle))
         self._reader = MatRead()
         self._writer = MatWrite()
@@ -47,6 +43,13 @@ class Oct2Py(object):
     def close(self, handle=None):
         """Closes this octave session
         """
+        if self._isopen:
+            self._isopen = False
+        else:
+            return
+        import sys
+        import os
+        import signal
         if not handle:
             handle = self._session
         # Send the terminate signal to all the process groups
@@ -228,7 +231,7 @@ class Oct2Py(object):
         array([1, 2])
         >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.get(['x', 'y'])
-        (u'spam', array([1, 2, 3, 4]))
+        ('spam', array([1, 2, 3, 4]))
 
         """
         if isinstance(names, str):
@@ -266,7 +269,7 @@ class Oct2Py(object):
           array([1, 2])
           >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
           >>> octave.get(['x', 'y'])
-          (u'spam', array([1, 2, 3, 4]))
+          ('spam', array([1, 2, 3, 4]))
 
         """
         if isinstance(var, str):

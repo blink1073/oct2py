@@ -1,39 +1,27 @@
 """
-py2oct_test - Test value passing between python and Octave.
+oct2py_test - Test value passing between python and Octave.
 
 Known limitations
 -----------------
-* Nested lists with strings in them cannot be sent to Octave. This applies to
-Numpy arrays of rank > 1 that are string or unicode as well.  Also, lists
-cannot contain mixed type (strings and sublists for example).
-I will try and figure this out for future releases.
-
-* The following Numpy array types cannot be sent directly via an HDF.  The
+* The following Numpy array types cannot be sent directly via a MAT file.  The
 float96 and complex192 can be recast as float64 and complex128.
    ** float96('g')
    ** complex192('G')
-   ** object('o')
    ** read-write buffer('V')
 
 * Sparse and empty matrices have not yet been implemented or tested.
 
 """
-import unittest
 import os
 import sys
 import numpy as np
-
-sys.path.append(os.path.abspath('../..'))
-
-try:
-    from oct2py._oct2py import Oct2Py, Oct2PyError
-    from oct2py._utils import Struct, _remove_files
-except (ValueError, ImportError):
-    from .._oct2py import Oct2Py, Oct2PyError
-    from .._utils import Struct, _remove_files
+from numpy.testing import *
+from oct2py._oct2py import Oct2Py, Oct2PyError
+from oct2py._utils import Struct, _remove_files
 
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
+DATA = octave.test_datatypes()
 
 if sys.version_info[0] == 3:
     unicode = str
@@ -65,7 +53,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.complex128, 'double', np.complex128), ]
 
 
-class TypeConversions(unittest.TestCase):
+class TypeConversions(TestCase):
     """Test roundtrip datatypes starting from Python
     """
 
@@ -80,25 +68,20 @@ class TypeConversions(unittest.TestCase):
             else:
                 outgoing = out_type(1)
             incoming, octave_type = octave.roundtrip(outgoing)
-            try:
+            if octave_type == 'int32' and oct_type == 'int64':
+                pass
+            elif octave_type == 'char' and oct_type == 'cell':
+                pass
+            else:
                 self.assertEqual(octave_type, oct_type)
-            except AssertionError:
-                if octave_type == 'int32' and oct_type == 'int64':
-                    pass
-                elif octave_type == 'char' and oct_type == 'cell':
-                    pass
-                else:
-                    raise
-            try:
-                self.assertEqual(type(incoming), in_type)
-            except AssertionError:
+            if type(incoming) != in_type:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
                 else:
                     assert in_type(incoming) == incoming
 
 
-class IncomingTest(unittest.TestCase):
+class IncomingTest(TestCase):
     """Test the importing of all Octave data types, checking their type
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -106,14 +89,6 @@ class IncomingTest(unittest.TestCase):
         brought in properly.
 
     """
-    def setUp(self):
-        """Open an instance of Octave and get a struct with all datatypes.
-        """
-        self.data = octave.test_datatypes()
-
-    def tearDown(self):
-        _remove_files()
-
     def helper(self, base, keys, types):
         """
         Perform type checking of the values
@@ -129,9 +104,7 @@ class IncomingTest(unittest.TestCase):
 
         """
         for key, type_ in zip(keys, types):
-            try:
-                self.assertEqual(type(base[key]), type_)
-            except AssertionError:
+            if not type(base[key]) == type_:
                 assert type_(base[key]) == base[key]
 
     def test_int(self):
@@ -141,15 +114,15 @@ class IncomingTest(unittest.TestCase):
                     'uint8', 'uint16', 'uint32', 'uint64']
         types = [np.int8, np.int16, np.int32, np.int64,
                     np.uint8, np.uint16, np.uint32, np.uint64]
-        self.helper(self.data.num.int, keys, types)
+        self.helper(DATA.num.int, keys, types)
 
     def test_floats(self):
         """Test incoming float types
         """
         keys = ['float32', 'float64', 'complex', 'complex_matrix']
         types = [np.float64, np.float64, np.complex128, np.ndarray]
-        self.helper(self.data.num, keys, types)
-        self.assertEqual(self.data.num.complex_matrix.dtype,
+        self.helper(DATA.num, keys, types)
+        self.assertEqual(DATA.num.complex_matrix.dtype,
                          np.dtype('complex128'))
 
     def test_misc_num(self):
@@ -159,34 +132,34 @@ class IncomingTest(unittest.TestCase):
                 'matrix5d']
         types = [np.float64, np.float64, np.ndarray, np.ndarray, np.ndarray,
                  np.ndarray, np.ndarray]
-        self.helper(self.data.num, keys, types)
+        self.helper(DATA.num, keys, types)
 
     def test_logical(self):
         """Test incoming logical type
         """
-        self.assertEqual(type(self.data.logical), np.ndarray)
+        self.assertEqual(type(DATA.logical), np.ndarray)
 
     def test_string(self):
         """Test incoming string types
         """
         keys = ['basic', 'char_array', 'cell_array']
         types = [unicode, list, list]
-        self.helper(self.data.string, keys, types)
+        self.helper(DATA.string, keys, types)
 
     def test_struct(self):
         ''' Test incoming struct types '''
         keys = ['name', 'age']
         types = [list, list]
-        self.helper(self.data.struct.array, keys, types)
+        self.helper(DATA.struct.array, keys, types)
 
     def test_cell_array(self):
         ''' Test incoming cell array types '''
         keys = ['vector', 'matrix']
         types = [list, list]
-        self.helper(self.data.cell, keys, types)
+        self.helper(DATA.cell, keys, types)
 
 
-class RoundtripTest(unittest.TestCase):
+class RoundtripTest(TestCase):
     """Test roundtrip value and type preservation between Python and Octave.
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -194,11 +167,6 @@ class RoundtripTest(unittest.TestCase):
         making sure the value and the type are preserved.
 
     """
-    def setUp(self):
-        """Open an instance of Octave and get a struct all datatypes.
-        """
-        self.data = octave.test_datatypes()
-
     def nested_equal(self, val1, val2):
         """Test for equality in a nested list or ndarray
         """
@@ -248,47 +216,47 @@ class RoundtripTest(unittest.TestCase):
         """
         for key in ['int8', 'int16', 'int32', 'int64',
                     'uint8', 'uint16', 'uint32', 'uint64']:
-            self.helper(self.data.num.int[key])
+            self.helper(DATA.num.int[key])
 
     def test_float(self):
         """Test roundtrip value and type preservation for float types
         """
         for key in ['float64', 'complex', 'complex_matrix']:
-            self.helper(self.data.num[key])
-        self.helper(self.data.num['float32'], np.float64)
+            self.helper(DATA.num[key])
+        self.helper(DATA.num['float32'], np.float64)
 
     def test_misc_num(self):
         """Test roundtrip value and type preservation for misc numeric types
         """
         for key in ['inf', 'NaN', 'matrix', 'vector', 'column_vector',
                     'matrix3d', 'matrix5d']:
-            self.helper(self.data.num[key])
+            self.helper(DATA.num[key])
 
     def test_logical(self):
         """Test roundtrip value and type preservation for logical type
         """
-        self.helper(self.data.logical)
+        self.helper(DATA.logical)
 
     def test_string(self):
         """Test roundtrip value and type preservation for string types
         """
         for key in ['basic', 'cell_array']:
-            self.helper(self.data.string[key])
+            self.helper(DATA.string[key])
 
     def test_struct(self):
         """Test roundtrip value and type preservation for struct types
         """
-        self.helper(self.data.struct.array['name'])
-        self.helper(self.data.struct.array['age'], np.ndarray)
+        self.helper(DATA.struct.array['name'])
+        self.helper(DATA.struct.array['age'], np.ndarray)
 
     def test_cell_array(self):
         """Test roundtrip value and type preservation for cell array types
         """
         for key in ['vector', 'matrix']:
-            self.helper(self.data.cell[key])
+            self.helper(DATA.cell[key])
 
 
-class BuiltinsTest(unittest.TestCase):
+class BuiltinsTest(TestCase):
     """Test the exporting of standard Python data types, checking their type.
 
     Runs roundtrip.m and tests the types of all the values to make sure they
@@ -323,9 +291,7 @@ class BuiltinsTest(unittest.TestCase):
             self.assertEqual(incoming, outgoing)
         except ValueError:
             assert np.allclose(np.array(incoming), np.array(outgoing))
-        try:
-            self.assertEqual(type(incoming), expected_type)
-        except AssertionError:
+        if type(incoming) != expected_type:
             assert expected_type(incoming) == incoming
 
     def test_dict(self):
@@ -421,14 +387,11 @@ class BuiltinsTest(unittest.TestCase):
         assert np.isnan(incoming)
 
 
-class NumpyTest(unittest.TestCase):
+class NumpyTest(TestCase):
     """Check value and type preservation of Numpy arrays
     """
-    def setUp(self):
-        """Create the numpy code types to check and blacklist some.
-        """
-        self.codes = np.typecodes['All']
-        self.blacklist = 'gGV'
+    codes = np.typecodes['All']
+    blacklist = 'gGV'
 
     def test_scalars(self):
         """Send a scalar numpy type and make sure we get the same number back.
@@ -475,22 +438,28 @@ class NumpyTest(unittest.TestCase):
                 continue
             incoming = octave.roundtrip(outgoing)
             incoming = np.array(incoming)
+            assert incoming.shape == outgoing.shape
+            '''
             if 1 in outgoing.shape:
                 if outgoing.shape[1] == 1 and len(outgoing.shape) == 2:
                     pass
                 else:
                     outgoing = outgoing.squeeze()
+            '''
             if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
                 outgoing = outgoing.astype(np.uint64)
             try:
                 assert np.allclose(incoming, outgoing)
             except (AssertionError, ValueError, TypeError,
                      NotImplementedError):
-                assert np.alltrue(np.array(incoming).astype(typecode).squeeze()
-                                   == outgoing)
+                if 'c' in incoming.dtype.str:
+                    incoming = np.abs(incoming)
+                    outgoing = np.abs(outgoing)
+                assert np.alltrue(np.array(incoming).astype(typecode) ==
+                                   outgoing)
 
 
-class BasicUsageTest(unittest.TestCase):
+class BasicUsageTest(TestCase):
     """Excercise the basic interface of the package
     """
     def test_run(self):
@@ -590,6 +559,7 @@ class BasicUsageTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print('oct2py test')
-    print('*' * 20)
-    unittest.main()
+    for i in range(10):
+        print('oct2py test')
+        print('*' * 20)
+        run_module_suite()

@@ -9,11 +9,7 @@
 import time
 import timeit
 import numpy as np
-
-try:
-    from ._oct2py import Oct2Py
-except ValueError:
-    from _oct2py import Oct2Py
+from ._oct2py import Oct2Py
 
 
 class SpeedCheck(object):

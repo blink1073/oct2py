@@ -124,23 +124,16 @@ Disclaimer
 MATLAB® is registered trademark of The MathWorks.
 
 """
-
-__version__ = '0.3.2'
-
+from ._oct2py import Oct2Py, Oct2PyError
 try:
-    from ._oct2py import Oct2Py, Oct2PyError
-    octave = Oct2Py()
-    from ._utils import Struct
-    from .demo import demo
-    from .speed_test import speed_test
-    from .thread_test import thread_test
-except ValueError:
-    from _oct2py import Oct2Py, Oct2PyError
-    octave = Oct2Py()
-    from _utils import Struct
-    from demo import demo
-    from speed_test import speed_test
-    from thread_test import thread_test
+    from .version import version as __version__
+except ImportError:
+    __version__ = 'unbuilt-dev'
+octave = Oct2Py()
+from ._utils import Struct
+from .demo import demo
+from .speed_test import speed_test
+from .thread_test import thread_test
 
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
-          'thread_test']
+          'thread_test', '__version__']

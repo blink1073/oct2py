@@ -8,11 +8,7 @@
 """
 import numpy as np
 from scipy.io import loadmat
-
-try:
-    from ._utils import Struct, _create_file, _register_del
-except ValueError:
-    from _utils import Struct, _create_file, _register_del
+from ._utils import Struct, _create_file, _register_del
 
 
 class MatRead(object):
@@ -100,7 +96,7 @@ class MatRead(object):
         if val.dtype == np.object:
             if len(val.shape) > 2:
                 val = val.T
-                val = np.array([self._get_data(val[i].T) 
+                val = np.array([self._get_data(val[i].T)
                                 for i in range(val.shape[0])])
             if len(val.shape) > 1:
                 if len(val.shape) == 2:
