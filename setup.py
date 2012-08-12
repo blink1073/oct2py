@@ -80,7 +80,7 @@ setup(
     author_email='steven.silvester@ieee.org',
     packages=['oct2py', 'oct2py.tests'],
     package_data={'oct2py': ['tests/*.m']},
-    url='https://bitbucket.org/blink1073/oct2py/',
+    url='https://github.com/blink1073/oct2py/',
     license='MIT',
     platforms=["Any"],
     description='Python to GNU Octave bridge --> run m-files from python.',

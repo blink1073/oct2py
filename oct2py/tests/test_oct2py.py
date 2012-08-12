@@ -95,7 +95,7 @@ class TypeConversions(unittest.TestCase):
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
                 else:
-                    raise
+                    assert in_type(incoming) == incoming
 
 
 class IncomingTest(unittest.TestCase):
@@ -129,7 +129,10 @@ class IncomingTest(unittest.TestCase):
 
         """
         for key, type_ in zip(keys, types):
-            self.assertEqual(type(base[key]), type_)
+            try:
+                self.assertEqual(type(base[key]), type_)
+            except AssertionError:
+                assert type_(base[key]) == base[key]
 
     def test_int(self):
         """Test incoming integer types
@@ -323,7 +326,7 @@ class BuiltinsTest(unittest.TestCase):
         try:
             self.assertEqual(type(incoming), expected_type)
         except AssertionError:
-            self.assertEqual(incoming, expected_type)
+            assert expected_type(incoming) == incoming
 
     def test_dict(self):
         """Test python dictionary
@@ -483,7 +486,7 @@ class NumpyTest(unittest.TestCase):
                 assert np.allclose(incoming, outgoing)
             except (AssertionError, ValueError, TypeError,
                      NotImplementedError):
-                assert np.alltrue(np.array(incoming).astype(typecode)
+                assert np.alltrue(np.array(incoming).astype(typecode).squeeze()
                                    == outgoing)
 
 
@@ -577,8 +580,8 @@ class BasicUsageTest(unittest.TestCase):
         test.spam = 'eggs'
         test.eggs.spam = 'eggs'
         self.assertEqual(test['spam'], 'eggs')
-        self.assertEqual(test['eggs']['spam'], 'eggs') 
-        
+        self.assertEqual(test['eggs']['spam'], 'eggs')
+
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError
         """

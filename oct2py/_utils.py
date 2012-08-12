@@ -43,7 +43,7 @@ def _open():
     """
     session = None
     if 'linux' in sys.platform:
-        session = subprocess.Popen('octave -q --braindead', 
+        session = subprocess.Popen('octave -q --braindead',
                                  shell=True,
                                  stderr=subprocess.STDOUT,
                                  stdin=subprocess.PIPE,
@@ -51,7 +51,7 @@ def _open():
                                  preexec_fn=os.setsid)
     else:
         try:
-            session = subprocess.Popen('octave -q --braindead', 
+            session = subprocess.Popen('octave -q --braindead',
                                  stderr=subprocess.STDOUT,
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE)
@@ -161,7 +161,7 @@ def _create_file(type_, ext):
     name = [type_, '_']
     name.extend([str(random.choice(range(10))) for x in range(10)])
     name.append('.{0}'.format(ext))
-    return ''.join(name)
+    return os.path.expanduser('~/{0}'.format(''.join(name)))
 
 
 class Oct2PyError(Exception):
