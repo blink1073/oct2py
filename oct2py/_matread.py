@@ -109,8 +109,10 @@ class MatRead(object):
                             if not np.isscalar(val[row][i]):
                                 val[row][i] = val[row][i][0]
             else:
-                val = np.array([self._get_data(val[i]) for i in range(val.size)])
-            if len(val.shape) == 1 or val.shape[0] == 1 or val.shape[1] == 1:
+                val = np.array([self._get_data(val[i])
+                                for i in range(val.size)])
+            if (len(val.shape) == 1 or val.shape[0] == 1 or
+                val.shape[1] == 1):
                 val = val.flatten()
             val = val.tolist()
         elif val.size == 1:

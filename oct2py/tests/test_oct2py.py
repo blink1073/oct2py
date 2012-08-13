@@ -8,9 +8,6 @@ float96 and complex192 can be recast as float64 and complex128.
    ** float96('g')
    ** complex192('G')
    ** read-write buffer('V')
-
-* Sparse and empty matrices have not yet been implemented or tested.
-
 """
 import os
 import sys
@@ -44,7 +41,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.uint16, 'uint16', np.uint16),
                 (np.uint32, 'uint32', np.uint32),
                 (np.uint64, 'uint64', np.uint64),
-                #(np.float16, 'double', np.float64),
+                (np.float16, 'double', np.float64),
                 (np.float32, 'double', np.float64),
                 (np.float64, 'double', np.float64),
                 (np.str, 'char', np.unicode),
@@ -457,6 +454,51 @@ class NumpyTest(TestCase):
                     assert np.alltrue(np.array(incoming).astype(typecode) ==
                                        outgoing)
 
+    def test_sparse(self):
+        '''Test roundtrip sparse matrices
+        '''
+        from scipy.sparse import csr_matrix, identity
+        rand = np.random.rand(100, 100)
+        rand = csr_matrix(rand)
+        iden = identity(1000)
+        for test in [rand, iden]:
+            incoming, type_ = octave.roundtrip(test)
+            assert test.shape == incoming.shape
+            assert test.nnz == incoming.nnz
+            assert np.allclose(test.todense(), incoming.todense())
+            assert test.dtype == incoming.dtype
+            assert type_ == 'cell'
+
+    def test_empty(self):
+        '''Test roundtrip empty matrices
+        '''
+        test = np.empty((100, 100))
+        incoming, type_ = octave.roundtrip(test)
+        assert test.squeeze().shape == incoming.squeeze().shape
+        assert np.allclose(test[np.isfinite(test)],
+                            incoming[np.isfinite(incoming)])
+        assert type_ == 'double'
+
+    def test_mat(self):
+        '''Verify support for matrix type
+        '''
+        test = np.random.rand(1000)
+        test = np.mat(test)
+        incoming, type_ = octave.roundtrip(test)
+        assert np.allclose(test, incoming)
+        assert test.dtype == incoming.dtype
+        assert type_ == 'double'
+
+    def test_masked(self):
+        '''Test support for masked arrays
+        '''
+        test = np.random.rand(100)
+        test = np.ma.array(test)
+        incoming, type_ = octave.roundtrip(test)
+        assert np.allclose(test, incoming)
+        assert test.dtype == incoming.dtype
+        assert type_ == 'double'
+
 
 class BasicUsageTest(TestCase):
     """Excercise the basic interface of the package
@@ -556,10 +598,6 @@ class BasicUsageTest(TestCase):
         oct_ = Oct2Py()
         self.assertRaises(Oct2PyError, oct_.eval, cmds="a='1")
 
-def test_huge():
-    array = np.arange(1e6)
-    octave.put('x', array)
-    octave.get('x')
 
 if __name__ == '__main__':
     print('oct2py test')

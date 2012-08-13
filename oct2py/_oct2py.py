@@ -6,12 +6,12 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
-import os, sys
+import os
+import sys
 import re
 import doctest
 import atexit
 import signal
-
 from ._matwrite import MatWrite
 from ._matread import MatRead
 from ._utils import _open, _get_nout, _register_del, Oct2PyError

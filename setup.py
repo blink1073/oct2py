@@ -81,7 +81,7 @@ def write_version_py(filename='oct2py/version.py'):
     fname = os.path.join(os.path.dirname(__file__), filename)
     with open(fname, 'w') as fid:
         fid.write('# THIS FILE IS GENERATED FROM THE OCT2PY SETUP.PY\n')
-        fid.write("version='{0}'".format(VERSION))
+        fid.write("version='{0}'\n".format(VERSION))
 
 def write_setup_cfg():
     import ConfigParser
