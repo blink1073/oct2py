@@ -65,7 +65,7 @@ class MatWrite(object):
             savemat(self.in_file, data, do_compression=False, oned_as='row')
         except KeyError:
             pass
-        load_line = 'load -v7 "%s" "%s"' % (self.in_file,
+        load_line = 'load -v6 "%s" "%s"' % (self.in_file,
                                             '" "'.join(argin_list))
         return argin_list, load_line
 

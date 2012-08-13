@@ -46,7 +46,7 @@ class MatRead(object):
                 argout_list.append(names.pop(0))
             else:
                 argout_list.append("%s__" % chr(i + 97))
-        save_line = 'save "-v7" "%s" "%s"' % (self.out_file,
+        save_line = 'save "-v6" "%s" "%s"' % (self.out_file,
                                                 '" "'.join(argout_list))
         return argout_list, save_line
 
@@ -115,7 +115,4 @@ class MatRead(object):
             val = val.tolist()
         elif val.size == 1:
             val = val.flatten()[0]
-        #if isinstance(val, np.ndarray) and val.size > 1:
-        #    if val.shape[0] == 1 or len(val.shape) > 2:
-        #        val = val.squeeze()
         return val

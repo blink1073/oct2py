@@ -556,6 +556,10 @@ class BasicUsageTest(TestCase):
         oct_ = Oct2Py()
         self.assertRaises(Oct2PyError, oct_.eval, cmds="a='1")
 
+def test_huge():
+    array = np.arange(1e6)
+    octave.put('x', array)
+    octave.get('x')
 
 if __name__ == '__main__':
     print('oct2py test')

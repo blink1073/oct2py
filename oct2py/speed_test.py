@@ -47,7 +47,7 @@ class SpeedCheck(object):
         Then tests progressively larger array passing.
 
         """
-        print('py2oct speed test')
+        print('oct2py speed test')
         print('*' * 20)
         time.sleep(1)
 
