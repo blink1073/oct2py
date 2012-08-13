@@ -292,6 +292,7 @@ class BuiltinsTest(TestCase):
         except ValueError:
             assert np.allclose(np.array(incoming), np.array(outgoing))
         if type(incoming) != expected_type:
+            incoming = octave.roundtrip(outgoing)
             assert expected_type(incoming) == incoming
 
     def test_dict(self):
@@ -420,43 +421,41 @@ class NumpyTest(TestCase):
         """Send an ndarray and make sure we get the same array back
         """
         for typecode in self.codes:
-            ndims = np.random.randint(2, 4)
-            size = [np.random.randint(1, 10) for i in range(ndims)]
-            outgoing = (np.random.randint(-255, 255, tuple(size)))
-            outgoing += np.random.rand(*size)
-            if typecode in ['U', 'S']:
-                outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
-                            [['spam', 'eggs'], ['spam', 'eggs']]]
-                outgoing = np.array(outgoing).astype(typecode)
-            else:
-                try:
-                    outgoing = outgoing.astype(typecode)
-                except TypeError:
-                    continue
-            if typecode in self.blacklist:
-                self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
-                continue
-            incoming = octave.roundtrip(outgoing)
-            incoming = np.array(incoming)
-            assert incoming.shape == outgoing.shape
-            '''
-            if 1 in outgoing.shape:
-                if outgoing.shape[1] == 1 and len(outgoing.shape) == 2:
-                    pass
+            for ndims in [2, 3, 4]:
+                size = [np.random.randint(1, 10) for i in range(ndims)]
+                outgoing = (np.random.randint(-255, 255, tuple(size)))
+                outgoing += np.random.rand(*size)
+                if typecode in ['U', 'S']:
+                    outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
+                                [['spam', 'eggs'], ['spam', 'eggs']]]
+                    outgoing = np.array(outgoing).astype(typecode)
                 else:
+                    try:
+                        outgoing = outgoing.astype(typecode)
+                    except TypeError:
+                        continue
+                if typecode in self.blacklist:
+                    self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
+                    continue
+                incoming = octave.roundtrip(outgoing)
+                incoming = np.array(incoming)
+                if outgoing.size == 1:
                     outgoing = outgoing.squeeze()
-            '''
-            if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
-                outgoing = outgoing.astype(np.uint64)
-            try:
-                assert np.allclose(incoming, outgoing)
-            except (AssertionError, ValueError, TypeError,
-                     NotImplementedError):
-                if 'c' in incoming.dtype.str:
-                    incoming = np.abs(incoming)
-                    outgoing = np.abs(outgoing)
-                assert np.alltrue(np.array(incoming).astype(typecode) ==
-                                   outgoing)
+                if len(outgoing.shape) > 2 and 1 in outgoing.shape:
+                    incoming = incoming.squeeze()
+                    outgoing = outgoing.squeeze()
+                assert incoming.shape == outgoing.shape
+                if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
+                    outgoing = outgoing.astype(np.uint64)
+                try:
+                    assert np.allclose(incoming, outgoing)
+                except (AssertionError, ValueError, TypeError,
+                         NotImplementedError):
+                    if 'c' in incoming.dtype.str:
+                        incoming = np.abs(incoming)
+                        outgoing = np.abs(outgoing)
+                    assert np.alltrue(np.array(incoming).astype(typecode) ==
+                                       outgoing)
 
 
 class BasicUsageTest(TestCase):
@@ -559,7 +558,6 @@ class BasicUsageTest(TestCase):
 
 
 if __name__ == '__main__':
-    for i in range(10):
-        print('oct2py test')
-        print('*' * 20)
-        run_module_suite()
+    print('oct2py test')
+    print('*' * 20)
+    run_module_suite()

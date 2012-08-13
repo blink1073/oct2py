@@ -109,15 +109,13 @@ class MatRead(object):
                             if not np.isscalar(val[row][i]):
                                 val[row][i] = val[row][i][0]
             else:
-                val = np.array([self._get_data(val[i][0]) for i in range(val.size)])
+                val = np.array([self._get_data(val[i]) for i in range(val.size)])
             if len(val.shape) == 1 or val.shape[0] == 1 or val.shape[1] == 1:
                 val = val.flatten()
             val = val.tolist()
         elif val.size == 1:
             val = val.flatten()[0]
-            if type(val) == np.unicode_:
-                val = str(val)
-        if isinstance(val, np.ndarray) and val.size > 1:
-            if val.shape[0] == 1 or len(val.shape) > 2:
-                val = val.squeeze()
+        #if isinstance(val, np.ndarray) and val.size > 1:
+        #    if val.shape[0] == 1 or len(val.shape) > 2:
+        #        val = val.squeeze()
         return val
