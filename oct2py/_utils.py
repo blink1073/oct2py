@@ -6,17 +6,10 @@
 
 """
 import os
-import time
 import subprocess
-import random
-import atexit
 import inspect
 import dis
-import re
 import sys
-from glob import glob
-
-sys.path.append('..')
 
 
 def _open():
@@ -62,50 +55,19 @@ def _open():
     return session
 
 
-def _register_del(fname):
+def _remove_tempdir():
     """
-    Register a MAT file for deletion at program exit.
+    Remove the files in the temporary directory
 
     Parameters
     ==========
-    fname : str
-        Name of file to register.
-
+    dir_ : str
+        Folder to purge
     """
-    atexit.register(lambda filename=fname: _remove_files(filename))
-
-
-def _remove_files(filename=''):
-    """
-    Remove the desired file and any old MAT files.
-
-    All MAT files in the current working directory over a minute old are
-    deleted.
-    This helps clean up orphaned HDF files in case the previous session did
-    not close properly.
-
-    Parameters
-    ==========
-    filename : str, optional
-        Specific file to delete.
-
-    """
-    try:
-        os.remove(filename)
-    except OSError:
-        pass
-    files = os.listdir(os.getcwd())
-    for fname in files:
-        if re.match(r'(load|save)_.{10}\.(mat|hdf)', fname):
-            try:
-                atime = os.path.getatime(fname)
-            except OSError:
-                continue
-            if (time.time() - atime > 60):
-                try:
-                    os.remove(fname)
-                except OSError:
-                    pass
+    import shutil
+    import os
+    dir_ = os.path.expanduser('~/oct2py_tmp')
+    shutil.rmtree(dir_, ignore_errors=True)
 
 
 def _get_nout():
@@ -141,27 +103,28 @@ def _get_nout():
     return 1
 
 
-def _create_file(type_, ext):
+def _create_file(ext):
     """
     Create a file of the given type and extension with a random name.
+    Puts it in ~/.oct2py_files, a temporary directory
 
     Parameters
     ==========
-    type_ : str {'load', 'save'}
-        Type of file to create (used for Octave 'save' or 'load' commands).
-    ext : str {'mat', 'hdf'}
-        File extension.
+    ext : str
+        File extension (e.g.  'mat')
 
     Returns
     =======
     out : str
-        Random MAT file name e.g. 'load_4932048302.mat'.
+        Random file name with the desired extension
 
     """
-    name = [type_, '_']
-    name.extend([str(random.choice(range(10))) for x in range(10)])
-    name.append('.{0}'.format(ext))
-    return os.path.expanduser('~/{0}'.format(''.join(name)))
+    import tempfile
+    dir_ = os.path.expanduser('~/oct2py_tmp')
+    if not os.path.exists(dir_):
+        os.mkdir(dir_)
+    _, fname = tempfile.mkstemp(suffix='.' + ext, dir=dir_)
+    return fname
 
 
 class Oct2PyError(Exception):

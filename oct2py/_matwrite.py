@@ -7,9 +7,10 @@
 
 """
 import sys
+import os
 from scipy.io import savemat
 import numpy as np
-from ._utils import Oct2PyError, _register_del, _create_file
+from ._utils import Oct2PyError, _create_file
 
 
 class MatWrite(object):
@@ -18,8 +19,7 @@ class MatWrite(object):
     Strives to preserve both value and type in transit.
     """
     def __init__(self):
-        self.in_file = _create_file('load', 'mat')
-        _register_del(self.in_file)
+        self.in_file = _create_file('mat')
 
     def create_file(self, inputs, names=None):
         """
@@ -61,6 +61,8 @@ class MatWrite(object):
             except Oct2PyError:
                 raise
             ascii_code += 1
+        if not os.path.exists(self.in_file):
+            self.in_file = _create_file('mat')
         try:
             savemat(self.in_file, data, do_compression=False, oned_as='row')
         except KeyError:

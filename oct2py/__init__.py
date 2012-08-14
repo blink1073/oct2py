@@ -6,7 +6,8 @@ oct2py - Python to GNU Octave bridge.
 
 Overview
 ========
-Uses Octave to run commands and m-files. Supports any Octave function or m-file,
+Uses Octave to run commands and m-files.
+Supports any Octave function or m-file,
 passing the data seamlessly between Python and Octave using MAT files.
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.

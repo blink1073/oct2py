@@ -14,7 +14,7 @@ import sys
 import numpy as np
 from numpy.testing import *
 from oct2py._oct2py import Oct2Py, Oct2PyError
-from oct2py._utils import Struct, _remove_files
+from oct2py._utils import Struct
 
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))

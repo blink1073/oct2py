@@ -6,9 +6,10 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
+import os
 import numpy as np
 from scipy.io import loadmat
-from ._utils import Struct, _create_file, _register_del
+from ._utils import Struct, _create_file
 
 
 class MatRead(object):
@@ -18,10 +19,9 @@ class MatRead(object):
 
     """
     def __init__(self):
-        """Initialize our output file and register it for deletion
+        """Initialize our output file
         """
-        self.out_file = _create_file('save', 'mat')
-        _register_del(self.out_file)
+        self.out_file = _create_file('mat')
 
     def setup(self, nout, names=None):
         """
@@ -46,6 +46,8 @@ class MatRead(object):
                 argout_list.append(names.pop(0))
             else:
                 argout_list.append("%s__" % chr(i + 97))
+        if not os.path.exists(self.out_file):
+            self.out_file = _create_file('mat')
         save_line = 'save "-v6" "%s" "%s"' % (self.out_file,
                                                 '" "'.join(argout_list))
         return argout_list, save_line

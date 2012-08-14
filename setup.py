@@ -5,14 +5,14 @@ Run as::
     python setup.py install
 
 """
-DISTNAME            = 'oct2py'
-DESCRIPTION         = 'Python to GNU Octave bridge --> run m-files from python.'
-LONG_DESCRIPTION    = open('README.rst').read()
-MAINTAINER          = 'Steven Silvester'
-MAINTAINER_EMAIL    = 'steven.silvester@ieee.org'
-URL                 = 'http://github.com/blink1073/oct2py'
-LICENSE             = 'MIT'
-VERSION             = '0.3.2'
+DISTNAME = 'oct2py'
+DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
+LONG_DESCRIPTION = open('README.rst').read()
+MAINTAINER = 'Steven Silvester'
+MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
+URL = 'http://github.com/blink1073/oct2py'
+LICENSE = 'MIT'
+VERSION = '0.3.2'
 CLASSIFIERS = """\
 Development Status :: 4 - Beta
 Intended Audience :: Developers
@@ -46,6 +46,7 @@ except ImportError:
     sphinx = False
     BuildDoc = object
 
+
 # Sphinx build (documentation) - taken from the spyder project
 # Copyright 2009-2011 Pierre Raybaut
 # Licensed under the terms of the MIT License
@@ -54,6 +55,7 @@ class MyBuild(build_py):
         setup_dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.isdir(os.path.join(setup_dir, 'doc'))
     sub_commands = build.sub_commands + [('build_sphinx', has_doc)]
+
 
 class MyBuildDoc(BuildDoc):
     def run(self):
@@ -77,14 +79,19 @@ if sphinx:
 else:
     cmdclass = {'build_py': build_py}
 
+
 def write_version_py(filename='oct2py/version.py'):
     fname = os.path.join(os.path.dirname(__file__), filename)
     with open(fname, 'w') as fid:
         fid.write('# THIS FILE IS GENERATED FROM THE OCT2PY SETUP.PY\n')
-        fid.write("version='{0}'\n".format(VERSION))
+        fid.write("version = '{0}'\n".format(VERSION))
+
 
 def write_setup_cfg():
-    import ConfigParser
+    try:
+        import ConfigParser
+    except ImportError:
+        import configparser as ConfigParser
     config = ConfigParser.SafeConfigParser()
     config.add_section('build_sphinx')
     config.set('build_sphinx', 'source-dir', 'doc')
@@ -96,6 +103,7 @@ def write_setup_cfg():
     config.set('upload_sphinx', 'upload-dir', 'build/lib/oc2py/doc')
     with open('setup.cfg', 'w') as fid:
         config.write(fid)
+
 
 if __name__ == '__main__':
     write_version_py()
@@ -115,6 +123,6 @@ if __name__ == '__main__':
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         classifiers=filter(None, CLASSIFIERS.split('\n')),
-        requires=["numpy (>= 1.4.1)", "scipy (>= 0.9.0)"],
+        requires=["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"],
         cmdclass=cmdclass,
         )

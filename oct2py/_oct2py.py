@@ -7,14 +7,13 @@
 
 """
 import os
-import sys
 import re
+import atexit
 import doctest
 import atexit
-import signal
 from ._matwrite import MatWrite
 from ._matread import MatRead
-from ._utils import _open, _get_nout, _register_del, Oct2PyError
+from ._utils import _open, _get_nout, _remove_tempdir, Oct2PyError
 
 
 class Oct2Py(object):
@@ -37,6 +36,7 @@ class Oct2Py(object):
         self._session = _open()
         self._isopen = True
         atexit.register(lambda handle=self._session: self.close(handle))
+        atexit.register(_remove_tempdir)
         self._reader = MatRead()
         self._writer = MatWrite()
 
@@ -55,8 +55,8 @@ class Oct2Py(object):
         # Send the terminate signal to all the process groups
         if 'win' in sys.platform:
             try:
-                handle.write('exit\n')
-            except Exception:
+                handle.stdout.write('exit\n')
+            except IOError:
                 pass
         else:
             os.killpg(handle.pid, signal.SIGTERM)
@@ -110,7 +110,6 @@ class Oct2Py(object):
                     'meshdom']:
             if cmd in script:
                 script += ';print -deps foo.eps;'
-                _register_del('foo.eps')
                 break
         return self.call(script, **kwargs)
 
