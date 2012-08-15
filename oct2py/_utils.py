@@ -10,6 +10,8 @@ import subprocess
 import inspect
 import dis
 import sys
+import tempfile
+import atexit
 
 
 def _open():
@@ -30,8 +32,6 @@ def _open():
     =====
     Options sent to Octave: -q is quiet startup, --braindead is
     Matlab compatibilty mode.
-    On Windows, it attempts to find octave in c:\Octave if it is not
-    on the path.
 
     """
     session = None
@@ -55,19 +55,16 @@ def _open():
     return session
 
 
-def _remove_tempdir():
+def _remove_files(dir_):
     """
-    Remove the files in the temporary directory
+    Remove the created mat files
 
-    Parameters
-    ==========
-    dir_ : str
-        Folder to purge
     """
-    import shutil
     import os
-    dir_ = os.path.expanduser('~/oct2py_tmp')
-    shutil.rmtree(dir_, ignore_errors=True)
+    import glob
+    for fname in glob.glob(os.path.join(dir_, 'tmp*.mat')):
+        os.remove(fname)
+    pass
 
 
 def _get_nout():
@@ -103,28 +100,20 @@ def _get_nout():
     return 1
 
 
-def _create_file(ext):
+def _create_file():
     """
-    Create a file of the given type and extension with a random name.
-    Puts it in ~/.oct2py_files, a temporary directory
-
-    Parameters
-    ==========
-    ext : str
-        File extension (e.g.  'mat')
+    Create a MAT file with a random name.
+    Puts it in if possible, or in ~/.oct2py_files
 
     Returns
     =======
     out : str
         Random file name with the desired extension
-
     """
-    import tempfile
-    dir_ = os.path.expanduser('~/oct2py_tmp')
-    if not os.path.exists(dir_):
-        os.mkdir(dir_)
-    _, fname = tempfile.mkstemp(suffix='.' + ext, dir=dir_)
-    return fname
+    fid, fname = tempfile.mkstemp(suffix='.mat')
+    os.close(fid)
+    atexit.register(lambda dir_=os.path.dirname(fname): _remove_files(dir_))
+    return os.path.abspath(fname)
 
 
 class Oct2PyError(Exception):

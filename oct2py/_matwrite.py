@@ -19,7 +19,7 @@ class MatWrite(object):
     Strives to preserve both value and type in transit.
     """
     def __init__(self):
-        self.in_file = _create_file('mat')
+        self.in_file = _create_file()
 
     def create_file(self, inputs, names=None):
         """
@@ -62,12 +62,12 @@ class MatWrite(object):
                 raise
             ascii_code += 1
         if not os.path.exists(self.in_file):
-            self.in_file = _create_file('mat')
+            self.in_file = _create_file()
         try:
-            savemat(self.in_file, data, do_compression=False, oned_as='row')
+            savemat(self.in_file, data, appendmat=False, oned_as='row')
         except KeyError:
-            pass
-        load_line = 'load -v6 "%s" "%s"' % (self.in_file,
+            raise Exception('could not save mat file')
+        load_line = 'load %s "%s"' % (self.in_file,
                                             '" "'.join(argin_list))
         return argin_list, load_line
 

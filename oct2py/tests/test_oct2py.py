@@ -4,7 +4,8 @@ oct2py_test - Test value passing between python and Octave.
 Known limitations
 -----------------
 * The following Numpy array types cannot be sent directly via a MAT file.  The
-float96 and complex192 can be recast as float64 and complex128.
+float16, float96 and complex192 can be recast as float64 and complex128.
+   ** float16('e')
    ** float96('g')
    ** complex192('G')
    ** read-write buffer('V')
@@ -41,7 +42,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.uint16, 'uint16', np.uint16),
                 (np.uint32, 'uint32', np.uint32),
                 (np.uint64, 'uint64', np.uint64),
-                (np.float16, 'double', np.float64),
+                #(np.float16, 'double', np.float64),
                 (np.float32, 'double', np.float64),
                 (np.float64, 'double', np.float64),
                 (np.str, 'char', np.unicode),
@@ -68,6 +69,8 @@ class TypeConversions(TestCase):
             if octave_type == 'int32' and oct_type == 'int64':
                 pass
             elif octave_type == 'char' and oct_type == 'cell':
+                pass
+            elif octave_type == 'single' and oct_type == 'double':
                 pass
             else:
                 self.assertEqual(octave_type, oct_type)
@@ -206,7 +209,13 @@ class RoundtripTest(TestCase):
                     raise
             except (NotImplementedError, TypeError):
                 raise
-        self.assertEqual(type(incoming), expected_type)
+        try:
+            self.assertEqual(type(incoming), expected_type)
+        except AssertionError:
+            if type(incoming) == np.float32 and expected_type == np.float64:
+                pass
+            else:
+                self.assertEqual(type(incoming), expected_type)
 
     def test_int(self):
         """Test roundtrip value and type preservation for integer types

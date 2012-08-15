@@ -13,13 +13,13 @@ import doctest
 import atexit
 from ._matwrite import MatWrite
 from ._matread import MatRead
-from ._utils import _open, _get_nout, _remove_tempdir, Oct2PyError
+from ._utils import _open, _get_nout, _remove_files, Oct2PyError
 
 
 class Oct2Py(object):
     """Manages an Octave session.
 
-    Uses HDF5 files to pass data between Octave and Numpy.
+    Uses MAT files to pass data between Octave and Numpy.
     The function must either exist as an m-file in this directory or
     on Octave's path.
     The first command will take about 0.5s for Octave to load up.
@@ -31,14 +31,14 @@ class Oct2Py(object):
 
     """
     def __init__(self):
-        """Start Octave and create our HDF helpers
+        """Start Octave and create our MAT helpers
         """
         self._session = _open()
         self._isopen = True
         atexit.register(lambda handle=self._session: self.close(handle))
-        atexit.register(_remove_tempdir)
         self._reader = MatRead()
         self._writer = MatWrite()
+        self.run('cd {0}'.format(os.path.abspath(os.path.dirname(__file__))))
 
     def close(self, handle=None):
         """Closes this octave session
@@ -52,6 +52,7 @@ class Oct2Py(object):
         import signal
         if not handle:
             handle = self._session
+            self._session = None
         # Send the terminate signal to all the process groups
         if 'win' in sys.platform:
             try:
@@ -174,9 +175,9 @@ class Oct2Py(object):
             func = func[:-2]
 
         # these three lines will form the commands sent to Octave
-        # load("-hdf5", "infile", "invar1", ...)
+        # load("-v6", "infile", "invar1", ...)
         # [a, b, c] = foo(A, B, C)
-        # save("-hdf5", "outfile", "outvar1", ...)
+        # save("-v6", "outfile", "outvar1", ...)
         load_line = call_line = save_line = ''
 
         if nout:
@@ -328,6 +329,8 @@ class Oct2Py(object):
             If the command(s) fail.
 
         """
+        if not self._session:
+            raise Oct2PyError('No Octave Session')
         resp = []
         # use ascii code 21 to signal an error and 3
         # to signal end of text

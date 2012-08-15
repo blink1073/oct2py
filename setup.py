@@ -1,9 +1,4 @@
 """Setup script for oct2py package.
-
-Run as::
-
-    python setup.py install
-
 """
 DISTNAME = 'oct2py'
 DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
@@ -12,7 +7,10 @@ MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
-VERSION = '0.3.2'
+VERSION = '0.3.3dev'
+REQUIRES = ["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"]
+PACKAGES = [DISTNAME, '{0}.tests'.format(DISTNAME)]
+PACKAGE_DATA = {DISTNAME: ['tests/*.m']}
 CLASSIFIERS = """\
 Development Status :: 4 - Beta
 Intended Audience :: Developers
@@ -63,6 +61,7 @@ class MyBuildDoc(BuildDoc):
         sys.path.insert(0, os.path.abspath(build.build_lib))
         dirname = self.distribution.get_command_obj('build').build_purelib
         self.builder_target_dir = os.path.join(dirname, 'oct2py', 'doc')
+        BuildDoc.user_options
         try:
             BuildDoc.run(self)
         except UnicodeDecodeError:
@@ -80,42 +79,27 @@ else:
     cmdclass = {'build_py': build_py}
 
 
-def write_version_py(filename='oct2py/version.py'):
-    fname = os.path.join(os.path.dirname(__file__), filename)
+def write_version_py():
+    fname = '{0}/version.py'.format(DISTNAME)
+    fname = os.path.join(os.path.dirname(__file__), fname)
     with open(fname, 'w') as fid:
-        fid.write('# THIS FILE IS GENERATED FROM THE OCT2PY SETUP.PY\n')
+        fid.write('# THIS FILE IS GENERATED FROM THE {0} SETUP.PY\n'
+                  .format(DISTNAME))
         fid.write("version = '{0}'\n".format(VERSION))
-
-
-def write_setup_cfg():
-    try:
-        import ConfigParser
-    except ImportError:
-        import configparser as ConfigParser
-    config = ConfigParser.SafeConfigParser()
-    config.add_section('build_sphinx')
-    config.set('build_sphinx', 'source-dir', 'doc')
-    config.set('build_sphinx', 'all_files', '1')
-    version = '.'.join(VERSION.split('.')[:2])
-    config.set('build_sphinx', 'version', version)
-    config.set('build_sphinx', 'release', VERSION)
-    config.add_section('upload_sphinx')
-    config.set('upload_sphinx', 'upload-dir', 'build/lib/oc2py/doc')
-    with open('setup.cfg', 'w') as fid:
-        config.write(fid)
+    os.chmod(fname, int('0777', 8))
 
 
 if __name__ == '__main__':
     write_version_py()
-    write_setup_cfg()
 
     setup(
         name=DISTNAME,
         version=VERSION,
         maintainer=MAINTAINER,
         maintainer_email=MAINTAINER_EMAIL,
-        packages=['oct2py', 'oct2py.tests'],
-        package_data={'oct2py': ['tests/*.m']},
+        packages=PACKAGES,
+        include_package_data=True,
+        package_data=PACKAGE_DATA,
         url=URL,
         download_url=URL,
         license=LICENSE,
@@ -123,6 +107,16 @@ if __name__ == '__main__':
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         classifiers=filter(None, CLASSIFIERS.split('\n')),
-        requires=["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"],
+        requires=REQUIRES,
         cmdclass=cmdclass,
+        command_options={
+            'build_sphinx': {
+                'project': ('setup.py', DISTNAME),
+                'version': ('setup.py', '.'.join(VERSION.split('.')[:2])),
+                'release': ('setup.py', VERSION),
+                'all-files': ('setup.py', 1)},
+            'upload_sphinx': {
+                'upload-dir': ('setup.py',
+                               'build/lib/{0}/doc'.format(DISTNAME))}
+            }
         )

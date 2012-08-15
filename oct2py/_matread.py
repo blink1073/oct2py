@@ -21,7 +21,7 @@ class MatRead(object):
     def __init__(self):
         """Initialize our output file
         """
-        self.out_file = _create_file('mat')
+        self.out_file = _create_file()
 
     def setup(self, nout, names=None):
         """
@@ -47,8 +47,8 @@ class MatRead(object):
             else:
                 argout_list.append("%s__" % chr(i + 97))
         if not os.path.exists(self.out_file):
-            self.out_file = _create_file('mat')
-        save_line = 'save "-v6" "%s" "%s"' % (self.out_file,
+            self.out_file = _create_file()
+        save_line = 'save "-v6" %s "%s"' % (self.out_file,
                                                 '" "'.join(argout_list))
         return argout_list, save_line
 
