@@ -1,0 +1,18 @@
+Release Checklist:
+- Update CHANGES.txt
+- Change VERSION in setup.py
+- Run tests in python3, against legacy libraries, and on Windows.
+  nosetests --with-doctest
+- Create a tag and a new branch for the version  
+- Upload to github
+- Create and upload files and documentation
+
+Release Commands:
+rm -r dist build
+git tag 0.x.x; git branch v0.x.x
+git push upstream-rw master 0.x.x
+python setup.py bdist_wininst --target-version=2.7 upload
+python setup.py bdist_wininst --target-version=3.2 upload
+python setup.py sdist --formats=gztar,zip upload
+python setup.py build_sphinx
+python setup.py upload_sphinx

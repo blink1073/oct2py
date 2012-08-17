@@ -20,6 +20,8 @@ New in Version 0.3
 - Uses MAT files and scipy.io instead of HDF files
 - Octave Magic now available in IPython 0.13
 - Version 0.3.2 fixes a bug where column vectors are collapsed
+- Version 0.3.3 improves speed of large matrices,
+  and better handles singleton dimensions
 
 
 Installation
@@ -48,7 +50,7 @@ matrix, and the value returned would be the original array, of type np.int8.
 Almost all Python types can be sent to Octave (including ndarrays of
 arbitrary rank) and read back in the same form.
 Currently the library does not support nested lists with strings in them, or
-an ndarray of string dtype of rank > 1.  
+an ndarray of string dtype of rank > 1.
 Corner cases like sparse or empty  matrices have not been tested.
 Note that dictionaries are mapped to Octave structures, which are returned
 as Struct objects.  These objects behave just like an Octave struct, but

@@ -9,12 +9,12 @@ Dan MacKinlay, for the sphinx library, which as used to create the project docum
 Stefan van der Walt and Pauli Virtanen, for the numpdoc library, which was used to render numpy-style docstrings in the documentation.  And Stefan also for two patches to oct2py and for creating the octavemagic plugin for IPython.
 Pierre Reybaut, for the sphinx build commands in setup.py from spyder.
 Travis Oliphant and friends, for the numpy and scipy libraries, *the* reason to switch to Python for scientific computing.
+The folks at Wingware, for providing the excellent Wing IDE to me for free as an active open source developer.  It has accelerated my python development tremendously.
 And of course, our Benevolent Dictactor for Life, Guido van Rossum.
 
 Citations
 =========
 J. Eaton, GNU Octave, 2002 (http://gnu.org/software/octave)
-A. Collette, HDF5 for Python, 2008 (http://h5py.alfven.org)
 A. Schmolck and V. Rathod, Mlabwrap, 2011 (http://mlabwrap.sourceforge.net)
 P. Jurica, One MATLAB(R) per Child, 2008 (http://ompc.juricap.com)
 D. MacKinlay, sphinx, 2011 (http://sphinx.pocoo.org/index.html)
