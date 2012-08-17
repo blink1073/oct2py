@@ -24,6 +24,7 @@ DATA = octave.test_datatypes()
 if sys.version_info[0] == 3:
     unicode = str
     long = int
+    basestring = str
 
 TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (long, 'int64', np.int64),
@@ -182,10 +183,11 @@ class RoundtripTest(TestCase):
             np.allclose(val1, np.array(val2))
         elif isinstance(val1, basestring):
             self.assertEqual(val1, val2)
-        elif np.alltrue(np.isnan(val1)) and np.alltrue(np.isnan(val2)):
-            pass
         else:
-            self.assertEqual(val1, val2)
+            try:
+                assert np.alltrue(np.isnan(val1)) and np.alltrue(np.isnan(val2))
+            except (AssertionError, NotImplementedError):
+                self.assertEqual(val1, val2)
 
     def helper(self, outgoing, expected_type=None):
         """
