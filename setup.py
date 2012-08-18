@@ -97,7 +97,6 @@ if __name__ == '__main__':
         maintainer=MAINTAINER,
         maintainer_email=MAINTAINER_EMAIL,
         packages=PACKAGES,
-        include_package_data=True,
         package_data=PACKAGE_DATA,
         url=URL,
         download_url=URL,
