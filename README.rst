@@ -20,7 +20,7 @@ New in Version 0.3
 - Uses MAT files and scipy.io instead of HDF files
 - Octave Magic now available in IPython 0.13
 - Version 0.3.2 fixes a bug where column vectors are collapsed
-- Version 0.3.3 improves speed of large matrices,
+- Version 0.3.4 improves speed of large matrices,
   and better handles singleton dimensions
 
 

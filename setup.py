@@ -7,7 +7,7 @@ MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
-VERSION = '0.3.3'
+VERSION = '0.3.4'
 REQUIRES = ["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"]
 PACKAGES = [DISTNAME, '{0}.tests'.format(DISTNAME)]
 PACKAGE_DATA = {DISTNAME: ['tests/*.m']}
@@ -59,8 +59,7 @@ class MyBuildDoc(BuildDoc):
     def run(self):
         build = self.get_finalized_command('build')
         sys.path.insert(0, os.path.abspath(build.build_lib))
-        dirname = self.distribution.get_command_obj('build').build_purelib
-        self.builder_target_dir = os.path.join(dirname, 'oct2py', 'doc')
+        self.builder_target_dir = 'build/doc/{0}/doc'.format(DISTNAME)
         BuildDoc.user_options
         try:
             BuildDoc.run(self)
@@ -114,9 +113,10 @@ if __name__ == '__main__':
                 'project': ('setup.py', DISTNAME),
                 'version': ('setup.py', '.'.join(VERSION.split('.')[:2])),
                 'release': ('setup.py', VERSION),
-                'all-files': ('setup.py', 1)},
+                'all_files': ('setup.py', 1),
+                'build_dir': ('setup.py', 'build/lib/{0}/doc'.format(DISTNAME))},
             'upload_sphinx': {
-                'upload-dir': ('setup.py',
-                               'build/lib/{0}/doc'.format(DISTNAME))}
+                'upload_dir': ('setup.py',
+                               'build/doc/{0}/doc'.format(DISTNAME))}
             }
         )

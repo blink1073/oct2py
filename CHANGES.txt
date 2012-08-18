@@ -1,4 +1,4 @@
-v0.3.3, 17 August 2012   -- Improved speed for larger matrices, better handling of singleton dimensions.
+v0.3.4, 17 August 2012   -- Improved speed for larger matrices, better handling of singleton dimensions.
 v0.3.2, 12 July 2012     -- Fixed column vector bug.
 v0.3.0, 16 June 2012     -- Added Python 3 support, support for numpy "objects".
 v0.2.1, 25 November 2011 -- Added Sphinx documentation.
