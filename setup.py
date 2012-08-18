@@ -85,7 +85,7 @@ def write_version_py():
         fid.write('# THIS FILE IS GENERATED FROM THE {0} SETUP.PY\n'
                   .format(DISTNAME))
         fid.write("version = '{0}'\n".format(VERSION))
-    os.chmod(fname, int('0777', 8))
+    os.chmod(fname, int('0666', 8))
 
 
 if __name__ == '__main__':
