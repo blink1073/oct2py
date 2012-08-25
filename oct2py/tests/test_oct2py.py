@@ -569,9 +569,9 @@ class BasicUsageTest(TestCase):
         """
         out = octave.cos.__doc__
         try:
-            self.assertEqual(out[:5], '\n`cos')
-        except AssertionError:
             self.assertEqual(out[:5], '\ncos ')
+        except AssertionError:
+            self.assertEqual(out[:5], '\n`cos')
 
     def test_dynamic(self):
         """Test the creation of a dynamic function

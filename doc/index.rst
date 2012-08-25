@@ -5,6 +5,7 @@ Documentation for Oct2Py
    :maxdepth: 2
 
    reference
+   installation
    conversions
    demo
    examples

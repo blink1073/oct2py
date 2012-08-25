@@ -22,6 +22,7 @@ New in Version 0.3
 - Version 0.3.2 fixes a bug where column vectors are collapsed
 - Version 0.3.4 improves speed of large matrices,
   and better handles singleton dimensions
+- Version 0.3.5 forces plots to render when using newer versions of Octave
 
 
 Installation
@@ -81,10 +82,10 @@ Plotting
 ========
 Plotting commands do not automatically result in the window being displayed
 by python.  In order to force the plot to be drawn, the command
-"print -deps foo.eps;'" is tacked onto anything that looks like a plot
+"figure(gcf() + 1);'" is tacked onto anything that looks like a plot
 command, when called using this package. If you have plot statements in your
-function that you would like to display, you must add that line (replacing
-foo.eps with the file name of your choice), after each plot statement.
+function that you would like to display, you must add that line
+after each plot statement.
 
 Thread Safety
 =============
@@ -101,7 +102,7 @@ Future enhancements
 ===================
 * Add a Octave code compability check function
 * Add a feature to scan a file for plot statements and automatically add a
-  line to print the plot, allowing Python to render it.
+  line to show the figure.
 
 Note for MATLAB® users
 ========================
@@ -126,7 +127,7 @@ Similar work
 * ompc, smop - Matlab to Python conversion tools.  Both rely on effective
   parsing of code and a runtime helper library.  Ideally one or both of
   these projects render this one unnecessary.  The idea of using
-  introspection and to find "nargout" was borrowed from the ompc project.
+  introspection to find "nargout" was borrowed from the ompc project.
 
 Disclaimer
 ==========

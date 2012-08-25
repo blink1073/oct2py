@@ -3,7 +3,8 @@ Release Checklist:
 - Change VERSION in setup.py
 - Run tests in python3, against legacy libraries, and on Windows.
   nosetests --with-doctest
-- Create a tag and a new branch for the version  
+- Run the demo, speed_test, and tread_test
+- Create a tag and a new branch for the version
 - Upload to github
 - Create and upload files and documentation
 

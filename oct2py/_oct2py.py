@@ -39,6 +39,10 @@ class Oct2Py(object):
         self._reader = MatRead()
         self._writer = MatWrite()
         self.run('cd {0}'.format(os.path.abspath(os.path.dirname(__file__))))
+        try:
+            self.run("graphics_toolkit('gnuplot')")
+        except Oct2PyError:
+            pass
 
     def close(self, handle=None):
         """Closes this octave session
@@ -109,8 +113,8 @@ class Oct2Py(object):
         for cmd in ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog',
                     'polar', 'semilogx', 'stairs', 'gsplot', 'mesh',
                     'meshdom']:
-            if cmd in script:
-                script += ';print -deps foo.eps;'
+            if cmd + '(' in script:
+                script += ';figure(gcf() + 1);'
                 break
         return self.call(script, **kwargs)
 
@@ -200,7 +204,7 @@ class Oct2Py(object):
                     'mesh', 'meshdom', 'meshc', 'surf', 'plot3', 'meshz',
                     'surfc', 'surfl', 'surfnorm', 'diffuse', 'specular',
                     'ribbon', 'scatter3']:
-            call_line += ';print -deps foo.eps;'
+            call_line += ';figure(gcf() + 1);'
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
