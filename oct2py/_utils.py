@@ -34,19 +34,13 @@ def _open():
     Matlab compatibilty mode.
 
     """
-    if 'linux' in sys.platform:
-        preexec_fn = os.setsid
-    else:
-        preexec_fn = None
     try:
-        session = subprocess.Popen('octave -q --braindead',
-                                 shell=True,
+        session = subprocess.Popen(['octave', '-q', '--braindead'],
                                  stderr=subprocess.STDOUT,
                                  stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 preexec_fn=preexec_fn)
+                                 stdout=subprocess.PIPE)
     except OSError:
-        msg = ('\n\nPlease install octave and put it in your path\n')
+        msg = ('\n\nPlease install GNU Octave and put it in your path\n')
         raise Oct2PyError(msg)
     return session
 

@@ -38,11 +38,6 @@ class Oct2Py(object):
         atexit.register(lambda handle=self._session: self.close(handle))
         self._reader = MatRead()
         self._writer = MatWrite()
-        self.run('cd {0}'.format(os.path.abspath(os.path.dirname(__file__))))
-        try:
-            self.run("graphics_toolkit('gnuplot')")
-        except Oct2PyError:
-            pass
 
     def close(self, handle=None):
         """Closes this octave session
@@ -51,20 +46,18 @@ class Oct2Py(object):
             self._isopen = False
         else:
             return
-        import sys
-        import os
-        import signal
         if not handle:
             handle = self._session
             self._session = None
         # Send the terminate signal to all the process groups
-        if 'win' in sys.platform:
-            try:
-                handle.stdout.write('exit\n')
-            except IOError:
-                pass
-        else:
-            os.killpg(handle.pid, signal.SIGTERM)
+        try:
+            handle.stdout.write('exit\n')
+        except IOError:
+            pass
+        try:
+            handle.terminate()
+        except OSError:
+            pass
 
     def _close(self, handle=None):
         '''Depracated, call close instead
@@ -114,7 +107,7 @@ class Oct2Py(object):
                     'polar', 'semilogx', 'stairs', 'gsplot', 'mesh',
                     'meshdom']:
             if cmd + '(' in script:
-                script += ';figure(gcf() + 1);'
+                script += ";graphics_toolkit('gnuplot');figure(gcf() + 1);"
                 break
         return self.call(script, **kwargs)
 
@@ -204,7 +197,7 @@ class Oct2Py(object):
                     'mesh', 'meshdom', 'meshc', 'surf', 'plot3', 'meshz',
                     'surfc', 'surfl', 'surfnorm', 'diffuse', 'specular',
                     'ribbon', 'scatter3']:
-            call_line += ';figure(gcf() + 1);'
+            call_line += ";graphics_toolkit('gnuplot');figure(gcf() + 1);"
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
