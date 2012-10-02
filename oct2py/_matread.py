@@ -8,6 +8,7 @@
 """
 import os
 import numpy as np
+import scipy
 from scipy.io import loadmat
 from ._utils import Struct, _create_file
 
@@ -94,7 +95,7 @@ class MatRead(object):
                 if "'|O" in str(val.dtype):
                     val = self._get_data(val)
                 if val.size == 1:
-                    val = val.flatten()[0]
+                    val = val.flatten()
         if val.dtype == np.object:
             if len(val.shape) > 2:
                 val = val.T
@@ -117,6 +118,9 @@ class MatRead(object):
                 val.shape[1] == 1):
                 val = val.flatten()
             val = val.tolist()
+            if len(val) == 1 and isinstance(val[0],
+                                            scipy.sparse.csc.csc_matrix):
+                val = val[0]
         elif val.size == 1:
             val = val.flatten()[0]
         return val

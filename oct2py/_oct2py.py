@@ -348,14 +348,14 @@ class Oct2Py(object):
             if line == '\x03':
                 break
             elif line == '\x15':
-                msg = '"""\n{0}\n"""\n{1}'.format('\n'.join(cmds),
-                                                   '\n'.join(resp))
+                msg = ('Tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
+                       .format('\n'.join(cmds), '\n'.join(resp)))
                 raise Oct2PyError(msg)
             elif "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
                 resp.append(line)
-                msg = '\n'.join(resp)
+                msg = 'Octave Syntax Error\n'.join(resp)
                 raise Oct2PyError(msg)
             elif verbose:
                 print(line)
