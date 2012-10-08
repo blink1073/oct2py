@@ -70,7 +70,7 @@ can be accessed as a dictionary as well::
        {'c': {'d': 'eggs'}, 'b': 'spam'}
 
 Performance
-==========
+===========
 There is a penalty for passing data via MAT files.  Running speed_test.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
