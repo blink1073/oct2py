@@ -35,6 +35,7 @@ class Oct2Py(object):
         """
         self._session = _open()
         self._isopen = True
+        self._graphics_toolkit = None
         atexit.register(lambda handle=self._session: self.close(handle))
         self._reader = MatRead()
         self._writer = MatWrite()
@@ -107,8 +108,8 @@ class Oct2Py(object):
                     'polar', 'semilogx', 'stairs', 'gsplot', 'mesh',
                     'meshdom']:
             if cmd + '(' in script:
-                script += ";graphics_toolkit('gnuplot');figure(gcf() + 1);"
-                break
+                self._set_graphics_toolkit()
+                script += ";figure(gcf() + 1);"
         return self.call(script, **kwargs)
 
     def call(self, func, *inputs, **kwargs):
@@ -197,7 +198,8 @@ class Oct2Py(object):
                     'mesh', 'meshdom', 'meshc', 'surf', 'plot3', 'meshz',
                     'surfc', 'surfl', 'surfnorm', 'diffuse', 'specular',
                     'ribbon', 'scatter3']:
-            call_line += ";graphics_toolkit('gnuplot');figure(gcf() + 1);"
+            self._set_graphics_toolkit()
+            call_line += ";figure(gcf() + 1);"
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
@@ -413,10 +415,10 @@ class Oct2Py(object):
         """
         if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
             raise Oct2PyError(
-                    "Attributes don't look like this: {0}".format(attr))
+                "Attributes don't look like this: {0}".format(attr))
         if attr.startswith('_'):
             raise Oct2PyError(
-                    "Octave commands do not start with _: {0}".format(attr))
+                "Octave commands do not start with _: {0}".format(attr))
         # print_ -> print
         if attr[-1] == "_":
             name = attr[:-1]
@@ -427,6 +429,15 @@ class Oct2Py(object):
         #!!! attr, *not* name, because we might have python keyword name!
         setattr(self, attr, octave_command)
         return octave_command
+
+    def _set_graphics_toolkit(self):
+        if self._graphics_toolkit == 'gnuplot':
+            return
+        try:
+            self._eval("graphics_toolkit('gnuplot')", False)
+        except Oct2PyError:
+            pass
+        self._graphics_toolkit = 'gnuplot'
 
     def __del__(self):
         """Close the Octave session before deletion.

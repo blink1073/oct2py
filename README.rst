@@ -23,6 +23,11 @@ New in Version 0.3
 - Version 0.3.4 improves speed of large matrices,
   and better handles singleton dimensions
 - Version 0.3.5 forces plots to render when using newer versions of Octave
+- Version 0.3.6 fixes a few bugs
+   -- Fixed plot rendering for older Octave versions
+   -- Default octave working directory is now the same as the os working directory
+   -- Singleton elements within a cell array are now treated as a singleton list
+   -- Low-level: no longer using a shell for the subprocess
 
 
 Installation
@@ -64,7 +69,7 @@ can be accessed as a dictionary as well::
        >>> print a
        {'c': {'d': 'eggs'}, 'b': 'spam'}
 
-Peformance
+Performance
 ==========
 There is a penalty for passing data via MAT files.  Running speed_test.py
 shows the effect.  After a startup time for the Octave engine (<1s),

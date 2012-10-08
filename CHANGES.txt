@@ -1,3 +1,7 @@
+v0.3.6, 8 October 2012   -- Fixed plot rendering for older Octave versions
+                         -- Default octave working directory is now the same as the os working directory
+                         -- Singleton elements within a cell array are now treated as a singleton list
+                         -- Low-level: no longer using a shell for the subprocess
 v0.3.5, 23 August 2012   -- Forced plots to render on newer Octave versions
 v0.3.4, 17 August 2012   -- Improved speed for larger matrices, better handling of singleton dimensions.
 v0.3.2, 12 July 2012     -- Fixed column vector bug.
