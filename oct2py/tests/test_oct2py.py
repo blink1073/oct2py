@@ -195,7 +195,8 @@ class RoundtripTest(TestCase):
             self.assertEqual(val1, val2)
         else:
             try:
-                assert np.alltrue(np.isnan(val1)) and np.alltrue(np.isnan(val2))
+                assert (np.alltrue(np.isnan(val1)) and
+                        np.alltrue(np.isnan(val2)))
             except (AssertionError, NotImplementedError):
                 self.assertEqual(val1, val2)
 
