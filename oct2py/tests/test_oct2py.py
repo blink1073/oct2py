@@ -106,7 +106,10 @@ class IncomingTest(TestCase):
         """
         for key, type_ in zip(keys, types):
             if not type(base[key]) == type_:
-                assert type_(base[key]) == base[key]
+                try:
+                    assert type_(base[key]) == base[key]
+                except ValueError:
+                    assert np.allclose(type_(base[key]), base[key])
 
     def test_int(self):
         """Test incoming integer types
@@ -158,6 +161,13 @@ class IncomingTest(TestCase):
         keys = ['vector', 'matrix']
         types = [list, list]
         self.helper(DATA.cell, keys, types)
+
+    def test_mixed_struct(self):
+        '''Test mixed struct type
+        '''
+        keys = ['array', 'cell', 'scalar']
+        types = [list, list, float]
+        self.helper(DATA.mixed, keys, types)
 
 
 class RoundtripTest(TestCase):

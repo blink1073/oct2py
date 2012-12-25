@@ -53,6 +53,12 @@ test.struct.array(2).age = 42
 test.cell.vector = {'spam', 4.0, [1 2 3]}
 test.cell.matrix = {'Bob', 40; 'Pam', 41}
 
+%%%%%%%%%%%%%%%
+% mixed struct
+test.mixed.array = [[1 2]; [3 4]]
+test.mixed.cell = {'1'}
+test.mixed.scalar = 1.5
+
 
 
 
