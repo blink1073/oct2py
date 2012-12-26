@@ -7,6 +7,7 @@ python:
 
 install:
     - sudo apt-get install python-dev libatlas-base-dev liblapack-dev
+    - sudo apt-get install gfortran
     - pip install numpy scipy
     - python setup.py install
 
