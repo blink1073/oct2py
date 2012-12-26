@@ -7,8 +7,8 @@
 
 language: erlang
 env:
-    - PYTHON=python PYSUF=''
-    - PYTHON=python3 PYSUF=3
+    - PYTHON=python PYSUF=2.7
+    - PYTHON=python3 PYSUF=3.2
 install:
     - sudo apt-get update
     - sudo apt-get install $PYTHON-numpy
@@ -22,5 +22,5 @@ script:
     # Change into an innocuous directory and find tests from installation
     - mkdir for_test
     - cd for_test
-    - nosetests --exe -v --cover-package=oct2py oct2py
+    - nosetests-$PYSUF --exe -v --cover-package=oct2py oct2py
 
