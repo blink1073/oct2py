@@ -8,7 +8,9 @@ python:
 install:
     - sudo apt-get install python-dev libatlas-base-dev liblapack-dev
     - sudo apt-get install gfortran octave-3.2
-    - pip install numpy scipy
+    - pip install numpy
+    - python -c "import numpy.distutils.core"
+    - pip install scipy
     - python setup.py install
 
 script:
