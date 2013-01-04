@@ -413,7 +413,8 @@ class NumpyTest(TestCase):
     """Check value and type preservation of Numpy arrays
     """
     codes = np.typecodes['All']
-    blacklist = 'gGV'
+    blacklist_codes = 'V'
+    blacklist_names = ['float128', 'complex256']
 
     def test_scalars(self):
         """Send a scalar numpy type and make sure we get the same number back.
@@ -425,7 +426,8 @@ class NumpyTest(TestCase):
                 outgoing = outgoing.astype(typecode)
             except TypeError:
                 continue
-            if typecode in self.blacklist:
+            if (typecode in self.blacklist_codes or 
+                outgoing.dtype.name in self.blacklist_names):
                 self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                 continue
             incoming = octave.roundtrip(outgoing)
@@ -455,7 +457,8 @@ class NumpyTest(TestCase):
                         outgoing = outgoing.astype(typecode)
                     except TypeError:
                         continue
-                if typecode in self.blacklist:
+                if (typecode in self.blacklist_codes or 
+                     outgoing.dtype.name in self.blacklist_names):
                     self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                     continue
                 incoming = octave.roundtrip(outgoing)
