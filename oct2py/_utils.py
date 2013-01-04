@@ -33,12 +33,15 @@ def _open():
     Options sent to Octave: -q is quiet startup, --braindead is
     Matlab compatibilty mode.
 
-    """
+    """ 
+    kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE, 
+                  stdout=subprocess.PIPE)
+    if os.name == 'nt':
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        kwargs['startupinfo'] = startupinfo
     try:
-        session = subprocess.Popen(['octave', '-q', '--braindead'],
-                                 stderr=subprocess.STDOUT,
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE)
+        session = subprocess.Popen(['octave', '-q', '--braindead'], **kwargs)
     except OSError:
         msg = ('\n\nPlease install GNU Octave and put it in your path\n')
         raise Oct2PyError(msg)
