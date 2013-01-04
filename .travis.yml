@@ -11,16 +11,12 @@ env:
     - PYTHON=python3 PYSUF=3.2
 install:
     - sudo apt-get update
-    - sudo apt-get install $PYTHON-numpy
     - sudo apt-get install $PYTHON-scipy
-    - sudo apt-get install $PYTHON-setuptools
     - sudo apt-get install $PYTHON-nose
-    - sudo apt-get install octave3.2
-    - $PYTHON setup.py build
+    - sudo apt-get install octave
     - sudo $PYTHON setup.py install
 script:
     # Change into an innocuous directory and find tests from installation
-    - mkdir for_test
-    - cd for_test
+    - cd ~
     - nosetests-$PYSUF --exe -v --cover-package=oct2py oct2py
 
