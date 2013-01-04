@@ -619,7 +619,6 @@ class BasicUsageTest(TestCase):
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError
         """
-        return
         oct_ = Oct2Py()
         self.assertRaises(Oct2PyError, oct_.eval, cmds="a='1")
 
