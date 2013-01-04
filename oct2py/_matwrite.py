@@ -147,6 +147,8 @@ class MatWrite(object):
             data = data.astype(np.object)
         elif '<c' in dstr and np.alltrue(data.imag == 0):
             data.imag = 1e-9
+        if data.dtype in ['float128', 'complex256']:
+            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
         if data.dtype == 'object' and len(data.shape) > 1:
             data = data.T
         return data

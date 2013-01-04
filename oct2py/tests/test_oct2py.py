@@ -73,6 +73,8 @@ class TypeConversions(TestCase):
                 pass
             elif octave_type == 'single' and oct_type == 'double':
                 pass
+            elif octave_type == 'int64' and oct_type == 'int32':
+                pass
             else:
                 self.assertEqual(octave_type, oct_type)
             if type(incoming) != in_type:
