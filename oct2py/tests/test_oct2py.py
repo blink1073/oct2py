@@ -414,7 +414,7 @@ class NumpyTest(TestCase):
     """
     codes = np.typecodes['All']
     blacklist_codes = 'V'
-    blacklist_names = ['float128', 'complex256']
+    blacklist_names = ['float128', 'float96', 'complex256']
 
     def test_scalars(self):
         """Send a scalar numpy type and make sure we get the same number back.
