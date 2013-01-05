@@ -402,9 +402,14 @@ class Oct2Py(object):
         try:
             doc = self._eval('help {0}'.format(name), verbose=False)
         except Oct2PyError:
-            doc = self._eval('type {0}'.format(name), verbose=False)
-            # grab only the first line
-            doc = doc.split('\n')[0]
+            try:
+                doc = self._eval('type {0}'.format(name), verbose=False)
+            except Oct2PyError:
+                msg = '"{0}" is not a recognized octave command'.format(name)
+                raise Oct2PyError(msg)
+            else:
+                # grab only the first line
+                doc = doc.split('\n')[0]
         return doc
 
     def __getattr__(self, attr):

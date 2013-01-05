@@ -4,10 +4,12 @@ oct2py_test - Test value passing between python and Octave.
 Known limitations
 -----------------
 * The following Numpy array types cannot be sent directly via a MAT file.  The
-float16, float96 and complex192 can be recast as float64 and complex128.
+float16/96/128 and complex192/256 can be recast as float64 and complex128.
    ** float16('e')
    ** float96('g')
+   ** float128
    ** complex192('G')
+   ** complex256
    ** read-write buffer('V')
 """
 import os
@@ -414,7 +416,7 @@ class NumpyTest(TestCase):
     """
     codes = np.typecodes['All']
     blacklist_codes = 'V'
-    blacklist_names = ['float128', 'float96', 'complex256']
+    blacklist_names = ['float128', 'float96', 'complex192', 'complex256']
 
     def test_scalars(self):
         """Send a scalar numpy type and make sure we get the same number back.

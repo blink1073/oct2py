@@ -13,21 +13,10 @@ If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 
 
-New in Version 0.3
+New in Version 0.4
 ====================
-- Support for Python 3.2
-- Support for numpy "object" type and Octave cell arrays
-- Uses MAT files and scipy.io instead of HDF files
-- Octave Magic now available in IPython 0.13
-- Version 0.3.2 fixes a bug where column vectors are collapsed
-- Version 0.3.4 improves speed of large matrices,
-  and better handles singleton dimensions
-- Version 0.3.5 forces plots to render when using newer versions of Octave
-- Version 0.3.6 fixes a few bugs
-   -- Fixed plot rendering for older Octave versions
-   -- Default octave working directory is now the same as the os working directory
-   -- Singleton elements within a cell array are now treated as a singleton list
-   -- Low-level: no longer using a shell for the subprocess
+- Limited support for sparse arrays (scipy.sparse.csc.csc_matrix)
+- Some bugfixes and testing improvements
 
 
 Installation
@@ -74,8 +63,8 @@ Performance
 There is a penalty for passing data via MAT files.  Running speed_test.py
 shows the effect.  After a startup time for the Octave engine (<1s),
 raw function calls take almost no penalty.  The penalty for reading and
-writing from the MAT file is around 10-20ms on my laptop.  This penalty is
-felt  for both incoming and outgoing values.  As the data becomes
+writing from the MAT file is around 1-20s on my laptop.  This penalty is
+felt for both incoming and outgoing values.  As the data becomes
 larger, the delay begins to increase (somewhere around a 100x100 array).
 If you have any loops, you would be better served using a raw "run"
 command for the loop rather than implementing the loop in python::

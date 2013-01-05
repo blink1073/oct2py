@@ -4,12 +4,16 @@ Release Checklist:
 - Run tests in python3, against legacy libraries, and on Windows.
   nosetests --with-doctest
 - Run the demo, speed_test, and thread_test
+- Run the ipython test
+  nosetests ipython | grep octave
 - Create a tag and a new branch for the version
 - Upload to github
 - Create and upload files and documentation
+- Upload to bitbucket
 
 Release Commands:
 # make sure you are not in a virtual environment
+deactivate
 rm -r dist build
 git tag 0.x.x; git branch v0.x.x
 git push upstream-rw master 0.x.x
