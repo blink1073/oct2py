@@ -110,7 +110,10 @@ class MatRead(object):
                     for row in range(val.shape[0]):
                         for i in range(val[row].size):
                             if not np.isscalar(val[row][i]):
-                                val[row][i] = val[row][i][0]
+                                if val[row][i].size > 1:
+                                    val[row][i] = val[row][i].squeeze()
+                                else:
+                                    val[row][i] = val[row][i][0]
             else:
                 val = np.array([self._get_data(val[i])
                                 for i in range(val.size)])

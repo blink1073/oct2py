@@ -190,7 +190,10 @@ class RoundtripTest(TestCase):
                 if isinstance(subval1, list):
                     self.nested_equal(subval1, subval2)
                 elif isinstance(subval1, np.ndarray):
-                    np.allclose(subval1, subval2)
+                    try:
+                        np.allclose(subval1, subval2)
+                    except NotImplementedError:
+                        import sys; print >> sys.stderr, '****', subval1, subval1.size, '\n', subval2, subval2.shape, '\n******\n'
                 else:
                     self.assertEqual(subval1, subval2)
         elif isinstance(val1, np.ndarray):
@@ -277,6 +280,7 @@ class RoundtripTest(TestCase):
         """
         for key in ['vector', 'matrix']:
             self.helper(DATA.cell[key])
+        self.helper(DATA.cell['array'], np.ndarray)
 
 
 class BuiltinsTest(TestCase):
@@ -422,13 +426,12 @@ class NumpyTest(TestCase):
         """Send a scalar numpy type and make sure we get the same number back.
         """
         for typecode in self.codes:
-
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
             try:
                 outgoing = outgoing.astype(typecode)
             except TypeError:
                 continue
-            if (typecode in self.blacklist_codes or 
+            if (typecode in self.blacklist_codes or
                 outgoing.dtype.name in self.blacklist_names):
                 self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                 continue
@@ -459,7 +462,7 @@ class NumpyTest(TestCase):
                         outgoing = outgoing.astype(typecode)
                     except TypeError:
                         continue
-                if (typecode in self.blacklist_codes or 
+                if (typecode in self.blacklist_codes or
                      outgoing.dtype.name in self.blacklist_names):
                     self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
                     continue

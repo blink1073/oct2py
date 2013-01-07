@@ -21,14 +21,17 @@ New in Version 0.4
 
 Installation
 ============
-You must have GNU Octave installed and in your PATH. Additionally, you must
-have the numpy and scipy libraries installed::
+You must have GNU Octave installed and in your PATH. On Windows, the easiest
+way to get Octave is to use an installer from:
+http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/.
+On Linux, it should be available from your package manager.
+Additionally, you must have the numpy and scipy libraries installed, then run::
 
    python setup.py install
 
 or::
 
-   pip oct2py install
+   pip install oct2py
 
 or::
 
@@ -44,9 +47,6 @@ For example, if you send an ndarray of type np.int8, Octave receives an int8
 matrix, and the value returned would be the original array, of type np.int8.
 Almost all Python types can be sent to Octave (including ndarrays of
 arbitrary rank) and read back in the same form.
-Currently the library does not support nested lists with strings in them, or
-an ndarray of string dtype of rank > 1.
-Corner cases like sparse or empty  matrices have not been tested.
 Note that dictionaries are mapped to Octave structures, which are returned
 as Struct objects.  These objects behave just like an Octave struct, but
 can be accessed as a dictionary as well::
@@ -61,9 +61,9 @@ can be accessed as a dictionary as well::
 Performance
 ===========
 There is a penalty for passing data via MAT files.  Running speed_test.py
-shows the effect.  After a startup time for the Octave engine (<1s),
+shows the effect.  After a startup time for the Octave engine (<1s typically),
 raw function calls take almost no penalty.  The penalty for reading and
-writing from the MAT file is around 1-20s on my laptop.  This penalty is
+writing from the MAT file is around 1-2ms on my laptop.  This penalty is
 felt for both incoming and outgoing values.  As the data becomes
 larger, the delay begins to increase (somewhere around a 100x100 array).
 If you have any loops, you would be better served using a raw "run"
@@ -84,7 +84,7 @@ after each plot statement.
 Thread Safety
 =============
 Each instance of the Octave object has an independent session of Octave and
-uses independent random MAT files. The library appears to be thread safe.
+uses independent random MAT files. The library therefore should be thread safe.
 See thread_test.py for an example of several objects writing a different
 value for the same variable name simultaneously and successfully retrieving
 their own result::
@@ -106,11 +106,6 @@ noticable differences are nested functions are not allowed, and GUIs
 (including uigetfile, etc.) are not supported. There are several Octave
 packages (think toolboxes), including image and statistics, at
 http://octave.sourceforge.net/packages.php.
-
-Testing
-=======
-Unit tests are in the tests directory, and can be run individually, by
-running all_tests.py, or using a test discovery tool like nose.
 
 Similar work
 ============

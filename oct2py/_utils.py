@@ -33,9 +33,10 @@ def _open():
     Options sent to Octave: -q is quiet startup, --braindead is
     Matlab compatibilty mode.
 
-    """ 
-    kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE, 
-                  stdout=subprocess.PIPE)
+    """
+    ON_POSIX = 'posix' in sys.builtin_module_names
+    kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
+                  stdout=subprocess.PIPE, close_fds=ON_POSIX)
     if os.name == 'nt':
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW

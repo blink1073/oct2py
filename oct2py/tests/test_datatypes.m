@@ -52,6 +52,12 @@ test.struct.array(2).age = 42
 % cell array types
 test.cell.vector = {'spam', 4.0, [1 2 3]}
 test.cell.matrix = {'Bob', 40; 'Pam', 41}
+test.cell.array = {[0.4194 0.3629 -0.0000;
+                    0.0376 0.3306 0.0000;
+                    0 0 1.0000],
+                   [0.5645 -0.2903 0;
+                    0.0699 0.1855 0.0000;
+                    0.8500 0.8250 1.0000]};
 
 %%%%%%%%%%%%%%%
 % mixed struct

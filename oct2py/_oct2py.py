@@ -27,7 +27,7 @@ class Oct2Py(object):
     Plotting commands within an m-file do not work unless you add this
     after every plot line::
 
-       print -deps foo.eps
+       ;figure(gcf() + 1);
 
     """
     def __init__(self):
