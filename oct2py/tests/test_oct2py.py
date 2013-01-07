@@ -154,11 +154,11 @@ class IncomingTest(TestCase):
         types = [unicode, list, list]
         self.helper(DATA.string, keys, types)
 
-    def test_struct(self):
-        ''' Test incoming struct types '''
+    def test_struct_array(self):
+        ''' Test incoming struct array types '''
         keys = ['name', 'age']
         types = [list, list]
-        self.helper(DATA.struct.array, keys, types)
+        self.helper(DATA.struct_array, keys, types)
 
     def test_cell_array(self):
         ''' Test incoming cell array types '''
@@ -269,18 +269,28 @@ class RoundtripTest(TestCase):
         for key in ['basic', 'cell_array']:
             self.helper(DATA.string[key])
 
-    def test_struct(self):
-        """Test roundtrip value and type preservation for struct types
+    def test_struct_array(self):
+        """Test roundtrip value and type preservation for struct array types
         """
-        self.helper(DATA.struct.array['name'])
-        self.helper(DATA.struct.array['age'], np.ndarray)
+        self.helper(DATA.struct_array['name'])
+        self.helper(DATA.struct_array['age'], np.ndarray)
 
     def test_cell_array(self):
         """Test roundtrip value and type preservation for cell array types
         """
-        for key in ['vector', 'matrix']:
+        for key in ['vector', 'matrix', 'array']:
             self.helper(DATA.cell[key])
-        self.helper(DATA.cell['array'], np.ndarray)
+        #self.helper(DATA.cell['array'], np.ndarray)
+
+    def test_octave_origin(self):
+        '''Test all of the types, originating in octave, and returning
+        '''
+        octave.run('x = test_datatypes()')
+        octave.put('y', DATA)
+        for key in DATA.keys():
+            if key != 'struct_array':
+                ret = octave.run('isequalwithequalnans(x.{0},y.{0})'.format(key))
+                assert ret == 'ans =  1'
 
 
 class BuiltinsTest(TestCase):

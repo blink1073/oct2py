@@ -126,4 +126,11 @@ class MatRead(object):
                 val = val[0]
         elif val.size == 1:
             val = val.flatten()[0]
+        if isinstance(val, Struct) and isinstance(val.size, Struct):
+            del val['size']
+            del val['dtype']
         return val
+
+    def get_dummy_cell(self):
+        data = loadmat(self.out_file)
+        return data['__cell'][0]

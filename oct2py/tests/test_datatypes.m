@@ -19,7 +19,7 @@ test.num.int.uint64 = uint64(2^64-1);
 test.num.float32 = single(pi);
 test.num.float64 = double(pi);
 test.num.complex = 3 + 1j;
-test.num.complex_matrix = (1 + 1j) * rand([2 2])
+test.num.complex_matrix = (1.2 + 1.1j) * magic(3)
 
 % misc
 test.num.inf = inf
@@ -27,8 +27,8 @@ test.num.NaN = NaN
 test.num.matrix = [1 2; 3 4]
 test.num.vector = [1 2 3 4]
 test.num.column_vector = [1;2;3;4]
-test.num.matrix3d = rand([2 3 4])
-test.num.matrix5d = rand(1,2,3,4,5)
+test.num.matrix3d = ones([2 3 4]) * pi
+test.num.matrix5d = ones(1,2,3,4,5) * pi
 
 
 %%%%%%%%%%%%%%%
@@ -42,11 +42,12 @@ test.string.char_array = {'spam', 'eggs'; 'foo ', 'bar '}
 test.string.cell_array = {'spam', 'eggs'}
 
 %%%%%%%%%%%%%%%
-% struct types
-test.struct.array(1).name = 'Sharon'
-test.struct.array(1).age = 31
-test.struct.array(2).name = 'Bill'
-test.struct.array(2).age = 42
+% struct array types
+
+test.struct_array(1).name = 'Sharon'
+test.struct_array(1).age = 31
+test.struct_array(2).name = 'Bill'
+test.struct_array(2).age = 42
 
 %%%%%%%%%%%%%%%
 % cell array types

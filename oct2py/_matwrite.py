@@ -20,6 +20,7 @@ class MatWrite(object):
     """
     def __init__(self):
         self.in_file = _create_file()
+        self.dummy_cell = None
 
     def create_file(self, inputs, names=None):
         """
@@ -120,11 +121,22 @@ class MatWrite(object):
         if isinstance(data, set):
             data = list(data)
         if isinstance(data, list):
+            # hack to get a viable cell object
             if self.str_in_list(data):
                 try:
                     data = np.array(data, dtype=np.object)
                 except ValueError as err:
                     raise Oct2PyError(err)
+            else:
+                out = []
+                for el in data:
+                    if isinstance(el, np.ndarray):
+                        cell = self.dummy_cell.copy()
+                        cell[0] = el
+                        out.append(cell)
+                    else:
+                        out.append(el)
+                return out
         if (isinstance(data, str) or
             (sys.version.startswith('2') and isinstance(data, unicode))):
             return data

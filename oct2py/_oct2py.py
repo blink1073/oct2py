@@ -39,6 +39,7 @@ class Oct2Py(object):
         atexit.register(lambda handle=self._session: self.close(handle))
         self._reader = MatRead()
         self._writer = MatWrite()
+        self._get_dummy_cell()
 
     def close(self, handle=None):
         """Closes this octave session
@@ -443,6 +444,14 @@ class Oct2Py(object):
         except Oct2PyError:
             pass
         self._graphics_toolkit = 'gnuplot'
+
+    def _get_dummy_cell(self):
+        '''Get a dummy cell variable for the matwriter
+        '''
+        self.run('__cell = {[1]};')
+        self.get('__cell')
+        cell = self._reader.get_dummy_cell()
+        self._writer.dummy_cell = cell
 
     def __del__(self):
         """Close the Octave session before deletion.

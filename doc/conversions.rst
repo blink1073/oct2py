@@ -77,8 +77,8 @@ cell (scalar)    scalar
 cell array       list of lists
 struct           Struct
 struct (nested)  Struct (nested)
-struct array     Struct (of lists)
+struct array*    Struct (of lists)*
 logical          ndarray
 ===============  =================
-
+* One-way trip (cannot be sent back to Octave intact)
 
