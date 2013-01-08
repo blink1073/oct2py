@@ -15,7 +15,10 @@ trust a code translator, this is your library.
 
 New in Version 0.4
 ====================
-- Limited support for sparse arrays (scipy.sparse.csc.csc_matrix)
+- Added a restart method to Oct2Py objects to start a clean session
+- Added get_log and test methods to oct2py
+- Support for sparse arrays (scipy.sparse.csc.csc_matrix)
+- Improvements to octave cell type handling
 - Some bugfixes and testing improvements
 
 

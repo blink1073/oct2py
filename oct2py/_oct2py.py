@@ -10,10 +10,9 @@ import os
 import re
 import atexit
 import doctest
-import atexit
 from ._matwrite import MatWrite
 from ._matread import MatRead
-from ._utils import _open, _get_nout, _remove_files, Oct2PyError
+from ._utils import _open, _get_nout, Oct2PyError
 
 
 class Oct2Py(object):
@@ -33,13 +32,9 @@ class Oct2Py(object):
     def __init__(self):
         """Start Octave and create our MAT helpers
         """
-        self._session = _open()
-        self._isopen = True
-        self._graphics_toolkit = None
-        atexit.register(lambda handle=self._session: self.close(handle))
+        self.restart()
         self._reader = MatRead()
         self._writer = MatWrite()
-        self._get_dummy_cell()
 
     def close(self, handle=None):
         """Closes this octave session
@@ -173,6 +168,9 @@ class Oct2Py(object):
                 func = os.path.basename(func)
             func = func[:-2]
 
+        if not self._writer.dummy_cell:
+            self._get_dummy_cell()
+
         # these three lines will form the commands sent to Octave
         # load("-v6", "infile", "invar1", ...)
         # [a, b, c] = foo(A, B, C)
@@ -240,6 +238,8 @@ class Oct2Py(object):
         for name in names:
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
+            if not self._writer.dummy_cell:
+                self._get_dummy_cell()
         _, load_line = self._writer.create_file(var, names)
         self._eval(load_line, verbose=True)
 
@@ -448,10 +448,19 @@ class Oct2Py(object):
     def _get_dummy_cell(self):
         '''Get a dummy cell variable for the matwriter
         '''
+        self._writer.dummy_cell = object  # prevent recursion
         self.run('__cell = {[1]};')
         self.get('__cell')
         cell = self._reader.get_dummy_cell()
         self._writer.dummy_cell = cell
+
+    def restart(self):
+        '''Restart an Octave session in a clean state
+        '''
+        self._session = _open()
+        self._isopen = True
+        self._graphics_toolkit = None
+        atexit.register(lambda handle=self._session: self.close(handle))
 
     def __del__(self):
         """Close the Octave session before deletion.

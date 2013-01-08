@@ -107,6 +107,7 @@ class MatRead(object):
                 try:
                     return val.astype(val[0][0].dtype)
                 except ValueError:
+                    # dig into the cell type
                     for row in range(val.shape[0]):
                         for i in range(val[row].size):
                             if not np.isscalar(val[row][i]):
