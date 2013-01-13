@@ -624,6 +624,10 @@ class BasicUsageTest(TestCase):
         oct_.close()
         self.assertRaises(Oct2PyError, oct_.put, names=['a'],
                           var=[1.0])
+        oct_.restart()
+        oct_.put('a', 5)
+        a = oct_.get('a')
+        assert a == 5
 
     def test_struct(self):
         """Test Struct construct
