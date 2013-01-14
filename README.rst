@@ -97,7 +97,7 @@ their own result::
 
 Future enhancements
 ===================
-* Add a Octave code compability check function
+* Add an Octave code compability check function
 * Add a feature to scan a file for plot statements and automatically add a
   line to show the figure.
 
