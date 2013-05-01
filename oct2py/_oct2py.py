@@ -339,7 +339,7 @@ class Oct2Py(object):
         lines = ['try', '\n'.join(cmds), 'disp(char(3))',
                  'catch', 'disp(lasterr())', 'disp(char(21))',
                  'end', '']
-        eval_ = '\n'.join(lines).encode('ascii')
+        eval_ = '\n'.join(lines).encode('utf-8')
         try:
             self._session.stdin.write(eval_)
         except IOError:
@@ -347,7 +347,7 @@ class Oct2Py(object):
         self._session.stdin.flush()
         syntax_error = False
         while 1:
-            line = self._session.stdout.readline().rstrip().decode('ascii')
+            line = self._session.stdout.readline().rstrip().decode('utf-8')
             if line == '\x03':
                 break
             elif line == '\x15':
