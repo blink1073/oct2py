@@ -10,6 +10,7 @@ import os
 import re
 import atexit
 import doctest
+import sys
 from ._matwrite import MatWrite
 from ._matread import MatRead
 from ._utils import _open, _get_nout, Oct2PyError
@@ -376,6 +377,8 @@ class Oct2Py(object):
             kwargs['nout'] = _get_nout()
             kwargs['verbose'] = False
             return self.call(name, *args, **kwargs)
+        # convert to ascii for pydoc
+        doc = doc.encode('ascii', 'replace').decode('ascii')
         octave_command.__doc__ = "\n" + doc
         octave_command.__name__ = name
         return octave_command
