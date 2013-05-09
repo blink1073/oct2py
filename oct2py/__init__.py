@@ -80,9 +80,9 @@ def get_log(name=None):
     import logging
 
     if name is None:
-        name = 'pydevice'
+        name = 'oct2py'
     else:
-        name = 'pydevice.' + name
+        name = 'oct2py.' + name
 
     log = logging.getLogger(name)
     return log

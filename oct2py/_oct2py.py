@@ -10,6 +10,7 @@ import os
 import re
 import atexit
 import doctest
+import logging
 import sys
 from ._matwrite import MatWrite
 from ._matread import MatRead
@@ -30,9 +31,13 @@ class Oct2Py(object):
        ;figure(gcf() + 1);
 
     """
-    def __init__(self):
+    def __init__(self, logger=None):
         """Start Octave and create our MAT helpers
         """
+        if not logger is None:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger('oct2py')
         self.restart()
         self._reader = MatRead()
         self._writer = MatWrite()
@@ -362,7 +367,9 @@ class Oct2Py(object):
                 msg = 'Octave Syntax Error\n'.join(resp)
                 raise Oct2PyError(msg)
             elif verbose:
-                print(line)
+                self.logger.info(line)
+            else:
+                self.logger.debug(line)
             resp.append(line)
         return '\n'.join(resp)
 
