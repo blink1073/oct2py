@@ -10,6 +10,7 @@ import os
 import re
 import atexit
 import doctest
+import functools
 import logging
 import sys
 from ._matwrite import MatWrite
@@ -383,6 +384,7 @@ class Oct2Py(object):
             """ Octave command """
             kwargs['nout'] = _get_nout()
             kwargs['verbose'] = False
+            self._eval('clear {}'.format(name))
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
         doc = doc.encode('ascii', 'replace').decode('ascii')

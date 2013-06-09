@@ -65,7 +65,7 @@ test.cell.array = {[0.4194 0.3629 -0.0000;
 % mixed struct
 test.mixed.array = [[1 2]; [3 4]]
 test.mixed.cell = {'1'}
-test.mixed.scalar = 1.5
+test.mixed.scalar = 1.8
 
 
 
