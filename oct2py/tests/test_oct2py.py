@@ -509,7 +509,7 @@ class NumpyTest(TestCase):
             assert test.nnz == incoming.nnz
             assert np.allclose(test.todense(), incoming.todense())
             assert test.dtype == incoming.dtype
-            assert type_ == 'cell'
+            assert type_ == 'double'
 
     def test_empty(self):
         '''Test roundtrip empty matrices

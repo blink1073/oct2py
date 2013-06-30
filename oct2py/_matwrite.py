@@ -10,6 +10,7 @@ import sys
 import os
 from scipy.io import savemat
 import numpy as np
+from scipy.sparse import csr_matrix
 from ._utils import Oct2PyError, _create_file
 
 
@@ -139,6 +140,8 @@ class MatWrite(object):
                 return out
         if (isinstance(data, str) or
             (sys.version.startswith('2') and isinstance(data, unicode))):
+            return data
+        if isinstance(data, csr_matrix):
             return data
         try:
             data = np.array(data)
