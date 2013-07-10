@@ -120,7 +120,3 @@ Similar work
   parsing of code and a runtime helper library.  Ideally one or both of
   these projects render this one unnecessary.  The idea of using
   introspection to find "nargout" was borrowed from the ompc project.
-
-Disclaimer
-==========
-MATLAB® is registered trademark of The MathWorks.
