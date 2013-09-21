@@ -10,9 +10,7 @@ import os
 import re
 import atexit
 import doctest
-import functools
 import logging
-import sys
 from ._matwrite import MatWrite
 from ._matread import MatRead
 from ._utils import _open, _get_nout, Oct2PyError, _remove_temp_files
@@ -41,11 +39,9 @@ class Oct2Py(object):
             self.logger = logging.getLogger('oct2py')
             self.logger.setLevel(logging.INFO)
         self.restart()
-        self._reader = MatRead()
-        self._writer = MatWrite()
         
     def __enter__(self):
-        '''Restart session if necessary'''
+        '''Return octave object, restart session if necessary'''
         if not self._session:
             self.restart()
         return self
@@ -74,7 +70,6 @@ class Oct2Py(object):
         except OSError:
             pass
         _remove_temp_files()
-        self._writer.dummy_cell = None
 
     def _close(self, handle=None):
         '''Depracated, call close instead
@@ -490,6 +485,8 @@ class Oct2Py(object):
         self._isopen = True
         self._graphics_toolkit = None
         atexit.register(lambda handle=self._session: self.close(handle))
+        self._reader = MatRead()
+        self._writer = MatWrite()
 
     def __del__(self):
         """Close the Octave session before deletion.
