@@ -12,8 +12,10 @@ float16/96/128 and complex192/256 can be recast as float64 and complex128.
    ** complex256
    ** read-write buffer('V')
 """
+import logging
 import os
 import sys
+import tempfile
 import numpy as np
 from numpy.testing import *
 from oct2py._oct2py import Oct2Py, Oct2PyError
@@ -660,6 +662,29 @@ def test_context_manager():
     with oc as oc2:
         zeros = oc2.zeros(3)
     assert np.allclose(zeros, np.zeros((3, 3)))
+    
+def test_logging():
+    '''Test logging to a file'''
+    oc = Oct2Py()
+    # create a temp file and a handler to log to it
+    fid = tempfile.NamedTemporaryFile(delete=False)
+    fid.close()
+    hdlr = logging.FileHandler(fid.name)
+    hdlr.setLevel(logging.DEBUG)
+    oc.logger.addHandler(hdlr)
+    
+    # generate some messages (logged and not logged)
+    oc.ones(1) 
+    oc.call('ones', 1, verbose=True)
+    
+    oc.logger.setLevel(logging.DEBUG)
+    oc.zeros(1)
+    
+    # check the output
+    with open(fid.name) as fid:
+        lines = fid.readlines()
+    assert len(lines) == 9
+    assert lines[0].startswith('save')
     
     
 if __name__ == '__main__':

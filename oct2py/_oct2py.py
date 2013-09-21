@@ -39,6 +39,7 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = logging.getLogger('oct2py')
+            self.logger.setLevel(logging.INFO)
         self.restart()
         self._reader = MatRead()
         self._writer = MatWrite()
@@ -323,7 +324,7 @@ class Oct2Py(object):
         """
         return self.run('lookfor -all {0}'.format(string), verbose=verbose)
 
-    def _eval(self, cmds, verbose=True):
+    def _eval(self, cmds, verbose=True, log=True):
         """
         Perform raw Octave command.
 
@@ -355,6 +356,10 @@ class Oct2Py(object):
         # to signal end of text
         if isinstance(cmds, str):
             cmds = [cmds]
+        if verbose and log:
+            [self.logger.info(line) for line in cmds]
+        elif log:
+            [self.logger.debug(line) for line in cmds]
         lines = ['try', '\n'.join(cmds), 'disp(char(3))',
                  'catch', 'disp(lasterr())', 'disp(char(21))',
                  'end', '']
@@ -381,7 +386,7 @@ class Oct2Py(object):
                 raise Oct2PyError(msg)
             elif verbose:
                 self.logger.info(line)
-            else:
+            elif log:
                 self.logger.debug(line)
             resp.append(line)
         return '\n'.join(resp)
@@ -396,7 +401,7 @@ class Oct2Py(object):
             """ Octave command """
             kwargs['nout'] = _get_nout()
             kwargs['verbose'] = False
-            self._eval('clear {}'.format(name))
+            self._eval('clear {}'.format(name), log=False, verbose=False)
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
         doc = doc.encode('ascii', 'replace').decode('ascii')
@@ -425,10 +430,10 @@ class Oct2Py(object):
 
         """
         try:
-            doc = self._eval('help {0}'.format(name), verbose=False)
+            doc = self._eval('help {0}'.format(name), log=False, verbose=False)
         except Oct2PyError:
             try:
-                doc = self._eval('type {0}'.format(name), verbose=False)
+                doc = self._eval('type {0}'.format(name), log=False, verbose=False)
             except Oct2PyError:
                 msg = '"{0}" is not a recognized octave command'.format(name)
                 raise Oct2PyError(msg)
