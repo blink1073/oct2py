@@ -55,7 +55,7 @@ def _remove_temp_files():
     """
     import os
     import glob
-    temp = tempfile.TemporaryFile()
+    temp = tempfile.NamedTemporaryFile()
     temp.close()
     dirname = os.path.dirname(temp.name)
     for fname in glob.glob(os.path.join(dirname, 'tmp*.mat')):
