@@ -49,16 +49,23 @@ def _open():
     return session
 
 
-def _remove_files(dir_):
+def _remove_temp_files():
     """
-    Remove the created mat files
-
+    Remove the created mat files in the user's temp folder
     """
     import os
     import glob
-    for fname in glob.glob(os.path.join(dir_, 'tmp*.mat')):
-        os.remove(fname)
-    pass
+    temp = tempfile.TemporaryFile()
+    temp.close()
+    dirname = os.path.dirname(temp.name)
+    for fname in glob.glob(os.path.join(dirname, 'tmp*.mat')):
+        try:
+            os.remove(fname)
+        except OSError:
+            pass
+        
+        
+atexit.register(_remove_temp_files)
 
 
 def _get_nout():
@@ -104,10 +111,9 @@ def _create_file():
     out : str
         Random file name with the desired extension
     """
-    fid, fname = tempfile.mkstemp(suffix='.mat')
-    os.close(fid)
-    atexit.register(lambda dir_=os.path.dirname(fname): _remove_files(dir_))
-    return os.path.abspath(fname)
+    temp_file = tempfile.NamedTemporaryFile(suffix='.mat', delete=False)
+    temp_file.close()
+    return os.path.abspath(temp_file.name)
 
 
 class Oct2PyError(Exception):

@@ -649,6 +649,18 @@ def test_unicode_docstring():
     '''Make sure unicode docstrings in Octave functions work'''
     help(octave.test_datatypes)
     
+
+def test_context_manager():
+    '''Make sure oct2py works within a context manager'''
+    oc = Oct2Py()
+    with oc as oc1:
+        ones = oc1.ones(1)
+    assert ones == np.ones(1)
+    
+    with oc as oc2:
+        zeros = oc2.zeros(3)
+    assert np.allclose(zeros, np.zeros((3, 3)))
+    
     
 if __name__ == '__main__':
     print('oct2py test')

@@ -15,7 +15,7 @@ import logging
 import sys
 from ._matwrite import MatWrite
 from ._matread import MatRead
-from ._utils import _open, _get_nout, Oct2PyError
+from ._utils import _open, _get_nout, Oct2PyError, _remove_temp_files
 
 
 class Oct2Py(object):
@@ -42,9 +42,19 @@ class Oct2Py(object):
         self.restart()
         self._reader = MatRead()
         self._writer = MatWrite()
+        
+    def __enter__(self):
+        '''Restart session if necessary'''
+        if not self._session:
+            self.restart()
+        return self
+    
+    def __exit__(self, type, value, traceback):
+        '''Close session'''
+        self.close()
 
     def close(self, handle=None):
-        """Closes this octave session
+        """Closes this octave session and removes temp files
         """
         if self._isopen:
             self._isopen = False
@@ -62,6 +72,8 @@ class Oct2Py(object):
             handle.terminate()
         except OSError:
             pass
+        _remove_temp_files()
+        self._writer.dummy_cell = None
 
     def _close(self, handle=None):
         '''Depracated, call close instead
