@@ -183,9 +183,6 @@ class Oct2Py(object):
                 func = os.path.basename(func)
             func = func[:-2]
 
-        if not self._writer.dummy_cell:
-            self._get_dummy_cell()
-
         # these three lines will form the commands sent to Octave
         # load("-v6", "infile", "invar1", ...)
         # [a, b, c] = foo(A, B, C)
@@ -253,8 +250,6 @@ class Oct2Py(object):
         for name in names:
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
-            if not self._writer.dummy_cell:
-                self._get_dummy_cell()
         _, load_line = self._writer.create_file(var, names)
         self._eval(load_line, verbose=True)
 
@@ -395,7 +390,7 @@ class Oct2Py(object):
         def octave_command(*args, **kwargs):
             """ Octave command """
             kwargs['nout'] = _get_nout()
-            kwargs['verbose'] = False
+            kwargs['verbose'] = kwargs.get('verbose', False)
             self._eval('clear {}'.format(name), log=False, verbose=False)
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
@@ -468,15 +463,6 @@ class Oct2Py(object):
         except Oct2PyError:
             pass
         self._graphics_toolkit = 'gnuplot'
-
-    def _get_dummy_cell(self):
-        '''Get a dummy cell variable for the matwriter
-        '''
-        self._writer.dummy_cell = object  # prevent recursion
-        self.run('__cell = {[1]};')
-        self.get('__cell')
-        cell = self._reader.get_dummy_cell()
-        self._writer.dummy_cell = cell
 
     def restart(self):
         '''Restart an Octave session in a clean state

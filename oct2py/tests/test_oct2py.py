@@ -667,15 +667,14 @@ def test_logging():
     '''Test logging to a file'''
     oc = Oct2Py()
     # create a temp file and a handler to log to it
-    fid = tempfile.NamedTemporaryFile(delete=False)
+    fid = tempfile.NamedTemporaryFile(suffix='.txt', delete=False)
     fid.close()
     hdlr = logging.FileHandler(fid.name)
     hdlr.setLevel(logging.DEBUG)
     oc.logger.addHandler(hdlr)
     
     # generate some messages (logged and not logged)
-    oc.ones(1) 
-    oc.call('ones', 1, verbose=True)
+    oc.ones(1, verbose=True)
     
     oc.logger.setLevel(logging.DEBUG)
     oc.zeros(1)
@@ -683,8 +682,8 @@ def test_logging():
     # check the output
     with open(fid.name) as fid:
         lines = fid.readlines()
-    assert len(lines) == 9
-    assert lines[0].startswith('save')
+    assert len(lines) == 8
+    assert lines[0].startswith('load')
     
     
 if __name__ == '__main__':

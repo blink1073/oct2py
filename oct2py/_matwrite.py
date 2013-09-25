@@ -21,7 +21,6 @@ class MatWrite(object):
     """
     def __init__(self):
         self.in_file = _create_file()
-        self.dummy_cell = None
 
     def create_file(self, inputs, names=None):
         """
@@ -132,7 +131,7 @@ class MatWrite(object):
                 out = []
                 for el in data:
                     if isinstance(el, np.ndarray):
-                        cell = self.dummy_cell.copy()
+                        cell = np.zeros((1,), dtype=np.object)
                         cell[0] = el
                         out.append(cell)
                     else:
