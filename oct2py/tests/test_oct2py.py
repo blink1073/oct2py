@@ -485,6 +485,8 @@ class NumpyTest(TestCase):
                 if len(outgoing.shape) > 2 and 1 in outgoing.shape:
                     incoming = incoming.squeeze()
                     outgoing = outgoing.squeeze()
+                elif incoming.size == 1:
+                    incoming = incoming.squeeze()
                 assert incoming.shape == outgoing.shape
                 if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
                     outgoing = outgoing.astype(np.uint64)
@@ -666,10 +668,10 @@ def test_context_manager():
 def test_logging():
     '''Test logging to a file'''
     oc = Oct2Py()
-    # create a temp file and a handler to log to it
-    fid = tempfile.NamedTemporaryFile(suffix='.txt', delete=False)
-    fid.close()
-    hdlr = logging.FileHandler(fid.name)
+    # create a stringio and a handler to log to it
+    from StringIO import StringIO
+    sobj = StringIO()
+    hdlr = logging.StreamHandler(sobj)
     hdlr.setLevel(logging.DEBUG)
     oc.logger.addHandler(hdlr)
     
@@ -680,8 +682,7 @@ def test_logging():
     oc.zeros(1)
     
     # check the output
-    with open(fid.name) as fid:
-        lines = fid.readlines()
+    lines = sobj.getvalue().strip().split('\n')
     assert len(lines) == 8
     assert lines[0].startswith('load')
     

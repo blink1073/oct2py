@@ -13,7 +13,7 @@ import doctest
 import logging
 from ._matwrite import MatWrite
 from ._matread import MatRead
-from ._utils import _open, _get_nout, Oct2PyError, _remove_temp_files
+from ._utils import _open, _get_nout, Oct2PyError
 
 
 class Oct2Py(object):
@@ -69,7 +69,14 @@ class Oct2Py(object):
             handle.terminate()
         except OSError:
             pass
-        _remove_temp_files()
+        try:
+            os.remove(self._writer.in_file)
+        except OSError:
+            pass
+        try:
+            os.remove(self._reader.out_file)
+        except OSError:
+            pass
 
     def _close(self, handle=None):
         '''Depracated, call close instead
@@ -125,7 +132,7 @@ class Oct2Py(object):
 
     def call(self, func, *inputs, **kwargs):
         """
-        Call am Octave function with optional arguments.
+        Call an Octave function with optional arguments.
 
         Parameters
         ----------
@@ -173,6 +180,9 @@ class Oct2Py(object):
                [-0.93272184,  0.36059668]]))
 
         """
+        if self._first_run:
+            self._first_run = False
+            self.call('ones', 1)
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', _get_nout())
 
@@ -215,13 +225,13 @@ class Oct2Py(object):
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
         resp = self._eval(cmd, verbose=verbose)
-
+        
         if nout:
             return self._reader.extract_file(argout_list)
         else:
             return resp
 
-    def put(self, names, var):
+    def put(self, names, var, verbose=False):
         """
         Put a variable into the Octave session.
 
@@ -251,9 +261,9 @@ class Oct2Py(object):
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
         _, load_line = self._writer.create_file(var, names)
-        self._eval(load_line, verbose=True)
+        self._eval(load_line, verbose=verbose)
 
-    def get(self, var):
+    def get(self, var, verbose=False):
         """
         Retrieve a value from the Octave session.
 
@@ -290,7 +300,7 @@ class Oct2Py(object):
                           verbose=False) == 'ans = 0':
                 raise Oct2PyError('{0} does not exist'.format(variable))
         argout_list, save_line = self._reader.setup(len(var), var)
-        self._eval(save_line)
+        self._eval(save_line, verbose=verbose)
         return self._reader.extract_file(argout_list)
 
     def lookfor(self, string, verbose=False):
@@ -468,6 +478,7 @@ class Oct2Py(object):
         '''Restart an Octave session in a clean state
         '''
         self._session = _open()
+        self._first_run = True
         self._isopen = True
         self._graphics_toolkit = None
         atexit.register(lambda handle=self._session: self.close(handle))

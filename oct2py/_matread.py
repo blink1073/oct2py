@@ -83,7 +83,7 @@ class MatRead(object):
         '''Extract the data from the incoming value
         '''
         # check for objects
-        if "'|O" in str(val.dtype) or "'O'" in str(val.dtype):
+        if "'|O" in str(val.dtype) or "O'" in str(val.dtype):
             data = Struct()
             for key in val.dtype.fields.keys():
                 data[key] = self._get_data(val[key][0])
@@ -92,7 +92,7 @@ class MatRead(object):
         if val.dtype == np.object:
             if val.size == 1:
                 val = val[0]
-                if "'|O" in str(val.dtype):
+                if "'|O" in str(val.dtype) or "O'" in str(val.dtype):
                     val = self._get_data(val)
                 if val.size == 1:
                     val = val.flatten()
@@ -131,7 +131,3 @@ class MatRead(object):
             del val['size']
             del val['dtype']
         return val
-
-    def get_dummy_cell(self):
-        data = loadmat(self.out_file)
-        return data['__cell'][0]

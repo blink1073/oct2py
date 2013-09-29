@@ -40,6 +40,10 @@ or::
 
    easy_install oct2py
 
+Note for Windows users: You may have to follow the instructions at:
+http://wiki.octave.org/Octave_for_Windows#Printing_.28installing_Ghostscript.29
+in order to use inline figures in IPython (or specify -f svg).
+
 
 Datatypes
 =========
@@ -83,6 +87,7 @@ by python.  In order to force the plot to be drawn, the command
 command, when called using this package. If you have plot statements in your
 function that you would like to display, you must add that line
 after each plot statement.
+
 
 Thread Safety
 =============
