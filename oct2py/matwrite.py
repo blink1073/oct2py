@@ -1,5 +1,5 @@
 """
-.. module:: _h5write
+.. module:: matwrite
    :synopsis: Write Python values into an MAT file for Octave.
               Strives to preserve both value and type in transit.
 
@@ -11,7 +11,7 @@ import os
 from scipy.io import savemat
 import numpy as np
 from scipy.sparse import csr_matrix
-from ._utils import Oct2PyError, _create_file
+from .utils import Oct2PyError, create_file
 
 
 class MatWrite(object):
@@ -20,7 +20,7 @@ class MatWrite(object):
     Strives to preserve both value and type in transit.
     """
     def __init__(self):
-        self.in_file = _create_file()
+        self.in_file = create_file()
 
     def create_file(self, inputs, names=None):
         """

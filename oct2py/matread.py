@@ -1,5 +1,5 @@
 """
-.. module:: _matread
+.. module:: matread
    :synopsis: Read Python values from a MAT file made by Octave.
               Strives to preserve both value and type in transit.
 
@@ -10,7 +10,7 @@ import os
 import numpy as np
 from scipy.io import loadmat
 import scipy
-from ._utils import Struct, _create_file
+from .utils import Struct, create_file
 
 
 class MatRead(object):
@@ -22,7 +22,7 @@ class MatRead(object):
     def __init__(self):
         """Initialize our output file
         """
-        self.out_file = _create_file()
+        self.out_file = create_file()
 
     def setup(self, nout, names=None):
         """

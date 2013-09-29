@@ -1,5 +1,5 @@
 """
-.. module:: _utils
+.. module:: utils
    :synopsis: Miscellaneous helper constructs
 
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
@@ -14,7 +14,7 @@ import tempfile
 import atexit
 
 
-def _open():
+def open_session():
     """
     Start an octave session in a subprocess.
 
@@ -68,7 +68,7 @@ def _remove_temp_files():
 atexit.register(_remove_temp_files)
 
 
-def _get_nout():
+def get_nout():
     """
     Return the number of return values the caller is expecting.
 
@@ -101,7 +101,7 @@ def _get_nout():
     return 1
 
 
-def _create_file():
+def create_file():
     """
     Create a MAT file with a random name.
     Puts it in if possible, or in ~/.oct2py_files

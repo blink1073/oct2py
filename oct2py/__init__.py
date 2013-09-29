@@ -16,12 +16,12 @@ import imp as _imp
 import functools as _functools
 import os.path as _osp
 
-from ._oct2py import Oct2Py, Oct2PyError
+from .session import Oct2Py, Oct2PyError
 try:
     from .version import version as __version__
 except ImportError:
     __version__ = 'unbuilt-dev'
-from ._utils import Struct
+from .utils import Struct
 from .demo import demo
 from .speed_test import speed_test
 from .thread_test import thread_test
@@ -32,6 +32,9 @@ __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
 
 
 octave = Oct2Py()
+
+# clean up namespace
+del session, utils
 
 # The following is borrowed from the scikit-image project
 #  set up a test rig

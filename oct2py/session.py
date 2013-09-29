@@ -1,5 +1,5 @@
 """
-.. module:: _oct2py
+.. module:: session
    :synopsis: Main module for oct2py package.
               Contains the Octave session object Oct2Py
 
@@ -11,9 +11,9 @@ import re
 import atexit
 import doctest
 import logging
-from ._matwrite import MatWrite
-from ._matread import MatRead
-from ._utils import _open, _get_nout, Oct2PyError
+from .matwrite import MatWrite
+from .matread import MatRead
+from .utils import open_session, get_nout, Oct2PyError
 
 
 class Oct2Py(object):
@@ -184,7 +184,7 @@ class Oct2Py(object):
             self._first_run = False
             self.call('ones', 1)
         verbose = kwargs.get('verbose', False)
-        nout = kwargs.get('nout', _get_nout())
+        nout = kwargs.get('nout', get_nout())
 
         # handle references to script names - and paths to them
         if func.endswith('.m'):
@@ -399,7 +399,7 @@ class Oct2Py(object):
         """
         def octave_command(*args, **kwargs):
             """ Octave command """
-            kwargs['nout'] = _get_nout()
+            kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
             self._eval('clear {}'.format(name), log=False, verbose=False)
             return self.call(name, *args, **kwargs)
@@ -477,7 +477,7 @@ class Oct2Py(object):
     def restart(self):
         '''Restart an Octave session in a clean state
         '''
-        self._session = _open()
+        self._session = open_session()
         self._first_run = True
         self._isopen = True
         self._graphics_toolkit = None
