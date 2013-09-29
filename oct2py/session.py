@@ -11,9 +11,11 @@ import re
 import atexit
 import doctest
 import logging
+import subprocess
+import sys
 from .matwrite import MatWrite
 from .matread import MatRead
-from .utils import open_session, get_nout, Oct2PyError
+from .utils import get_nout, Oct2PyError
 
 
 class Oct2Py(object):
@@ -50,33 +52,16 @@ class Oct2Py(object):
         '''Close session'''
         self.close()
 
-    def close(self, handle=None):
+    def close(self):
         """Closes this octave session and removes temp files
         """
         if self._isopen:
             self._isopen = False
         else:
             return
-        if not handle:
-            handle = self._session
-            self._session = None
-        # Send the terminate signal to all the process groups
-        try:
-            handle.stdout.write('exit\n')
-        except IOError:
-            pass
-        try:
-            handle.terminate()
-        except OSError:
-            pass
-        try:
-            os.remove(self._writer.in_file)
-        except OSError:
-            pass
-        try:
-            os.remove(self._reader.out_file)
-        except OSError:
-            pass
+        self._session.close()
+        self._writer.remove_file()
+        self._reader.remove_file()
 
     def _close(self, handle=None):
         '''Depracated, call close instead
@@ -180,9 +165,6 @@ class Oct2Py(object):
                [-0.93272184,  0.36059668]]))
 
         """
-        if self._first_run:
-            self._first_run = False
-            self.call('ones', 1)
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
 
@@ -351,45 +333,13 @@ class Oct2Py(object):
         """
         if not self._session:
             raise Oct2PyError('No Octave Session')
-        resp = []
-        # use ascii code 21 to signal an error and 3
-        # to signal end of text
         if isinstance(cmds, str):
             cmds = [cmds]
         if verbose and log:
             [self.logger.info(line) for line in cmds]
         elif log:
             [self.logger.debug(line) for line in cmds]
-        lines = ['try', '\n'.join(cmds), 'disp(char(3))',
-                 'catch', 'disp(lasterr())', 'disp(char(21))',
-                 'end', '']
-        eval_ = '\n'.join(lines).encode('utf-8')
-        try:
-            self._session.stdin.write(eval_)
-        except IOError:
-            raise Oct2PyError('The session is closed')
-        self._session.stdin.flush()
-        syntax_error = False
-        while 1:
-            line = self._session.stdout.readline().rstrip().decode('utf-8')
-            if line == '\x03':
-                break
-            elif line == '\x15':
-                msg = ('Tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
-                       .format('\n'.join(cmds), '\n'.join(resp)))
-                raise Oct2PyError(msg)
-            elif "syntax error" in line:
-                syntax_error = True
-            elif syntax_error and "^" in line:
-                resp.append(line)
-                msg = 'Octave Syntax Error\n'.join(resp)
-                raise Oct2PyError(msg)
-            elif verbose:
-                self.logger.info(line)
-            elif log:
-                self.logger.debug(line)
-            resp.append(line)
-        return '\n'.join(resp)
+        return self._session.evaluate(cmds, verbose, log, self.logger)
 
     def _make_octave_command(self, name, doc=None):
         """Create a wrapper to an Octave procedure or object
@@ -477,11 +427,10 @@ class Oct2Py(object):
     def restart(self):
         '''Restart an Octave session in a clean state
         '''
-        self._session = open_session()
+        self._session = Session()
         self._first_run = True
         self._isopen = True
         self._graphics_toolkit = None
-        atexit.register(lambda handle=self._session: self.close(handle))
         self._reader = MatRead()
         self._writer = MatWrite()
 
@@ -491,6 +440,99 @@ class Oct2Py(object):
         self.close()
 
 
+class Session(object):
+    
+    def __init__(self):
+        self.proc = self.start()
+        atexit.register(self.close)
+        
+    def start(self):
+        """
+        Start an octave session in a subprocess.
+    
+        Returns
+        =======
+        out : fid
+            File descriptor for the Octave subprocess
+    
+        Raises
+        ======
+        Oct2PyError
+            If the session is not opened sucessfully.
+    
+        Notes
+        =====
+        Options sent to Octave: -q is quiet startup, --braindead is
+        Matlab compatibilty mode.
+    
+        """
+        ON_POSIX = 'posix' in sys.builtin_module_names
+        kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
+                      stdout=subprocess.PIPE, close_fds=ON_POSIX)
+        if os.name == 'nt':
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            kwargs['startupinfo'] = startupinfo
+        try:
+            proc = subprocess.Popen(['octave', '-q', '--braindead'], **kwargs)
+        except OSError:
+            msg = ('\n\nPlease install GNU Octave and put it in your path\n')
+            raise Oct2PyError(msg)
+        return proc
+    
+    def evaluate(self, cmds, verbose=True, log=True, logger=None):
+        '''Perform the low-level interaction with an Octave Session
+        '''
+        resp = []
+        # use ascii code 21 to signal an error and 3
+        # to signal end of text
+        lines = ['try', '\n'.join(cmds), 'disp(char(3))',
+                 'catch', 'disp(lasterr())', 'disp(char(21))',
+                 'end', '']
+        eval_ = '\n'.join(lines).encode('utf-8')
+        try:
+            self.proc.stdin.write(eval_)
+        except IOError:
+            raise Oct2PyError('The session is closed')
+        self.proc.stdin.flush()
+        syntax_error = False
+        while 1:
+            line = self.proc.stdout.readline().rstrip().decode('utf-8')
+            if line == '\x03':
+                break
+            elif line == '\x15':
+                msg = ('Tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
+                       .format('\n'.join(cmds), '\n'.join(resp)))
+                raise Oct2PyError(msg)
+            elif "syntax error" in line:
+                syntax_error = True
+            elif syntax_error and "^" in line:
+                resp.append(line)
+                msg = 'Octave Syntax Error\n'.join(resp)
+                raise Oct2PyError(msg)
+            elif verbose and logger:
+                logger.info(line)
+            elif log and logger:
+                logger.debug(line)
+            resp.append(line)
+        return '\n'.join(resp)
+        
+    def close(self):
+        '''Cleanly close an Octave session
+        '''
+        try:
+            self.proc.stdout.write('exit\n')
+        except IOError:
+            pass
+        try:
+            self.proc.terminate()
+        except (OSError, AttributeError):
+            pass
+    
+    def __del__(self):
+        self.close()
+        
+    
 def _test():
     """Run the doctests for this module.
     """

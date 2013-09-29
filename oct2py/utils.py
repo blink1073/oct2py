@@ -6,47 +6,10 @@
 
 """
 import os
-import subprocess
 import inspect
 import dis
-import sys
 import tempfile
 import atexit
-
-
-def open_session():
-    """
-    Start an octave session in a subprocess.
-
-    Returns
-    =======
-    out : fid
-        File descriptor for the Octave subprocess
-
-    Raises
-    ======
-    Oct2PyError
-        If the session is not opened sucessfully.
-
-    Notes
-    =====
-    Options sent to Octave: -q is quiet startup, --braindead is
-    Matlab compatibilty mode.
-
-    """
-    ON_POSIX = 'posix' in sys.builtin_module_names
-    kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
-                  stdout=subprocess.PIPE, close_fds=ON_POSIX)
-    if os.name == 'nt':
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        kwargs['startupinfo'] = startupinfo
-    try:
-        session = subprocess.Popen(['octave', '-q', '--braindead'], **kwargs)
-    except OSError:
-        msg = ('\n\nPlease install GNU Octave and put it in your path\n')
-        raise Oct2PyError(msg)
-    return session
 
 
 def _remove_temp_files():
