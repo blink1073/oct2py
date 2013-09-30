@@ -12,9 +12,9 @@ passing the data seamlessly between Python and Octave using MAT files.
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 """
-import imp as _imp
-import functools as _functools
-import os.path as _osp
+import imp
+import functools
+import os.path as osp
 
 from .session import Oct2Py, Oct2PyError
 try:
@@ -32,13 +32,10 @@ __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
 
 octave = Oct2Py()
 
-# clean up namespace
-del session, utils
-
 # The following is borrowed from the scikit-image project
 #  set up a test rig
 try:
-    _imp.find_module('nose')
+    imp.find_module('nose')
 except ImportError:
     def _test(verbose=False):
         """This would invoke the skimage test suite, but nose couldn't be
@@ -49,7 +46,7 @@ else:
     def _test(verbose=False):
         """Invoke the skimage test suite."""
         import nose
-        pkg_dir = _osp.abspath(_osp.dirname(__file__))
+        pkg_dir = osp.abspath(osp.dirname(__file__))
         args = ['', pkg_dir, '--exe']
         if verbose:
             args.extend(['-v', '-s'])
@@ -59,8 +56,10 @@ else:
 # do not use `test` as function name as this leads to a recursion problem with
 # the nose test suite
 test = _test
-test_verbose = _functools.partial(test, verbose=True)
+test_verbose = functools.partial(test, verbose=True)
 test_verbose.__doc__ = test.__doc__
 
 
+# clean up namespace
+del session, utils, osp, functools, imp
 
