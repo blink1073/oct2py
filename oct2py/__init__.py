@@ -21,11 +21,10 @@ try:
     from .version import version as __version__
 except ImportError:
     __version__ = 'unbuilt-dev'
-from .utils import Struct
+from .utils import Struct, get_log
 from .demo import demo
 from .speed_test import speed_test
 from .thread_test import thread_test
-
 
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
           'thread_test', '__version__', 'test', 'test_verbose', 'get_log']
@@ -64,55 +63,4 @@ test_verbose = _functools.partial(test, verbose=True)
 test_verbose.__doc__ = test.__doc__
 
 
-def get_log(name=None):
-    """Return a console logger.
-
-    Output may be sent to the logger using the `debug`, `info`, `warning`,
-    `error` and `critical` methods.
-
-    Parameters
-    ----------
-    name : str
-        Name of the log.
-
-    References
-    ----------
-    .. [1] Logging facility for Python,
-           http://docs.python.org/library/logging.html
-
-    """
-    import logging
-
-    if name is None:
-        name = 'oct2py'
-    else:
-        name = 'oct2py.' + name
-
-    log = logging.getLogger(name)
-    return log
-
-
-def _setup_log():
-    """Configure root logger.
-
-    """
-    import logging
-    import sys
-
-    formatter = logging.Formatter(
-        '%(name)s: %(levelname)s: %(message)s'
-        )
-
-    try:
-        handler = logging.StreamHandler(stream=sys.stdout)
-    except TypeError:
-        handler = logging.StreamHandler(strm=sys.stdout)
-    handler.setFormatter(formatter)
-
-    log = get_log()
-    log.addHandler(handler)
-    log.setLevel(logging.WARNING)
-    log.propagate = False
-
-_setup_log()
 

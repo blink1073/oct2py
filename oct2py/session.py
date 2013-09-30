@@ -10,12 +10,11 @@ import os
 import re
 import atexit
 import doctest
-import logging
 import subprocess
 import sys
 from .matwrite import MatWrite
 from .matread import MatRead
-from .utils import get_nout, Oct2PyError
+from .utils import get_nout, Oct2PyError, get_log
 
 
 class Oct2Py(object):
@@ -38,8 +37,7 @@ class Oct2Py(object):
         if not logger is None:
             self.logger = logger
         else:
-            self.logger = logging.getLogger('oct2py')
-            self.logger.setLevel(logging.INFO)
+            self.logger = get_log()
         self.restart()
         
     def __enter__(self):
@@ -66,7 +64,7 @@ class Oct2Py(object):
     def _close(self, handle=None):
         '''Depracated, call close instead
         '''
-        self.close(handle)
+        self.close()
 
     def run(self, script, **kwargs):
         """
@@ -150,13 +148,11 @@ class Oct2Py(object):
         >>> from oct2py import octave
         >>> b = octave.call('ones', 1, 2)
         >>> print(b)
-        [ 1.  1.]
+        [[ 1.  1.]]
         >>> x, y = 1, 2
-        >>> a = octave.call('zeros', x, y, verbose=True)
-        a__ =
-        <BLANKLINE>
-                0        0
-        <BLANKLINE>
+        >>> a = octave.call('zeros', x, y)
+        >>> a
+        array([[ 0.,  0.]])
         >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
         >>> print(U, S, V)
         (array([[-0.57604844, -0.81741556],
@@ -165,6 +161,10 @@ class Oct2Py(object):
                [-0.93272184,  0.36059668]]))
 
         """
+        if self._first_run:
+            self._first_run = False
+            self.call('zeros', 1)
+            
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
 
@@ -230,10 +230,10 @@ class Oct2Py(object):
         >>> y = [1, 2]
         >>> octave.put('y', y)
         >>> octave.get('y')
-        array([1, 2])
+        array([[1, 2]])
         >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.get(['x', 'y'])
-        ('spam', array([1, 2, 3, 4]))
+        (u'spam', array([[1, 2, 3, 4]]))
 
         """
         if isinstance(names, str):
@@ -268,10 +268,10 @@ class Oct2Py(object):
           >>> y = [1, 2]
           >>> octave.put('y', y)
           >>> octave.get('y')
-          array([1, 2])
+          array([[1, 2]])
           >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
           >>> octave.get(['x', 'y'])
-          ('spam', array([1, 2, 3, 4]))
+          (u'spam', array([[1, 2, 3, 4]]))
 
         """
         if isinstance(var, str):
@@ -434,14 +434,10 @@ class Oct2Py(object):
         self._reader = MatRead()
         self._writer = MatWrite()
 
-    def __del__(self):
-        """Close the Octave session before deletion.
-        """
-        self.close()
-
 
 class Session(object):
-    
+    '''Low-level session Octave session interaction
+    '''
     def __init__(self):
         self.proc = self.start()
         atexit.register(self.close)
@@ -528,10 +524,7 @@ class Session(object):
             self.proc.terminate()
         except (OSError, AttributeError):
             pass
-    
-    def __del__(self):
-        self.close()
-        
+
     
 def _test():
     """Run the doctests for this module.

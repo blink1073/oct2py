@@ -112,6 +112,54 @@ class Struct(dict):
     __delattr__ = dict.__delitem__
 
 
+def get_log(name=None):
+    """Return a console logger.
+
+    Output may be sent to the logger using the `debug`, `info`, `warning`,
+    `error` and `critical` methods.
+
+    Parameters
+    ----------
+    name : str
+        Name of the log.
+
+    References
+    ----------
+    .. [1] Logging facility for Python,
+           http://docs.python.org/library/logging.html
+
+    """
+    import logging
+
+    if name is None:
+        name = 'oct2py'
+    else:
+        name = 'oct2py.' + name
+
+    log = logging.getLogger(name)
+    return log
+
+
+def _setup_log():
+    """Configure root logger.
+
+    """
+    import logging
+    import sys
+
+    try:
+        handler = logging.StreamHandler(stream=sys.stdout)
+    except TypeError:
+        handler = logging.StreamHandler(strm=sys.stdout)
+
+    log = get_log()
+    log.addHandler(handler)
+    log.setLevel(logging.INFO)
+    log.propagate = False
+
+_setup_log()
+
+
 def _test():
     """Run the doctests for this module
     """

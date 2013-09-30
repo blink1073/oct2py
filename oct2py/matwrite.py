@@ -1,5 +1,5 @@
 """
-.. module:: matwrite
+.. module:: _h5write
    :synopsis: Write Python values into an MAT file for Octave.
               Strives to preserve both value and type in transit.
 
@@ -56,7 +56,7 @@ class MatWrite(object):
             # for structs - recursively add the elements
             try:
                 if isinstance(var, dict):
-                    data[argin_list[-1]] = putval(var)
+                    data[argin_list[-1]] = putvals(var)
                 else:
                     data[argin_list[-1]] = putval(var)
             except Oct2PyError:
@@ -73,10 +73,9 @@ class MatWrite(object):
         return argin_list, load_line
         
     def remove_file(self):
-        import os
         try:
             os.remove(self.in_file)
-        except OSError:
+        except (OSError, AttributeError):
             pass
 
 
@@ -175,7 +174,7 @@ def putval(data):
     if data.dtype == 'object' and len(data.shape) > 1:
         data = data.T
     return data
-
+    
 
 def str_in_list(list_):
     '''See if there are any strings in the given list

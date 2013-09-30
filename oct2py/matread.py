@@ -54,10 +54,9 @@ class MatRead(object):
         return argout_list, save_line
         
     def remove_file(self):
-        import os
         try:
             os.remove(self.out_file)
-        except OSError:
+        except (OSError, AttributeError):
             pass
 
     def extract_file(self, argout_list):
