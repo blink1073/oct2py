@@ -195,7 +195,10 @@ class RoundtripTest(TestCase):
                     try:
                         np.allclose(subval1, subval2)
                     except NotImplementedError:
-                        import sys; print >> sys.stderr, '****', subval1, subval1.size, '\n', subval2, subval2.shape, '\n******\n'
+                        import sys
+                        print >> sys.stderr, '****', subval1, subval1.size
+                        print >> sys.stderr, subval2, subval2.shape
+                        print >> sys.stderr, '******\n'
                 else:
                     self.assertEqual(subval1, subval2)
         elif isinstance(val1, np.ndarray):
@@ -291,7 +294,8 @@ class RoundtripTest(TestCase):
         octave.put('y', DATA)
         for key in DATA.keys():
             if key != 'struct_array':
-                ret = octave.run('isequalwithequalnans(x.{0},y.{0})'.format(key))
+                cmd = 'isequalwithequalnans(x.{0},y.{0})'.format(key)
+                ret = octave.run(cmd)
                 assert ret == 'ans =  1'
 
 
@@ -652,7 +656,7 @@ class BasicUsageTest(TestCase):
 def test_unicode_docstring():
     '''Make sure unicode docstrings in Octave functions work'''
     help(octave.test_datatypes)
-    
+
 
 def test_context_manager():
     '''Make sure oct2py works within a context manager'''
@@ -660,11 +664,12 @@ def test_context_manager():
     with oc as oc1:
         ones = oc1.ones(1)
     assert ones == np.ones(1)
-    
+
     with oc as oc2:
         zeros = oc2.zeros(3)
     assert np.allclose(zeros, np.zeros((3, 3)))
-    
+
+
 def test_logging():
     '''Test logging to a file'''
     oc = Oct2Py()
@@ -674,19 +679,19 @@ def test_logging():
     hdlr = logging.StreamHandler(sobj)
     hdlr.setLevel(logging.DEBUG)
     oc.logger.addHandler(hdlr)
-    
+
     # generate some messages (logged and not logged)
     oc.ones(1, verbose=True)
-    
+
     oc.logger.setLevel(logging.DEBUG)
     oc.zeros(1)
-    
+
     # check the output
     lines = sobj.getvalue().strip().split('\n')
     assert len(lines) == 8
     assert lines[0].startswith('load')
-    
-    
+
+
 if __name__ == '__main__':
     print('oct2py test')
     print('*' * 20)

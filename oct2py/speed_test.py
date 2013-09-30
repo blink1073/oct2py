@@ -9,7 +9,7 @@
 import time
 import timeit
 import numpy as np
-from ._oct2py import Oct2Py
+from .session import Oct2Py
 
 
 class SpeedCheck(object):

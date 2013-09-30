@@ -39,13 +39,13 @@ class Oct2Py(object):
         else:
             self.logger = get_log()
         self.restart()
-        
+
     def __enter__(self):
         '''Return octave object, restart session if necessary'''
         if not self._session:
             self.restart()
         return self
-    
+
     def __exit__(self, type, value, traceback):
         '''Close session'''
         self.close()
@@ -164,7 +164,7 @@ class Oct2Py(object):
         if self._first_run:
             self._first_run = False
             self.call('zeros', 1)
-            
+
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
 
@@ -207,7 +207,7 @@ class Oct2Py(object):
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
         resp = self._eval(cmd, verbose=verbose)
-        
+
         if nout:
             return self._reader.extract_file(argout_list)
         else:
@@ -383,7 +383,8 @@ class Oct2Py(object):
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
         except Oct2PyError:
             try:
-                doc = self._eval('type {0}'.format(name), log=False, verbose=False)
+                doc = self._eval('type {0}'.format(name), log=False,
+                                 verbose=False)
             except Oct2PyError:
                 msg = '"{0}" is not a recognized octave command'.format(name)
                 raise Oct2PyError(msg)
@@ -441,26 +442,26 @@ class Session(object):
     def __init__(self):
         self.proc = self.start()
         atexit.register(self.close)
-        
+
     def start(self):
         """
         Start an octave session in a subprocess.
-    
+
         Returns
         =======
         out : fid
             File descriptor for the Octave subprocess
-    
+
         Raises
         ======
         Oct2PyError
             If the session is not opened sucessfully.
-    
+
         Notes
         =====
         Options sent to Octave: -q is quiet startup, --braindead is
         Matlab compatibilty mode.
-    
+
         """
         ON_POSIX = 'posix' in sys.builtin_module_names
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
@@ -475,7 +476,7 @@ class Session(object):
             msg = ('\n\nPlease install GNU Octave and put it in your path\n')
             raise Oct2PyError(msg)
         return proc
-    
+
     def evaluate(self, cmds, verbose=True, log=True, logger=None):
         '''Perform the low-level interaction with an Octave Session
         '''
@@ -512,7 +513,7 @@ class Session(object):
                 logger.debug(line)
             resp.append(line)
         return '\n'.join(resp)
-        
+
     def close(self):
         '''Cleanly close an Octave session
         '''
@@ -525,7 +526,7 @@ class Session(object):
         except (OSError, AttributeError):
             pass
 
-    
+
 def _test():
     """Run the doctests for this module.
     """

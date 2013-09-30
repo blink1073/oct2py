@@ -8,7 +8,7 @@
 """
 import threading
 import datetime
-from ._oct2py import Oct2Py, Oct2PyError
+from .session import Oct2Py, Oct2PyError
 
 
 class ThreadClass(threading.Thread):

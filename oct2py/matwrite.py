@@ -71,7 +71,7 @@ class MatWrite(object):
         load_line = 'load %s "%s"' % (self.in_file,
                                             '" "'.join(argin_list))
         return argin_list, load_line
-        
+
     def remove_file(self):
         try:
             os.remove(self.in_file)
@@ -174,7 +174,7 @@ def putval(data):
     if data.dtype == 'object' and len(data.shape) > 1:
         data = data.T
     return data
-    
+
 
 def str_in_list(list_):
     '''See if there are any strings in the given list

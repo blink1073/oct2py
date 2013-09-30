@@ -52,7 +52,7 @@ class MatRead(object):
         save_line = 'save "-v6" %s "%s"' % (self.out_file,
                                                 '" "'.join(argout_list))
         return argout_list, save_line
-        
+
     def remove_file(self):
         try:
             os.remove(self.out_file)

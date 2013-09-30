@@ -26,8 +26,8 @@ def _remove_temp_files():
             os.remove(fname)
         except OSError:
             pass
-        
-        
+
+
 atexit.register(_remove_temp_files)
 
 
