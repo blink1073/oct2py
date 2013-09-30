@@ -27,7 +27,7 @@ from .speed_test import speed_test
 from .thread_test import thread_test
 
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
-          'thread_test', '__version__', 'test', 'test_verbose', 'get_log']
+           'thread_test', '__version__', 'test', 'test_verbose', 'get_log']
 
 
 octave = Oct2Py()

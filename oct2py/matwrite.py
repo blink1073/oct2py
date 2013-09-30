@@ -68,8 +68,8 @@ class MatWrite(object):
             savemat(self.in_file, data, appendmat=False, oned_as='row')
         except KeyError:
             raise Exception('could not save mat file')
-        load_line = 'load %s "%s"' % (self.in_file,
-                                            '" "'.join(argin_list))
+        load_line = 'load {} "{}"'.format(self.in_file,
+                                          '" "'.join(argin_list))
         return argin_list, load_line
 
     def remove_file(self):
@@ -146,7 +146,7 @@ def putval(data):
                     out.append(el)
             return out
     if (isinstance(data, str) or
-        (sys.version.startswith('2') and isinstance(data, unicode))):
+       (sys.version.startswith('2') and isinstance(data, unicode))):
         return data
     if isinstance(data, csr_matrix):
         return data
@@ -181,7 +181,7 @@ def str_in_list(list_):
     '''
     for item in list_:
         if (isinstance(item, str) or
-            (sys.version.startswith('2') and isinstance(item, unicode))):
+           (sys.version.startswith('2') and isinstance(item, unicode))):
             return True
         elif isinstance(item, list):
             if str_in_list(item):

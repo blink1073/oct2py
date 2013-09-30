@@ -49,7 +49,7 @@ class MatRead(object):
                 argout_list.append("%s__" % chr(i + 97))
         if not os.path.exists(self.out_file):
             self.out_file = create_file()
-        save_line = 'save "-v6" %s "%s"' % (self.out_file,
+        save_line = 'save "-v6" {} "{}"'.format(self.out_file,
                                                 '" "'.join(argout_list))
         return argout_list, save_line
 
@@ -125,8 +125,7 @@ def get_data(val):
         else:
             val = np.array([get_data(val[i])
                             for i in range(val.size)])
-        if (len(val.shape) == 1 or val.shape[0] == 1 or
-            val.shape[1] == 1):
+        if len(val.shape) == 1 or val.shape[0] == 1 or val.shape[1] == 1:
             val = val.flatten()
         val = val.tolist()
         if len(val) == 1 and isinstance(val[0],
