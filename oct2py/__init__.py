@@ -14,7 +14,7 @@ trust a code translator, this is your library.
 """
 import imp
 import functools
-import os.path as osp
+import os
 
 from .session import Oct2Py, Oct2PyError
 try:
@@ -23,8 +23,8 @@ except ImportError:
     __version__ = 'unbuilt-dev'
 from .utils import Struct, get_log
 from .demo import demo
-from .speed_test import speed_test
-from .thread_test import thread_test
+from .speed_test import speed_check as speed_test
+from .thread_test import thread_check as thread_test
 
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
            'thread_test', '__version__', 'test', 'test_verbose', 'get_log']
@@ -46,11 +46,12 @@ else:
     def _test(verbose=False):
         """Invoke the skimage test suite."""
         import nose
-        pkg_dir = osp.abspath(osp.dirname(__file__))
+        import os
+        pkg_dir = os.path.abspath(os.path.dirname(__file__))
         args = ['', pkg_dir, '--exe']
         if verbose:
             args.extend(['-v', '-s'])
-        nose.run('skimage', argv=args)
+        nose.run('oct2py', argv=args)
 
 
 # do not use `test` as function name as this leads to a recursion problem with
@@ -61,4 +62,6 @@ test_verbose.__doc__ = test.__doc__
 
 
 # clean up namespace
-del session, utils, osp, functools, imp
+del functools, imp, os
+del session, utils
+

@@ -132,7 +132,8 @@ def get_data(val):
                                         scipy.sparse.csc.csc_matrix):
             val = val[0]
     elif val.size == 1:
-        val = val.flatten()[0]
+        if hasattr(val, 'flatten'):
+            val = val.flatten()[0]
     if isinstance(val, Struct) and isinstance(val.size, Struct):
         del val['size']
         del val['dtype']

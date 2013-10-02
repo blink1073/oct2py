@@ -15,11 +15,11 @@ float16/96/128 and complex192/256 can be recast as float64 and complex128.
 import logging
 import os
 import sys
-import tempfile
 import numpy as np
 from numpy.testing import *
-from oct2py._oct2py import Oct2Py, Oct2PyError
-from oct2py._utils import Struct
+import oct2py
+from oct2py import Oct2Py, Oct2PyError
+from oct2py.utils import Struct
 
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
@@ -660,24 +660,34 @@ def test_unicode_docstring():
 
 def test_context_manager():
     '''Make sure oct2py works within a context manager'''
-    oc = Oct2Py()
-    with oc as oc1:
+    with Oct2Py() as oc1:
         ones = oc1.ones(1)
     assert ones == np.ones(1)
 
-    with oc as oc2:
-        zeros = oc2.zeros(3)
-    assert np.allclose(zeros, np.zeros((3, 3)))
+
+def test_singleton_sparses():
+    '''Make sure a singleton sparse matrix works'''
+    import scipy.sparse
+    data = scipy.sparse.csc.csc_matrix(1)
+    oc = Oct2Py()
+    oc.put('x', data)
+    assert np.allclose(data.toarray(), oc.get('x').toarray())
+    oc.put('y', [data])
+    assert np.allclose(data.toarray(), oc.get('y').toarray())
 
 
 def test_logging():
     '''Test logging to a file'''
-    oc = Oct2Py()
     # create a stringio and a handler to log to it
-    from StringIO import StringIO
-    sobj = StringIO()
-    hdlr = logging.StreamHandler(sobj)
-    hdlr.setLevel(logging.DEBUG)
+    def get_handler():
+        from StringIO import StringIO
+        sobj = StringIO()
+        hdlr = logging.StreamHandler(sobj)
+        hdlr.setLevel(logging.DEBUG)
+        return hdlr
+
+    oc = Oct2Py()
+    hdlr = get_handler()
     oc.logger.addHandler(hdlr)
 
     # generate some messages (logged and not logged)
@@ -687,9 +697,58 @@ def test_logging():
     oc.zeros(1)
 
     # check the output
-    lines = sobj.getvalue().strip().split('\n')
+    lines = hdlr.stream.getvalue().strip().split('\n')
     assert len(lines) == 8
     assert lines[0].startswith('load')
+
+    # now make an object with a desired logger
+    logger = oct2py.get_log('test')
+    hdlr = get_handler()
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.INFO)
+    oc2 = Oct2Py(logger=logger)
+
+     # generate some messages (logged and not logged)
+    oc2.ones(1, verbose=True)
+
+    oc2.logger.setLevel(logging.DEBUG)
+    oc2.zeros(1)
+
+    # check the output
+    lines = hdlr.stream.getvalue().strip().split('\n')
+    assert len(lines) == 8
+    assert lines[0].startswith('load')
+
+
+def test_demo():
+    from oct2py import demo
+    try:
+        demo.demo(0.01, interactive=False)
+    except AttributeError:
+        demo(0.01, interactive=False)
+
+
+def test_lookfor():
+    assert 'cosd' in octave.lookfor('cos')
+
+
+def test_remove_files():
+    from oct2py.utils import _remove_temp_files
+    _remove_temp_files()
+
+
+def test_speed():
+    from oct2py import speed_test
+    speed_test.speed_check()
+
+
+def test_threads():
+    from oct2py import thread_test
+    thread_test.thread_check()
+
+
+def test_plot():
+    octave.plot([1])
 
 
 if __name__ == '__main__':

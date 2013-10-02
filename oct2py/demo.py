@@ -8,7 +8,7 @@
 import time
 
 
-def demo(delay=2):
+def demo(delay=2, interactive=True):
     """
     Play a demo script showing most of the oct2py api features.
 
@@ -66,6 +66,9 @@ def demo(delay=2):
             time.sleep(delay)
             print(">>> {0}".format(line))
             time.sleep(delay)
+        if not interactive:
+            if 'plot' in line or 'surf' in line or 'raw_input' in line:
+                line = 'print()'
         exec(line)
     time.sleep(delay)
     print('*' * 20)

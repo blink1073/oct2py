@@ -39,7 +39,7 @@ class ThreadClass(threading.Thread):
         return
 
 
-def thread_test(nthreads=3):
+def thread_check(nthreads=3):
     """
     Start a number of threads and verify each has a unique Octave session.
 
@@ -68,4 +68,4 @@ def thread_test(nthreads=3):
 
 
 if __name__ == '__main__':
-    thread_test()
+    thread_check()

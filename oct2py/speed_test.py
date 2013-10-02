@@ -71,7 +71,7 @@ class SpeedCheck(object):
         print('Test complete!')
 
 
-def speed_test():
+def speed_check():
     """Checks the speed penalty of the Python to Octave bridge.
 
     Uses timeit to test the raw execution of a Octave command,
@@ -83,4 +83,4 @@ def speed_test():
 
 
 if __name__ == '__main__':
-    speed_test()
+    speed_check()

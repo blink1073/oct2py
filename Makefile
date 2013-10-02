@@ -11,4 +11,4 @@ test:
 	iptest -v IPython.extensions.tests.test_octavemagic
 
 coverage:
-	nosetests oct2py -v --with-coverage --cover-package=oct2py
+	nosetests oct2py --with-coverage --cover-package=oct2py 

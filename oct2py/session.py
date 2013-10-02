@@ -104,13 +104,6 @@ class Oct2Py(object):
         """
         # don't return a value from a script
         kwargs['nout'] = 0
-        # this line is needed to force the plot to display
-        for cmd in ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog',
-                    'polar', 'semilogx', 'stairs', 'gsplot', 'mesh',
-                    'meshdom']:
-            if cmd + '(' in script:
-                self._set_graphics_toolkit()
-                script += ";figure(gcf() + 1);"
         return self.call(script, **kwargs)
 
     def call(self, func, *inputs, **kwargs):
