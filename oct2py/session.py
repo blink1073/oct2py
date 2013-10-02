@@ -156,7 +156,7 @@ class Oct2Py(object):
         """
         if self._first_run:
             self._first_run = False
-            self.call('zeros', 1)
+            self._set_graphics_toolkit()
 
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
@@ -194,7 +194,6 @@ class Oct2Py(object):
                     'mesh', 'meshdom', 'meshc', 'surf', 'plot3', 'meshz',
                     'surfc', 'surfl', 'surfnorm', 'diffuse', 'specular',
                     'ribbon', 'scatter3']:
-            self._set_graphics_toolkit()
             call_line += ";figure(gcf() + 1);"
 
         # create the command and execute in octave
