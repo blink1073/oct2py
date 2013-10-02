@@ -7,7 +7,7 @@ MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
-VERSION = '0.4.0'
+VERSION = '1.0.0'
 REQUIRES = ["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"]
 PACKAGES = [DISTNAME, '{0}.tests'.format(DISTNAME)]
 PACKAGE_DATA = {DISTNAME: ['tests/*.m']}

@@ -1,11 +1,7 @@
 Release Checklist:
 - Update CHANGES.txt
 - Change VERSION in setup.py
-- Run tests in python3, against legacy libraries, and on Windows.
-  nosetests --with-doctest
-- Run the demo, speed_test, and thread_test
-- Run the ipython test
-  nosetests ipython | grep octave
+- Run `make test` and `make coverage` (shoot for >90%)
 - Create a tag and a new branch for the version
 - Upload to github
 - Create and upload files and documentation

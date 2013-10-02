@@ -12,21 +12,27 @@ passing the data seamlessly between Python and Octave using MAT files.
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 
+IPython Notebook Integration
+============================
+Oct2py is used by IPython to enable %octavemagic, to include inline plotting.  
+See example `here <http://nbviewer.ipython.org/url/github.com/ipython/ipython/raw/master/examples/notebooks/Octave%20Magic.ipynb>`_.
 
-New in Version 0.4
+
+New in Version 1.0.0
 ====================
-- Added a restart method to Oct2Py objects to start a clean session
-- Added get_log and test methods to oct2py
-- Support for sparse arrays (scipy.sparse.csc.csc_matrix)
-- Improvements to octave cell type handling
-- Some bugfixes and testing improvements
+- Support for logging (e.g. oc = Oct2Py(logger=my_logger))
+- Oct2Py can be used as a context manger (with Oct2Py() as oc:)
+- Support for unicode characters
+- Improved support for cell array and sparse matrices
+- Bug fix: Changes to user m. files were not updated during a session
+- Bug fix: Removed popup console window on Windows
+
 
 
 Installation
 ============
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from:
-http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/.
+way to get Octave is to use an installer from `sourceforce <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
 On Linux, it should be available from your package manager.
 Additionally, you must have the numpy and scipy libraries installed, then run::
 
@@ -40,8 +46,7 @@ or::
 
    easy_install oct2py
 
-Note for Windows users: You may have to follow the instructions at:
-http://wiki.octave.org/Octave_for_Windows#Printing_.28installing_Ghostscript.29
+Note for Windows users: You may have to follow these `instructions <http://wiki.octave.org/Octave_for_Windows#Printing_.28installing_Ghostscript.29>`_
 in order to use inline figures in IPython (or specify -f svg).
 
 
@@ -99,12 +104,6 @@ their own result::
 
     >>> import oct2py
     >>> oct2py.thread_test()
-
-Future enhancements
-===================
-* Add an Octave code compability check function
-* Add a feature to scan a file for plot statements and automatically add a
-  line to show the figure.
 
 Note for MATLAB® users
 ========================
