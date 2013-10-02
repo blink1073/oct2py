@@ -125,3 +125,13 @@ Similar work
   parsing of code and a runtime helper library.  Ideally one or both of
   these projects render this one unnecessary.  The idea of using
   introspection to find "nargout" was borrowed from the ompc project.
+
+CI Status
+=========
+
+**oct2py** has automatic testing enabled through the convenient
+`Travis CI project <https://travis-ci.org>`_. Here is the latest build status:
+
+.. image:: https://travis-ci.org/blink1073/oct2py.png?branch=master
+  :align: center
+  :target: https://travis-ci.org/blink1073/oct2py
