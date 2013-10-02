@@ -19,4 +19,5 @@ script:
     # Change into an innocuous directory and find tests from installation
     - cd ~
     - nosetests-$PYSUF --exe -v --cover-package=oct2py oct2py
+    - iptest -v IPython.extensions.tests.test_octavemagic
 
