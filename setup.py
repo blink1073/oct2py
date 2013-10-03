@@ -12,7 +12,7 @@ REQUIRES = ["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"]
 PACKAGES = [DISTNAME, '{0}.tests'.format(DISTNAME)]
 PACKAGE_DATA = {DISTNAME: ['tests/*.m']}
 CLASSIFIERS = """\
-Development Status :: 4 - Beta
+Development Status :: 5 - Production/Stable
 Intended Audience :: Developers
 Intended Audience :: Science/Research
 License :: OSI Approved :: MIT License

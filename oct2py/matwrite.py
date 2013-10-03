@@ -10,7 +10,7 @@ import sys
 import os
 from scipy.io import savemat
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, csc_matrix
 from .utils import Oct2PyError, create_file
 
 
@@ -142,14 +142,16 @@ def putval(data):
                     cell = np.zeros((1,), dtype=np.object)
                     cell[0] = el
                     out.append(cell)
+                elif isinstance(el, (csr_matrix, csc_matrix)):
+                    out.append(el.astype(np.float64))
                 else:
                     out.append(el)
             return out
     if (isinstance(data, str) or
        (sys.version.startswith('2') and isinstance(data, unicode))):
         return data
-    if isinstance(data, csr_matrix):
-        return data
+    if isinstance(data, (csr_matrix, csc_matrix)):
+        return data.astype(np.float64)
     try:
         data = np.array(data)
     except ValueError as err:

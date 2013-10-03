@@ -62,12 +62,12 @@ def demo(delay=2, interactive=True):
     print('*' * 20)
     for line in script.strip().split('\n'):
         line = line.strip()
-        if not line.startswith('raw_input'):
+        if not 'input(' in line:
             time.sleep(delay)
             print(">>> {0}".format(line))
             time.sleep(delay)
         if not interactive:
-            if 'plot' in line or 'surf' in line or 'raw_input' in line:
+            if 'plot' in line or 'surf' in line or 'input(' in line:
                 line = 'print()'
         exec(line)
     time.sleep(delay)
