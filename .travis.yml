@@ -13,7 +13,7 @@ install:
     - sudo apt-get update
     - sudo apt-get install $PYTHON-scipy
     - sudo apt-get install $PYTHON-nose
-    - sudo apt-get install i$PYTHON
+    - sudo pip install ipython[test]
     - sudo apt-get install octave
     - sudo $PYTHON setup.py install
 script:
