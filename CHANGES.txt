@@ -1,3 +1,10 @@
+v1.0.0, 4 Oct 2013       -- Support for Python3.3
+                         -- Support for logging (e.g. oc = Oct2Py(logger=my_logger))
+                         -- Oct2Py can be used as a context manger (with Oct2Py() as oc:)
+                         -- Support for unicode characters
+                         -- Improved support for cell array and sparse matrices
+                         -- Bug fix: Changes to user m. files were not updated during a session
+                         -- Bug fix: Removed popup console window on Windows
 v0.4.0, 5 Jan 2013       -- Limited support for sparse arrays (scipy.sparse.csc.csc_matrix)
                          -- Singleton elements within a cell array are now treated as a singleton list
                          -- Now tested on 32 and 64 bit architectures (32 only before)

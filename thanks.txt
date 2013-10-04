@@ -9,8 +9,13 @@ Dan MacKinlay, for the sphinx library, which as used to create the project docum
 Stefan van der Walt and Pauli Virtanen, for the numpdoc library, which was used to render numpy-style docstrings in the documentation.  And Stefan also for two patches to oct2py and for creating the octavemagic plugin for IPython.
 Pierre Reybaut, for the sphinx build commands in setup.py from spyder.
 Travis Oliphant and friends, for the numpy and scipy libraries, *the* reason to switch to Python for scientific computing.
-The folks at Wingware, for providing the excellent Wing IDE to me for free as an active open source developer.  It has accelerated my python development tremendously.
+Stefan van der Walt again, for creating the octavemagic in IPython based on oct2py
 And of course, our Benevolent Dictactor for Life, Guido van Rossum.
+
+Thanks to the following for direct contributions to oct2py:
+@stefanv, @jenshnielsen, @idella, @klonuo, @Juanlu001, @bj0, @graingert, 
+@jordigh, @wannesm, Konstantin Markov
+
 
 Citations
 =========
