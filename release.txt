@@ -7,14 +7,32 @@ Release Checklist:
 - Upload to github
 - Create and upload files and documentation
 - Upload to bitbucket
+ First time:
+ -- pip install mercurial
+ -- pip install hg-git
+ -- git clone https://github.com/jelmer/dulwich.git c:\hg-git
+ -- ~/.hgrc:  
+    [extensions]
+    bookmarks =
+    hggit = C:\hg-git\hggit
+ -- hg clone git://github.com/blink1073/oct2py oct2py-hg
+ -- oct2py-hg/.hg/hgrc
+    [paths]
+    source = git://github.com/blink1073/oct2py.git
+    upstream-rw = https://bitbucket.org/blink1073/oct2py/
+  After that:
+  -- cd oct2py-hg
+  -- hg pull source
+  -- hg push upstream-rw
 
 Release Commands:
+pip install sphinx-pypi-upload
 # make sure you are not in a virtual environment
 deactivate
 rm -r dist build
 make clean
 git tag x.x.x; git branch vx.x.x
-git push upstream-rw master x.x.x
+git push upstream-rw master vx.x.x
 python setup.py register
 python setup.py bdist_wininst --target-version=2.7 upload  # on linux, use wine
 python setup.py bdist_wininst --target-version=3.2 upload

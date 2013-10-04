@@ -2,8 +2,8 @@
 Oct2Py Code
 ***********
 
-.. automodule:: oct2py._oct2py
+.. automodule:: oct2py.session
    :members:
 
-.. automodule:: oct2py._utils
+.. automodule:: oct2py.utils
    :members:

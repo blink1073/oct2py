@@ -27,7 +27,7 @@ New in Version 1.0.0
 - Improved support for cell array and sparse matrices
 - Bug fix: Changes to user m. files were not updated during a session
 - Bug fix: Removed popup console window on Windows
-Thanks to @klonuo, @Juanlu001, @bj0, @graingert and @jordigh for bug reports and fixes.
+- Thanks to @klonuo, @Juanlu001, @bj0, @graingert and @jordigh for bug reports and fixes.
 
 
 Installation
