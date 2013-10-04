@@ -517,7 +517,7 @@ class NumpyTest(TestCase):
             assert test.nnz == incoming.nnz
             assert np.allclose(test.todense(), incoming.todense())
             assert test.dtype == incoming.dtype
-            assert type_ == 'double'
+            assert (type_ == 'double' or type_ == 'cell')
 
     def test_empty(self):
         '''Test roundtrip empty matrices
@@ -680,7 +680,10 @@ def test_logging():
     '''Test logging to a file'''
     # create a stringio and a handler to log to it
     def get_handler():
-        from StringIO import StringIO
+        try:
+            from StringIO import StringIO
+        except ImportError:
+            from io import StringIO
         sobj = StringIO()
         hdlr = logging.StreamHandler(sobj)
         hdlr.setLevel(logging.DEBUG)

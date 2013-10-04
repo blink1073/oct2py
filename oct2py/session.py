@@ -58,6 +58,7 @@ class Oct2Py(object):
         else:
             return
         self._session.close()
+        self._session = None
         self._writer.remove_file()
         self._reader.remove_file()
 
@@ -483,7 +484,10 @@ class Session(object):
             self.proc.stdin.write(eval_)
         except IOError:
             raise Oct2PyError('The session is closed')
-        self.proc.stdin.flush()
+        try:
+            self.proc.stdin.flush()
+        except OSError:
+            pass
         syntax_error = False
         while 1:
             line = self.proc.stdout.readline().rstrip().decode('utf-8')
