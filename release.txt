@@ -12,8 +12,9 @@ Release Commands:
 # make sure you are not in a virtual environment
 deactivate
 rm -r dist build
-git tag 0.x.x; git branch v0.x.x
-git push upstream-rw master 0.x.x
+make clean
+git tag x.x.x; git branch vx.x.x
+git push upstream-rw master x.x.x
 python setup.py register
 python setup.py bdist_wininst --target-version=2.7 upload  # on linux, use wine
 python setup.py bdist_wininst --target-version=3.2 upload
