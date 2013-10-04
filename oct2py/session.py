@@ -53,11 +53,8 @@ class Oct2Py(object):
     def close(self):
         """Closes this octave session and removes temp files
         """
-        if self._isopen:
-            self._isopen = False
-        else:
-            return
-        self._session.close()
+        if self._session:
+            self._session.close()
         self._session = None
         self._writer.remove_file()
         self._reader.remove_file()
@@ -423,7 +420,6 @@ class Oct2Py(object):
         '''
         self._session = Session()
         self._first_run = True
-        self._isopen = True
         self._graphics_toolkit = None
         self._reader = MatRead()
         self._writer = MatWrite()
