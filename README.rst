@@ -20,19 +20,20 @@ See example `here <http://nbviewer.ipython.org/url/github.com/ipython/ipython/ra
 
 New in Version 1.0.0
 ====================
+- Support for Python3.3
 - Support for logging (e.g. oc = Oct2Py(logger=my_logger))
 - Oct2Py can be used as a context manger (with Oct2Py() as oc:)
 - Support for unicode characters
 - Improved support for cell array and sparse matrices
 - Bug fix: Changes to user m. files were not updated during a session
 - Bug fix: Removed popup console window on Windows
-
+Thanks to @klonuo, @Juanlu001, @bj0, @graingert and @jordigh for bug reports and fixes.
 
 
 Installation
 ============
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from `sourceforce <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
+way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
 On Linux, it should be available from your package manager.
 Additionally, you must have the numpy and scipy libraries installed, then run::
 
