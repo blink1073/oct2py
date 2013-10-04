@@ -111,7 +111,7 @@ Note for MATLAB® users
 Octave supports most but not all of the core `syntax and commands <http://en.wikibooks.org/wiki/MATLAB_Programming/Differences_between_Octave_and_MATLAB>`_. The main
 noticable differences are nested functions are not allowed, and GUIs
 (including uigetfile, etc.) are not supported. There are several Octave
-`packages <http://octave.sourceforge.net/packages.php>`_(think toolboxes), including image and statistics.
+`packages <http://octave.sourceforge.net/packages.php>`_ (think toolboxes), including image and statistics.
 
 
 Similar work
