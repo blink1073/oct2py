@@ -29,6 +29,10 @@ class Oct2Py(object):
     after every plot line::
 
        ;figure(gcf() + 1);
+       
+    You may provide a logger object for logging events, or the oct2py.get_log()
+    default will be used.  Events will be logged as debug unless verbose is set
+    when calling a command, then they will be logged as info.
 
     """
     def __init__(self, logger=None):
@@ -73,7 +77,7 @@ class Oct2Py(object):
         script : str
             Command script to send to Octave for execution.
         verbose : bool, optional
-            Print Octave output.
+            Log Octave output at info level.
 
         Returns
         -------
@@ -121,7 +125,7 @@ class Oct2Py(object):
             You can override this behavior by passing a
             different value.
         verbose : bool, optional
-            Print Octave output.
+             Log Octave output at info level.
 
         Returns
         -------
@@ -286,7 +290,7 @@ class Oct2Py(object):
         string : str
             Search string for the lookfor command.
         verbose : bool, optional
-            Print Octave output.
+             Log Octave output at info level.
 
         Returns
         -------
@@ -308,7 +312,7 @@ class Oct2Py(object):
         cmds : str or list
             Commands(s) to pass directly to Octave.
         verbose : bool, optional
-            Print Octave output.
+             Log Octave output at info level.
 
         Returns
         -------
@@ -418,14 +422,14 @@ class Oct2Py(object):
     def restart(self):
         '''Restart an Octave session in a clean state
         '''
-        self._session = Session()
+        self._session = _Session()
         self._first_run = True
         self._graphics_toolkit = None
         self._reader = MatRead()
         self._writer = MatWrite()
 
 
-class Session(object):
+class _Session(object):
     '''Low-level session Octave session interaction
     '''
     def __init__(self):

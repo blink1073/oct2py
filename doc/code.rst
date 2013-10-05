@@ -3,7 +3,7 @@ Oct2Py Code
 ***********
 
 .. automodule:: oct2py.session
-   :members:
+   :members: Oct2Py
 
 .. automodule:: oct2py.utils
-   :members:
+   :members: Oct2PyError, Struct, get_log

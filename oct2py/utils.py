@@ -66,8 +66,7 @@ def get_nout():
 
 def create_file():
     """
-    Create a MAT file with a random name.
-    Puts it in if possible, or in ~/.oct2py_files
+    Create a MAT file with a random name in the temp directory
 
     Returns
     =======
