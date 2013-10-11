@@ -752,6 +752,14 @@ def test_threads():
 
 def test_plot():
     octave.plot([1])
+    
+
+def test_narg_out():
+    oc = Oct2Py()
+    s = oc.svd(np.array([[1,2], [1,3]]))
+    assert s.shape == (2, 1)
+    U, S, V = oc.svd([[1,2], [1,3]])
+    assert U.shape == S.shape == V.shape == (2, 2)
 
 
 if __name__ == '__main__':
