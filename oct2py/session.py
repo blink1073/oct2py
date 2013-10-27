@@ -397,7 +397,7 @@ class Oct2Py(object):
             raise Oct2PyError(
                 "Attributes don't look like this: {0}".format(attr))
         if attr.startswith('_'):
-            raise Oct2PyError(
+            raise AttributeError(
                 "Octave commands do not start with _: {0}".format(attr))
         # print_ -> print
         if attr[-1] == "_":
