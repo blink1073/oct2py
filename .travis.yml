@@ -16,7 +16,7 @@ install:
     - sudo pip install ipython[test]
     - sudo apt-get install octave
     - sudo $PYTHON setup.py install
-    - pip install coveralls
+    - sudo pip install coveralls
 script:
     # Change into an innocuous directory and find tests from installation
     - cd ~
