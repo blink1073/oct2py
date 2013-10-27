@@ -1,3 +1,4 @@
+v1.0.1, 27 Oct 2013      -- Fixed bug preventing help(Oct2Py())
 v1.0.0, 4 Oct 2013       -- Support for Python3.3
                          -- Support for logging (e.g. oc = Oct2Py(logger=my_logger))
                          -- Oct2Py can be used as a context manger (with Oct2Py() as oc:)

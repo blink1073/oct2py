@@ -393,6 +393,9 @@ class Oct2Py(object):
         Adapted from the mlabwrap project.
 
         """
+        # needed for help(Oct2Py())
+        if attr == '__name__':
+            return super(Oct2Py, self).__getattr__(attr)
         if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
             raise Oct2PyError(
                 "Attributes don't look like this: {0}".format(attr))

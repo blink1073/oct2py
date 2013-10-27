@@ -762,6 +762,10 @@ def test_narg_out():
     assert U.shape == S.shape == V.shape == (2, 2)
 
 
+def test_help():
+    help(Oct2Py())
+    
+    
 if __name__ == '__main__':
     print('oct2py test')
     print('*' * 20)

@@ -14,7 +14,7 @@ And of course, our Benevolent Dictactor for Life, Guido van Rossum.
 
 Thanks to the following for direct contributions to oct2py:
 @stefanv, @jenshnielsen, @idella, @klonuo, @Juanlu001, @bj0, @graingert, 
-@jordigh, @wannesm, Konstantin Markov
+@jordigh, @wannesm, Konstantin Markov, @filmore
 
 
 Citations
