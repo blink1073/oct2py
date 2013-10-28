@@ -6,7 +6,9 @@ Release History
 1.0.1 (2013-10-27)
 ++++++++++++++++++
 
-- Fixed bug preventing help(Oct2Py())
+- Overhaul of documentation
+- Improved test coverage to 98%.
+- Fixed: Allow help(Oct2Py()) and tab completion on REPL
 
 
 1.0.0 (2013-10-4)

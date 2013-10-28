@@ -649,9 +649,10 @@ class BasicUsageTest(TestCase):
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError
         """
-        oct_ = Oct2Py()
-        self.assertRaises(Oct2PyError, oct_.eval, cmds="a='1")
-
+        oc = Oct2Py()
+        self.assertRaises(Oct2PyError, oc._eval, "a='1")
+        oc = Oct2Py()
+        self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
 
 def test_unicode_docstring():
     '''Make sure unicode docstrings in Octave functions work'''

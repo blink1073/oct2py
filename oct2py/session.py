@@ -382,7 +382,7 @@ class Oct2Py(object):
 
         """
         # needed for help(Oct2Py())
-        if attr == '__name__':
+        if attr in ['__name__', '__file__']:
             return super(Oct2Py, self).__getattr__(attr)
         if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
             raise Oct2PyError(
@@ -483,13 +483,13 @@ class _Session(object):
                 msg = ('Tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
                        .format('\n'.join(cmds), '\n'.join(resp)))
                 raise Oct2PyError(msg)
-            elif "syntax error" in line:
+            if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
                 resp.append(line)
                 msg = 'Octave Syntax Error\n'.join(resp)
                 raise Oct2PyError(msg)
-            elif verbose and logger:
+            if verbose and logger:
                 logger.info(line)
             elif log and logger:
                 logger.debug(line)
