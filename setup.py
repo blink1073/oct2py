@@ -27,7 +27,7 @@ Topic :: Software Development
 """
 import sys
 import os
-from distutils.core import setup
+from distutils.core import setup, Command
 from distutils.command.build import build
 try:
     from distutils.command.build_py import build_py_2to3 as build_py
@@ -79,6 +79,18 @@ if sphinx:
 else:
     cmdclass = {'build_py': build_py}
 
+class PyTest(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import sys,subprocess
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        raise SystemExit(errno)
+        
+cmdclass['test'] = PyTest
 
 def write_version_py():
     fname = '{0}/version.py'.format(DISTNAME)
