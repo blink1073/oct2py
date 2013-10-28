@@ -56,7 +56,7 @@ class MatRead(object):
     def remove_file(self):
         try:
             os.remove(self.out_file)
-        except (OSError, AttributeError):
+        except (OSError, AttributeError):  # pragma: no cover
             pass
 
     def extract_file(self, argout_list):

@@ -63,11 +63,6 @@ class Oct2Py(object):
         self._writer.remove_file()
         self._reader.remove_file()
 
-    def _close(self, handle=None):
-        '''Depracated, call close instead
-        '''
-        self.close()
-
     def run(self, script, **kwargs):
         """
         Run artibrary Octave code.
@@ -376,15 +371,8 @@ class Oct2Py(object):
         try:
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
         except Oct2PyError:
-            try:
-                doc = self._eval('type {0}'.format(name), log=False,
-                                 verbose=False)
-            except Oct2PyError:
-                msg = '"{0}" is not a recognized octave command'.format(name)
-                raise Oct2PyError(msg)
-            else:
-                # grab only the first line
-                doc = doc.split('\n')[0]
+            msg = '"{0}" is not a recognized octave command'.format(name)
+            raise Oct2PyError(msg)
         return doc
 
     def __getattr__(self, attr):
@@ -414,12 +402,10 @@ class Oct2Py(object):
         return octave_command
 
     def _set_graphics_toolkit(self):
-        if self._graphics_toolkit == 'gnuplot':
-            return
         try:
             self._eval("graphics_toolkit('gnuplot')", False)
-        except Oct2PyError:
-            pass
+        except Oct2PyError:  # pragma: no cover
+            pass  
         self._graphics_toolkit = 'gnuplot'
 
     def restart(self):
@@ -463,12 +449,12 @@ class _Session(object):
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
                       stdout=subprocess.PIPE, close_fds=ON_POSIX)
         if os.name == 'nt':
-            startupinfo = subprocess.STARTUPINFO()
+            startupinfo = subprocess.STARTUPINFO()  
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             kwargs['startupinfo'] = startupinfo
         try:
             proc = subprocess.Popen(['octave', '-q', '--braindead'], **kwargs)
-        except OSError:
+        except OSError:  # pragma: no cover
             msg = ('\n\nPlease install GNU Octave and put it in your path\n')
             raise Oct2PyError(msg)
         return proc
@@ -483,13 +469,10 @@ class _Session(object):
                  'catch', 'disp(lasterr())', 'disp(char(21))',
                  'end', '']
         eval_ = '\n'.join(lines).encode('utf-8')
-        try:
-            self.proc.stdin.write(eval_)
-        except IOError:
-            raise Oct2PyError('The session is closed')
+        self.proc.stdin.write(eval_)
         try:
             self.proc.stdin.flush()
-        except OSError:
+        except OSError:  # pragma: no cover
             pass
         syntax_error = False
         while 1:
@@ -522,17 +505,17 @@ class _Session(object):
             pass
         try:
             self.proc.terminate()
-        except (OSError, AttributeError):
-            pass
+        except (OSError, AttributeError):  # pragma: no cover
+            pass  
 
 
-def _test():
+def _test():  # pragma: no cover
     """Run the doctests for this module.
     """
-    print('Starting doctest')
-    doctest.testmod()
-    print('Completed doctest')
+    print('Starting doctest')  
+    doctest.testmod()  
+    print('Completed doctest')  
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     _test()

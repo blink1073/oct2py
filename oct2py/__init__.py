@@ -19,7 +19,7 @@ import os
 from .session import Oct2Py, Oct2PyError
 try:
     from .version import version as __version__
-except ImportError:
+except ImportError:  # pragma: no cover
     __version__ = 'unbuilt-dev'
 from .utils import Struct, get_log
 from .demo import demo
@@ -36,14 +36,14 @@ octave = Oct2Py()
 #  set up a test rig
 try:
     imp.find_module('nose')
-except ImportError:
+except ImportError:  # pragma: no cover
     def _test(verbose=False):
         """This would invoke the skimage test suite, but nose couldn't be
         imported so the test suite can not run.
         """
         raise ImportError("Could not load nose. Unit tests not available.")
-else:
-    def _test(verbose=False):
+else:  
+    def _test(verbose=False):  # pragma: no cover
         """Invoke the skimage test suite."""
         import nose
         import os

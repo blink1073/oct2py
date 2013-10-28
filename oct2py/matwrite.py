@@ -66,7 +66,7 @@ class MatWrite(object):
             self.in_file = create_file()
         try:
             savemat(self.in_file, data, appendmat=False, oned_as='row')
-        except KeyError:
+        except KeyError:  # pragma: no cover
             raise Exception('could not save mat file')
         load_line = 'load {} "{}"'.format(self.in_file,
                                           '" "'.join(argin_list))
@@ -75,7 +75,7 @@ class MatWrite(object):
     def remove_file(self):
         try:
             os.remove(self.in_file)
-        except (OSError, AttributeError):
+        except (OSError, AttributeError):  # pragma: no cover
             pass
 
 
@@ -133,7 +133,7 @@ def putval(data):
         if str_in_list(data):
             try:
                 data = np.array(data, dtype=np.object)
-            except ValueError as err:
+            except ValueError as err:  # pragma: no cover
                 raise Oct2PyError(err)
         else:
             out = []
@@ -154,7 +154,7 @@ def putval(data):
         return data.astype(np.float64)
     try:
         data = np.array(data)
-    except ValueError as err:
+    except ValueError as err:  # pragma: no cover
         data = np.array(data, dtype=object)
     dstr = data.dtype.str
     if 'c' in dstr and dstr[-2:] == '24':
