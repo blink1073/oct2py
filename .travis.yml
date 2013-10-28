@@ -1,26 +1,21 @@
-# vim ft=yaml
 # travis-ci.org definition for oct2py build
-#
-# We pretend to be erlang because we need can't use the python support in
-# travis-ci; it uses virtualenvs, they do not have numpy, and scipy,
-# and it is impractical to build them
 
-language: erlang
-env:
-    - PYTHON=python PYSUF=2.7
-    - PYTHON=python3 PYSUF=3.2
+language: python
+python:
+  - 2.7
+  - 3.2
+  - 3.3
+virtualenv:
+  system_site_packages: true
+before_install:
+  - sudo apt-get install -qq python-numpy python-scipy octave
 install:
-    - sudo apt-get update
-    - sudo apt-get install $PYTHON-scipy
-    - sudo apt-get install $PYTHON-nose
-    - sudo pip install ipython[test]
-    - sudo apt-get install octave
-    - sudo $PYTHON setup.py install
-    - sudo pip install coveralls
+  - pip install coveralls --use-mirrors
+  - pip install nose --use-mirrors
+  - pip install coverage --use-mirrors
+  - python setup.py install
 script:
-    # Change into an innocuous directory and find tests from installation
-    - cd ~
-    - nosetests-$PYSUF --exe -v --with-coverage --cover-package=oct2py oct2py
-    - if [ "$PYSUF" = 2.7 ]; then iptest -v IPython.extensions.tests.test_octavemagic; fi
+  - nosetests -v --with-coverage --cover-package=oct2py
+  - iptest -v IPython.extensions.tests.test_octavemagic
 after_success:
-    coveralls
+  coveralls
