@@ -65,5 +65,8 @@ test_verbose.__doc__ = test.__doc__
 
 # clean up namespace
 del functools, imp, os
-del session, utils
+try:
+    del session, utils
+except NameError:
+    pass
 

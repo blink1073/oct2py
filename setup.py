@@ -68,16 +68,7 @@ class MyBuildDoc(BuildDoc):
         except UnicodeDecodeError:
             print >>sys.stderr, "ERROR: unable to build documentation because Sphinx do not handle source path with non-ASCII characters. Please try to move the source package to another location (path with *only* ASCII characters)."
         sys.path.pop(0)
-
-if sphinx:
-    cmdclass = {'build_py': MyBuild, 'build_sphinx': MyBuildDoc}
-    try:
-        from sphinx_pypi_upload import UploadDoc
-        cmdclass['upload_sphinx'] = UploadDoc
-    except ImportError:
-        pass
-else:
-    cmdclass = {'build_py': build_py}
+        
 
 class PyTest(Command):
     user_options = []
@@ -86,11 +77,28 @@ class PyTest(Command):
     def finalize_options(self):
         pass
     def run(self):
-        import sys,subprocess
-        errno = subprocess.call([sys.executable, 'runtests.py'])
+        import sys
+        import subprocess
+        if sys.version[0] == '2':
+            path = 'oct2py/tests/test_oct2py.py'
+            errno = subprocess.call([sys.executable, path])
+        else:
+            subprocess.call([sys.executable, 'setup.py', 'build_py'])
+            subprocess.call([sys.executable, 'setup.py', 'install'])
+            path = 'build/lib/oct2py/tests/test_oct2py.py'
+            errno = subprocess.call([sys.executable, path])
         raise SystemExit(errno)
         
-cmdclass['test'] = PyTest
+        
+cmdclass= dict(test=PyTest, build_py=build_py)
+if sphinx:
+    cmdclass['build_sphinx'] = 'upload_sphinx'
+    try:
+        from sphinx_pypi_upload import UploadDoc
+        cmdclass['upload_sphinx'] = UploadDoc
+    except ImportError:
+        pass
+
 
 def write_version_py():
     fname = '{0}/version.py'.format(DISTNAME)
