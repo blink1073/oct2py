@@ -2,6 +2,7 @@
 .coverage
 MANIFEST
 .spyderproject
+.coveralls.yml
 oct2py.egg-info/*
 build/*
 dist/*

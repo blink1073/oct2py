@@ -12,6 +12,7 @@ float16/96/128 and complex192/256 can be recast as float64 and complex128.
    ** complex256
    ** read-write buffer('V')
 """
+from __future__ import absolute_import
 import logging
 import os
 import sys
@@ -705,7 +706,7 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 8
+    assert len(lines) == 4
     assert lines[0].startswith('load')
 
     # now make an object with a desired logger
@@ -746,12 +747,12 @@ def test_remove_files():
 
 def test_speed():
     from oct2py import speed_test
-    speed_test.speed_check()
+    speed_test()
 
 
 def test_threads():
     from oct2py import thread_test
-    thread_test.thread_check()
+    thread_test()
 
 
 def test_plot():
