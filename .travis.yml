@@ -20,7 +20,7 @@ install:
 script:
     # Change into an innocuous directory and find tests from installation
     - cd ~
-    - nosetests-$PYSUF --exe -v --cover-package=oct2py oct2py
+    - nosetests-$PYSUF --exe -v --with-coverage oct2py
     - if [ "$PYSUF" = 2.7 ]; then iptest -v IPython.extensions.tests.test_octavemagic; fi
 after_success:
     coveralls
