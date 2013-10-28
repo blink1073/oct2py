@@ -79,14 +79,7 @@ class PyTest(Command):
     def run(self):
         import sys
         import subprocess
-        if sys.version[0] == '2':
-            path = 'oct2py/tests/test_oct2py.py'
-            errno = subprocess.call([sys.executable, path])
-        else:
-            subprocess.call([sys.executable, 'setup.py', 'build_py'])
-            subprocess.call([sys.executable, 'setup.py', 'install'])
-            path = 'build/lib/oct2py/tests/test_oct2py.py'
-            errno = subprocess.call([sys.executable, path])
+        errno = subprocess.call([sys.executable, 'runtests.py'])
         raise SystemExit(errno)
         
         
