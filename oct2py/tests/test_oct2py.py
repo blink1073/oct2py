@@ -660,8 +660,12 @@ def test_unicode_docstring():
 
 def test_context_manager():
     '''Make sure oct2py works within a context manager'''
-    with Oct2Py() as oc1:
+    oc = Oct2Py()
+    with oc as oc1:
         ones = oc1.ones(1)
+    assert ones == np.ones(1)
+    with oc as oc2:
+         ones = oc2.ones(1)
     assert ones == np.ones(1)
 
 
@@ -677,7 +681,6 @@ def test_singleton_sparses():
 
 
 def test_logging():
-    '''Test logging to a file'''
     # create a stringio and a handler to log to it
     def get_handler():
         try:
@@ -764,7 +767,19 @@ def test_narg_out():
 
 def test_help():
     help(Oct2Py())
-    
+
+
+def test_trailing_underscore():
+    oc = Oct2Py()
+    x = oc.ones_()
+    assert np.allclose(x, np.ones(1))
+
+
+def test_using_closed_session():
+    oc = Oct2Py()
+    oc.close()
+    assert_raises(Oct2PyError, oc.call, 'ones')
+
     
 if __name__ == '__main__':
     print('oct2py test')

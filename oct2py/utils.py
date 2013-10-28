@@ -24,7 +24,7 @@ def _remove_temp_files():
     for fname in glob.glob(os.path.join(dirname, 'tmp*.mat')):
         try:
             os.remove(fname)
-        except OSError:
+        except OSError:  # pragma: no cover
             pass
 
 
@@ -148,7 +148,7 @@ def _setup_log():
 
     try:
         handler = logging.StreamHandler(stream=sys.stdout)
-    except TypeError:
+    except TypeError:  # pragma: no cover
         handler = logging.StreamHandler(strm=sys.stdout)
 
     log = get_log()
@@ -159,12 +159,12 @@ def _setup_log():
 _setup_log()
 
 
-def _test():
+def _test():  # pragma: no cover
     """Run the doctests for this module
     """
     doctest.testmod()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     import doctest
     _test()

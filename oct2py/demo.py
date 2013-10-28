@@ -74,5 +74,5 @@ def demo(delay=2, interactive=True):
     print('*' * 20)
     print('DEMO COMPLETE!')
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     demo(delay=0.5)
