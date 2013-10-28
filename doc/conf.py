@@ -24,9 +24,9 @@ import sys, os
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 try:
     import numpydoc
-    extensions = ['sphinx.ext.autodoc', 'numpydoc']
+    extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'numpydoc']
 except ImportError:
-    extensions = ['sphinx.ext.autodoc']
+    extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
