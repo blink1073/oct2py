@@ -6,9 +6,10 @@ Release History
 1.0.1 (2013-10-27)
 ++++++++++++++++++
 
-- Overhaul of documentation
-- Improved test coverage to 98%.
+- Overhaul of front end documentation
+- Improved test coverage to 96%.
 - Fixed: Allow help(Oct2Py()) and tab completion on REPL
+- Fixed: Allow tab completion for Oct2Py().<TAB> in REPL
 
 
 1.0.0 (2013-10-4)
