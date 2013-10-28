@@ -18,7 +18,7 @@ install:
 script:
 script:
   - PY=%TRAVIS_PYTHON_VERSION
-  - coverage run test_runner.py
+  - coverage run runtests.py
   - "if [[ $PY == '2.7' ]]; then iptest -v IPython.extensions.tests.test_octavemagic; fi"
 after_success:
   coveralls
