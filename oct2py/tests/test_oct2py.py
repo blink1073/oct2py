@@ -778,7 +778,7 @@ def test_trailing_underscore():
 def test_using_closed_session():
     oc = Oct2Py()
     oc.close()
-    assert_raises(Oct2PyError, oc.ones())
+    assert_raises(Oct2PyError, oc.call, 'ones')
 
     
 if __name__ == '__main__':
