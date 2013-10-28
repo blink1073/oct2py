@@ -13,12 +13,14 @@ before_install:
   - sudo apt-get install -qq octave
 install:
   - pip install coveralls --use-mirrors
+  - pip install pytest --use-mirrors
   - "if [[ $PY == '2.7' ]]; then pip install ipython[test]; fi"
   - python setup.py install
 script:
 script:
   - PY=%TRAVIS_PYTHON_VERSION
-  - coverage run runtests.py
+  - coverage run --source oct2py -m py.test
+  - coverage report
   - "if [[ $PY == '2.7' ]]; then iptest -v IPython.extensions.tests.test_octavemagic; fi"
 after_success:
   coveralls
