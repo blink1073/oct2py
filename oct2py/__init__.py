@@ -12,6 +12,7 @@ passing the data seamlessly between Python and Octave using MAT files.
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 """
+from __future__ import absolute_import
 import imp
 import functools
 import os
@@ -23,14 +24,15 @@ except ImportError:  # pragma: no cover
     __version__ = 'unbuilt-dev'
 from .utils import Struct, get_log
 from .demo import demo
-from .speed_test import speed_check as speed_test
-from .thread_test import thread_check as thread_test
+from .speed_check import speed_test
+from .thread_check import thread_test
 
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
            'thread_test', '__version__', 'test', 'test_verbose', 'get_log']
 
 
 octave = Oct2Py()
+
 
 # The following is borrowed from the scikit-image project
 #  set up a test rig
@@ -63,5 +65,8 @@ test_verbose.__doc__ = test.__doc__
 
 # clean up namespace
 del functools, imp, os
-del session, utils
+try:
+    del session, utils
+except NameError:
+    pass
 

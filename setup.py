@@ -27,7 +27,7 @@ Topic :: Software Development
 """
 import sys
 import os
-from distutils.core import setup
+from distutils.core import setup, Command
 from distutils.command.build import build
 try:
     from distutils.command.build_py import build_py_2to3 as build_py
@@ -68,16 +68,29 @@ class MyBuildDoc(BuildDoc):
         except UnicodeDecodeError:
             print >>sys.stderr, "ERROR: unable to build documentation because Sphinx do not handle source path with non-ASCII characters. Please try to move the source package to another location (path with *only* ASCII characters)."
         sys.path.pop(0)
+        
 
+class PyTest(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import sys
+        import subprocess
+        errno = subprocess.call([sys.executable, 'runtests.py'])
+        raise SystemExit(errno)
+        
+        
+cmdclass= dict(test=PyTest, build_py=build_py)
 if sphinx:
-    cmdclass = {'build_py': MyBuild, 'build_sphinx': MyBuildDoc}
+    cmdclass['build_sphinx'] = 'upload_sphinx'
     try:
         from sphinx_pypi_upload import UploadDoc
         cmdclass['upload_sphinx'] = UploadDoc
     except ImportError:
         pass
-else:
-    cmdclass = {'build_py': build_py}
 
 
 def write_version_py():

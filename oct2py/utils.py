@@ -136,6 +136,7 @@ def get_log(name=None):
         name = 'oct2py.' + name
 
     log = logging.getLogger(name)
+    log.setLevel(logging.WARN)
     return log
 
 
@@ -153,7 +154,7 @@ def _setup_log():
 
     log = get_log()
     log.addHandler(handler)
-    log.setLevel(logging.INFO)
+    log.setLevel(logging.WARN)
     log.propagate = False
 
 _setup_log()
