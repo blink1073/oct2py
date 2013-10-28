@@ -1,33 +1,68 @@
-oct2py - Python to GNU Octave bridge.
+Oct2py: Python to GNU Octave Bridge
+===================================
 
-Overview
-========
-Uses Octave to run commands and m-files. Run::
+.. image:: https://badge.fury.io/py/oct2py.png
+    :target: http://badge.fury.io/py/oct2py
 
-    >>> import oct2py
-    >>> oct2py.demo()
+.. image:: https://pypip.in/d/oct2py/badge.png
+        :target: https://crate.io/packages/oct2py/
 
-for a live demo of features.  Supports any Octave function or m-file,
-passing the data seamlessly between Python and Octave using MAT files.
+Oct2py is a means to seemlessly call m-files and Octave functions from python.
+It manages the Octave session for you, sharing data behind the scenes using
+MAT files.  Usage is as simple as:
+
+.. code-block:: pycon
+
+    >>> oc = oct2py.Oct2Py() 
+    >>> x = oc.zeros(3,3)
+    >>> print x, x.dtype
+    [[ 0.  0.  0.]
+     [ 0.  0.  0.]
+     [ 0.  0.  0.]] float64
+    ...
+
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
-trust a code translator, this is your library.
-
-IPython Notebook Integration
-============================
-Oct2py is used by IPython to enable %octavemagic, to include inline plotting.  
-See example `here <http://nbviewer.ipython.org/url/github.com/ipython/ipython/raw/master/examples/notebooks/Octave%20Magic.ipynb>`_.
+trust a code translator, this is your library.  
 
 
-New in Version 1.0.0
-====================
-- Support for Python3.3
-- Support for logging (e.g. oc = Oct2Py(logger=my_logger))
-- Oct2Py can be used as a context manger (with Oct2Py() as oc:)
-- Support for unicode characters
-- Improved support for cell array and sparse matrices
-- Bug fix: Changes to user m. files were not updated during a session
-- Bug fix: Removed popup console window on Windows
-- - Thanks to @stefanv, @jenshnielsen, @idella, @klonuo, @Juanlu001, @bj0, @graingert, @jordigh, @wannesm, and Konstantin Markov for helping to get this out of beta.
+Features
+--------
+
+- Supports all Octave datatypes and most python datatypes and numpy dtypes.
+- Provides %octavemagic% for IPython, including inline plotting in notebooks.
+- Supports cell arrays and structs with arbitrary nesting.
+- Supports sparse matrices.
+- Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
+- Nargout is automatically inferred by the number of return variables.
+- Thread-safety - each Oct2Py object uses an independent Octave session.
+- Can be used as a context manager.
+- Supports unicode characters.
+
+
+Installation
+------------
+You must have GNU Octave installed and in your PATH. On Windows, the easiest
+way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
+On Linux, it should be available from your package manager.
+Additionally, you must have the numpy and scipy libraries installed.
+
+To install Oct2py, simply:
+
+.. code-block:: bash
+
+    $ pip install oct2py
+
+Or, if you absolutely must:
+
+.. code-block:: bash
+
+    $ easy_install oct2py
+
+
+Documentation
+-------------
+
+Documentation is available at http://pythonhosted.org/oct2py/.
 
 
 Installation
@@ -49,88 +84,3 @@ or::
 
 Note for Windows users: You may have to follow these `instructions <http://wiki.octave.org/Octave_for_Windows#Printing_.28installing_Ghostscript.29>`_
 in order to use inline figures in IPython (or specify -f svg).
-
-
-Datatypes
-=========
-All Octave variable types are mapped to comparable Python types.  See Oct2Py
-Data Conversions in the documentation for a full list.
-Wherever possible, value and type are preserved on a roundtrip to Octave.
-For example, if you send an ndarray of type np.int8, Octave receives an int8
-matrix, and the value returned would be the original array, of type np.int8.
-Almost all Python types can be sent to Octave (including ndarrays of
-arbitrary rank) and read back in the same form.
-Note that dictionaries are mapped to Octave structures, which are returned
-as Struct objects.  These objects behave just like an Octave struct, but
-can be accessed as a dictionary as well::
-
-       >>> from oct2py import Struct
-       >>> a = Struct()
-       >>> a.b = 'spam'  # a["b"] == 'spam'
-       >>> a.c.d = 'eggs'  # a.c["d"] == 'eggs'
-       >>> print a
-       {'c': {'d': 'eggs'}, 'b': 'spam'}
-
-Performance
-===========
-There is a penalty for passing data via MAT files.  Running speed_test.py
-shows the effect.  After a startup time for the Octave engine (<1s typically),
-raw function calls take almost no penalty.  The penalty for reading and
-writing from the MAT file is around 1-2ms on my laptop.  This penalty is
-felt for both incoming and outgoing values.  As the data becomes
-larger, the delay begins to increase (somewhere around a 100x100 array).
-If you have any loops, you would be better served using a raw "run"
-command for the loop rather than implementing the loop in python::
-
-      >>> import oct2py
-      >>> oct2py.speed_test()
-
-Plotting
-========
-Plotting commands do not automatically result in the window being displayed
-by python.  In order to force the plot to be drawn, the command
-"figure(gcf() + 1);'" is tacked onto anything that looks like a plot
-command, when called using this package. If you have plot statements in your
-function that you would like to display, you must add that line
-after each plot statement.
-
-
-Thread Safety
-=============
-Each instance of the Octave object has an independent session of Octave and
-uses independent random MAT files. The library therefore should be thread safe.
-See thread_test.py for an example of several objects writing a different
-value for the same variable name simultaneously and successfully retrieving
-their own result::
-
-    >>> import oct2py
-    >>> oct2py.thread_test()
-
-Note for MATLAB® users
-========================
-Octave supports most but not all of the core `syntax and commands <http://en.wikibooks.org/wiki/MATLAB_Programming/Differences_between_Octave_and_MATLAB>`_. The main
-noticable differences are nested functions are not allowed, and GUIs
-(including uigetfile, etc.) are not supported. There are several Octave
-`packages <http://octave.sourceforge.net/packages.php>`_ (think toolboxes), including image and statistics.
-
-
-Similar work
-============
-* pytave - Python to Octave bridge, but does not run on win32 (which is the
-  reason for this library).
-* mlabwrap - Python to MATLAB® bridge, requires a MATLAB® license.  The
-  oct2py library API is modeled after mlabwrap.
-* ompc, smop - Matlab to Python conversion tools.  Both rely on effective
-  parsing of code and a runtime helper library.  Ideally one or both of
-  these projects render this one unnecessary.  The idea of using
-  introspection to find "nargout" was borrowed from the ompc project.
-
-CI Status
-=========
-
-**oct2py** has automatic testing enabled through the convenient
-`Travis CI project <https://travis-ci.org>`_. Here is the latest build status:
-
-.. image:: https://travis-ci.org/blink1073/oct2py.png?branch=master
-  :align: center
-  :target: https://travis-ci.org/blink1073/oct2py
