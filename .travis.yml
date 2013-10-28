@@ -17,6 +17,6 @@ install:
   - python setup.py install
 script:
   - nosetests -v --with-coverage --cover-package=oct2py
-  - iptest -v IPython.extensions.tests.test_octavemagic
+  - "if [[ $TRAVIS_PYTHON_VERSION == '3.2' ]]; then iptest -v IPython.extensions.tests.test_octavemagic; fi"
 after_success:
   coveralls
