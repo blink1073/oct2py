@@ -46,7 +46,7 @@ Features
 Installation
 ------------
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
+way to get Octave is to use an installer from SourceForge_.
 On Linux, it should be available from your package manager.
 Additionally, you must have the numpy and scipy libraries installed.
 
@@ -69,22 +69,4 @@ Documentation
 Documentation is available at http://pythonhosted.org/oct2py/.
 
 
-Installation
-============
-You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
-On Linux, it should be available from your package manager.
-Additionally, you must have the numpy and scipy libraries installed, then run::
-
-   python setup.py install
-
-or::
-
-   pip install oct2py
-
-or::
-
-   easy_install oct2py
-
-Note for Windows users: You may have to follow these `instructions <http://wiki.octave.org/Octave_for_Windows#Printing_.28installing_Ghostscript.29>`_
-in order to use inline figures in IPython (or specify -f svg).
+.. _SourceForge: sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>
