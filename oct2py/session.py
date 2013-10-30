@@ -12,6 +12,7 @@ import atexit
 import doctest
 import subprocess
 import sys
+import numpy as np
 from .matwrite import MatWrite
 from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
@@ -152,7 +153,7 @@ class Oct2Py(object):
             self._set_graphics_toolkit()
 
         verbose = kwargs.get('verbose', False)
-        nout = kwargs.get('nout', get_nout())
+        nout = kwargs.get('nout', max(get_nout(), 1))
 
         # handle references to script names - and paths to them
         if func.endswith('.m'):
@@ -181,21 +182,42 @@ class Oct2Py(object):
         else:
             # run foo
             call_line += '{0}'.format(func)
+            
+        pre_call = '\nglobal __oct2py_figures = [];\n'
+        post_call = ''        
+        
+        if not nout and 'command' in kwargs and not '__ipy_figures' in func:
+            if not call_line.endswith(')'):
+                call_line += '();\n'
+            post_call += '''
+            # Save output of the last execution
+                if exist("ans") == 1
+                  _ = ans;
+                else
+                  _ = "__no_answer";
+                end
+            '''
+        
         # do not interfere with octavemagic logic
         if not "DefaultFigureCreateFcn" in call_line:
-            call_line += """
+            post_call += """
             for f = __oct2py_figures
-                refresh(f)
-            end
-            global __oct2py_figures = []'
-            """
+                refresh(f);
+            end"""
 
         # create the command and execute in octave
-        cmd = [load_line, call_line, save_line]
+        cmd = [load_line, pre_call, call_line, post_call, save_line]
         resp = self._eval(cmd, verbose=verbose)
         
         if nout:
             return self._reader.extract_file(argout_list)
+        elif 'command' in kwargs:
+            ans = self.get('_')
+            # Unfortunately, Octave doesn't have a "None" object,
+            # so we can't return any NaN outputs
+            if isinstance(ans, str) and ans == "__no_answer":
+                ans = None
+            return ans
         else:
             return resp
 
@@ -338,10 +360,8 @@ class Oct2Py(object):
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
             self._eval('clear {}'.format(name), log=False, verbose=False)
-            if not args:
-                return self.run(name, **kwargs)
-            else:
-                return self.call(name, *args, **kwargs)
+            kwargs['command'] = True
+            return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
         doc = doc.encode('ascii', 'replace').decode('ascii')
         octave_command.__doc__ = "\n" + doc

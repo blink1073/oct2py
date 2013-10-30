@@ -7,6 +7,7 @@ Release History
 ++++++++++++++++++
 
 - Full support for plotting with no changes to user code
+- Support for Nargout = 0
 - Overhaul of front end documentation
 - Improved test coverage to 96%.
 - Fixed: Allow help(Oct2Py()) and tab completion on REPL
@@ -17,7 +18,7 @@ Release History
 +++++++++++++++++
 
 - Support for Python 3.3
-- Added logging to Oct2Py class with optional logger keyword.
+- Added logging to Oct2Py class with optional logger keyword
 - Added context manager
 - Added support for unicode characters
 - Improved support for cell array and sparse matrices

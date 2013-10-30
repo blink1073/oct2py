@@ -58,10 +58,11 @@ def get_nout():
         except TypeError:
             howmany = ord(chr(bytecode[frame.f_lasti + 4]))
         return howmany
-    elif instruction == dis.opmap['POP_TOP']:
-        # OCTAVE always assumes at least 1 value
+    elif instruction == dis.opmap['STORE_NAME']:
         return 1
-    return 1
+    elif instruction == dis.opmap['RETURN_VALUE']:
+        return 1
+    return 0
 
 
 def create_file():
