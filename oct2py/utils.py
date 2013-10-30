@@ -40,7 +40,7 @@ def get_nout():
     Returns
     =======
     out : int
-        Number of arguments expected by caller, default is 1.
+        Number of arguments expected by caller.
 
     """
     frame = inspect.currentframe()
@@ -58,11 +58,9 @@ def get_nout():
         except TypeError:
             howmany = ord(chr(bytecode[frame.f_lasti + 4]))
         return howmany
-    elif instruction == dis.opmap['STORE_NAME']:
-        return 1
-    elif instruction == dis.opmap['RETURN_VALUE']:
-        return 1
-    return 0
+    elif instruction == dis.opmap['POP_TOP']:
+        return 0
+    return 1
 
 
 def create_file():

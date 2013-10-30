@@ -156,7 +156,7 @@ class Oct2Py(object):
             self._set_graphics_toolkit()
 
         verbose = kwargs.get('verbose', False)
-        nout = kwargs.get('nout', max(get_nout(), 1))
+        nout = kwargs.get('nout', get_nout())
 
         # handle references to script names - and paths to them
         if func.endswith('.m'):
