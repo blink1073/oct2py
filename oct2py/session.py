@@ -185,18 +185,19 @@ class Oct2Py(object):
         else:
             # run foo
             call_line += '{0}'.format(func)
-        # A special command is needed to force the plot to display
-        if func in ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog',
-                    'polar', 'semilogx', 'semilogy', 'stairs', 'gsplot',
-                    'mesh', 'meshdom', 'meshc', 'surf', 'plot3', 'meshz',
-                    'surfc', 'surfl', 'surfnorm', 'diffuse', 'specular',
-                    'ribbon', 'scatter3']:
-            call_line += ";figure(gcf() + 1);"
+        # do not interfere with octavemagic logic
+        if not "DefaultFigureCreateFcn" in call_line:
+            call_line += """
+            for f = __oct2py_figures
+                refresh(f)
+            end
+            global __oct2py_figures = []'
+            """
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
         resp = self._eval(cmd, verbose=verbose)
-
+        
         if nout:
             return self._reader.extract_file(argout_list)
         else:
@@ -341,7 +342,10 @@ class Oct2Py(object):
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
             self._eval('clear {}'.format(name), log=False, verbose=False)
-            return self.call(name, *args, **kwargs)
+            if not args:
+                return self.run(name, **kwargs)
+            else:
+                return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
         doc = doc.encode('ascii', 'replace').decode('ascii')
         octave_command.__doc__ = "\n" + doc
@@ -376,7 +380,7 @@ class Oct2Py(object):
         return doc
 
     def __getattr__(self, attr):
-        """Magically creates a wapper to an Octave function or object.
+        """Automatically creates a wapper to an Octave function or object.
 
         Adapted from the mlabwrap project.
 
@@ -406,6 +410,18 @@ class Oct2Py(object):
             self._eval("graphics_toolkit('gnuplot')", False)
         except Oct2PyError:  # pragma: no cover
             pass  
+        # set up the plot renderer
+        self.run("""
+            global __oct2py_figures = [];
+            page_screen_output(0);
+            
+            function fig_create(src, event)
+              global __oct2py_figures;
+              __oct2py_figures(size(__oct2py_figures) + 1) = src;
+            end
+            
+            set(0, 'DefaultFigureCreateFcn', @fig_create);
+        """)
         self._graphics_toolkit = 'gnuplot'
 
     def restart(self):

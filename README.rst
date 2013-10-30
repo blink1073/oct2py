@@ -38,7 +38,7 @@ Features
 - Supports sparse matrices.
 - Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
 - Nargout is automatically inferred by the number of return variables.
-- Thread-safety - each Oct2Py object uses an independent Octave session.
+- Thread-safety: each Oct2Py object uses an independent Octave session.
 - Can be used as a context manager.
 - Supports unicode characters.
 
