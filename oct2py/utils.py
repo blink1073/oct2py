@@ -40,7 +40,7 @@ def get_nout():
     Returns
     =======
     out : int
-        Number of arguments expected by caller, default is 1.
+        Number of arguments expected by caller.
 
     """
     frame = inspect.currentframe()
@@ -59,8 +59,7 @@ def get_nout():
             howmany = ord(chr(bytecode[frame.f_lasti + 4]))
         return howmany
     elif instruction == dis.opmap['POP_TOP']:
-        # OCTAVE always assumes at least 1 value
-        return 1
+        return 0
     return 1
 
 

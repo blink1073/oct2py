@@ -2,7 +2,7 @@
 """
 DISTNAME = 'oct2py'
 DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
-LONG_DESCRIPTION = open('README.rst').read()  
+LONG_DESCRIPTION = open('README.rst').read()
 LONG_DESCRIPTION += '\n\n' + open('HISTORY.rst').read()
 MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
@@ -68,21 +68,24 @@ class MyBuildDoc(BuildDoc):
         except UnicodeDecodeError:
             print >>sys.stderr, "ERROR: unable to build documentation because Sphinx do not handle source path with non-ASCII characters. Please try to move the source package to another location (path with *only* ASCII characters)."
         sys.path.pop(0)
-        
+
 
 class PyTest(Command):
     user_options = []
+
     def initialize_options(self):
         pass
+
     def finalize_options(self):
         pass
+
     def run(self):
         import sys
         import subprocess
         errno = subprocess.call([sys.executable, 'runtests.py'])
         raise SystemExit(errno)
-        
-        
+
+
 cmdclass= dict(test=PyTest, build_py=build_py)
 if sphinx:
     cmdclass['build_sphinx'] = 'upload_sphinx'

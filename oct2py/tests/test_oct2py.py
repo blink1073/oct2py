@@ -26,7 +26,7 @@ octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
 DATA = octave.test_datatypes()
 
-if sys.version_info[0] == 3:
+if sys.version_info[0] == 3:  # pragma: no cover
     unicode = str
     long = int
     basestring = str
@@ -193,13 +193,7 @@ class RoundtripTest(TestCase):
                 if isinstance(subval1, list):
                     self.nested_equal(subval1, subval2)
                 elif isinstance(subval1, np.ndarray):
-                    try:
-                        np.allclose(subval1, subval2)
-                    except NotImplementedError:
-                        import sys
-                        print >> sys.stderr, '****', subval1, subval1.size
-                        print >> sys.stderr, subval2, subval2.shape
-                        print >> sys.stderr, '******\n'
+                    np.allclose(subval1, subval2)
                 else:
                     self.assertEqual(subval1, subval2)
         elif isinstance(val1, np.ndarray):
@@ -226,22 +220,12 @@ class RoundtripTest(TestCase):
         incoming = octave.roundtrip(outgoing)
         if expected_type is None:
             expected_type = type(outgoing)
-        try:
-            self.nested_equal(incoming, outgoing)
-        except AssertionError:
-            # need to test for NaN explicitly
-            try:
-                if not (np.isnan(outgoing) and np.isnan(incoming)):
-                    raise
-            except (NotImplementedError, TypeError):
-                raise
+        self.nested_equal(incoming, outgoing)
         try:
             self.assertEqual(type(incoming), expected_type)
         except AssertionError:
             if type(incoming) == np.float32 and expected_type == np.float64:
                 pass
-            else:
-                self.assertEqual(type(incoming), expected_type)
 
     def test_int(self):
         """Test roundtrip value and type preservation for integer types
@@ -320,10 +304,7 @@ class BuiltinsTest(TestCase):
 
         """
         if incoming is None:
-            try:
-                incoming = octave.roundtrip(outgoing)
-            except Oct2PyError:
-                raise
+            incoming = octave.roundtrip(outgoing)
         if not expected_type:
             for out_type, _, in_type in TYPE_CONVERSIONS:
                 if out_type == type(outgoing):
@@ -593,10 +574,7 @@ class BasicUsageTest(TestCase):
         """
         octave.put('spam', [1, 2])
         out = octave.get('spam')
-        try:
-            assert np.allclose(out, np.array([1, 2]))
-        except AssertionError:
-            raise
+        assert np.allclose(out, np.array([1, 2]))
         octave.put(['spam', 'eggs'], ['foo', [1, 2, 3, 4]])
         spam, eggs = octave.get(['spam', 'eggs'])
         self.assertEqual(spam, 'foo')
@@ -706,7 +684,7 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 4
+    assert len(lines) == 21
     assert lines[0].startswith('load')
 
     # now make an object with a desired logger
@@ -724,7 +702,7 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 8
+    assert len(lines) == 39
     assert lines[0].startswith('load')
 
 
@@ -783,7 +761,7 @@ def test_using_closed_session():
     assert_raises(Oct2PyError, oc.call, 'ones')
 
     
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
     print('*' * 20)
     run_module_suite()

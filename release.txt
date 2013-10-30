@@ -1,5 +1,5 @@
 Release Checklist:
-- Update CHANGES.txt
+- Update HISTOYR.py
 - Check links in README on github
 - Change VERSION in setup.py
 - Run `make test` and `make coverage` (shoot for >90%)
@@ -7,7 +7,7 @@ Release Checklist:
 - Upload to github
 - Create and upload files and documentation
 - Upload to bitbucket
- First time:
+  First time:
  -- pip install mercurial
  -- pip install hg-git
  -- git clone https://github.com/jelmer/dulwich.git c:\hg-git

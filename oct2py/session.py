@@ -17,6 +17,10 @@ from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
 
 
+if sys.version[0] == '3':
+    unicode = str
+    
+
 class Oct2Py(object):
     """Manages an Octave session.
 
@@ -25,10 +29,6 @@ class Oct2Py(object):
     on Octave's path.
     The first command will take about 0.5s for Octave to load up.
     The subsequent commands will be much faster.
-    Plotting commands within an m-file do not work unless you add this
-    after every plot line::
-
-       ;figure(gcf() + 1);
        
     You may provide a logger object for logging events, or the oct2py.get_log()
     default will be used.  Events will be logged as debug unless verbose is set
@@ -185,20 +185,42 @@ class Oct2Py(object):
         else:
             # run foo
             call_line += '{0}'.format(func)
-        # A special command is needed to force the plot to display
-        if func in ['gplot', 'plot', 'bar', 'contour', 'hist', 'loglog',
-                    'polar', 'semilogx', 'semilogy', 'stairs', 'gsplot',
-                    'mesh', 'meshdom', 'meshc', 'surf', 'plot3', 'meshz',
-                    'surfc', 'surfl', 'surfnorm', 'diffuse', 'specular',
-                    'ribbon', 'scatter3']:
-            call_line += ";figure(gcf() + 1);"
+            
+        pre_call = '\nglobal __oct2py_figures = [];\n'
+        post_call = ''        
+        
+        if not nout and 'command' in kwargs and not '__ipy_figures' in func:
+            if not call_line.endswith(')'):
+                call_line += '();\n'
+            post_call += '''
+            # Save output of the last execution
+                if exist("ans") == 1
+                  _ = ans;
+                else
+                  _ = "__no_answer";
+                end
+            '''
+        
+        # do not interfere with octavemagic logic
+        if not "DefaultFigureCreateFcn" in call_line:
+            post_call += """
+            for f = __oct2py_figures
+                refresh(f);
+            end"""
 
         # create the command and execute in octave
-        cmd = [load_line, call_line, save_line]
+        cmd = [load_line, pre_call, call_line, post_call, save_line]
         resp = self._eval(cmd, verbose=verbose)
-
+        
         if nout:
             return self._reader.extract_file(argout_list)
+        elif 'command' in kwargs:
+            ans = self.get('_')
+            # Unfortunately, Octave doesn't have a "None" object,
+            # so we can't return any NaN outputs
+            if isinstance(ans, (str, unicode)) and ans == "__no_answer":
+                ans = None
+            return ans
         else:
             return resp
 
@@ -341,6 +363,7 @@ class Oct2Py(object):
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
             self._eval('clear {}'.format(name), log=False, verbose=False)
+            kwargs['command'] = True
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
         doc = doc.encode('ascii', 'replace').decode('ascii')
@@ -376,7 +399,7 @@ class Oct2Py(object):
         return doc
 
     def __getattr__(self, attr):
-        """Magically creates a wapper to an Octave function or object.
+        """Automatically creates a wapper to an Octave function or object.
 
         Adapted from the mlabwrap project.
 
@@ -406,6 +429,18 @@ class Oct2Py(object):
             self._eval("graphics_toolkit('gnuplot')", False)
         except Oct2PyError:  # pragma: no cover
             pass  
+        # set up the plot renderer
+        self.run("""
+            global __oct2py_figures = [];
+            page_screen_output(0);
+            
+            function fig_create(src, event)
+              global __oct2py_figures;
+              __oct2py_figures(size(__oct2py_figures) + 1) = src;
+            end
+            
+            set(0, 'DefaultFigureCreateFcn', @fig_create);
+        """)
         self._graphics_toolkit = 'gnuplot'
 
     def restart(self):
