@@ -34,7 +34,7 @@ class ThreadClass(threading.Thread):
         octave.close()
         try:
             assert self.getName() == name
-        except AssertionError:
+        except AssertionError:  # pragma: no cover
             raise Oct2PyError('Thread collision detected')
         return
 
@@ -67,5 +67,5 @@ def thread_test(nthreads=3):
     print('All threads closed at {0}'.format(datetime.datetime.now()))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     thread_test()

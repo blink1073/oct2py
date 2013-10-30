@@ -6,7 +6,7 @@ all:
 
 clean:
 	rm -rf build
-	find . -name "*.so" -o -name "*.pyc" -o -name "*.pyx.md5" | xargs rm -f
+	find . -name "*.pyc" -o -name "*.py,cover"| xargs rm -f
 
 test: 
 	make clean

@@ -67,6 +67,6 @@ test_verbose.__doc__ = test.__doc__
 del functools, imp, os
 try:
     del session, utils
-except NameError:
+except NameError:  # pragma: no cover
     pass
 
