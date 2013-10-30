@@ -6,6 +6,7 @@ Release History
 1.0.1 (2013-10-27)
 ++++++++++++++++++
 
+- Full support for plotting with no changes to user code
 - Overhaul of front end documentation
 - Improved test coverage to 96%.
 - Fixed: Allow help(Oct2Py()) and tab completion on REPL

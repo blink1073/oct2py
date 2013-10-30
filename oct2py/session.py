@@ -25,10 +25,6 @@ class Oct2Py(object):
     on Octave's path.
     The first command will take about 0.5s for Octave to load up.
     The subsequent commands will be much faster.
-    Plotting commands within an m-file do not work unless you add this
-    after every plot line::
-
-       ;figure(gcf() + 1);
        
     You may provide a logger object for logging events, or the oct2py.get_log()
     default will be used.  Events will be logged as debug unless verbose is set
