@@ -596,7 +596,10 @@ class BasicUsageTest(TestCase):
         """
         tests = [octave.zeros, octave.ones, octave.plot]
         for test in tests:
-            self.assertEqual(repr(type(test)), "<type 'function'>")
+            try:
+                self.assertEqual(repr(type(test)), "<type 'function'>")
+            except AssertionError:
+                self.assertEqual(repr(type(test)), "<class 'function'>")
         self.assertRaises(Oct2PyError, octave.__getattr__, 'aaldkfasd')
         self.assertRaises(Oct2PyError, octave.__getattr__, '_foo')
         self.assertRaises(Oct2PyError, octave.__getattr__, 'foo\W')
