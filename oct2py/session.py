@@ -12,11 +12,14 @@ import atexit
 import doctest
 import subprocess
 import sys
-import numpy as np
 from .matwrite import MatWrite
 from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
 
+
+if sys.version[0] == '3':
+    unicode = str
+    
 
 class Oct2Py(object):
     """Manages an Octave session.
@@ -215,7 +218,7 @@ class Oct2Py(object):
             ans = self.get('_')
             # Unfortunately, Octave doesn't have a "None" object,
             # so we can't return any NaN outputs
-            if isinstance(ans, str) and ans == "__no_answer":
+            if isinstance(ans, (str, unicode)) and ans == "__no_answer":
                 ans = None
             return ans
         else:
