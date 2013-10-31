@@ -6,6 +6,7 @@
 
 """
 import time
+from .compat import PY2
 
 
 def demo(delay=2, interactive=True):
@@ -54,8 +55,7 @@ def demo(delay=2, interactive=True):
     print(y.c['d'])
     print(y)
     """
-    import sys
-    if sys.version_info[0] == 3:
+    if not PY2:
         script = script.replace('raw_input', 'input')
 
     print('oct2py demo')

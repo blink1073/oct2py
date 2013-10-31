@@ -10,6 +10,7 @@ import inspect
 import dis
 import tempfile
 import atexit
+from .compat import PY2
 
 
 def _remove_temp_files():
@@ -48,15 +49,11 @@ def get_nout():
     # nout is two frames back
     frame = frame.f_back.f_back
     bytecode = frame.f_code.co_code
-    try:
-        instruction = ord(bytecode[frame.f_lasti + 3])
-    except TypeError:
-        instruction = ord(chr(bytecode[frame.f_lasti + 3]))
+    instruction = bytecode[frame.f_lasti + 3]
+    instruction = ord(instruction) if PY2 else instruction
     if instruction == dis.opmap['UNPACK_SEQUENCE']:
-        try:
-            howmany = ord(bytecode[frame.f_lasti + 4])
-        except TypeError:
-            howmany = ord(chr(bytecode[frame.f_lasti + 4]))
+        howmany = bytecode[frame.f_lasti + 4]
+        howmany = ord(howmany) if PY2 else howmany
         return howmany
     elif instruction == dis.opmap['POP_TOP']:
         return 0

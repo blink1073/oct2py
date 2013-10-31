@@ -15,21 +15,17 @@ float16/96/128 and complex192/256 can be recast as float64 and complex128.
 from __future__ import absolute_import
 import logging
 import os
-import sys
 import numpy as np
-from numpy.testing import *
+import numpy.testing as test
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
+from oct2py.compat import unicode, long, basestring
 
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
 DATA = octave.test_datatypes()
 
-if sys.version_info[0] == 3:  # pragma: no cover
-    unicode = str
-    long = int
-    basestring = str
 
 TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (long, 'int64', np.int64),
@@ -57,7 +53,7 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.complex128, 'double', np.complex128), ]
 
 
-class TypeConversions(TestCase):
+class TypeConversions(test.TestCase):
     """Test roundtrip datatypes starting from Python
     """
 
@@ -89,7 +85,7 @@ class TypeConversions(TestCase):
                     assert in_type(incoming) == incoming
 
 
-class IncomingTest(TestCase):
+class IncomingTest(test.TestCase):
     """Test the importing of all Octave data types, checking their type
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -177,7 +173,7 @@ class IncomingTest(TestCase):
         self.helper(DATA.mixed, keys, types)
 
 
-class RoundtripTest(TestCase):
+class RoundtripTest(test.TestCase):
     """Test roundtrip value and type preservation between Python and Octave.
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -284,7 +280,7 @@ class RoundtripTest(TestCase):
                 assert ret == 'ans =  1'
 
 
-class BuiltinsTest(TestCase):
+class BuiltinsTest(test.TestCase):
     """Test the exporting of standard Python data types, checking their type.
 
     Runs roundtrip.m and tests the types of all the values to make sure they
@@ -413,7 +409,7 @@ class BuiltinsTest(TestCase):
         assert np.isnan(incoming)
 
 
-class NumpyTest(TestCase):
+class NumpyTest(test.TestCase):
     """Check value and type preservation of Numpy arrays
     """
     codes = np.typecodes['All']
@@ -532,7 +528,7 @@ class NumpyTest(TestCase):
         assert type_ == 'double'
 
 
-class BasicUsageTest(TestCase):
+class BasicUsageTest(test.TestCase):
     """Excercise the basic interface of the package
     """
     def test_run(self):
@@ -758,10 +754,10 @@ def test_trailing_underscore():
 def test_using_closed_session():
     oc = Oct2Py()
     oc.close()
-    assert_raises(Oct2PyError, oc.call, 'ones')
+    test.assert_raises(Oct2PyError, oc.call, 'ones')
 
     
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
     print('*' * 20)
-    run_module_suite()
+    test.run_module_suite()

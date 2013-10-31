@@ -12,6 +12,7 @@ from scipy.io import savemat
 import numpy as np
 from scipy.sparse import csr_matrix, csc_matrix
 from .utils import Oct2PyError, create_file
+from .compat import unicode
 
 
 class MatWrite(object):
@@ -147,8 +148,7 @@ def putval(data):
                 else:
                     out.append(el)
             return out
-    if (isinstance(data, str) or
-       (sys.version.startswith('2') and isinstance(data, unicode))):
+    if isinstance(data, (str, unicode)):
         return data
     if isinstance(data, (csr_matrix, csc_matrix)):
         return data.astype(np.float64)
