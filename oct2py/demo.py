@@ -5,6 +5,7 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
+from __future__ import print_function
 import time
 from .compat import PY2
 

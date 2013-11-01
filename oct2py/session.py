@@ -15,11 +15,8 @@ import sys
 from .matwrite import MatWrite
 from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
+from .compat import unicode
 
-
-if sys.version[0] == '3':
-    unicode = str
-    
 
 class Oct2Py(object):
     """Manages an Octave session.

@@ -6,6 +6,7 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
+from __future__ import print_function
 import threading
 import datetime
 from .session import Oct2Py, Oct2PyError

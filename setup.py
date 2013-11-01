@@ -29,12 +29,7 @@ import sys
 import os
 from distutils.core import setup, Command
 from distutils.command.build import build
-try:
-    from distutils.command.build_py import build_py_2to3 as build_py
-    print('Porting to Python 3...')
-except ImportError:
-    # 2.x
-    from distutils.command.build_py import build_py
+from distutils.command.build_py import build_py
 
 try:
     from sphinx.setup_command import BuildDoc
@@ -61,7 +56,7 @@ class MyBuildDoc(BuildDoc):
     def run(self):
         build = self.get_finalized_command('build')
         sys.path.insert(0, os.path.abspath(build.build_lib))
-        self.builder_target_dir = 'build/doc/{0}/doc'.format(DISTNAME)
+        self.builder_target_dir = 'build/docs/{0}/docs'.format(DISTNAME)
         BuildDoc.user_options
         try:
             BuildDoc.run(self)

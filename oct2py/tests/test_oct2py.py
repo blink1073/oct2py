@@ -12,7 +12,7 @@ float16/96/128 and complex192/256 can be recast as float64 and complex128.
    ** complex256
    ** read-write buffer('V')
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 import logging
 import os
 import numpy as np
@@ -20,7 +20,8 @@ import numpy.testing as test
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
-from oct2py.compat import unicode, long, basestring
+from oct2py.compat import unicode, long, PY2
+
 
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
@@ -194,7 +195,7 @@ class RoundtripTest(test.TestCase):
                     self.assertEqual(subval1, subval2)
         elif isinstance(val1, np.ndarray):
             np.allclose(val1, np.array(val2))
-        elif isinstance(val1, basestring):
+        elif isinstance(val1, (str, unicode)):
             self.assertEqual(val1, val2)
         else:
             try:
@@ -659,9 +660,9 @@ def test_singleton_sparses():
 def test_logging():
     # create a stringio and a handler to log to it
     def get_handler():
-        try:
+        if PY2:
             from StringIO import StringIO
-        except ImportError:
+        else:
             from io import StringIO
         sobj = StringIO()
         hdlr = logging.StreamHandler(sobj)
