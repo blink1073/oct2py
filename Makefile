@@ -10,8 +10,8 @@ clean:
 
 test: 
 	make clean
-	python setup.py test
-	c:\Python33\python setup.py test
+	python runtests.py
+	c:\Python33\python runtests.py
 	iptest IPython.extensions.tests.test_octavemagic
 	python setup.py check -r
 	

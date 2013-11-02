@@ -6,4 +6,5 @@ Oct2Py Code
    :members: Oct2Py
 
 .. automodule:: oct2py.utils
-   :members: Oct2PyError, Struct, get_log
+   :members: Oct2PyError, get_log, Struct
+
