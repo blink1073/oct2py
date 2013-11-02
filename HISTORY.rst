@@ -9,7 +9,8 @@ Release History
 - Full support for plotting with no changes to user code
 - Support for Nargout = 0
 - Overhaul of front end documentation
-- Improved test coverage to 96%.
+- Improved test coverage and added badge.
+- Supports Python 2 and 3 from a single code base.
 - Fixed: Allow help(Oct2Py()) and tab completion on REPL
 - Fixed: Allow tab completion for Oct2Py().<TAB> in REPL
 

@@ -182,8 +182,7 @@ def str_in_list(list_):
     '''See if there are any strings in the given list
     '''
     for item in list_:
-        if (isinstance(item, str) or
-           (sys.version.startswith('2') and isinstance(item, unicode))):
+        if isinstance(item, (str, unicode)):
             return True
         elif isinstance(item, list):
             if str_in_list(item):
