@@ -6,4 +6,4 @@ MANIFEST
 oct2py.egg-info/*
 build/*
 dist/*
-oct2py/version.py
+docs/build/*
