@@ -15,7 +15,7 @@ Oct2py is a means to seemlessly call m-files and Octave functions from python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
-.. code-block:: pycon
+..
 
     >>> oc = oct2py.Oct2Py() 
     >>> x = oc.zeros(3,3)
@@ -25,7 +25,7 @@ MAT files.  Usage is as simple as:
      [ 0.  0.  0.]] float64
     ...
 
-If you want to run legacy m-files, do not have MATLABÂ®, and do not fully
+If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.  
 
 
@@ -46,19 +46,19 @@ Features
 Installation
 ------------
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from SourceForge_.
+way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_..
 On Linux, it should be available from your package manager.
 Additionally, you must have the numpy and scipy libraries installed.
 
 To install Oct2py, simply:
 
-.. code-block:: bash
+..
 
     $ pip install oct2py
 
 Or, if you absolutely must:
 
-.. code-block:: bash
+..
 
     $ easy_install oct2py
 
@@ -67,6 +67,3 @@ Documentation
 -------------
 
 Documentation is available at http://pythonhosted.org/oct2py/.
-
-
-.. _SourceForge: sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>
