@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-1.0.1 (2013-10-27)
+1.1.0 (2013-10-27)
 ++++++++++++++++++
 
 - Full support for plotting with no changes to user code
