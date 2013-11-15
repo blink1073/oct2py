@@ -39,8 +39,10 @@ from .speed_check import speed_test
 from .thread_check import thread_test
 
 
-octave = Oct2Py()
-
+try:
+    octave = Oct2Py()
+except Oct2PyError as e:
+    print(e)
 
 # clean up namespace
 del functools, imp, os
