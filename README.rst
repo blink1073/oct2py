@@ -25,7 +25,7 @@ MAT files.  Usage is as simple as:
      [ 0.  0.  0.]] float64
     ...
 
-If you want to run legacy m-files, do not have MATLAB®, and do not fully
+If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.  
 
 
