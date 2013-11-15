@@ -20,7 +20,7 @@ trust a code translator, this is your library.
 
 
 __title__ = 'oct2py'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2013 Steven Silvester'
@@ -39,8 +39,10 @@ from .speed_check import speed_test
 from .thread_check import thread_test
 
 
-octave = Oct2Py()
-
+try:
+    octave = Oct2Py()
+except Oct2PyError as e:
+    print(e)
 
 # clean up namespace
 del functools, imp, os

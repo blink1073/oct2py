@@ -11,7 +11,6 @@ clean:
 test: 
 	make clean
 	python runtests.py
-	c:\Python33\python runtests.py
 	iptest IPython.extensions.tests.test_octavemagic
 	python setup.py check -r
 	
