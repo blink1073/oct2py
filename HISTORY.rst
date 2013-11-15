@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+1.1.1 (2013-11-14)
+++++++++++++++++++
+- Added support for wheels.
+- Fixed: Put docs back in the manifest.
+- Fixed: Oct2py will install when there is no Octave available.
+
 1.1.0 (2013-10-27)
 ++++++++++++++++++
 
