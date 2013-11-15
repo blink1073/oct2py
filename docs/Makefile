@@ -9,7 +9,7 @@ PAPER         =
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d _build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+ALLSPHINXOPTS   = -d build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 .PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes linkcheck doctest
 
@@ -30,9 +30,9 @@ clean:
 	-rm -rf _build/*
 
 html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) _build/html
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html
 	@echo
-	@echo "Build finished. The HTML pages are in _build/html."
+	@echo "Build finished. The HTML pages are in build/html."
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) _build/dirhtml

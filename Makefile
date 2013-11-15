@@ -27,8 +27,11 @@ release:
 	python setup.py bdist_wininst --target-version=2.7 upload
 	python setup.py bdist_wininst --target-version=3.2 upload
 	python setup.py bdist_wininst --target-version=3.3 upload
+	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload
-	python setup.py build_sphinx
+	pushd docs
+	make html
+	popd
 	python setup.py upload_sphinx
 	echo "Make sure to tag the branch"
 	echo "Make sure to push to hg"
