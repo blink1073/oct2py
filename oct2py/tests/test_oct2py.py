@@ -17,6 +17,8 @@ import logging
 import os
 import numpy as np
 import numpy.testing as test
+import pickle
+
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
@@ -621,6 +623,13 @@ class BasicUsageTest(test.TestCase):
         test.eggs.spam = 'eggs'
         self.assertEqual(test['spam'], 'eggs')
         self.assertEqual(test['eggs']['spam'], 'eggs')
+        test["foo"]["bar"] = 10
+        self.assertEqual(test.foo.bar, 10)
+        p = pickle.dumps(test)
+        test2 = pickle.load(p)
+        self.assertEqual(test2['spam'], 'eggs')
+        self.assertEqual(test2['eggs']['spam'], 'eggs')
+        self.assertEqual(test2.foo.bar, 10)
 
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError

@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+1.2.0
+++++++++++++++++++
+- Enhanced Struct behavior - supports REPL completion and pickling
+
 1.1.1 (2013-11-14)
 ++++++++++++++++++
 - Added support for wheels.

@@ -84,7 +84,8 @@ class Struct(dict):
     """
     Octave style struct, enhanced.
 
-    Supports dictionary and attribute style access.
+    Supports dictionary and attribute style access.  Can be pickled,
+    and supports code completion in a REPL.
 
     Examples
     ========
@@ -97,14 +98,30 @@ class Struct(dict):
 
     """
     def __getattr__(self, attr):
+        """Access the dictionary keys for unknown attributes."""
         try:
             return self[attr]
         except KeyError:
-            if not attr.startswith('_'):
-                self[attr] = Struct()
-                return self[attr]
+            msg = "'Struct' object has no attribute %s" % attr
+            raise AttributeError(msg)
+
+    def __getitem__(self, attr):
+        """
+        Get a dict value, or create a Struct.
+
+        Do not create a key if the attribute starts with an underscore.
+        """
+        if not attr in self.keys() and not attr.startswith('_'):
+            dict.__setitem__(self, attr, Struct())
+        return dict.__getitem__(self, attr)
+
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
+
+    @property
+    def __dict__(self):
+        """Allow for code completion in a REPL"""
+        return self.copy()
 
 
 def get_log(name=None):
