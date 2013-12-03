@@ -626,7 +626,7 @@ class BasicUsageTest(test.TestCase):
         test["foo"]["bar"] = 10
         self.assertEqual(test.foo.bar, 10)
         p = pickle.dumps(test)
-        test2 = pickle.load(p)
+        test2 = pickle.loads(p)
         self.assertEqual(test2['spam'], 'eggs')
         self.assertEqual(test2['eggs']['spam'], 'eggs')
         self.assertEqual(test2.foo.bar, 10)
