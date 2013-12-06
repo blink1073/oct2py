@@ -1,7 +1,8 @@
 """Tests for Octave magics extension."""
 
-import nose.tools as nt
+import unittest
 from IPython.testing.globalipapp import get_ipython
+import sys
 
 try:
     import oct2py
@@ -11,77 +12,74 @@ try:
 except Exception as e:
     __test__ = False
 
-global octave
 
-def setup():
-    ip = get_ipython()
+class OctaveMagicTest(unittest.TestCase):
     
-    ip.magic('load_ext oct2py.ipython')
-    global octave
+    @classmethod
+    def setUpClass(cls):
+        '''Set up an IPython session just once.
+        It'd be safer to set it up for each test, but for now, I'm mimicking the
+        IPython team's logic.
+        '''
+        cls.ip = get_ipython()
+        # This is just to get a minimally modified version of the changes
+        # working
+        cls.ip.magic('load_ext oct2py.ipython')
+        cls.ip.ex('import numpy as np')
+        cls.svgs_generated = 0
 
-    octave = octavemagic.OctaveMagics(ip)
-    #ip.register_magics(octave)
-
-    ip.ex('import numpy as np')
-
-def test_octave_inline():
-    ip = get_ipython()
-    result = ip.run_line_magic('octave', '[1, 2, 3] + 1;')
-    npt.assert_array_equal(result, [[2, 3, 4]])
-
-def test_octave_roundtrip():
-    ip = get_ipython()
-    ip.ex('x = np.arange(3); y = 4.5')
-    ip.run_line_magic('octave_push', 'x y')
-    ip.run_line_magic('octave', 'x = x + 1; y = y + 1;')
-    ip.run_line_magic('octave_pull', 'x y')
-
-    npt.assert_array_equal(ip.user_ns['x'], [[1, 2, 3]])
-    nt.assert_equal(ip.user_ns['y'], 5.5)
-
-def test_octave_cell_magic():
-    ip = get_ipython()
-    ip.ex('x = 3; y = [1, 2]')
-    ip.run_cell_magic('octave', '-f png -s 400,400 -i x,y -o z',
-                      'z = x + y;')
-    npt.assert_array_equal(ip.user_ns['z'], [[4, 5]])
-
-
-def verify_publish_data(source, data):
-    if 'image/svg+xml' in data:
-        svg = data['image/svg+xml']
-        assert 'height="500px"' in svg
-        assert 'width="400px"' in svg
-
-        test_octave_plot.svgs_generated += 1
-
-def test_octave_plot():
-    octave._publish_display_data = verify_publish_data
-    test_octave_plot.svgs_generated = 0
-
-    ip = get_ipython()
-    ip.run_cell_magic('octave', '-f svg -s 400,500',
-                      'plot([1, 2, 3]); figure; plot([4, 5, 6]);')
-
-    nt.assert_equal(test_octave_plot.svgs_generated, 2)
-
-def test_octavemagic_localscope():
-    ip = get_ipython()
-    ip.magic('load_ext octavemagic')
-    ip.push({'x':0})
-    ip.run_line_magic('octave', '-i x -o result result = x+1')
-    result = ip.user_ns['result']
-    nt.assert_equal(result, 1)
-
-    ip.run_cell('''def octavemagic_addone(u):
-    %octave -i u -o result result = u+1
-    return result''')
-    ip.run_cell('result = octavemagic_addone(1)')
-    result = ip.user_ns['result']
-    nt.assert_equal(result, 2)
-
-    nt.assert_raises(
-        KeyError,
-        ip.run_line_magic,
-        "octave",
-        "-i var_not_defined 1+1")
+    def test_octave_inline(self):
+        result = self.ip.run_line_magic('octave', '[1, 2, 3] + 1;')
+        npt.assert_array_equal(result, [[2, 3, 4]])
+    
+    def test_octave_roundtrip(self):
+        ip = self.ip
+        ip.ex('x = np.arange(3); y = 4.5')
+        ip.run_line_magic('octave_push', 'x y')
+        ip.run_line_magic('octave', 'x = x + 1; y = y + 1;')
+        ip.run_line_magic('octave_pull', 'x y')
+    
+        npt.assert_array_equal(ip.user_ns['x'], [[1, 2, 3]])
+        npt.assert_equal(ip.user_ns['y'], 5.5)
+    
+    def test_octave_cell_magic(self):
+        ip = self.ip
+        ip.ex('x = 3; y = [1, 2]')
+        ip.run_cell_magic('octave', '-f png -s 400,400 -i x,y -o z',
+                          'z = x + y;')
+        npt.assert_array_equal(ip.user_ns['z'], [[4, 5]])
+    
+    def test_octave_plot(self):
+        magic = self.ip.find_cell_magic('octave').im_self
+        magic._publish_display_data = self.verify_publish_data
+        self.ip.run_cell_magic('octave', '-f svg -s 400,500',
+                          'plot([1, 2, 3]); figure; plot([4, 5, 6]);')
+        npt.assert_equal(self.svgs_generated, 2)
+        
+    def verify_publish_data(self, source, data):
+        if 'image/svg+xml' in data:
+            svg = data['image/svg+xml']
+            assert 'height="500px"' in svg
+            assert 'width="400px"' in svg
+    
+            self.svgs_generated += 1
+        
+    def test_octavemagic_localscope(self):
+        ip = self.ip
+        ip.push({'x':0})
+        ip.run_line_magic('octave', '-i x -o result result = x+1')
+        result = ip.user_ns['result']
+        npt.assert_equal(result, 1)
+    
+        ip.run_cell('''def octavemagic_addone(u):
+        %octave -i u -o result result = u+1
+        return result''')
+        ip.run_cell('result = octavemagic_addone(1)')
+        result = ip.user_ns['result']
+        npt.assert_equal(result, 2)
+    
+        npt.assert_raises(
+            KeyError,
+            ip.run_line_magic,
+            "octave",
+            "-i var_not_defined 1+1")
