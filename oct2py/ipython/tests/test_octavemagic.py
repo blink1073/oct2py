@@ -1,13 +1,13 @@
 """Tests for Octave magics extension."""
 
 import nose.tools as nt
+from IPython.testing.globalipapp import get_ipython
 
 try:
     import oct2py
     import numpy as np
     import numpy.testing as npt
-
-    from IPython.extensions import octavemagic
+    from oct2py.ipython import octavemagic
 except Exception as e:
     __test__ = False
 
@@ -15,10 +15,12 @@ global octave
 
 def setup():
     ip = get_ipython()
+    
+    ip.magic('load_ext oct2py.ipython')
     global octave
 
     octave = octavemagic.OctaveMagics(ip)
-    ip.register_magics(octave)
+    #ip.register_magics(octave)
 
     ip.ex('import numpy as np')
 
