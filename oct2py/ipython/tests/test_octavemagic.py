@@ -1,8 +1,8 @@
 """Tests for Octave magics extension."""
 
 import unittest
-from IPython.testing.globalipapp import get_ipython
 import sys
+from IPython.testing.globalipapp import get_ipython
 
 try:
     import oct2py
@@ -21,6 +21,7 @@ class OctaveMagicTest(unittest.TestCase):
         It'd be safer to set it up for each test, but for now, I'm mimicking the
         IPython team's logic.
         '''
+        sys.stdin.encoding = 'utf-8'  # needed for py.test
         cls.ip = get_ipython()
         # This is just to get a minimally modified version of the changes
         # working
