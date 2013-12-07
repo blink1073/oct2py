@@ -32,6 +32,7 @@ before_install:
     - sudo apt-get update
     - sudo apt-get install $PYTHON-numpy
     - sudo apt-get install $PYTHON-scipy
+    - sudo apt-get install -qq octave
     
     - if [[ $PYVER == '2.x' ]]; then
     -   sudo apt-get install ipython
