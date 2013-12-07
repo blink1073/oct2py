@@ -15,7 +15,7 @@ install:
   - pip install coveralls --use-mirrors
   - pip install pytest --use-mirrors
   - "if [[ $PY == '2.7' ]]; then pip install ipython[test]; fi"
-  - "if [[ $PY == '3.3' ]]; then pip-3.3 install ipython[test]; fi"
+  - "if [[ $PY == '3.2' ]]; then pip-3.3 install ipython[test]; fi"
 script:
   - PY=%TRAVIS_PYTHON_VERSION
   - coverage run --source oct2py -m py.test -v
