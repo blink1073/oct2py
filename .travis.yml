@@ -12,7 +12,7 @@ before_install:
   - "if [[ $PY == '3.2' ]]; then sudo apt-get install -qq python3-numpy python3-scipy ipython3; fi"
   - sudo apt-get install -qq octave
 install:
-  - "if [[ $PY == '2.7' ]]; pip install coveralls  pytest --use-mirrors; fi"
+  - "if [[ $PY == '2.7' ]]; then pip install coveralls  pytest --use-mirrors; fi"
 script:
   - PY=%TRAVIS_PYTHON_VERSION
   - "if [[ $PY == '2.7' ]]; then coverage run --source oct2py -m py.test -v; fi;"
