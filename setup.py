@@ -2,7 +2,7 @@
 """
 DISTNAME = 'oct2py'
 DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
-LONG_DESCRIPTION = open('README.rst').read().decode('utf-8')
+LONG_DESCRIPTION = open('README.rst', 'rb').read().decode('utf-8')
 LONG_DESCRIPTION += '\n\n' + open('HISTORY.rst').read()
 MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
