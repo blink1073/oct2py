@@ -15,7 +15,7 @@ test:
 	
 cover: 
 	make clean
-	coverage run --source oct2py -m py.test -v
+	coverage run --source oct2py -m py.test -v -s
 	coverage report
 
 release:
