@@ -6,17 +6,26 @@ all:
 
 clean:
 	rm -rf build
+	rm -rf dist
 	find . -name "*.pyc" -o -name "*.py,cover"| xargs rm -f
 
 test: 
 	make clean
-	python runtests.py
+	python setup.py build
+	cd build
+	nosetests --exe -v --with-doctest 
+	cd ..
+	rm -rf build	
 	python setup.py check -r
 	
 cover: 
 	make clean
-	coverage run --source oct2py -m py.test -v
-	coverage report
+	pip install nose-cov
+	python setup.py build
+	cd build
+	nosetests --exe --with-cov --cov oct2py --cov-config ../.coveragerc oct2py
+	cd ..
+	rm -rf build
 
 release:
 	make clean
