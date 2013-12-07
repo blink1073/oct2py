@@ -51,7 +51,7 @@ class OctaveMagicTest(unittest.TestCase):
         npt.assert_array_equal(ip.user_ns['z'], [[4, 5]])
     
     def test_octave_plot(self):
-        magic = self.ip.find_cell_magic('octave').im_self
+        magic = self.ip.find_cell_magic('octave').__self__
         magic._publish_display_data = self.verify_publish_data
         self.ip.run_cell_magic('octave', '-f svg -s 400,500',
                           'plot([1, 2, 3]); figure; plot([4, 5, 6]);')
