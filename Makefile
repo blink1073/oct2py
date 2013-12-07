@@ -21,11 +21,8 @@ test:
 cover: 
 	make clean
 	pip install nose-cov
-	python setup.py build
-	cd build
-	nosetests --exe --with-cov --cov oct2py --cov-config ../.coveragerc oct2py
-	cd ..
-	rm -rf build
+	nosetests --exe --with-cov --cov oct2py --cov-config .coveragerc oct2py
+	coverage annotate
 
 release:
 	make clean
