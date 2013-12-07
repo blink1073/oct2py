@@ -48,7 +48,7 @@ script:
     -     nosetests --exe -v --with-doctest --with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
     - fi
     - if [[ $PYVER == '3.x' ]]; then
-    -     nosetests --exe -v ---with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
+    -     nosetests --exe -v --with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
     - fi
     
 
