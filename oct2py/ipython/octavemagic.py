@@ -326,12 +326,15 @@ class OctaveMagics(Magics):
             text_output = self._oct.run(code, verbose=False)
         except (oct2py.Oct2PyError) as exception:
             msg = exception.message
+            if 'Octave Syntax Error' in msg:
+                raise OctaveMagicError('Octave could not complete execution.  '
+                                   'Traceback (currently broken in oct2py): %s'
+                                   % msg)
             msg = msg.split('# ___<end_pre_call>___ #')[1]
             msg = msg.split('# ___<start_post_call>___ #')[0]
             raise OctaveMagicError('Octave could not complete execution.  '
                                    'Traceback (currently broken in oct2py): %s'
                                    % msg)
-
         key = 'OctaveMagic.Octave'
         display_data = []
 
