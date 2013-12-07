@@ -4,15 +4,15 @@ Oct2py is a means to seemlessly call m-files and Octave functions from python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
-.. code-block:: pycon
+.. code-block:: python
 
+    >>> import oct2py
     >>> oc = oct2py.Oct2Py() 
     >>> x = oc.zeros(3,3)
     >>> print x, x.dtype
     [[ 0.  0.  0.]
      [ 0.  0.  0.]
      [ 0.  0.  0.]] float64
-    ...
 
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.  
