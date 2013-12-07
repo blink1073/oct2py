@@ -639,6 +639,11 @@ class BasicUsageTest(test.TestCase):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
 
+    def test_octave_error(self):
+        oc = Oct2Py()
+        self.assertRaises(Oct2PyError, oc.run, 'a = ones2(1)')
+
+
 def test_unicode_docstring():
     '''Make sure unicode docstrings in Octave functions work'''
     help(octave.test_datatypes)
