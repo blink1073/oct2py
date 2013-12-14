@@ -26,7 +26,7 @@ To run interactively::
     >>> oc.plot([1,2,3],'-o')
     Press Enter to continue...
 
-.. image:: plot.png
+.. image:: _static/plot.png
 
 ::
 
@@ -34,7 +34,7 @@ To run interactively::
    >>> oc.surf(np.subtract.outer(np.sin(xx), np.cos(xx)))
    Press Enter to continue...
 
-.. image:: surf.png
+.. image:: _static/surf.png
 
 ::
 
