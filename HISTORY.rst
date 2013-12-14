@@ -5,7 +5,9 @@ Release History
 
 1.2.0
 ++++++++++++++++++
+- OctaveMagic is now part of Oct2Py: ``%load_ext oct2py.ipython``
 - Enhanced Struct behavior - supports REPL completion and pickling
+- Fixed: Oct2Py will install on Python3 when using setup.py
 
 1.1.1 (2013-11-14)
 ++++++++++++++++++

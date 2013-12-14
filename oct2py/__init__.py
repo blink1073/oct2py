@@ -14,13 +14,13 @@ MAT files.  Usage is as simple as:
      [ 0.  0.  0.]
      [ 0.  0.  0.]] float64
 
-If you want to run legacy m-files, do not have MATLAB®, and do not fully
+If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.  
 """
 
 
 __title__ = 'oct2py'
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2013 Steven Silvester'
