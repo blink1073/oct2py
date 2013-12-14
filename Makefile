@@ -52,7 +52,7 @@ gh-pages:
 	mv ../temp_docs/html ../temp_docs/docs
 	git checkout gh-pages
 	rm -rf docs
-	cp -R ../enaml_docs/docs/ .
+	cp -R ../temp_docs/docs/ .
 	git add .
 	git commit -m "rebuild docs"
 	git push upstream-rw gh-pages
