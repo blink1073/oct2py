@@ -9,7 +9,6 @@
    source/installation
    source/demo
    source/examples
-   source/octavemagic
    source/conversions
    source/api
 
@@ -28,10 +27,6 @@ How to install Oct2Py.
 
 Introductory examples.
        
-`OctaveMagic <source/octavemagic.html>`_
-------------------------------------------------
-   
-Demonstration of the Octave Magic for IPython.
        
 `Conversions <source/conversions.html>`_
 ------------------------------------------------

@@ -14,7 +14,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Oct2Py: Python to GNU Octave Bridge &mdash; Oct2Py 1.1.1 documentation</title>
+    <title>Oct2Py: Python to GNU Octave Bridge &mdash; Oct2Py 1.2.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.1.1',
+        VERSION:     '1.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -37,7 +37,7 @@
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.1.1 documentation" href="#" />
+    <link rel="top" title="Oct2Py 1.2.0 documentation" href="#" />
     <link rel="next" title="Installation" href="source/installation.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -66,7 +66,7 @@
           <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href="#">Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.1.1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.2.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -99,8 +99,7 @@
 <li><a class="reference internal" href="#id1">API Reference</a></li>
 <li><a class="reference internal" href="#id2">Installation</a></li>
 <li><a class="reference internal" href="#id3">Examples</a></li>
-<li><a class="reference internal" href="#id4">OctaveMagic</a></li>
-<li><a class="reference internal" href="#id5">Conversions</a></li>
+<li><a class="reference internal" href="#id4">Conversions</a></li>
 </ul>
 </li>
 </ul>
@@ -151,8 +150,7 @@
 <li><a class="reference internal" href="#id1">API Reference</a></li>
 <li><a class="reference internal" href="#id2">Installation</a></li>
 <li><a class="reference internal" href="#id3">Examples</a></li>
-<li><a class="reference internal" href="#id4">OctaveMagic</a></li>
-<li><a class="reference internal" href="#id5">Conversions</a></li>
+<li><a class="reference internal" href="#id4">Conversions</a></li>
 </ul>
 </li>
 </ul>
@@ -166,7 +164,7 @@
 <a class="reference external image-reference" href="http://badge.fury.io/py/oct2py"><img alt="https://badge.fury.io/py/oct2py.png/" src="https://badge.fury.io/py/oct2py.png/" /></a>
 <a class="reference external image-reference" href="https://crate.io/packages/oct2py/"><img alt="https://pypip.in/d/oct2py/badge.png" src="https://pypip.in/d/oct2py/badge.png" /></a>
 <a class="reference external image-reference" href="https://coveralls.io/r/blink1073/oct2py"><img alt="https://coveralls.io/repos/blink1073/oct2py/badge.png?branch=master" src="https://coveralls.io/repos/blink1073/oct2py/badge.png?branch=master" /></a>
-<p>Oct2Py is a means to seemlessly call M-files and Octave functions from Python.
+<p>Oct2Py is a means to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span> <span class="o">=</span> <span class="n">oct2py</span><span class="o">.</span><span class="n">Oct2Py</span><span class="p">()</span>
@@ -184,7 +182,7 @@ trust a code translator, this is your library.</p>
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Supports all Octave datatypes and most Python datatypes and Numpy dtypes.</li>
-<li>Provides %octavemagic% for IPython, including inline plotting in notebooks.</li>
+<li>Provides %octavemagic_% for IPython, including inline plotting in notebooks.</li>
 <li>Supports cell arrays and structs with arbitrary nesting.</li>
 <li>Supports sparse matrices.</li>
 <li>Builds methods on the fly linked to Octave commands (e.g. <cite>zeros</cite> above).</li>
@@ -209,11 +207,7 @@ trust a code translator, this is your library.</p>
 <p>Introductory examples.</p>
 </div>
 <div class="section" id="id4">
-<h2><a class="reference external" href="source/octavemagic.html">OctaveMagic</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
-<p>Demonstration of the Octave Magic for IPython.</p>
-</div>
-<div class="section" id="id5">
-<h2><a class="reference external" href="source/conversions.html">Conversions</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<h2><a class="reference external" href="source/conversions.html">Conversions</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py data type conversions.</p>
 </div>
 </div>
