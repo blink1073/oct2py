@@ -504,6 +504,10 @@ class _Session(object):
                  'end', '']
         eval_ = '\n'.join(lines).encode('utf-8')
         self.proc.stdin.write(eval_)
+        if len(cmds) == 5:
+            main_line = cmds[2].strip()
+        else:
+            main_line = '\n'.join(cmds)
         try:
             self.proc.stdin.flush()
         except OSError:  # pragma: no cover
@@ -515,7 +519,7 @@ class _Session(object):
                 break
             elif line == '\x15':
                 msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
-                       .format(cmds[2].strip(), '\n'.join(resp)))
+                       .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
             if "syntax error" in line:
                 syntax_error = True
