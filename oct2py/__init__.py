@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Oct2py is a means to seemlessly call m-files and Octave functions from python.
+Oct2Py is a means to seamlessly call M-files and GNU Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 

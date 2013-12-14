@@ -514,8 +514,8 @@ class _Session(object):
             if line == '\x03':
                 break
             elif line == '\x15':
-                msg = ('Tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
-                       .format('\n'.join(cmds), '\n'.join(resp)))
+                msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
+                       .format(cmds[2].strip(), '\n'.join(resp)))
                 raise Oct2PyError(msg)
             if "syntax error" in line:
                 syntax_error = True

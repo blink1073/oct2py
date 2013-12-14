@@ -1,4 +1,4 @@
-Oct2py: Python to GNU Octave Bridge
+Oct2Py: Python to GNU Octave Bridge
 ===================================
 
 .. image:: https://badge.fury.io/py/oct2py.png/
@@ -11,7 +11,7 @@ Oct2py: Python to GNU Octave Bridge
   :target: https://coveralls.io/r/blink1073/oct2py
 
 
-Oct2py is a means to seemlessly call m-files and Octave functions from Python.
+Oct2Py is a means to seemlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
@@ -46,11 +46,11 @@ Features
 Installation
 ------------
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_..
+way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
 On Linux, it should be available from your package manager.
 Additionally, you must have the numpy and scipy libraries installed.
 
-To install Oct2py, simply:
+To install Oct2Py, simply:
 
 .. code-block:: bash
 
@@ -66,4 +66,8 @@ Or, if you absolutely must:
 Documentation
 -------------
 
-Documentation is available at http://pythonhosted.org/oct2py/.
+Documentation is available online_.
+
+For version information, see `the Revision History <https://github.com/blink1073/oct2py/blob/master/history.rst>`_.
+
+.. _online: http://blink1073.github.io/oct2py/docs/

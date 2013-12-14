@@ -101,6 +101,8 @@ def get_data(val):
             val = val[0]
             if "'|O" in str(val.dtype) or "O'" in str(val.dtype):
                 val = get_data(val)
+            if isinstance(val, Struct):
+                return val
             if val.size == 1:
                 val = val.flatten()
     if val.dtype == np.object:
@@ -134,7 +136,4 @@ def get_data(val):
     elif val.size == 1:
         if hasattr(val, 'flatten'):
             val = val.flatten()[0]
-    if isinstance(val, Struct) and isinstance(val.size, Struct):
-        del val['size']
-        del val['dtype']
     return val

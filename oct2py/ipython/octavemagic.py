@@ -43,6 +43,7 @@ import tempfile
 from glob import glob
 from shutil import rmtree
 import sys
+import re
 
 import numpy as np
 import oct2py
@@ -66,6 +67,8 @@ _mimetypes = {'png' : 'image/png',
              'jpg' : 'image/jpeg',
               'jpeg': 'image/jpeg'}
 
+PROCESS = None
+
 @magics_class
 class OctaveMagics(Magics):
     """A set of magics useful for interactive work with Octave via oct2py.
@@ -79,6 +82,8 @@ class OctaveMagics(Magics):
         """
         super(OctaveMagics, self).__init__(shell)
         self._oct = oct2py.Oct2Py()
+        global PROCESS
+        PROCESS = self._oct._session.proc
         if sys.platform == 'win32':
             # Use svg by default due to lack of Ghostscript on Windows Octave
             self._plot_format = 'svg'
@@ -170,7 +175,6 @@ class OctaveMagics(Magics):
         for output in outputs:
             output = unicode_to_str(output)
             self.shell.push({output: self._oct.get(output)})
-
 
     @skip_doctest
     @magic_arguments()
@@ -327,14 +331,12 @@ class OctaveMagics(Magics):
         except (oct2py.Oct2PyError) as exception:
             msg = exception.message
             if 'Octave Syntax Error' in msg:
-                raise OctaveMagicError('Octave could not complete execution.  '
-                                   'Traceback (currently broken in oct2py): %s'
-                                   % msg)
-            msg = msg.split('# ___<end_pre_call>___ #')[1]
-            msg = msg.split('# ___<start_post_call>___ #')[0]
-            raise OctaveMagicError('Octave could not complete execution.  '
-                                   'Traceback (currently broken in oct2py): %s'
-                                   % msg)
+                raise OctaveMagicError(msg)
+            msg = msg.replace(pre_call.strip(), '')
+            msg = msg.replace(post_call.strip(), '')
+            msg = re.sub('"""\s+', '"""\n', msg)
+            msg = re.sub('\s+"""', '\n"""', msg)
+            raise OctaveMagicError(msg)
         key = 'OctaveMagic.Octave'
         display_data = []
 

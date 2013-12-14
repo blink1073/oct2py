@@ -10,7 +10,7 @@ import inspect
 import dis
 import tempfile
 import atexit
-from .compat import PY2
+from oct2py.compat import PY2
 
 
 def _remove_temp_files():
@@ -19,6 +19,7 @@ def _remove_temp_files():
     """
     import os
     import glob
+    import tempfile
     temp = tempfile.NamedTemporaryFile()
     temp.close()
     dirname = os.path.dirname(temp.name)
@@ -107,13 +108,28 @@ class Struct(dict):
 
     def __getitem__(self, attr):
         """
-        Get a dict value, or create a Struct.
+        Get a dict value; create a Struct if requesting a Struct member.
 
         Do not create a key if the attribute starts with an underscore.
         """
-        if not attr in self.keys() and not attr.startswith('_'):
+        if attr in self.keys() or attr.startswith('_'):
+            return dict.__getitem__(self, attr)
+        frame = inspect.currentframe()
+        # step into the function that called us
+        if frame.f_back.f_back and self._is_allowed(frame.f_back.f_back):
+            dict.__setitem__(self, attr, Struct())
+        elif self._is_allowed(frame.f_back):
             dict.__setitem__(self, attr, Struct())
         return dict.__getitem__(self, attr)
+            
+    def _is_allowed(self, frame):
+        """Check for allowed op code in the calling frame"""
+        allowed = [dis.opmap['STORE_ATTR'], dis.opmap['LOAD_CONST'],
+                   dis.opmap['STOP_CODE']]
+        bytecode = frame.f_code.co_code
+        instruction = bytecode[frame.f_lasti + 3]
+        instruction = ord(instruction) if PY2 else instruction
+        return instruction in allowed
 
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
@@ -180,5 +196,24 @@ def _test():  # pragma: no cover
 
 
 if __name__ == "__main__":  # pragma: no cover
-    import doctest
-    _test()
+#    import doctest
+    #_test()
+    import pickle
+    a = Struct()
+    a['foo'] = 3
+    a['bar'] = 2
+    a.baz['bar'] = 1
+    a.bob.charlie = 1
+    a['fizz']['buzz'] = 3
+    a['fizz']['bongo']['bear'] = 4
+    #a['fizz']['bongo']
+    a['fizz'].dog = 'fido'
+    #a['fizz'].yappy
+    #a.micro
+    #a.baz.dodo
+    test = Struct()
+    test.spam = 'eggs'
+    test.eggs.spam = 'eggs'
+    test["foo"]["bar"] = 10
+    p = pickle.dumps(test)
+    test2 = pickle.loads(p)

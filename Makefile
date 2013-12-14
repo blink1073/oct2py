@@ -1,4 +1,4 @@
-.PHONY: all clean test cover
+.PHONY: all clean test cover release
 
 all:  
 	make clean
@@ -40,3 +40,21 @@ release:
 	python setup.py upload_sphinx
 	echo "Make sure to tag the branch"
 	echo "Make sure to push to hg"
+
+gh-pages:
+	git checkout master
+	git pull origin master
+	rm -rf ../temp_docs
+	mkdir ../temp_docs
+	rm -rf docs/build
+	-make -C docs html
+	cp -R docs/build/html/ ../temp_docs
+	mv ../temp_docs/html ../temp_docs/docs
+	git checkout gh-pages
+	rm -rf docs
+	cp -R ../enaml_docs/docs/ .
+	git commit -a -m "rebuild docs"
+	git push upstream-rw gh-pages
+	rm -rf ../enaml_docs
+	git checkout master
+	rm docs/.buildinfo
