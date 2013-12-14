@@ -1,0 +1,239 @@
+
+
+  
+  
+ 
+  
+ 
+
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Oct2Py: Python to GNU Octave Bridge &mdash; Oct2Py 1.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="Oct2Py 1.1.1 documentation" href="#" />
+    <link rel="next" title="Installation" href="source/installation.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+  
+      <a href="https://github.com/blink1073/oct2py"
+         class="visible-desktop"><img
+        style="position: absolute; top: 50px; right: 0; border: 0; z-index:1"
+        src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+        alt="Fork me on GitHub"></a>
+  
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Oct2Py</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.1.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            <li class="divider-vertical"></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a href="#"
+     class="dropdown-toggle"
+     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+    ><ul>
+<li class="toctree-l1"><a class="reference internal" href="source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/demo.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/conversions.html">Conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/api.html">API Reference</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Oct2Py: Python to GNU Octave Bridge</a><ul>
+<li><a class="reference internal" href="#features">Features</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">API Reference</a></li>
+<li><a class="reference internal" href="#id2">Installation</a></li>
+<li><a class="reference internal" href="#id3">Examples</a></li>
+<li><a class="reference internal" href="#id4">OctaveMagic</a></li>
+<li><a class="reference internal" href="#id5">Conversions</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li><a href="source/installation.html"
+         title="Next Chapter: Installation">Installation &raquo;</a></li>
+              
+            
+            
+            
+            
+              <li>
+<div id="sourcelink">
+  <a href="_sources/index.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Oct2Py: Python to GNU Octave Bridge</a><ul>
+<li><a class="reference internal" href="#features">Features</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#id1">API Reference</a></li>
+<li><a class="reference internal" href="#id2">Installation</a></li>
+<li><a class="reference internal" href="#id3">Examples</a></li>
+<li><a class="reference internal" href="#id4">OctaveMagic</a></li>
+<li><a class="reference internal" href="#id5">Conversions</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="oct2py-python-to-gnu-octave-bridge">
+<h1>Oct2Py: Python to GNU Octave Bridge<a class="headerlink" href="#oct2py-python-to-gnu-octave-bridge" title="Permalink to this headline">¶</a></h1>
+<a class="reference external image-reference" href="http://badge.fury.io/py/oct2py"><img alt="https://badge.fury.io/py/oct2py.png/" src="https://badge.fury.io/py/oct2py.png/" /></a>
+<a class="reference external image-reference" href="https://crate.io/packages/oct2py/"><img alt="https://pypip.in/d/oct2py/badge.png" src="https://pypip.in/d/oct2py/badge.png" /></a>
+<a class="reference external image-reference" href="https://coveralls.io/r/blink1073/oct2py"><img alt="https://coveralls.io/repos/blink1073/oct2py/badge.png?branch=master" src="https://coveralls.io/repos/blink1073/oct2py/badge.png?branch=master" /></a>
+<p>Oct2Py is a means to seemlessly call M-files and Octave functions from Python.
+It manages the Octave session for you, sharing data behind the scenes using
+MAT files.  Usage is as simple as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span> <span class="o">=</span> <span class="n">oct2py</span><span class="o">.</span><span class="n">Oct2Py</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">dtype</span>
+<span class="go">[[ 0.  0.  0.]</span>
+<span class="go"> [ 0.  0.  0.]</span>
+<span class="go"> [ 0.  0.  0.]] float64</span>
+<span class="gp">...</span>
+</pre></div>
+</div>
+<p>If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
+trust a code translator, this is your library.</p>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Supports all Octave datatypes and most Python datatypes and Numpy dtypes.</li>
+<li>Provides %octavemagic% for IPython, including inline plotting in notebooks.</li>
+<li>Supports cell arrays and structs with arbitrary nesting.</li>
+<li>Supports sparse matrices.</li>
+<li>Builds methods on the fly linked to Octave commands (e.g. <cite>zeros</cite> above).</li>
+<li>Nargout is automatically inferred by the number of return variables.</li>
+<li>Thread-safety: each Oct2Py object uses an independent Octave session.</li>
+<li>Can be used as a context manager.</li>
+<li>Supports Unicode characters.</li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="id1">
+<h2><a class="reference external" href="source/api.html">API Reference</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Documentation for the functions included in Oct2Py.</p>
+</div>
+<div class="section" id="id2">
+<h2><a class="reference external" href="source/installation.html">Installation</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>How to install Oct2Py.</p>
+</div>
+<div class="section" id="id3">
+<h2><a class="reference external" href="source/examples.html">Examples</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>Introductory examples.</p>
+</div>
+<div class="section" id="id4">
+<h2><a class="reference external" href="source/octavemagic.html">OctaveMagic</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>Demonstration of the Octave Magic for IPython.</p>
+</div>
+<div class="section" id="id5">
+<h2><a class="reference external" href="source/conversions.html">Conversions</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>Oct2Py data type conversions.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2011 - 2013, Oct2Py contributors.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

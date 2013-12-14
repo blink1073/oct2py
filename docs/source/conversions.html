@@ -1,0 +1,406 @@
+
+
+  
+  
+ 
+  
+ 
+
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Conversions &mdash; Oct2Py 1.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="Oct2Py 1.1.1 documentation" href="../index.html" />
+    <link rel="next" title="API Reference" href="api.html" />
+    <link rel="prev" title="Examples" href="examples.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+  
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">Oct2Py</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.1.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            <li class="divider-vertical"></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a href="../index.html"
+     class="dropdown-toggle"
+     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+    ><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Conversions</a><ul>
+<li><a class="reference internal" href="#python-to-octave-types">Python to Octave Types</a></li>
+<li><a class="reference internal" href="#numpy-to-octave-types">Numpy to Octave Types</a></li>
+<li><a class="reference internal" href="#python-to-octave-compound-types">Python to Octave Compound Types</a></li>
+<li><a class="reference internal" href="#octave-to-python-types">Octave to Python Types</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li><a href="examples.html"
+         title="Previous Chapter: Examples">&laquo; Examples</a></li>
+  <li><a href="api.html"
+         title="Next Chapter: API Reference">API Reference &raquo;</a></li>
+              
+            
+            
+            
+            
+              <li>
+<div id="sourcelink">
+  <a href="../_sources/source/conversions.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Conversions</a><ul>
+<li><a class="reference internal" href="#python-to-octave-types">Python to Octave Types</a></li>
+<li><a class="reference internal" href="#numpy-to-octave-types">Numpy to Octave Types</a></li>
+<li><a class="reference internal" href="#python-to-octave-compound-types">Python to Octave Compound Types</a></li>
+<li><a class="reference internal" href="#octave-to-python-types">Octave to Python Types</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="conversions">
+<h1>Conversions<a class="headerlink" href="#conversions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="python-to-octave-types">
+<h2>Python to Octave Types<a class="headerlink" href="#python-to-octave-types" title="Permalink to this headline">¶</a></h2>
+<p>Shows the round-trip data types.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="30%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Python</th>
+<th class="head">Octave</th>
+<th class="head">Python</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>int</td>
+<td>int32</td>
+<td>np.int32</td>
+</tr>
+<tr class="row-odd"><td>long</td>
+<td>int64</td>
+<td>np.int64</td>
+</tr>
+<tr class="row-even"><td>float</td>
+<td>double</td>
+<td>np.float64</td>
+</tr>
+<tr class="row-odd"><td>complex</td>
+<td>double</td>
+<td>np.complex128</td>
+</tr>
+<tr class="row-even"><td>str</td>
+<td>char</td>
+<td>unicode</td>
+</tr>
+<tr class="row-odd"><td>unicode</td>
+<td>cell</td>
+<td>unicode</td>
+</tr>
+<tr class="row-even"><td>bool</td>
+<td>int32</td>
+<td>np.int32</td>
+</tr>
+<tr class="row-odd"><td>None</td>
+<td>double</td>
+<td>np.float64</td>
+</tr>
+<tr class="row-even"><td>dict</td>
+<td>struct</td>
+<td>Struct</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="numpy-to-octave-types">
+<h2>Numpy to Octave Types<a class="headerlink" href="#numpy-to-octave-types" title="Permalink to this headline">¶</a></h2>
+<p>Note that the errors are types that are not implemented.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="28%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Numpy</th>
+<th class="head">Octave</th>
+<th class="head">Numpy</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>np.int8</td>
+<td>int8</td>
+<td>np.int8</td>
+</tr>
+<tr class="row-odd"><td>np.int16</td>
+<td>int16</td>
+<td>np.int16</td>
+</tr>
+<tr class="row-even"><td>np.int32</td>
+<td>int32</td>
+<td>np.int32</td>
+</tr>
+<tr class="row-odd"><td>np.int64</td>
+<td>int64</td>
+<td>np.int64</td>
+</tr>
+<tr class="row-even"><td>np.uint8</td>
+<td>uint8</td>
+<td>np.uint8</td>
+</tr>
+<tr class="row-odd"><td>np.uint16</td>
+<td>uint16</td>
+<td>np.uint16</td>
+</tr>
+<tr class="row-even"><td>np.uint32</td>
+<td>uint32</td>
+<td>np.uint32</td>
+</tr>
+<tr class="row-odd"><td>np.uint64</td>
+<td>uint64</td>
+<td>np.uint64</td>
+</tr>
+<tr class="row-even"><td>np.float16</td>
+<td>ERROR</td>
+<td>ERROR</td>
+</tr>
+<tr class="row-odd"><td>np.float32</td>
+<td>double</td>
+<td><em>np.float64</em></td>
+</tr>
+<tr class="row-even"><td>np.float64</td>
+<td>double</td>
+<td>np.float64</td>
+</tr>
+<tr class="row-odd"><td>np.float96</td>
+<td>ERROR</td>
+<td>ERROR</td>
+</tr>
+<tr class="row-even"><td>np.str</td>
+<td>char</td>
+<td>np.str</td>
+</tr>
+<tr class="row-odd"><td>np.double</td>
+<td>double</td>
+<td><em>np.float64</em></td>
+</tr>
+<tr class="row-even"><td>np.complex64</td>
+<td>double</td>
+<td><em>np.complex128</em></td>
+</tr>
+<tr class="row-odd"><td>np.complex128</td>
+<td>double</td>
+<td>np.complex128</td>
+</tr>
+<tr class="row-even"><td>np.complex192</td>
+<td>ERROR</td>
+<td>ERROR</td>
+</tr>
+<tr class="row-odd"><td>np.object</td>
+<td>cell</td>
+<td>list</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="python-to-octave-compound-types">
+<h2>Python to Octave Compound Types<a class="headerlink" href="#python-to-octave-compound-types" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="23%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Python</th>
+<th class="head">Octave</th>
+<th class="head">Python</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>list of strings</td>
+<td>cell (1-d)</td>
+<td>list of strings</td>
+</tr>
+<tr class="row-odd"><td>list of mixed type</td>
+<td>cell</td>
+<td>list of mixed type</td>
+</tr>
+<tr class="row-even"><td>nested string list</td>
+<td>cell</td>
+<td>list of strings</td>
+</tr>
+<tr class="row-odd"><td>tuple of strings</td>
+<td>cell</td>
+<td>list of strings</td>
+</tr>
+<tr class="row-even"><td>nested dict</td>
+<td>struct</td>
+<td>Struct</td>
+</tr>
+<tr class="row-odd"><td>set of int32</td>
+<td>int32</td>
+<td>np.int32</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="octave-to-python-types">
+<h2>Octave to Python Types<a class="headerlink" href="#octave-to-python-types" title="Permalink to this headline">¶</a></h2>
+<p>These are the unique values apart from the Python to Octave lists.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Octave</th>
+<th class="head">Python</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>matrix</td>
+<td>ndarray</td>
+</tr>
+<tr class="row-odd"><td>cell (2-d)</td>
+<td>list of lists</td>
+</tr>
+<tr class="row-even"><td>cell (scalar)</td>
+<td>scalar</td>
+</tr>
+<tr class="row-odd"><td>cell array</td>
+<td>list of lists</td>
+</tr>
+<tr class="row-even"><td>struct</td>
+<td>Struct</td>
+</tr>
+<tr class="row-odd"><td>struct (nested)</td>
+<td>Struct (nested)</td>
+</tr>
+<tr class="row-even"><td>struct array*</td>
+<td>Struct (of lists)*</td>
+</tr>
+<tr class="row-odd"><td>logical</td>
+<td>ndarray</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><pre>* One-way trip (cannot be sent back to Octave intact)</pre>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2011 - 2013, Oct2Py contributors.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

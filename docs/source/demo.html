@@ -1,0 +1,314 @@
+
+
+  
+  
+ 
+  
+ 
+
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Demo &mdash; Oct2Py 1.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="Oct2Py 1.1.1 documentation" href="../index.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+  
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">Oct2Py</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.1.1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            <li class="divider-vertical"></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a href="../index.html"
+     class="dropdown-toggle"
+     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+    ><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conversions.html">Conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"><ul>
+<li><a class="reference internal" href="#">Demo</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li><a href="installation.html"
+         title="Previous Chapter: Installation">&laquo; Installation</a></li>
+  <li><a href="examples.html"
+         title="Next Chapter: Examples">Examples &raquo;</a></li>
+              
+            
+            
+            
+            
+              <li>
+<div id="sourcelink">
+  <a href="../_sources/source/demo.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Demo</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <div class="section" id="demo">
+<h1>Demo<a class="headerlink" href="#demo" title="Permalink to this headline">¶</a></h1>
+<p>Output of Oct2Py demo script, showing most of the features of the library.  Note that the two
+plot commands will generate an interactive plot in the actual demo.
+To run interactively:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">oct2py</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oct2py</span><span class="o">.</span><span class="n">demo</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><pre>oct2py demo
+ ********************
+ &gt;&gt;&gt; import numpy as np
+ &gt;&gt;&gt; from oct2py import Oct2Py
+ &gt;&gt;&gt; oc = Oct2Py()
+ &gt;&gt;&gt; # basic commands
+ &gt;&gt;&gt; print(oc.abs(-1))
+ 1
+ &gt;&gt;&gt; print(oc.upper('xyz'))
+ XYZ
+ &gt;&gt;&gt; # plotting
+ &gt;&gt;&gt; oc.plot([1,2,3],'-o')
+ Press Enter to continue...</pre>
+</div>
+<img alt="source\plot.png" src="source\plot.png" />
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span><span class="o">.</span><span class="n">surf</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">xx</span><span class="p">)))</span>
+<span class="go">Press Enter to continue...</span>
+</pre></div>
+</div>
+<img alt="source\surf.png" src="source\surf.png" />
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="c"># getting help</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">help</span><span class="p">(</span><span class="n">oc</span><span class="o">.</span><span class="n">svd</span><span class="p">)</span>
+<span class="go">Help on function svd in module oct2py.session:</span>
+
+<span class="go">svd(*args, **kwargs)</span>
+<span class="go">    `svd&#39; is a function from the file c:\Program Files\Octave-3.6.2\lib\octave\3.6.2\oct\i686-pc-mingw32\svd.oct</span>
+
+<span class="go">     -- Loadable Function: S = svd (A)</span>
+<span class="go">     -- Loadable Function: [U, S, V] = svd (A)</span>
+<span class="go">     -- Loadable Function: [U, S, V] = svd (A, ECON)</span>
+<span class="go">         Compute the singular value decomposition of A</span>
+
+<span class="go">              A = U*S*V&#39;</span>
+
+<span class="go">         The function `svd&#39; normally returns only the vector of singular</span>
+<span class="go">         values.  When called with three return values, it computes U, S,</span>
+<span class="go">         and V.  For example,</span>
+
+<span class="go">              svd (hilb (3))</span>
+
+<span class="go">         returns</span>
+
+<span class="go">              ans =</span>
+
+<span class="go">               1.4083189</span>
+<span class="go">               0.1223271</span>
+<span class="go">               0.0026873</span>
+
+<span class="go">         and</span>
+
+<span class="go">              [u, s, v] = svd (hilb (3))</span>
+
+<span class="go">         returns</span>
+
+<span class="go">              u =</span>
+
+<span class="go">               -0.82704   0.54745   0.12766</span>
+<span class="go">               -0.45986  -0.52829  -0.71375</span>
+<span class="go">               -0.32330  -0.64901   0.68867</span>
+
+<span class="go">              s =</span>
+
+<span class="go">               1.40832  0.00000  0.00000</span>
+<span class="go">               0.00000  0.12233  0.00000</span>
+<span class="go">               0.00000  0.00000  0.00269</span>
+
+<span class="go">              v =</span>
+
+<span class="go">               -0.82704   0.54745   0.12766</span>
+<span class="go">               -0.45986  -0.52829  -0.71375</span>
+<span class="go">               -0.32330  -0.64901   0.68867</span>
+
+<span class="go">         If given a second argument, `svd&#39; returns an economy-sized</span>
+<span class="go">         decomposition, eliminating the unnecessary rows or columns of U or</span>
+<span class="go">         V.</span>
+
+<span class="go">         See also: svd_driver, svds, eig</span>
+
+
+
+<span class="go">    Additional help for built-in functions and operators is</span>
+<span class="go">    available in the on-line version of the manual.  Use the command</span>
+<span class="go">    `doc &lt;topic&gt;&#39; to search the manual index.</span>
+
+<span class="go">    Help and information about Octave is also available on the WWW</span>
+<span class="go">    at http://www.octave.org and via the help@octave.org</span>
+<span class="go">    mailing list.</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># single vs. multiple return values</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">oc</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]])))</span>
+<span class="go">[[ 3.86432845]</span>
+<span class="go"> [ 0.25877718]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">svd</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+<span class="go">(array([[-0.57604844, -0.81741556],</span>
+<span class="go">       [-0.81741556,  0.57604844]]), array([[ 3.86432845,  0.        ],</span>
+<span class="go">       [ 0.        ,  0.25877718]]), array([[-0.36059668, -0.93272184],</span>
+<span class="go">       [-0.93272184,  0.36059668]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># low level constructs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&quot;y=ones(3,3)&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">oc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;y&quot;</span><span class="p">))</span>
+<span class="go">[[ 1.  1.  1.]</span>
+<span class="go"> [ 1.  1.  1.]</span>
+<span class="go"> [ 1.  1.  1.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&quot;x=zeros(3,3)&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="go">x=zeros(3,3)</span>
+
+<span class="go">x =</span>
+
+<span class="go">        0        0        0</span>
+<span class="go">        0        0        0</span>
+<span class="go">        0        0        0</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;rand&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">[[ 0.10852044  0.72508862  0.63270314  0.54310462]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">oc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;rand&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">load c:\users\silves~1\appdata\local\temp\tmpvyaxwv.mat &quot;A__&quot; &quot;B__&quot;</span>
+<span class="go">[a__] = rand(A__, B__)</span>
+<span class="go">save &quot;-v6&quot; c:\users\silves~1\appdata\local\temp\tmplhftfv.mat &quot;a__&quot;</span>
+<span class="go">a__ =</span>
+
+<span class="go">  0.42867  0.92885</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">oc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">))</span>
+<span class="go">[[ 0.  0.  0.]</span>
+<span class="go"> [ 0.  0.  0.]</span>
+<span class="go"> [ 0.  0.  0.]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Struct</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s">&#39;spam&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="s">&#39;eggs&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="s">&#39;d&#39;</span><span class="p">])</span>
+<span class="go">eggs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="go">{&#39;c&#39;: {&#39;d&#39;: &#39;eggs&#39;}, &#39;b&#39;: &#39;spam&#39;}</span>
+<span class="go">********************</span>
+<span class="go">DEMO COMPLETE!</span>
+</pre></div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2011 - 2013, Oct2Py contributors.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
