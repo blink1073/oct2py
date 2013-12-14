@@ -1,3 +1,0 @@
-From this directory:
-
-python setup.py install
