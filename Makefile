@@ -26,7 +26,6 @@ cover:
 
 release:
 	make clean
-	pip install sphinx-pypi-upload
 	pip install numpydoc
 	python setup.py register
 	python setup.py bdist_wininst --target-version=2.7 upload
@@ -37,8 +36,8 @@ release:
 	pushd docs
 	make html
 	popd
-	python setup.py upload_sphinx
 	echo "Make sure to tag the branch"
+	echo "Make sure to upload gh-pages"     
 	echo "Make sure to push to hg"
 
 gh-pages:
