@@ -33,9 +33,6 @@ release:
 	python setup.py bdist_wininst --target-version=3.3 upload
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload
-	pushd docs
-	make html
-	popd
 	echo "Make sure to tag the branch"
 	echo "Make sure to upload gh-pages"     
 	echo "Make sure to push to hg"
