@@ -1,5 +1,5 @@
 ***********************
-Oct2Py M-file Examples
+Examples
 ***********************
 
 M-files in the directory where oct2py was initialized, or those in the

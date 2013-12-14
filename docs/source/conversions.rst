@@ -1,5 +1,5 @@
 ***********************
-Oct2Py Data Conversions
+Conversions
 ***********************
 
 Python to Octave Types
@@ -81,5 +81,7 @@ struct array*    Struct (of lists)*
 logical          ndarray
 ===============  =================
 
-* One-way trip (cannot be sent back to Octave intact)
+::
+  
+  * One-way trip (cannot be sent back to Octave intact)
 
