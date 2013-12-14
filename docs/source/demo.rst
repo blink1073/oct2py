@@ -1,9 +1,10 @@
+
 ***********
-Oct2py Demo
+Demo
 ***********
 
-Output of oct2py demo script, showing most of the features of the library.  Note that the two
-plot commands will generate a plot in the actual demo.
+Output of Oct2Py demo script, showing most of the features of the library.  Note that the two
+plot commands will generate an interactive plot in the actual demo.
 To run interactively::
 
    >>> import oct2py
@@ -26,7 +27,6 @@ To run interactively::
     Press Enter to continue...
 
 .. image:: plot.png
-   :width: 600px
 
 ::
 
@@ -35,7 +35,6 @@ To run interactively::
    Press Enter to continue...
 
 .. image:: surf.png
-   :width: 600px
 
 ::
 

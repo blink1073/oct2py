@@ -494,6 +494,8 @@ class _Session(object):
     def evaluate(self, cmds, verbose=True, log=True, logger=None):
         '''Perform the low-level interaction with an Octave Session
         '''
+        if not self.proc:
+            raise Oct2PyError('Session Closed, try a restart()')
         resp = []
         # use ascii code 21 to signal an error and 3
         # to signal end of text
@@ -502,6 +504,10 @@ class _Session(object):
                  'end', '']
         eval_ = '\n'.join(lines).encode('utf-8')
         self.proc.stdin.write(eval_)
+        if len(cmds) == 5:
+            main_line = cmds[2].strip()
+        else:
+            main_line = '\n'.join(cmds)
         try:
             self.proc.stdin.flush()
         except OSError:  # pragma: no cover
@@ -512,14 +518,16 @@ class _Session(object):
             if line == '\x03':
                 break
             elif line == '\x15':
-                msg = ('Tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
-                       .format('\n'.join(cmds), '\n'.join(resp)))
+                msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
+                       .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
             if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
                 resp.append(line)
-                msg = 'Octave Syntax Error\n'.join(resp)
+                msg = 'Octave Syntax Error:\n' + '\n'.join(resp)
+                msg += '\nSession Closed by Octave'
+                self.close()
                 raise Oct2PyError(msg)
             if verbose and logger:
                 logger.info(line)
@@ -533,12 +541,13 @@ class _Session(object):
         '''
         try:
             self.proc.stdout.write('exit\n')
-        except IOError:
+        except (IOError, AttributeError):
             pass
         try:
             self.proc.terminate()
         except (OSError, AttributeError):  # pragma: no cover
             pass  
+        self.proc = None
 
 
 def _test():  # pragma: no cover

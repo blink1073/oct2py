@@ -2,14 +2,14 @@
 """
 DISTNAME = 'oct2py'
 DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
-LONG_DESCRIPTION = open('README.rst').read()
+LONG_DESCRIPTION = open('README.rst', 'rb').read().decode('utf-8')
 LONG_DESCRIPTION += '\n\n' + open('HISTORY.rst').read()
 MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
 REQUIRES = ["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"]
-PACKAGES = [DISTNAME, '{0}.tests'.format(DISTNAME)]
+PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME, '%s/ipython/tests' % DISTNAME]
 PACKAGE_DATA = {DISTNAME: ['tests/*.m']}
 CLASSIFIERS = """\
 Development Status :: 5 - Production/Stable

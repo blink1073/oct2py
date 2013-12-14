@@ -17,6 +17,8 @@ import logging
 import os
 import numpy as np
 import numpy.testing as test
+import pickle
+
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
@@ -621,6 +623,13 @@ class BasicUsageTest(test.TestCase):
         test.eggs.spam = 'eggs'
         self.assertEqual(test['spam'], 'eggs')
         self.assertEqual(test['eggs']['spam'], 'eggs')
+        test["foo"]["bar"] = 10
+        self.assertEqual(test.foo.bar, 10)
+        p = pickle.dumps(test)
+        test2 = pickle.loads(p)
+        self.assertEqual(test2['spam'], 'eggs')
+        self.assertEqual(test2['eggs']['spam'], 'eggs')
+        self.assertEqual(test2.foo.bar, 10)
 
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError
@@ -629,6 +638,11 @@ class BasicUsageTest(test.TestCase):
         self.assertRaises(Oct2PyError, oc._eval, "a='1")
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
+
+    def test_octave_error(self):
+        oc = Oct2Py()
+        self.assertRaises(Oct2PyError, oc.run, 'a = ones2(1)')
+
 
 def test_unicode_docstring():
     '''Make sure unicode docstrings in Octave functions work'''

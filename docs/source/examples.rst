@@ -1,6 +1,18 @@
 ***********************
-Oct2Py M-file Examples
+Examples
 ***********************
+
+OctaveMagic
+==========================
+Oct2Py provides a plugin for IPython to bring Octave to the IPython prompt or the 
+IPython Notebook_.
+
+.. Notebook_: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+
+
+M-File Examples
+===============
+
 
 M-files in the directory where oct2py was initialized, or those in the
 Octave path, can be called like any other Octave function.
@@ -11,10 +23,10 @@ To explicitly add to the path, use::
 
 
 Roundtrip
-=========
+---------
 
 roundtrip.m
------------
++++++++++++
 
 ::
 
@@ -25,7 +37,7 @@ roundtrip.m
 
 
 Python Session
---------------
+++++++++++++++
 
 ::
 
@@ -49,10 +61,10 @@ Python Session
 
 
 Test Datatypes
-==============
+---------------
 
 test_datatypes.m
-----------------
++++++++++++++++++
 
 ::
 
@@ -110,7 +122,7 @@ test_datatypes.m
     test.cell.matrix = {'Bob', 40; 'Pam', 41}
 
 Python Session
---------------
++++++++++++++++
 
 ::
 

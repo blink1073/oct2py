@@ -1,24 +1,59 @@
 # travis-ci.org definition for oct2py build
 
+# After changing this file, check it on:
+#   http://lint.travis-ci.org/
+
+
 language: python
+
 python:
-  - 2.7
-  - 3.2
+    - 2.6
+
+matrix:
+    include:
+        - python: 2.7
+          env:
+            - PYTHON=python
+            - PYVER=2.x
+        - python: 3.2
+          env:
+            - PYTHON=python3
+            - PYVER=3.x
+    exclude:
+        - python: 2.6
+
 virtualenv:
-  system_site_packages: true
+    system_site_packages: true
+
 before_install:
-  - PY=$TRAVIS_PYTHON_VERSION
-  - "if [[ $PY == '2.7' ]]; then sudo apt-get install -qq python-numpy python-scipy; fi"
-  - "if [[ $PY == '3.2' ]]; then sudo apt-get install -qq python3-numpy python3-scipy; fi"
-  - sudo apt-get install -qq octave
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+
+    - sudo apt-get update
+    - sudo apt-get install $PYTHON-numpy
+    - sudo apt-get install $PYTHON-scipy
+    - sudo apt-get install -qq octave
+    
+    - pip install --use-mirrors ipython
+    
+    - if [[ $PYVER == '2.x' ]]; then
+    -     pip install --use-mirrors nose-cov
+    -     pip install --use-mirrors python-coveralls
+    - fi
+      
 install:
-  - pip install coveralls --use-mirrors
-  - pip install pytest --use-mirrors
-  - "if [[ $PY == '2.7' ]]; then pip install ipython[test]; fi"
+   - python setup.py install
+
 script:
-  - PY=%TRAVIS_PYTHON_VERSION
-  - coverage run --source oct2py -m py.test
-  - coverage report
-  - "if [[ $PY == '2.7' ]]; then iptest -v IPython.extensions.tests.test_octavemagic; fi"
+    - cd
+    # Run all tests
+    - if [[ $PYVER == '2.x' ]]; then
+    -     nosetests --exe -v --with-doctest --with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
+    - fi
+    - if [[ $PYVER == '3.x' ]]; then
+    -     nosetests --exe -v oct2py
+    - fi
+    
+
 after_success:
-  coveralls
+    - coveralls

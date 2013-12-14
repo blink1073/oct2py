@@ -1,4 +1,4 @@
-Oct2py: Python to GNU Octave Bridge
+Oct2Py: Python to GNU Octave Bridge
 ===================================
 
 .. image:: https://badge.fury.io/py/oct2py.png/
@@ -11,11 +11,11 @@ Oct2py: Python to GNU Octave Bridge
   :target: https://coveralls.io/r/blink1073/oct2py
 
 
-Oct2py is a means to seemlessly call m-files and Octave functions from python.
+Oct2Py is a means to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
-..
+.. code-block:: python
 
     >>> oc = oct2py.Oct2Py() 
     >>> x = oc.zeros(3,3)
@@ -32,33 +32,34 @@ trust a code translator, this is your library.
 Features
 --------
 
-- Supports all Octave datatypes and most python datatypes and numpy dtypes.
-- Provides %octavemagic% for IPython, including inline plotting in notebooks.
+- Supports all Octave datatypes and most Python datatypes and Numpy dtypes.
+- Provides %octavemagic_% for IPython, including inline plotting in notebooks.
 - Supports cell arrays and structs with arbitrary nesting.
 - Supports sparse matrices.
 - Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
 - Nargout is automatically inferred by the number of return variables.
 - Thread-safety: each Oct2Py object uses an independent Octave session.
 - Can be used as a context manager.
-- Supports unicode characters.
+- Supports Unicode characters.
 
+.. _octavemagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
 
 Installation
 ------------
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from `sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_..
+way to get Octave is to use an installer from `Sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
 On Linux, it should be available from your package manager.
-Additionally, you must have the numpy and scipy libraries installed.
+Additionally, you must have the Numpy and Scipy libraries installed.
 
-To install Oct2py, simply:
+To install Oct2Py, simply:
 
-..
+.. code-block:: bash
 
     $ pip install oct2py
 
 Or, if you absolutely must:
 
-..
+.. code-block:: bash
 
     $ easy_install oct2py
 
@@ -66,4 +67,8 @@ Or, if you absolutely must:
 Documentation
 -------------
 
-Documentation is available at http://pythonhosted.org/oct2py/.
+Documentation is available online_.
+
+For version information, see `the Revision History <https://github.com/blink1073/oct2py/blob/master/history.rst>`_.
+
+.. _online: http://blink1073.github.io/oct2py/docs/
