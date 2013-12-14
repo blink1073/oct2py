@@ -329,7 +329,7 @@ class OctaveMagics(Magics):
         try:
             text_output = self._oct.run(code, verbose=False)
         except (oct2py.Oct2PyError) as exception:
-            msg = exception.message
+            msg = str(exception)
             if 'Octave Syntax Error' in msg:
                 raise OctaveMagicError(msg)
             msg = msg.replace(pre_call.strip(), '')

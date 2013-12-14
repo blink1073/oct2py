@@ -35,9 +35,12 @@ before_install:
     - sudo apt-get install -qq octave
     
     - pip install --use-mirrors ipython
-    - pip install --use-mirrors nose-cov
-    - pip install --use-mirrors python-coveralls
     
+    - if [[ $PYVER == '2.x' ]]; then
+    -     pip install --use-mirrors nose-cov
+    -     pip install --use-mirrors python-coveralls
+    -  fi;
+      
 install:
    - python setup.py install
 
@@ -48,7 +51,7 @@ script:
     -     nosetests --exe -v --with-doctest --with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
     - fi
     - if [[ $PYVER == '3.x' ]]; then
-    -     nosetests --exe -v --with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
+    -     nosetests --exe -v oct2py
     - fi
     
 
