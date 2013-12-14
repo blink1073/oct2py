@@ -33,7 +33,7 @@ Features
 --------
 
 - Supports all Octave datatypes and most Python datatypes and Numpy dtypes.
-- Provides %octavemagic% for IPython, including inline plotting in notebooks.
+- Provides %octavemagic_% for IPython, including inline plotting in notebooks.
 - Supports cell arrays and structs with arbitrary nesting.
 - Supports sparse matrices.
 - Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
@@ -42,6 +42,7 @@ Features
 - Can be used as a context manager.
 - Supports Unicode characters.
 
+.. _octavemagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
 
 Installation
 ------------
