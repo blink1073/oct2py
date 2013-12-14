@@ -48,7 +48,7 @@ gh-pages:
 	mkdir ../temp_docs
 	rm -rf docs/build
 	-make -C docs html
-	cp -R docs/build/html/ ../temp_docs
+	cp -R docs/_build/html/ ../temp_docs
 	mv ../temp_docs/html ../temp_docs/docs
 	git checkout gh-pages
 	rm -rf docs
@@ -56,7 +56,7 @@ gh-pages:
 	git add .
 	git commit -m "rebuild docs"
 	git push upstream-rw gh-pages
-	rm -rf ../enaml_docs
+	rm -rf ../temp_docs
 	git checkout master
 	rm docs/.buildinfo
 
