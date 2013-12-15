@@ -3,13 +3,13 @@
 DISTNAME = 'oct2py'
 DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
 LONG_DESCRIPTION = open('README.rst', 'rb').read().decode('utf-8')
-LONG_DESCRIPTION += '\n\n' + open('HISTORY.rst').read()
 MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
 REQUIRES = ["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"]
-PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME, '%s/ipython/tests' % DISTNAME]
+PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME, 
+            '%s/ipython/tests' % DISTNAME]
 PACKAGE_DATA = {DISTNAME: ['tests/*.m']}
 CLASSIFIERS = """\
 Development Status :: 5 - Production/Stable
@@ -28,11 +28,18 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-    
+
+
+with open('oct2py/__init__.py', 'rb') as fid:
+    for line in fid:
+        if line.startswith('__version__'):
+            version = line.strip().split()[-1][1:-1]
+            break
+
 
 setup(
     name=DISTNAME,
-    version=__import__(DISTNAME).__version__,
+    version=version,
     maintainer=MAINTAINER,
     maintainer_email=MAINTAINER_EMAIL,
     packages=PACKAGES,
