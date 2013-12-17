@@ -32,6 +32,7 @@ except ImportError:
 
 with open('oct2py/__init__.py', 'rb') as fid:
     for line in fid:
+	line = line.decode('utf-8')
         if line.startswith('__version__'):
             version = line.strip().split()[-1][1:-1]
             break
