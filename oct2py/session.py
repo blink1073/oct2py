@@ -6,6 +6,7 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
+from __future__ import print_function
 import os
 import re
 import atexit
@@ -26,7 +27,7 @@ class Oct2Py(object):
     on Octave's path.
     The first command will take about 0.5s for Octave to load up.
     The subsequent commands will be much faster.
-       
+
     You may provide a logger object for logging events, or the oct2py.get_log()
     default will be used.  Events will be logged as debug unless verbose is set
     when calling a command, then they will be logged as info.
@@ -182,10 +183,10 @@ class Oct2Py(object):
         else:
             # run foo
             call_line += '{0}'.format(func)
-            
+
         pre_call = '\nglobal __oct2py_figures = [];\n'
-        post_call = ''        
-        
+        post_call = ''
+
         if not nout and 'command' in kwargs and not '__ipy_figures' in func:
             if not call_line.endswith(')'):
                 call_line += '();\n'
@@ -197,7 +198,7 @@ class Oct2Py(object):
                   _ = "__no_answer";
                 end
             '''
-        
+
         # do not interfere with octavemagic logic
         if not "DefaultFigureCreateFcn" in call_line:
             post_call += """
@@ -208,11 +209,14 @@ class Oct2Py(object):
         # create the command and execute in octave
         cmd = [load_line, pre_call, call_line, post_call, save_line]
         resp = self._eval(cmd, verbose=verbose)
-        
+
         if nout:
             return self._reader.extract_file(argout_list)
         elif 'command' in kwargs:
-            ans = self.get('_')
+            try:
+                ans = self.get('_')
+            except KeyError:
+                return
             # Unfortunately, Octave doesn't have a "None" object,
             # so we can't return any NaN outputs
             if isinstance(ans, (str, unicode)) and ans == "__no_answer":
@@ -425,17 +429,17 @@ class Oct2Py(object):
         try:
             self._eval("graphics_toolkit('gnuplot')", False)
         except Oct2PyError:  # pragma: no cover
-            pass  
+            pass
         # set up the plot renderer
         self.run("""
             global __oct2py_figures = [];
             page_screen_output(0);
-            
+
             function fig_create(src, event)
               global __oct2py_figures;
               __oct2py_figures(size(__oct2py_figures) + 1) = src;
             end
-            
+
             set(0, 'DefaultFigureCreateFcn', @fig_create);
         """)
         self._graphics_toolkit = 'gnuplot'
@@ -481,7 +485,7 @@ class _Session(object):
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
                       stdout=subprocess.PIPE, close_fds=ON_POSIX)
         if os.name == 'nt':
-            startupinfo = subprocess.STARTUPINFO()  
+            startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             kwargs['startupinfo'] = startupinfo
         try:
@@ -514,7 +518,22 @@ class _Session(object):
             pass
         syntax_error = False
         while 1:
-            line = self.proc.stdout.readline().rstrip().decode('utf-8')
+            line = []
+            while 1:
+                try:
+                    char = self.proc.stdout.read(1).decode('utf-8')
+                except UnicodeDecodeError:
+                    char = '?'
+                if char == '\n':
+                    break
+                elif char == '>' and ''.join(line) == 'debug':
+                    cont = self.debug_prompt()
+                    if not cont:
+                        return
+                    line = []
+                    char = ''
+                line.append(char)
+            line = ''.join(line).rstrip()
             if line == '\x03':
                 break
             elif line == '\x15':
@@ -536,6 +555,32 @@ class _Session(object):
             resp.append(line)
         return '\n'.join(resp)
 
+    def debug_prompt(self):
+        """Manage an Octave Debug Prompt interaction"""
+        self.proc.stdout.read(1)
+        sys.stdout.write('Entering Octave Debug Prompt...\ndebug> ')
+        while 1:
+            inp = raw_input() + '\n'
+            self.proc.stdin.write(inp.encode('utf-8'))
+            if inp in ['dbcont\n', 'return\n']:
+                return True
+            if inp == 'dbquit\n':
+                return False
+            output = []
+            while 1:
+                try:
+                    char = self.proc.stdout.read(1).decode('utf-8')
+                except UnicodeDecodeError:
+                    char = '?'
+                output.append(char)
+                if char == '>':
+                    text = ''.join(output)
+                    if text.endswith('debug>'):
+                        self.proc.stdout.read(1)
+                        sys.stdout.write(text)
+                        sys.stdout.write(' ')
+                        break
+
     def close(self):
         '''Cleanly close an Octave session
         '''
@@ -546,16 +591,16 @@ class _Session(object):
         try:
             self.proc.terminate()
         except (OSError, AttributeError):  # pragma: no cover
-            pass  
+            pass
         self.proc = None
 
 
 def _test():  # pragma: no cover
     """Run the doctests for this module.
     """
-    print('Starting doctest')  
-    doctest.testmod()  
-    print('Completed doctest')  
+    print('Starting doctest')
+    doctest.testmod()
+    print('Completed doctest')
 
 
 if __name__ == "__main__":  # pragma: no cover

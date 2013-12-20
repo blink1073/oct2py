@@ -15,14 +15,16 @@ float16/96/128 and complex192/256 can be recast as float64 and complex128.
 from __future__ import absolute_import, print_function
 import logging
 import os
+import pickle
+import sys
+
 import numpy as np
 import numpy.testing as test
-import pickle
 
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
-from oct2py.compat import unicode, long, PY2
+from oct2py.compat import unicode, long, StringIO
 
 
 octave = Oct2Py()
@@ -674,10 +676,6 @@ def test_singleton_sparses():
 def test_logging():
     # create a stringio and a handler to log to it
     def get_handler():
-        if PY2:
-            from StringIO import StringIO
-        else:
-            from io import StringIO
         sobj = StringIO()
         hdlr = logging.StreamHandler(sobj)
         hdlr.setLevel(logging.DEBUG)
@@ -746,7 +744,7 @@ def test_threads():
 
 def test_plot():
     octave.plot([1])
-    
+
 
 def test_narg_out():
     oc = Oct2Py()
@@ -771,7 +769,24 @@ def test_using_closed_session():
     oc.close()
     test.assert_raises(Oct2PyError, oc.call, 'ones')
 
-    
+
+def test_keyboard_command():
+    oc = Oct2Py()
+    oc._eval('a=1')
+    stdin = sys.stdin
+    stdout = sys.stdout
+    output = StringIO()
+    sys.stdin = StringIO('a\nreturn')
+    sys.stdout = output
+    oc.keyboard()
+    sys.stdin = stdin
+    sys.stdout = stdout
+
+    output.read()
+    expected = 'Entering Octave Debug Prompt...\ndebug> a =  1\r\ndebug> '
+    assert output.buf == expected
+
+
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
     print('*' * 20)
