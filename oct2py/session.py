@@ -291,7 +291,7 @@ class Oct2Py(object):
         # make sure the variable(s) exist
         for variable in var:
             if self._eval("exist {0}".format(variable),
-                          verbose=False) == 'ans = 0':
+                          verbose=False) == 'ans = 0' and not variable == '_':
                 raise Oct2PyError('{0} does not exist'.format(variable))
         argout_list, save_line = self._reader.setup(len(var), var)
         self._eval(save_line, verbose=verbose)
@@ -395,8 +395,8 @@ class Oct2Py(object):
         try:
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
         except Oct2PyError:
-            msg = '"{0}" is not a recognized octave command'.format(name)
-            raise Oct2PyError(msg)
+            self._eval('type {0}'.format(name), log=False, verbose=False)
+	    doc = 'No documentation for {0}'.format(name)
         return doc
 
     def __getattr__(self, attr):
@@ -507,16 +507,20 @@ class _Session(object):
                  'catch', 'disp(lasterr())', 'disp(char(21))',
                  'end', '']
         eval_ = '\n'.join(lines).encode('utf-8')
-        self.proc.stdin.write(eval_)
         if len(cmds) == 5:
             main_line = cmds[2].strip()
         else:
             main_line = '\n'.join(cmds)
+	if 'keyboard' == main_line and not 'help' in main_line and not os.name == 'nt':
+	    logger.warn('Keyboard mode only works in Windows or in a script')
+            return
+        self.proc.stdin.write(eval_)
         try:
             self.proc.stdin.flush()
         except OSError:  # pragma: no cover
             pass
         syntax_error = False
+	
         while 1:
             line = []
             while 1:
