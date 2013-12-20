@@ -56,7 +56,7 @@ def get_nout():
         howmany = bytecode[frame.f_lasti + 4]
         howmany = ord(howmany) if PY2 else howmany
         return howmany
-    elif instruction == dis.opmap['POP_TOP']:
+    elif instruction in [dis.opmap['POP_TOP'], dis.opmap['PRINT_EXPR']]:
         return 0
     return 1
 
