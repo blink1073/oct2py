@@ -291,7 +291,7 @@ class Oct2Py(object):
         # make sure the variable(s) exist
         for variable in var:
             if self._eval("exist {0}".format(variable),
-                          verbose=False) == 'ans = 0':
+                          verbose=False) == 'ans = 0' and not variable == '_':
                 raise Oct2PyError('{0} does not exist'.format(variable))
         argout_list, save_line = self._reader.setup(len(var), var)
         self._eval(save_line, verbose=verbose)
@@ -395,8 +395,8 @@ class Oct2Py(object):
         try:
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
         except Oct2PyError:
-            msg = '"{0}" is not a recognized octave command'.format(name)
-            raise Oct2PyError(msg)
+            self._eval('type {0}'.format(name), log=False, verbose=False)
+	    doc = 'No documentation for {0}'.format(name)
         return doc
 
     def __getattr__(self, attr):
@@ -521,6 +521,7 @@ class _Session(object):
         except OSError:  # pragma: no cover
             pass
         syntax_error = False
+
         while 1:
             line = []
             while 1:
