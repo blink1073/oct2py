@@ -720,14 +720,18 @@ class _Session(object):
         self.stdout.write(banner)
         name = self._make_interaction_file(prompt)
         self.write('%s;\n' % name)
-        self._find_prompt(prompt, False)
-        self.read(4)
-        self._find_prompt(prompt)
+        first = self.expect(prompt)
+        if 'keyboard(' in first:
+            self.read(4)
+            self._find_prompt(prompt)
+        else:
+            self.stdout.write(prompt)
         os.remove(self.interaction_file)
         self._interact(prompt)
 
     def _make_interaction_file(self, prompt):
         pwd = self.get_pwd()
+        self.write('addpath("%s");\n' % pwd)
         path = '%s/__oct2py_interact.m' % pwd
         with open(path, 'wb') as fid:
             msg = 'keyboard("%s")\n' % prompt
