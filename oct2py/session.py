@@ -459,6 +459,7 @@ class _Session(object):
     '''
     def __init__(self):
         self.proc = self.start()
+        self.stdout = sys.stdout
         atexit.register(self.close)
 
     def start(self):
@@ -507,11 +508,14 @@ class _Session(object):
                  'catch', 'disp(lasterr())', 'disp(char(21))',
                  'end', '']
         eval_ = '\n'.join(lines).encode('utf-8')
-        self.proc.stdin.write(eval_)
         if len(cmds) == 5:
             main_line = cmds[2].strip()
         else:
             main_line = '\n'.join(cmds)
+        if 'keyboard(' in main_line:
+            if not os.name == 'nt':
+                raise Oct2PyError('Keyboard command must be used in a script')
+        self.proc.stdin.write(eval_)
         try:
             self.proc.stdin.flush()
         except OSError:  # pragma: no cover
@@ -527,7 +531,9 @@ class _Session(object):
                 if char == '\n':
                     break
                 elif char == '>' and ''.join(line) == 'debug':
-                    cont = self.debug_prompt()
+                    self.proc.stdout.read(1)
+                    self.stdout.write('Entering Octave Debug Prompt...\ndebug> ')
+                    cont = self._interact()
                     if not cont:
                         return
                     line = []
@@ -555,10 +561,35 @@ class _Session(object):
             resp.append(line)
         return '\n'.join(resp)
 
-    def debug_prompt(self):
+    def interact(self, prompt='octave> ', banner=None):
+        if not banner:
+            banner = 'Starting Octave Interactive Prompt...\nType "return" when finished\n'
+        if not banner.endswith('\n'):
+            banner += '\n'
+        self.stdout.write(banner)
+        if os.name == 'nt':
+            msg = 'keyboard("%s")\n' % prompt
+            self.proc.stdin.write(msg.encode('utf-8'))
+        else:
+            import pdb; pdb.set_trace()
+            pass
+        self._find_prompt(prompt)
+        self._interact(prompt)
+
+    def _find_prompt(self, prompt='debug> '):
+        output = []
+        while 1:
+            char = self.proc.stdout.read(1).decode('utf-8')
+            output.append(char)
+            if char == '>':
+                output.append(self.proc.stdout.read(1).decode('utf-8'))
+                text = ''.join(output)
+                if text.endswith(prompt):
+                    self.stdout.write(text)
+                    return
+
+    def _interact(self, prompt='debug> '):
         """Manage an Octave Debug Prompt interaction"""
-        self.proc.stdout.read(1)
-        sys.stdout.write('Entering Octave Debug Prompt...\ndebug> ')
         while 1:
             inp = raw_input() + '\n'
             self.proc.stdin.write(inp.encode('utf-8'))
@@ -566,20 +597,7 @@ class _Session(object):
                 return True
             if inp == 'dbquit\n':
                 return False
-            output = []
-            while 1:
-                try:
-                    char = self.proc.stdout.read(1).decode('utf-8')
-                except UnicodeDecodeError:
-                    char = '?'
-                output.append(char)
-                if char == '>':
-                    text = ''.join(output)
-                    if text.endswith('debug>'):
-                        self.proc.stdout.read(1)
-                        sys.stdout.write(text)
-                        sys.stdout.write(' ')
-                        break
+            self._find_prompt(prompt)
 
     def close(self):
         '''Cleanly close an Octave session
