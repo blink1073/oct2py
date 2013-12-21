@@ -575,7 +575,7 @@ class _Session(object):
             banner += '\n'
         self.stdout.write(banner)
         pwd = self.evaluate(['pwd'], False, False)
-        pwd = pwd.splitlines()[-1].split()[-1]
+        pwd = pwd.splitlines()[-1][6:]
         path = '%s/__oct2py_interact.m' % pwd
         with open(path, 'wb') as fid:
             msg = 'keyboard("%s")\n' % prompt
