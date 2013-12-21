@@ -770,20 +770,23 @@ def test_using_closed_session():
     test.assert_raises(Oct2PyError, oc.call, 'ones')
 
 
-def test_keyboard_command():
+def test_interact():
     oc = Oct2Py()
     oc._eval('a=1')
+
     stdin = sys.stdin
     stdout = sys.stdout
     output = StringIO()
     sys.stdin = StringIO('a\nreturn')
-    sys.stdout = output
-    oc.keyboard()
+    oc._session.stdout = output
+    oc.interact()
+    sys.stdin.flush()
     sys.stdin = stdin
-    sys.stdout = stdout
+    oc._session.stdout = stdout
 
+    expected = ('Starting Octave Interactive Prompt...\n'
+                'Type "return" when finished\noctave> a =  1\r\noctave> ')
     output.read()
-    expected = 'Entering Octave Debug Prompt...\ndebug> a =  1\r\ndebug> '
     assert output.buf == expected
 
 
