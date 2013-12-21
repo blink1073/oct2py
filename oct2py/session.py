@@ -453,6 +453,10 @@ class Oct2Py(object):
         self._reader = MatRead()
         self._writer = MatWrite()
 
+    def interact(self, prompt='octave> ', banner=None):
+        """Interact with the Octave session directly"""
+        self._session.interact(prompt, banner)
+
 
 class _Session(object):
     '''Low-level session Octave session interaction
