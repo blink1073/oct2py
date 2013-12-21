@@ -626,8 +626,14 @@ class _Session(object):
         self.write(output)
         resp = self.expect(['\x03', 'syntax error'])
         if resp.endswith('syntax error'):
-            while not '^' in resp:
-                resp += self.expect('\n')
+            if self.use_pexpect:
+                resp += self.expect('\^')
+                self.expect('\^')
+                self.expect('\^')
+                self.expect('\^')
+            else:
+                resp += self.expect('^')
+            resp += self.expect('\n')
             self.handle_syntax_error(resp, main_line)
             return
         if not self.use_pexpect:
@@ -674,18 +680,15 @@ class _Session(object):
 
     def handle_syntax_error(self, resp, main_line):
         """Handle an Octave syntax error"""
+        errline = '\n'.join(resp.splitlines()[-2:])
+        msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
+                   'Octave returned Syntax Error:\n%s' % (main_line, 
+                                                          errline))
         if not self.use_pexpect:
-            msg = 'Octave Syntax Error:\n%s' % resp
             msg += '\nSession Closed by Octave'
             self.close()
             raise Oct2PyError(msg)
-        elif resp[-1] == '>>> catch':
-            msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
-                   'Octave returned Syntax Error' % main_line)
-            raise Oct2PyError(msg)
         else:
-            msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
-               .format(main_line, resp))
             raise Oct2PyError(msg)
 
     def expect(self, strings):
@@ -694,7 +697,10 @@ class _Session(object):
             strings = [strings]
         line = ''
         if self.use_pexpect:
-            self.proc.expect(strings)
+            try:
+                self.proc.expect(strings)
+            except pexpect.TIMEOUT:
+                raise Oct2PyError('Session timed out')
             line = self.proc.before + self.proc.after
             try:
                 return line.decode('utf-8', 'replace')
