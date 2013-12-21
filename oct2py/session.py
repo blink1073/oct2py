@@ -394,9 +394,11 @@ class Oct2Py(object):
         """
         try:
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
-        except Oct2PyError:
-            self._eval('type {0}'.format(name), log=False, verbose=False)
-	    doc = 'No documentation for {0}'.format(name)
+        except Oct2PyError as e:
+            if 'syntax error' in str(e):
+                raise(e)
+            doc = self._eval('type {0}'.format(name), log=False, verbose=False)
+            doc = doc.splitlines()[0]
         return doc
 
     def __getattr__(self, attr):
@@ -574,8 +576,7 @@ class _Session(object):
         if not banner.endswith('\n'):
             banner += '\n'
         self.stdout.write(banner)
-        pwd = self.evaluate(['pwd'], False, False)
-        pwd = pwd.splitlines()[-1][6:]
+        pwd = self.get_pwd()
         path = '%s/__oct2py_interact.m' % pwd
         with open(path, 'wb') as fid:
             msg = 'keyboard("%s")\n' % prompt
@@ -586,6 +587,11 @@ class _Session(object):
         self._find_prompt(prompt)
         os.remove(path)
         self._interact(prompt)
+
+    def get_pwd(self):
+        """Get the present working directory of the session"""
+        pwd = self.evaluate(['pwd'], False, False)
+        return pwd.splitlines()[-1][6:]
 
     def _find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
