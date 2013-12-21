@@ -401,7 +401,7 @@ class Oct2Py(object):
                 doc = self._eval('type {0}'.format(name), log=False, verbose=False)
                 doc = '\n'.join(doc.splitlines()[:3])
             except Oct2PyError:
-                msg = 'Function "%s" does not exist on the Octave Session path'
+                msg = 'Function "%s" does not exist on the Octave session path'
                 raise Oct2PyError(msg % name)
         return doc
 
