@@ -397,8 +397,12 @@ class Oct2Py(object):
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
-            doc = self._eval('type {0}'.format(name), log=False, verbose=False)
-            doc = doc.splitlines()[0]
+            try:
+                doc = self._eval('type {0}'.format(name), log=False, verbose=False)
+                doc = doc.splitlines()[0]
+            except Oct2PyError:
+                msg = 'Function "%s" does not exist on the Octave Session path'
+                raise Oct2PyError(msg % name)
         return doc
 
     def __getattr__(self, attr):
