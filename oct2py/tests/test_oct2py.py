@@ -816,8 +816,8 @@ def test_func_noexist():
 
 
 def test_timeout():
-    oc = Oct2Py(timeout=1)
-    test.assert_raises(Oct2PyError, oc.sleep, 1.1)
+    oc = Oct2Py(timeout=2)
+    test.assert_raises(Oct2PyError, oc.sleep, 2.1)
 
 
 if __name__ == '__main__':  # pragma: no cover
