@@ -373,7 +373,10 @@ class Oct2Py(object):
             kwargs['command'] = True
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
-        doc = doc.encode('ascii', 'replace').decode('ascii')
+        try:
+            doc = doc.encode('ascii', 'replace').decode('ascii')
+        except UnicodeDecodeError:
+            pass
         octave_command.__doc__ = "\n" + doc
         octave_command.__name__ = name
         return octave_command
@@ -418,8 +421,10 @@ class Oct2Py(object):
 
         """
         # needed for help(Oct2Py())
-        if attr in ['__name__', '__file__']:
+        if attr == '__name__':
             return super(Oct2Py, self).__getattr__(attr)
+        elif attr == '__file__':
+            return __file__
         if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
             raise Oct2PyError(
                 "Attributes don't look like this: {0}".format(attr))
@@ -535,96 +540,112 @@ class _Session(object):
             main_line = cmds[2].strip()
         else:
             main_line = '\n'.join(cmds)
-        if 'keyboard(' in main_line:
-            if not os.name == 'nt':
-                raise Oct2PyError('Keyboard command must be used in a script')
-        self.write('\n'.join(lines))
+        output = '\n'.join(lines)
+        pattern = re.compile(r'(keyboard\(.*\);?|keyboard;?)')
+        keyboard = re.search(pattern, output)
+        if keyboard:
+            name = self._make_interaction_file('octave> ')
+            output = re.sub(pattern, ';' + name + ';', output, count=1)
+            output = re.sub(pattern, ';', output)
+        self.write(output)
+        self.expect('\x03')
         if not pexpect:
             try:
                 self.proc.stdin.flush()
             except OSError:  # pragma: no cover
                 pass
         syntax_error = False
-        started = False
         while 1:
-            line = self.readline()
+            line = self.expect(['\n', 'debug> ', 'octave> ']).rstrip()
             if line == '\x03':
                 break
             elif line == '\x15':
                 msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
+            elif line in ['debug>', 'octave>']:
+                msg = 'Entering Octave Debug Prompt...\n%s ' % line
+                self.stdout.write(msg)
+                cont = self._interact(line + ' ')
+                self.write('clear _\n')
+                resp = resp[:-4]
+                self.expect('\n')
+                if not cont:
+                    return
+                else:
+                    continue
             if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
-                resp.append(line)
-                msg = 'Octave Syntax Error:\n' + '\n'.join(resp)
-                msg += '\nSession Closed by Octave'
-                self.close()
-                raise Oct2PyError(msg)
+                if not pexpect:
+                    resp.append(line)
+                    msg = 'Octave Syntax Error:\n' + '\n'.join(resp)
+                    msg += '\nSession Closed by Octave'
+                    self.close()
+                    raise Oct2PyError(msg)
+                elif resp[-1] == '>>> catch':
+                    msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
+                           'Octave returned Syntax Error' % main_line)
+                    raise Oct2PyError(msg)
+                else:
+                    resp.append(line)
+                    msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
+                       .format(main_line, '\n'.join(resp)))
+                    raise Oct2PyError(msg)
             if verbose and logger:
                 logger.info(line)
             elif log and logger:
                 logger.debug(line)
-            resp.append(line)
+            if resp or line:
+                resp.append(line)
+        if keyboard:
+            os.remove(self.interaction_file)
         return '\n'.join(resp)
         
-    def readline(self):
+    def expect(self, strings):
+        """Look for a string or strings in the incoming data"""
+        if not isinstance(strings, list):
+            strings = [strings]
         line = ''
         if pexpect:
-            self.proc.expect('\x03')
-            self.proc.expect(['\n', 'debug>'])
+            self.proc.expect(strings)
             line = self.proc.before + self.proc.after
         else:
-            line = []
-            started = False
-            while 1:
-                try:
-                    char = self.read()
-                except UnicodeDecodeError:
-                    char = '?'
-                if char == '\x03' and not started:
-                    started = True
-                    continue
-                if not started:
-                    continue
-                if char == '\n':
-                    break
-                elif char == '>' and ''.join(line) == 'debug':
-                    self.read()
-            line = ''.join(line)
-        if line == 'debug>':
-            msg = 'Entering Octave Debug Prompt...\ndebug> '
-            self.stdout.write(msg)
-            cont = self._interact()
-            self.write('clear _\n')
-            if not cont:
-                return
             line = ''
-            char = ''
-        return line.rstrip()
+            while 1:
+                line += self.read()
+                for string in strings:
+                    if line.endswith(string):
+                        break
+        return line
 
     def interact(self, prompt='octave> ', banner=None):
         """Interact with the Octave session directly"""
+        if not os.name == 'nt' and not pexpect:
+            raise Oct2PyError('Please install pexpect for interaction capability')
         if not banner:
             banner = ('Starting Octave Interactive Prompt...\n'
                      'Type "return" when finished\n')
         if not banner.endswith('\n'):
             banner += '\n'
         self.stdout.write(banner)
+        name = self._make_interaction_file(prompt)
+        self.write('%s;\n' % name)
+        self._find_prompt(prompt, False)
+        self.read(4)
+        self._find_prompt(prompt)
+        os.remove(self.interaction_file)
+        self._interact(prompt)
+        
+    def _make_interaction_file(self, prompt):
         pwd = self.get_pwd()
         path = '%s/__oct2py_interact.m' % pwd
         with open(path, 'wb') as fid:
             msg = 'keyboard("%s")\n' % prompt
             fid.write(msg.encode('utf-8'))
-        self.write('__oct2py_interact\n')
-        if os.name == 'nt':
-            self._find_prompt(prompt, False)
-            self.read(4)
-        self._find_prompt(prompt)
-        os.remove(path)
-        self._interact(prompt)
-
+        self.interaction_file = path
+        return '__oct2py_interact'
+        
     def get_pwd(self):
         """Get the present working directory of the session"""
         pwd = self.evaluate(['pwd'], False, False)
@@ -647,9 +668,10 @@ class _Session(object):
     def read(self, n=1):
         """Read characters from the process with utf-8 encoding"""
         if pexpect:
-            return self.proc.read(n).decode('utf-8')
+            chars = self.proc.read(n)
         else:
-            return self.proc.stdout.read(n).decode('utf-8')
+            chars = self.proc.stdout.read(n)
+        return chars.decode('utf-8', 'replace')
 
     def write(self, message):
         """Write a message to the process using utf-8 encoding"""
@@ -660,17 +682,18 @@ class _Session(object):
 
     def _interact(self, prompt='debug> '):
         """Manage an Octave Debug Prompt interaction"""
+        if not os.name == 'nt' and not pexpect:
+            raise Oct2PyError('Please install pexpect for interaction capability')
         while 1:
             inp = raw_input() + '\n'
             if inp == 'exit\n':
                 inp = 'return\n'
-            self.write(inp)
+            self.write('disp(char(3));' + inp)
             if inp in ['dbcont\n', 'return\n']:
                 return True
             if inp in ['dbquit\n']:
                 return False
-            if pexpect:
-                self.read(len(inp) + 1)
+            self.expect('\x03\r\n')
             self._find_prompt(prompt)
 
     def close(self):

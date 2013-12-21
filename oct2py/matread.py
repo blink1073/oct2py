@@ -10,7 +10,7 @@ import os
 import numpy as np
 from scipy.io import loadmat
 import scipy
-from .utils import Struct, create_file
+from .utils import Struct, create_file, Oct2PyError
 
 
 class MatRead(object):
@@ -77,7 +77,10 @@ class MatRead(object):
         data = loadmat(self.out_file)
         outputs = []
         for arg in argout_list:
-            val = data[arg]
+            try:
+                val = data[arg]
+            except KeyError as e:
+                raise Oct2PyError(e)
             val = get_data(val)
             outputs.append(val)
         if len(outputs) > 1:

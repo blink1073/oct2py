@@ -693,7 +693,7 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 21
+    assert len(lines) == 23
     assert lines[0].startswith('load')
 
     # now make an object with a desired logger
@@ -711,7 +711,7 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 39
+    assert len(lines) == 42
     assert lines[0].startswith('load')
 
 
