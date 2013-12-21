@@ -790,6 +790,20 @@ def test_interact():
     assert output.buf == expected
 
 
+def test_func_without_docstring():
+    oc = Oct2Py()
+    pwd = oc._session.get_pwd()
+    fname = '%s/temp_oct2py_func.m' % pwd
+    msg = 'function [outp] = temp_oct2py_func(inp)\noutp = inp;\nend\n'
+    with open(fname, 'wb') as fid:
+        fid.write(msg.encode('utf-8'))
+    out = oc.temp_oct2py_func(5)
+    assert out == 5
+    assert 'user-defined function' in oc.temp_oct2py_func.__doc__
+    assert pwd in oc.temp_oct2py_func.__doc__
+    os.remove(fname)
+
+
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
     print('*' * 20)
