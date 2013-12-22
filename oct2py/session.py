@@ -518,16 +518,14 @@ class _Reader(object):
     def __init__(self, proc, queue):
         self.proc = proc
         self.queue = queue
-        self.thread = threading.Thread(target=self.read_incoming, 
-                                       args=(time.sleep,))
+        self.thread = threading.Thread(target=self.read_incoming)
         self.thread.setDaemon(True)
         self.thread.start()
         
-    def read_incoming(self, sleep_func):
+    def read_incoming(self):
         while 1:
             char = self.proc.stdout.read(1)
             self.queue.put(char)
-            sleep_func(0.0001)
         
 
 class _Session(object):
@@ -576,7 +574,8 @@ class _Session(object):
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
-                      stdout=subprocess.PIPE, close_fds=ON_POSIX)
+                      stdout=subprocess.PIPE, close_fds=ON_POSIX,
+                      bufsize=1)
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -692,7 +691,10 @@ class _Session(object):
         if self.use_pexpect:
             self.proc.expect(strings)
             line = self.proc.before + self.proc.after
-            return line.decode('utf-8', 'replace')
+            try:
+                return line.decode('utf-8', 'replace')
+            except:
+                return line
         else:
             line = ''
             while 1:
@@ -747,7 +749,10 @@ class _Session(object):
         """Read characters from the process with utf-8 encoding"""
         if self.use_pexpect:
             chars = self.proc.read(n)
-            return chars.decode('utf-8', 'replace')
+            try:
+                return chars.decode('utf-8', 'replace')
+            except:
+                return chars
         else:
             t0 = time.time()
             chars = []
@@ -756,7 +761,7 @@ class _Session(object):
                     chars.append(self.read_queue.get_nowait())
                 except queue.Empty:
                     pass
-                time.sleep(0.0001)
+                time.sleep(1e-6)
                 if len(chars) == n:
                     chars = b''.join(chars)
                     return chars.decode('utf-8', 'replace')
