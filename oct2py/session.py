@@ -527,7 +527,8 @@ class _Session(object):
         """
         if self.use_pexpect:
             try:
-                return pexpect.spawn('octave', ['-q', '--braindead'])
+                return pexpect.spawn('octave', ['-q', '--braindead'],
+                                     timeout=60.)
             except Exception:
                 return self.start_subprocess()
         else:
