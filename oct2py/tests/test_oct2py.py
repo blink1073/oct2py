@@ -17,6 +17,8 @@ import logging
 import os
 import pickle
 import sys
+import threading
+import thread
 
 import numpy as np
 import numpy.testing as test
@@ -784,8 +786,13 @@ def test_interact():
     output = StringIO()
     sys.stdin = StringIO('a\nreturn')
     oc._session.stdout = output
-    oc.timeout = 10.
-    oc.interact()
+    timer = threading.Timer(5, thread.interrupt_main)
+    try:
+        timer.start()
+        oc.interact()
+    except KeyboardInterrupt:
+        raise Oct2PyError('Interaction failed')
+    timer.cancel()
     sys.stdin.flush()
     sys.stdin = stdin
     oc._session.stdout = stdout
@@ -802,11 +809,16 @@ def test_func_without_docstring():
     assert out == 5
     assert 'user-defined function' in oc.test_nodocstring.__doc__
     assert os.path.dirname(__file__) in oc.test_nodocstring.__doc__
-    
+
 
 def test_func_noexist():
     oc = Oct2Py()
     test.assert_raises(Oct2PyError, oc.call, 'oct2py_dummy')
+
+
+def test_timeout():
+    oc = Oct2Py(timeout=1)
+    test.assert_raises(Oct2PyError, oc.sleep, 1.1)
 
 
 if __name__ == '__main__':  # pragma: no cover

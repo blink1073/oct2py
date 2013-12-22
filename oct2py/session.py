@@ -16,7 +16,7 @@ import sys
 import threading
 import time
 
-    
+
 pexpect = None
 if not os.name == 'nt':
     # needed for testing support
@@ -374,7 +374,7 @@ class Oct2Py(object):
             [self.logger.info(line) for line in cmds]
         elif log:
             [self.logger.debug(line) for line in cmds]
-        return self._session.evaluate(cmds, verbose, log, self.logger, 
+        return self._session.evaluate(cmds, verbose, log, self.logger,
                                       timeout=self.timeout)
 
     def _make_octave_command(self, name, doc=None):
@@ -430,7 +430,7 @@ class Oct2Py(object):
             if 'syntax error' in str(e):
                 raise(e)
             try:
-                doc = self._eval('type {0}'.format(name), log=False, 
+                doc = self._eval('type {0}'.format(name), log=False,
                                  verbose=False)
                 doc = '\n'.join(doc.splitlines()[:3])
             except Oct2PyError as e:
@@ -495,12 +495,12 @@ class Oct2Py(object):
 
     def interact(self, prompt='octave> ', banner=None):
         """Interact with the Octave session directly.
-        
+
         Parameters
         ----------
         prompt : str
             The interactive prompt string.
-            
+
         banner: str
             The interactive prompt welcome banner.
 
@@ -521,12 +521,15 @@ class _Reader(object):
         self.thread = threading.Thread(target=self.read_incoming)
         self.thread.setDaemon(True)
         self.thread.start()
-        
+
     def read_incoming(self):
         while 1:
             char = self.proc.stdout.read(1)
-            self.queue.put(char)
-        
+            try:
+                self.queue.put(char)
+            except:
+                return
+
 
 class _Session(object):
     """Low-level session Octave session interaction.
@@ -574,8 +577,7 @@ class _Session(object):
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
-                      stdout=subprocess.PIPE, close_fds=ON_POSIX,
-                      bufsize=1)
+                      stdout=subprocess.PIPE, close_fds=ON_POSIX)
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -587,7 +589,7 @@ class _Session(object):
         else:
             self.reader = _Reader(proc, self.read_queue)
             return proc
-            
+
     def set_timeout(self, timeout=-1):
         if timeout == -1:
             timeout = int(1e6)
@@ -595,7 +597,7 @@ class _Session(object):
             self.proc.timeout = timeout
         else:
             self.timeout = timeout
-            
+
     def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
         """Perform the low-level interaction with an Octave Session
         """
@@ -738,6 +740,7 @@ class _Session(object):
 
     def _find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
+        print('timeout %s' % self.timeout)
         output = ''
         while 1:
             output += self.read()
@@ -757,6 +760,7 @@ class _Session(object):
         else:
             t0 = time.time()
             chars = []
+            print('t0 %s' % t0)
             while 1:
                 try:
                     chars.append(self.read_queue.get_nowait())
@@ -764,9 +768,11 @@ class _Session(object):
                     pass
                 time.sleep(1e-6)
                 if len(chars) == n:
+                    print('or here')
                     chars = b''.join(chars)
                     return chars.decode('utf-8', 'replace')
                 if (time.time() - t0) > self.timeout:
+                    print('here')
                     self.close()
                     raise Oct2PyError('Session Timed Out, closing')
 
