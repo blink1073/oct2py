@@ -19,10 +19,10 @@ try:
 except ImportError:
     spawn = None
 
-from oct2py.matwrite import MatWrite
-from oct2py.matread import MatRead
-from oct2py.utils import get_nout, Oct2PyError, get_log
-from oct2py.compat import unicode
+from .matwrite import MatWrite
+from .matread import MatRead
+from .utils import get_nout, Oct2PyError, get_log
+from .compat import unicode, input
 
 
 class Oct2Py(object):
@@ -624,7 +624,7 @@ class _Session(object):
         if spawn:
             self.proc.expect(strings)
             line = self.proc.before + self.proc.after
-            return line
+            return line.decode('utf-8')
         else:
             line = ''
             while 1:
@@ -695,7 +695,7 @@ class _Session(object):
         if not os.name == 'nt' and not spawn:
             raise Oct2PyError('Please install pexpect for interaction capability')
         while 1:
-            inp = raw_input() + '\n'
+            inp = input() + '\n'
             if inp == 'exit\n':
                 inp = 'return\n'
             self.write('disp(char(3));' + inp)

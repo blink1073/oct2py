@@ -9,7 +9,9 @@ if PY2:
     unicode = unicode
     long = long
     from StringIO import StringIO
+    input = raw_input
 else:  # pragma : no cover
     unicode = str
     long = int
     from io import StringIO
+    input = input
