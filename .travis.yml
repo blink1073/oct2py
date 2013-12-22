@@ -53,7 +53,8 @@ script:
     - if [[ $PYVER == '3.x' ]]; then
     -     nosetests --exe -v oct2py
     - fi
-    - pip install --use-mirrors pexpect
+    - pip install -U nose
+    - pip install pexpect
     - nosetests --exe -v oct2py
     
 
