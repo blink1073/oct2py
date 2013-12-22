@@ -14,10 +14,12 @@ import doctest
 import subprocess
 import sys
 
-try:
-    from pexpect import spawn, ExceptionPexpect
-except ImportError:
-    spawn = None
+pexpect = None
+if not os.name == 'nt':
+    try:
+        import pexpect
+    except ImportError:
+        pass
 
 from .matwrite import MatWrite
 from .matread import MatRead
@@ -484,6 +486,7 @@ class _Session(object):
     '''Low-level session Octave session interaction
     '''
     def __init__(self):
+        self.use_pexpect = not pexpect is None
         self.proc = self.start()
         self.stdout = sys.stdout
         atexit.register(self.close)
@@ -508,18 +511,17 @@ class _Session(object):
         Matlab compatibilty mode.
 
         """
-        global spawn
-        if spawn:
+        if self.use_pexpect:
             try:
-                return spawn('octave', ['-q', '--braindead'])
+                return pexpect.spawn('octave', ['-q', '--braindead'])
             except Exception:
-                spawn = None
                 return self.start_subprocess()
         else:
             return self.start_subprocess()
 
     def start_subprocess(self):
         """Start octave using a subprocess (no tty support)"""
+        self.use_pexpect = False
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
@@ -563,7 +565,7 @@ class _Session(object):
                 resp += self.expect('\n')
             self.handle_syntax_error(resp, main_line)
             return
-        if not spawn:
+        if not self.use_pexpect:
             try:
                 self.proc.stdin.flush()
             except OSError:  # pragma: no cover
@@ -607,7 +609,7 @@ class _Session(object):
 
     def handle_syntax_error(self, resp, main_line):
         """Handle an Octave syntax error"""
-        if not spawn:
+        if not self.use_pexpect:
             msg = 'Octave Syntax Error:\n%s' % resp
             msg += '\nSession Closed by Octave'
             self.close()
@@ -626,7 +628,7 @@ class _Session(object):
         if not isinstance(strings, list):
             strings = [strings]
         line = ''
-        if spawn:
+        if self.use_pexpect:
             self.proc.expect(strings)
             line = self.proc.before + self.proc.after
             return line.decode('utf-8')
@@ -640,7 +642,7 @@ class _Session(object):
 
     def interact(self, prompt='octave> ', banner=None):
         """Interact with the Octave session directly"""
-        if not os.name == 'nt' and not spawn:
+        if not os.name == 'nt' and not self.use_pexpect:
             raise Oct2PyError('Please install pexpect for interaction capability')
         if not banner:
             banner = ('Starting Octave Interactive Prompt...\n'
@@ -682,7 +684,7 @@ class _Session(object):
 
     def read(self, n=1):
         """Read characters from the process with utf-8 encoding"""
-        if spawn:
+        if self.use_pexpect:
             chars = self.proc.read(n)
         else:
             chars = self.proc.stdout.read(n)
@@ -690,14 +692,14 @@ class _Session(object):
 
     def write(self, message):
         """Write a message to the process using utf-8 encoding"""
-        if spawn:
+        if self.use_pexpect:
             self.proc.write(message.encode('utf-8'))
         else:
             self.proc.stdin.write(message.encode('utf-8'))
 
     def _interact(self, prompt='debug> '):
         """Manage an Octave Debug Prompt interaction"""
-        if not os.name == 'nt' and not spawn:
+        if not os.name == 'nt' and not self.use_pexpect:
             raise Oct2PyError('Please install pexpect for interaction capability')
         while 1:
             inp = input() + '\n'
