@@ -422,7 +422,7 @@ class NumpyTest(test.TestCase):
     blacklist_names = ['float128', 'float96', 'complex192', 'complex256']
 
     def test_scalars(self):
-        """Send a scalar numpy type and make sure we get the same number back.
+        """Send scalar numpy types and make sure we get the same number back.
         """
         for typecode in self.codes:
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
@@ -445,7 +445,7 @@ class NumpyTest(test.TestCase):
                                    outgoing)
 
     def test_ndarrays(self):
-        """Send an ndarray and make sure we get the same array back
+        """Send ndarrays and make sure we get the same array back
         """
         for typecode in self.codes:
             for ndims in [2, 3, 4]:
@@ -730,11 +730,6 @@ def test_lookfor():
 def test_remove_files():
     from oct2py.utils import _remove_temp_files
     _remove_temp_files()
-
-
-def test_speed():
-    from oct2py import speed_test
-    speed_test()
 
 
 def test_threads():
