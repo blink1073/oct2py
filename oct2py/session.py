@@ -15,10 +15,10 @@ import subprocess
 import sys
 
 try:
-    import pexpect
+    from pexpect import spawn, ExceptionPexpect
 except ImportError:
-    pexpect = None
-    
+    spawn = None
+
 from .matwrite import MatWrite
 from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
@@ -503,14 +503,19 @@ class _Session(object):
         Matlab compatibilty mode.
 
         """
-        errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
-        if pexpect:
+        global spawn
+        if spawn:
             try:
-                proc = pexpect.spawn('octave', ['-q', '--braindead'])
-            except pexpect.ExceptionPexpect:
-                raise Oct2PyError(errmsg)
-            else:
-                return proc
+                return spawn('octave', ['-q', '--braindead'])
+            except Exception:
+                spawn = None
+                return self.start_subprocess()
+        else:
+            return self.start_subprocess()
+
+    def start_subprocess(self):
+        """Start octave using a subprocess (no tty support)"""
+        errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
                       stdout=subprocess.PIPE, close_fds=ON_POSIX)
@@ -530,7 +535,6 @@ class _Session(object):
         '''
         if not self.proc:
             raise Oct2PyError('Session Closed, try a restart()')
-        resp = []
         # use ascii code 21 to signal an error and 3
         # to signal end of text
         lines = ['try', 'disp(char(3))', '\n'.join(cmds), 'disp(char(3))',
@@ -548,12 +552,18 @@ class _Session(object):
             output = re.sub(pattern, ';' + name + ';', output, count=1)
             output = re.sub(pattern, ';', output)
         self.write(output)
-        self.expect('\x03')
-        if not pexpect:
+        resp = self.expect(['\x03', 'syntax error'])
+        if resp.endswith('syntax error'):
+            while not '^' in resp:
+                resp += self.expect('\n')
+            self.handle_syntax_error(resp, main_line)
+            return
+        if not spawn:
             try:
                 self.proc.stdin.flush()
             except OSError:  # pragma: no cover
                 pass
+        resp = []
         syntax_error = False
         while 1:
             line = self.expect(['\n', 'debug> ', 'octave> ']).rstrip()
@@ -577,21 +587,9 @@ class _Session(object):
             if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
-                if not pexpect:
-                    resp.append(line)
-                    msg = 'Octave Syntax Error:\n' + '\n'.join(resp)
-                    msg += '\nSession Closed by Octave'
-                    self.close()
-                    raise Oct2PyError(msg)
-                elif resp[-1] == '>>> catch':
-                    msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
-                           'Octave returned Syntax Error' % main_line)
-                    raise Oct2PyError(msg)
-                else:
-                    resp.append(line)
-                    msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
-                       .format(main_line, '\n'.join(resp)))
-                    raise Oct2PyError(msg)
+               resp.append(line)
+               self.handle_syntax_error(''.join(resp), main_line)
+               return
             if verbose and logger:
                 logger.info(line)
             elif log and logger:
@@ -601,27 +599,43 @@ class _Session(object):
         if keyboard:
             os.remove(self.interaction_file)
         return '\n'.join(resp)
-        
+
+    def handle_syntax_error(self, resp, main_line):
+        """Handle an Octave syntax error"""
+        if not spawn:
+            msg = 'Octave Syntax Error:\n%s' % resp
+            msg += '\nSession Closed by Octave'
+            self.close()
+            raise Oct2PyError(msg)
+        elif resp[-1] == '>>> catch':
+            msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
+                   'Octave returned Syntax Error' % main_line)
+            raise Oct2PyError(msg)
+        else:
+            msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
+               .format(main_line, resp))
+            raise Oct2PyError(msg)
+
     def expect(self, strings):
         """Look for a string or strings in the incoming data"""
         if not isinstance(strings, list):
             strings = [strings]
         line = ''
-        if pexpect:
+        if spawn:
             self.proc.expect(strings)
             line = self.proc.before + self.proc.after
+            return line
         else:
             line = ''
             while 1:
                 line += self.read()
                 for string in strings:
                     if line.endswith(string):
-                        break
-        return line
+                        return line
 
     def interact(self, prompt='octave> ', banner=None):
         """Interact with the Octave session directly"""
-        if not os.name == 'nt' and not pexpect:
+        if not os.name == 'nt' and not spawn:
             raise Oct2PyError('Please install pexpect for interaction capability')
         if not banner:
             banner = ('Starting Octave Interactive Prompt...\n'
@@ -636,7 +650,7 @@ class _Session(object):
         self._find_prompt(prompt)
         os.remove(self.interaction_file)
         self._interact(prompt)
-        
+
     def _make_interaction_file(self, prompt):
         pwd = self.get_pwd()
         path = '%s/__oct2py_interact.m' % pwd
@@ -645,7 +659,7 @@ class _Session(object):
             fid.write(msg.encode('utf-8'))
         self.interaction_file = path
         return '__oct2py_interact'
-        
+
     def get_pwd(self):
         """Get the present working directory of the session"""
         pwd = self.evaluate(['pwd'], False, False)
@@ -653,21 +667,17 @@ class _Session(object):
 
     def _find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
-        output = []
+        output = ''
         while 1:
-            char = self.read()
-            output.append(char)
-            if char == '>':
-                output.append(self.read())
-                text = ''.join(output)
-                if text.endswith(prompt):
-                    if disp:
-                        self.stdout.write(text)
-                    return
+            output += self.read()
+            if output.endswith(prompt):
+                if disp:
+                    self.stdout.write(output)
+                return
 
     def read(self, n=1):
         """Read characters from the process with utf-8 encoding"""
-        if pexpect:
+        if spawn:
             chars = self.proc.read(n)
         else:
             chars = self.proc.stdout.read(n)
@@ -675,14 +685,14 @@ class _Session(object):
 
     def write(self, message):
         """Write a message to the process using utf-8 encoding"""
-        if pexpect:
+        if spawn:
             self.proc.write(message.encode('utf-8'))
         else:
             self.proc.stdin.write(message.encode('utf-8'))
 
     def _interact(self, prompt='debug> '):
         """Manage an Octave Debug Prompt interaction"""
-        if not os.name == 'nt' and not pexpect:
+        if not os.name == 'nt' and not spawn:
             raise Oct2PyError('Please install pexpect for interaction capability')
         while 1:
             inp = raw_input() + '\n'
