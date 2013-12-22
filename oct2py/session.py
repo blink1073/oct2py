@@ -535,6 +535,7 @@ class _Session(object):
     """Low-level session Octave session interaction.
     """
     def __init__(self):
+        self.timeout = int(1e6)
         self.use_pexpect = not pexpect is None
         self.read_queue = queue.Queue()
         self.proc = self.start()
@@ -740,7 +741,6 @@ class _Session(object):
 
     def _find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
-        print('timeout %s' % self.timeout)
         output = ''
         while 1:
             output += self.read()
@@ -760,7 +760,6 @@ class _Session(object):
         else:
             t0 = time.time()
             chars = []
-            print('t0 %s' % t0)
             while 1:
                 try:
                     chars.append(self.read_queue.get_nowait())
@@ -768,11 +767,9 @@ class _Session(object):
                     pass
                 time.sleep(1e-6)
                 if len(chars) == n:
-                    print('or here')
                     chars = b''.join(chars)
                     return chars.decode('utf-8', 'replace')
                 if (time.time() - t0) > self.timeout:
-                    print('here')
                     self.close()
                     raise Oct2PyError('Session Timed Out, closing')
 
