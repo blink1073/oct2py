@@ -19,10 +19,10 @@ try:
 except ImportError:
     spawn = None
 
-from .matwrite import MatWrite
-from .matread import MatRead
-from .utils import get_nout, Oct2PyError, get_log
-from .compat import unicode
+from oct2py.matwrite import MatWrite
+from oct2py.matread import MatRead
+from oct2py.utils import get_nout, Oct2PyError, get_log
+from oct2py.compat import unicode
 
 
 class Oct2Py(object):
@@ -148,7 +148,7 @@ class Oct2Py(object):
         >>> a
         array([[ 0.,  0.]])
         >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
-        >>> print(U, S, V)
+        >>> print((U, S, V))
         (array([[-0.57604844, -0.81741556],
                [-0.81741556,  0.57604844]]), array([[ 3.86432845,  0.        ],
                [ 0.        ,  0.25877718]]), array([[-0.36059668, -0.93272184],
