@@ -571,7 +571,7 @@ class _Session(object):
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
         else:
-            self.reader = Reader(proc)
+            self.reader = Reader(proc, self.read_queue)
             return proc
             
     def set_timeout(self, timeout):
