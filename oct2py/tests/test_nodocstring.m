@@ -1,3 +1,3 @@
 function [outp] = test_nodocstring(inp)
-    output = inp;
+    outp = inp;
 end

@@ -401,17 +401,22 @@ class Oct2Py(object):
            If the procedure or object does not exist.
 
         """
+        exist = self._eval('exist {0}'.format(name), log=False, verbose=False)
+        if exist == 'ans = 0':
+            msg = 'Name: "%s" does not exist on the Octave session path'
+            raise Oct2PyError(msg % name)
+        doc = 'No documentation for %s' % name
         try:
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
             try:
-                doc = self._eval('type {0}'.format(name), log=False, verbose=False)
+                doc = self._eval('type {0}'.format(name), log=False, 
+                                 verbose=False)
                 doc = '\n'.join(doc.splitlines()[:3])
-            except Oct2PyError:
-                msg = 'Function "%s" does not exist on the Octave session path'
-                raise Oct2PyError(msg % name)
+            except Oct2PyError as e:
+                pass
         return doc
 
     def __getattr__(self, attr):
