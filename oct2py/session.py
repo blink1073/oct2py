@@ -13,6 +13,9 @@ import atexit
 import doctest
 import subprocess
 import sys
+import threading
+import Queue
+import time
 
 pexpect = None
 if not os.name == 'nt':
@@ -41,9 +44,10 @@ class Oct2Py(object):
     when calling a command, then they will be logged as info.
 
     """
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, timeout=-1):
         """Start Octave and create our MAT helpers
         """
+        self.timeout = timeout
         if not logger is None:
             self.logger = logger
         else:
@@ -359,7 +363,8 @@ class Oct2Py(object):
             [self.logger.info(line) for line in cmds]
         elif log:
             [self.logger.debug(line) for line in cmds]
-        return self._session.evaluate(cmds, verbose, log, self.logger)
+        return self._session.evaluate(cmds, verbose, log, self.logger, 
+                                      timeout=self.timeout)
 
     def _make_octave_command(self, name, doc=None):
         """Create a wrapper to an Octave procedure or object
@@ -496,13 +501,30 @@ class Oct2Py(object):
         self._session.interact(prompt, banner)
 
 
+class Reader(object):
+    
+    def __init__(self, proc, queue):
+        self.proc = proc
+        self.queue = queue
+        self.thread = threading.Thread(target=self.read_incoming)
+        self.thread.setDaemon(True)
+        self.thread.start()
+        
+    def read_incoming(self):
+        while 1:
+            char = self.proc.stdout.read(1)
+            self.queue.put(char)
+        
+
 class _Session(object):
     """Low-level session Octave session interaction.
     """
     def __init__(self):
         self.use_pexpect = not pexpect is None
         self.proc = self.start()
+        self.read_queue = Queue.Queue()
         self.stdout = sys.stdout
+        self.timeout = int(1e9)
         atexit.register(self.close)
 
     def start(self):
@@ -550,11 +572,21 @@ class _Session(object):
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
         else:
+            self.reader = Reader(proc)
             return proc
-
-    def evaluate(self, cmds, verbose=True, log=True, logger=None):
+            
+    def set_timeout(self, timeout):
+        if self.use_pexpect:
+            if timeout == -1:
+                timeout = int(1e6)
+            self.proc.timeout = timeout
+        else:
+            self.timeout = timeout
+            
+    def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
         """Perform the low-level interaction with an Octave Session
         """
+        self.set_timeout(timeout)
         if not self.proc:
             raise Oct2PyError('Session Closed, try a restart()')
         # use ascii code 21 to signal an error and 3
@@ -702,7 +734,19 @@ class _Session(object):
         if self.use_pexpect:
             chars = self.proc.read(n)
         else:
-            chars = self.proc.stdout.read(n)
+            t0 = time.time()
+            chars = []
+            while 1:
+                try:
+                    chars.append(self.read_queue.get_nowait())
+                except Queue.Empty:
+                    pass
+                if len(chars) == n:
+                    chars = ''.join(chars)
+                    break
+                if (time.time() - t0) > self.timeout:
+                    self.close()
+                    raise Oct2PyError('Session Timed Out, closing')
         return chars.decode('utf-8', 'replace')
 
     def write(self, message):
