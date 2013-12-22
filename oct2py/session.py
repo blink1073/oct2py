@@ -599,7 +599,8 @@ class _Session(object):
     def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
         """Perform the low-level interaction with an Octave Session
         """
-        self.set_timeout(timeout)
+        if not timeout == -1:
+            self.set_timeout(timeout)
         if not self.proc:
             raise Oct2PyError('Session Closed, try a restart()')
         # use ascii code 21 to signal an error and 3
