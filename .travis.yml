@@ -55,8 +55,7 @@ script:
     -     nosetests --exe -v oct2py
     -     pip install --use-mirrors pexpect-u
     - fi
-    - pip install -U nose
-    - pip install pexpect
+    - nosetests --exe -v oct2py
     
 
 after_success:
