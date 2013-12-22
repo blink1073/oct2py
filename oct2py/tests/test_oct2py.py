@@ -801,17 +801,10 @@ def test_interact():
 
 def test_func_without_docstring():
     oc = Oct2Py()
-    pwd = os.getcwd()
-    oc.addpath(pwd)
-    fname = 'temp_oct2py_func.m'
-    msg = 'function [outp] = temp_oct2py_func(inp)\noutp = inp;\nend\n'
-    with open(fname, 'wb') as fid:
-        fid.write(msg.encode('utf-8'))
-    out = oc.temp_oct2py_func(5)
+    out = oc.test_nodocstring(5)
     assert out == 5
     assert 'user-defined function' in oc.temp_oct2py_func.__doc__
-    assert pwd in oc.temp_oct2py_func.__doc__
-    os.remove(fname)
+    assert os.path.dirname(__file__) in oc.temp_oct2py_func.__doc__
 
 
 if __name__ == '__main__':  # pragma: no cover
