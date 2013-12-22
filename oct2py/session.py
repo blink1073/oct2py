@@ -16,8 +16,18 @@ import sys
 import threading
 import time
 
+    
 pexpect = None
 if not os.name == 'nt':
+    # needed for testing support
+    if not hasattr(sys.stdout, 'buffer'):  # pragma: no cover
+        class Dummy(object):
+            def write(self):
+                pass
+        try:
+            sys.stdout.buffer = Dummy()
+        except AttributeError:
+            pass
     try:
         import pexpect
     except ImportError:
@@ -198,9 +208,11 @@ class Oct2Py(object):
         pre_call = '\nglobal __oct2py_figures = [];\n'
         post_call = ''
 
-        if not nout and 'command' in kwargs and not '__ipy_figures' in func:
+        if 'command' in kwargs and not '__ipy_figures' in func:
             if not call_line.endswith(')'):
                 call_line += '();\n'
+            else:
+                call_line += ';\n'
             post_call += """
             # Save output of the last execution
                 if exist("ans") == 1
@@ -501,18 +513,21 @@ class Oct2Py(object):
 
 
 class _Reader(object):
-    
+    """Read characters from an Octave session in a thread.
+    """
     def __init__(self, proc, queue):
         self.proc = proc
         self.queue = queue
-        self.thread = threading.Thread(target=self.read_incoming)
+        self.thread = threading.Thread(target=self.read_incoming, 
+                                       args=(time.sleep,))
         self.thread.setDaemon(True)
         self.thread.start()
         
-    def read_incoming(self):
+    def read_incoming(self, sleep_func):
         while 1:
             char = self.proc.stdout.read(1)
             self.queue.put(char)
+            sleep_func(0.0001)
         
 
 class _Session(object):
@@ -523,7 +538,7 @@ class _Session(object):
         self.read_queue = queue.Queue()
         self.proc = self.start()
         self.stdout = sys.stdout
-        self.timeout = int(1e9)
+        self.set_timeout()
         atexit.register(self.close)
 
     def start(self):
@@ -574,10 +589,10 @@ class _Session(object):
             self.reader = _Reader(proc, self.read_queue)
             return proc
             
-    def set_timeout(self, timeout):
+    def set_timeout(self, timeout=-1):
+        if timeout == -1:
+            timeout = int(1e6)
         if self.use_pexpect:
-            if timeout == -1:
-                timeout = int(1e6)
             self.proc.timeout = timeout
         else:
             self.timeout = timeout
@@ -677,7 +692,7 @@ class _Session(object):
         if self.use_pexpect:
             self.proc.expect(strings)
             line = self.proc.before + self.proc.after
-            return line.decode('utf-8')
+            return line.decode('utf-8', 'replace')
         else:
             line = ''
             while 1:
@@ -732,6 +747,7 @@ class _Session(object):
         """Read characters from the process with utf-8 encoding"""
         if self.use_pexpect:
             chars = self.proc.read(n)
+            return chars.decode('utf-8', 'replace')
         else:
             t0 = time.time()
             chars = []
@@ -740,13 +756,13 @@ class _Session(object):
                     chars.append(self.read_queue.get_nowait())
                 except queue.Empty:
                     pass
+                time.sleep(0.0001)
                 if len(chars) == n:
-                    chars = ''.join(chars)
-                    break
+                    chars = b''.join(chars)
+                    return chars.decode('utf-8', 'replace')
                 if (time.time() - t0) > self.timeout:
                     self.close()
                     raise Oct2PyError('Session Timed Out, closing')
-        return chars.decode('utf-8', 'replace')
 
     def write(self, message):
         """Write a message to the process using utf-8 encoding"""

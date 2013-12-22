@@ -21,6 +21,7 @@ import sys
 import numpy as np
 import numpy.testing as test
 
+
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
@@ -783,6 +784,7 @@ def test_interact():
     output = StringIO()
     sys.stdin = StringIO('a\nreturn')
     oc._session.stdout = output
+    oc.timeout = 10.
     oc.interact()
     sys.stdin.flush()
     sys.stdin = stdin
@@ -790,8 +792,7 @@ def test_interact():
 
     expected = ('Starting Octave Interactive Prompt...\n'
                 'Type "return" when finished\noctave> a =  1\r\noctave> ')
-    output.read()
-    assert output.buf == expected
+    assert output.getvalue() == expected
 
 
 def test_func_without_docstring():
