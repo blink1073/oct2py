@@ -51,13 +51,13 @@ class Oct2Py(object):
         self.restart()
 
     def __enter__(self):
-        '''Return octave object, restart session if necessary'''
+        """Return octave object, restart session if necessary"""
         if not self._session:
             self.restart()
         return self
 
     def __exit__(self, type, value, traceback):
-        '''Close session'''
+        """Close session"""
         self.close()
 
     def close(self):
@@ -198,14 +198,14 @@ class Oct2Py(object):
         if not nout and 'command' in kwargs and not '__ipy_figures' in func:
             if not call_line.endswith(')'):
                 call_line += '();\n'
-            post_call += '''
+            post_call += """
             # Save output of the last execution
                 if exist("ans") == 1
                   _ = ans;
                 else
                   _ = "__no_answer";
                 end
-            '''
+            """
 
         # do not interfere with octavemagic logic
         if not "DefaultFigureCreateFcn" in call_line:
@@ -469,8 +469,8 @@ class Oct2Py(object):
         self._graphics_toolkit = 'gnuplot'
 
     def restart(self):
-        '''Restart an Octave session in a clean state
-        '''
+        """Restart an Octave session in a clean state
+        """
         self._session = _Session()
         self._first_run = True
         self._graphics_toolkit = None
@@ -478,13 +478,27 @@ class Oct2Py(object):
         self._writer = MatWrite()
 
     def interact(self, prompt='octave> ', banner=None):
-        """Interact with the Octave session directly"""
+        """Interact with the Octave session directly.
+        
+        Parameters
+        ----------
+        prompt : str
+            The interactive prompt string.
+            
+        banner: str
+            The interactive prompt welcome banner.
+
+        Raises
+        ------
+        Oct2PyError
+           If on a POSIX System and pexpect is not installed.
+        """
         self._session.interact(prompt, banner)
 
 
 class _Session(object):
-    '''Low-level session Octave session interaction
-    '''
+    """Low-level session Octave session interaction.
+    """
     def __init__(self):
         self.use_pexpect = not pexpect is None
         self.proc = self.start()
@@ -538,8 +552,8 @@ class _Session(object):
             return proc
 
     def evaluate(self, cmds, verbose=True, log=True, logger=None):
-        '''Perform the low-level interaction with an Octave Session
-        '''
+        """Perform the low-level interaction with an Octave Session
+        """
         if not self.proc:
             raise Oct2PyError('Session Closed, try a restart()')
         # use ascii code 21 to signal an error and 3
@@ -714,8 +728,8 @@ class _Session(object):
             self._find_prompt(prompt)
 
     def close(self):
-        '''Cleanly close an Octave session
-        '''
+        """Cleanly close an Octave session
+        """
         try:
             self.write('exit\n')
         except (IOError, AttributeError):
