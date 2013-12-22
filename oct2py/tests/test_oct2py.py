@@ -771,6 +771,15 @@ def test_using_closed_session():
 
 
 def test_interact():
+
+    if not os.name == 'nt':
+        try:
+            import pexpect
+        except ImportError:
+            oc = Oct2Py()
+            test.assert_raises(Oct2PyError, oc.interact)
+            return
+
     oc = Oct2Py()
     oc._eval('a=1')
 
