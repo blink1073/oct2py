@@ -14,7 +14,6 @@ import doctest
 import subprocess
 import sys
 import threading
-import Queue
 import time
 
 pexpect = None
@@ -27,7 +26,7 @@ if not os.name == 'nt':
 from .matwrite import MatWrite
 from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
-from .compat import unicode, input
+from .compat import unicode, input, queue
 
 
 class Oct2Py(object):
@@ -522,7 +521,7 @@ class _Session(object):
     def __init__(self):
         self.use_pexpect = not pexpect is None
         self.proc = self.start()
-        self.read_queue = Queue.Queue()
+        self.read_queue = queue.Queue()
         self.stdout = sys.stdout
         self.timeout = int(1e9)
         atexit.register(self.close)
@@ -739,7 +738,7 @@ class _Session(object):
             while 1:
                 try:
                     chars.append(self.read_queue.get_nowait())
-                except Queue.Empty:
+                except queue.Empty:
                     pass
                 if len(chars) == n:
                     chars = ''.join(chars)
