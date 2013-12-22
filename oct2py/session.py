@@ -500,7 +500,7 @@ class Oct2Py(object):
         self._session.interact(prompt, banner)
 
 
-class Reader(object):
+class _Reader(object):
     
     def __init__(self, proc, queue):
         self.proc = proc
@@ -520,8 +520,8 @@ class _Session(object):
     """
     def __init__(self):
         self.use_pexpect = not pexpect is None
-        self.proc = self.start()
         self.read_queue = queue.Queue()
+        self.proc = self.start()
         self.stdout = sys.stdout
         self.timeout = int(1e9)
         atexit.register(self.close)
@@ -571,7 +571,7 @@ class _Session(object):
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
         else:
-            self.reader = Reader(proc, self.read_queue)
+            self.reader = _Reader(proc, self.read_queue)
             return proc
             
     def set_timeout(self, timeout):
