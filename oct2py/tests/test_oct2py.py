@@ -18,7 +18,6 @@ import os
 import pickle
 import sys
 import threading
-import thread
 
 import numpy as np
 import numpy.testing as test
@@ -27,7 +26,7 @@ import numpy.testing as test
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
-from oct2py.compat import unicode, long, StringIO
+from oct2py.compat import unicode, long, StringIO, thread
 
 
 octave = Oct2Py()
