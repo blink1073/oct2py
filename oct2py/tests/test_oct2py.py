@@ -801,8 +801,9 @@ def test_interact():
 
 def test_func_without_docstring():
     oc = Oct2Py()
-    pwd = oc._session.get_pwd()
-    fname = '%s/temp_oct2py_func.m' % pwd
+    pwd = os.getcwd()
+    oc.addpath(pwd)
+    fname = 'temp_oct2py_func.m'
     msg = 'function [outp] = temp_oct2py_func(inp)\noutp = inp;\nend\n'
     with open(fname, 'wb') as fid:
         fid.write(msg.encode('utf-8'))
