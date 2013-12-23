@@ -14,6 +14,7 @@ test:
 	python setup.py build
 	cd build
 	nosetests --exe -v --with-doctest 
+        nosetests3 --exe -v --with-doctest
 	cd ..
 	rm -rf build	
 	python setup.py check -r
