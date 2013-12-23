@@ -176,6 +176,7 @@ class Oct2Py(object):
 
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
+        timeout = kwargs.get('timeout', self.timeout)
 
         # handle references to script names - and paths to them
         if func.endswith('.m'):
@@ -226,12 +227,14 @@ class Oct2Py(object):
         if not "DefaultFigureCreateFcn" in call_line:
             post_call += """
             for f = __oct2py_figures
-                refresh(f);
+                try
+                   refresh(f);
+                end
             end"""
 
         # create the command and execute in octave
         cmd = [load_line, pre_call, call_line, post_call, save_line]
-        resp = self._eval(cmd, verbose=verbose)
+        resp = self._eval(cmd, verbose=verbose, timeout=timeout)
 
         if nout:
             return self._reader.extract_file(argout_list)
@@ -248,7 +251,7 @@ class Oct2Py(object):
         else:
             return resp
 
-    def put(self, names, var, verbose=False):
+    def put(self, names, var, verbose=False, timeout=-1):
         """
         Put a variable into the Octave session.
 
@@ -258,6 +261,8 @@ class Oct2Py(object):
             Name of the variable(s).
         var : object or list
             The value(s) to pass.
+        timeout : float
+            Time to wait for response from Octave (per character).
 
         Examples
         --------
@@ -278,9 +283,9 @@ class Oct2Py(object):
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
         _, load_line = self._writer.create_file(var, names)
-        self._eval(load_line, verbose=verbose)
+        self._eval(load_line, verbose=verbose, timeout=timeout)
 
-    def get(self, var, verbose=False):
+    def get(self, var, verbose=False, timeout=-1):
         """
         Retrieve a value from the Octave session.
 
@@ -288,6 +293,8 @@ class Oct2Py(object):
         ----------
         var : str
             Name of the variable to retrieve.
+        timeout : float
+            Time to wait for response from Octave (per character).
 
         Returns
         -------
@@ -317,10 +324,10 @@ class Oct2Py(object):
                           verbose=False) == 'ans = 0' and not variable == '_':
                 raise Oct2PyError('{0} does not exist'.format(variable))
         argout_list, save_line = self._reader.setup(len(var), var)
-        self._eval(save_line, verbose=verbose)
+        self._eval(save_line, verbose=verbose, timeout=timeout)
         return self._reader.extract_file(argout_list)
 
-    def lookfor(self, string, verbose=False):
+    def lookfor(self, string, verbose=False, timeout=-1):
         """
         Call the Octave "lookfor" command.
 
@@ -332,6 +339,8 @@ class Oct2Py(object):
             Search string for the lookfor command.
         verbose : bool, optional
              Log Octave output at info level.
+        timeout : float
+            Time to wait for response from Octave (per character).
 
         Returns
         -------
@@ -339,9 +348,10 @@ class Oct2Py(object):
             Output from the Octave lookfor command.
 
         """
-        return self.run('lookfor -all {0}'.format(string), verbose=verbose)
+        return self.run('lookfor -all {0}'.format(string), verbose=verbose,
+                        timeout=timeout)
 
-    def _eval(self, cmds, verbose=True, log=True):
+    def _eval(self, cmds, verbose=True, log=True, timeout=-1):
         """
         Perform raw Octave command.
 
@@ -354,6 +364,8 @@ class Oct2Py(object):
             Commands(s) to pass directly to Octave.
         verbose : bool, optional
              Log Octave output at info level.
+        timeout : float
+            Time to wait for response from Octave (per character).
 
         Returns
         -------
@@ -374,8 +386,10 @@ class Oct2Py(object):
             [self.logger.info(line) for line in cmds]
         elif log:
             [self.logger.debug(line) for line in cmds]
+        if timeout == -1:
+            timeout = self.timeout
         return self._session.evaluate(cmds, verbose, log, self.logger,
-                                      timeout=self.timeout)
+                                      timeout=timeout)
 
     def _make_octave_command(self, name, doc=None):
         """Create a wrapper to an Octave procedure or object
@@ -448,13 +462,7 @@ class Oct2Py(object):
             return super(Oct2Py, self).__getattr__(attr)
         elif attr == '__file__':
             return __file__
-        if re.search(r'\W', attr):  # work around ipython <= 0.7.3 bug
-            raise Oct2PyError(
-                "Attributes don't look like this: {0}".format(attr))
-        if attr.startswith('_'):
-            raise Oct2PyError(
-                "Octave commands do not start with _: {0}".format(attr))
-        # print_ -> print
+        # close_ -> close
         if attr[-1] == "_":
             name = attr[:-1]
         else:
@@ -467,7 +475,7 @@ class Oct2Py(object):
 
     def _set_graphics_toolkit(self):
         try:
-            self._eval("graphics_toolkit('gnuplot')", False)
+            self._eval("graphics_toolkit('gnuplot')", verbose=False)
         except Oct2PyError:  # pragma: no cover
             pass
         # set up the plot renderer
@@ -493,7 +501,7 @@ class Oct2Py(object):
         self._reader = MatRead()
         self._writer = MatWrite()
 
-    def interact(self, prompt='octave> ', banner=None):
+    def interact(self, prompt='octave> ', banner=None, timeout=-1):
         """Interact with the Octave session directly.
 
         Parameters
@@ -504,12 +512,15 @@ class Oct2Py(object):
         banner: str
             The interactive prompt welcome banner.
 
+        timeout: float
+            Optional timeout value for responses from Octave
+
         Raises
         ------
         Oct2PyError
            If on a POSIX System and pexpect is not installed.
         """
-        self._session.interact(prompt, banner)
+        self._session.interact(prompt, banner, timeout)
 
 
 class _Reader(object):
@@ -708,7 +719,7 @@ class _Session(object):
                     if line.endswith(string):
                         return line
 
-    def interact(self, prompt='octave> ', banner=None):
+    def interact(self, prompt='octave> ', banner=None, timeout=-1):
         """Interact with the Octave session directly"""
         if not os.name == 'nt' and not self.use_pexpect:
             raise Oct2PyError('Please install pexpect for interaction capability')
@@ -717,6 +728,8 @@ class _Session(object):
                      'Type "return" when finished\n')
         if not banner.endswith('\n'):
             banner += '\n'
+        if not timeout == -1:
+            self.set_timeout(timeout)
         self.stdout.write(banner)
         name = self._make_interaction_file(prompt)
         self.write('%s;\n' % name)

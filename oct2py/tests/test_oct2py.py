@@ -17,7 +17,6 @@ import logging
 import os
 import pickle
 import sys
-import threading
 
 import numpy as np
 import numpy.testing as test
@@ -26,7 +25,7 @@ import numpy.testing as test
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
-from oct2py.compat import unicode, long, StringIO, thread
+from oct2py.compat import unicode, long, StringIO
 
 
 octave = Oct2Py()
@@ -695,7 +694,9 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 23
+    resp = '\n'.join(lines)
+    assert 'zeros(A__)' in resp
+    assert 'ans =  1' in resp
     assert lines[0].startswith('load')
 
     # now make an object with a desired logger
@@ -713,7 +714,9 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 42
+    resp = '\n'.join(lines)
+    assert 'zeros(A__)' in resp
+    assert 'ans =  1' in resp
     assert lines[0].startswith('load')
 
 
@@ -740,7 +743,9 @@ def test_threads():
 
 
 def test_plot():
-    octave.plot([1])
+    n = octave.figure()
+    octave.plot([1, 2, 3])
+    octave.close_(n)
 
 
 def test_narg_out():
@@ -785,13 +790,7 @@ def test_interact():
     output = StringIO()
     sys.stdin = StringIO('a\nreturn')
     oc._session.stdout = output
-    timer = threading.Timer(5, thread.interrupt_main)
-    try:
-        timer.start()
-        oc.interact()
-    except KeyboardInterrupt:
-        raise Oct2PyError('Interaction failed')
-    timer.cancel()
+    oc.interact()
     sys.stdin.flush()
     sys.stdin = stdin
     oc._session.stdout = stdout
@@ -817,6 +816,7 @@ def test_func_noexist():
 
 def test_timeout():
     oc = Oct2Py(timeout=1)
+    oc.sleep(1, timeout=2)
     test.assert_raises(Oct2PyError, oc.sleep, 1.1)
 
 
