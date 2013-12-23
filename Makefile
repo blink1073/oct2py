@@ -1,4 +1,4 @@
-.PHONY: all clean test cover release
+.PHONY: all clean test cover release gh-pages
 
 all:  
 	make clean
@@ -12,10 +12,7 @@ clean:
 test: 
 	make clean
 	python setup.py build
-	cd build
-	nosetests --exe -v --with-doctest 
-        nosetests3 --exe -v --with-doctest
-	cd ..
+	cd build; nosetests --exe -v --with-doctest && ~/Anaconda/envs/py3k/Scripts/nosetests --exe -v
 	rm -rf build	
 	python setup.py check -r
 	
