@@ -578,7 +578,8 @@ class _Session(object):
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
         kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
-                      stdout=subprocess.PIPE, close_fds=ON_POSIX)
+                      stdout=subprocess.PIPE, close_fds=ON_POSIX,
+                      bufsize=0)
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
