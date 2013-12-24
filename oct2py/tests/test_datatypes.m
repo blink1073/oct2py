@@ -20,40 +20,40 @@ test.num.int.uint64 = uint64(2^64-1);
 test.num.float32 = single(pi);
 test.num.float64 = double(pi);
 test.num.complex = 3 + 1j;
-test.num.complex_matrix = (1.2 + 1.1j) * magic(3)
+test.num.complex_matrix = (1.2 + 1.1j) * magic(3);
 
 % misc
-test.num.inf = inf
-test.num.NaN = NaN
-test.num.matrix = [1 2; 3 4]
-test.num.vector = [1 2 3 4]
-test.num.column_vector = [1;2;3;4]
-test.num.matrix3d = ones([2 3 4]) * pi
-test.num.matrix5d = ones(1,2,3,4,5) * pi
+test.num.inf = inf;
+test.num.NaN = NaN;
+test.num.matrix = [1 2; 3 4];
+test.num.vector = [1 2 3 4];
+test.num.column_vector = [1;2;3;4];
+test.num.matrix3d = ones([2 3 4]) * pi;
+test.num.matrix5d = ones(1,2,3,4,5) * pi;
 
 
 %%%%%%%%%%%%%%%
 % logical type
-test.logical = [10 20 30 40 50] > 30
+test.logical = [10 20 30 40 50] > 30;
 
 %%%%%%%%%%%%%%%
 % string types
-test.string.basic = 'spam'
-test.string.char_array = {'spam', 'eggs'; 'foo ', 'bar '}
-test.string.cell_array = {'spam', 'eggs'}
+test.string.basic = 'spam';
+test.string.char_array = {'spam', 'eggs'; 'foo ', 'bar '};
+test.string.cell_array = {'spam', 'eggs'};
 
 %%%%%%%%%%%%%%%
 % struct array types
 
-test.struct_array(1).name = 'Sharon'
-test.struct_array(1).age = 31
+test.struct_array(1).name = 'Sharon';
+test.struct_array(1).age = 31;
 test.struct_array(2).name = 'Bill'
 test.struct_array(2).age = 42
 
 %%%%%%%%%%%%%%%
 % cell array types
-test.cell.vector = {'spam', 4.0, [1 2 3]}
-test.cell.matrix = {'Bob', 40; 'Pam', 41}
+test.cell.vector = {'spam', 4.0, [1 2 3]};
+test.cell.matrix = {'Bob', 40; 'Pam', 41};
 test.cell.array = {[0.4194 0.3629 -0.0000;
                     0.0376 0.3306 0.0000;
                     0 0 1.0000],
@@ -63,9 +63,9 @@ test.cell.array = {[0.4194 0.3629 -0.0000;
 
 %%%%%%%%%%%%%%%
 % mixed struct
-test.mixed.array = [[1 2]; [3 4]]
-test.mixed.cell = {'1'}
-test.mixed.scalar = 1.8
+test.mixed.array = [[1 2]; [3 4]];
+test.mixed.cell = {'1'};
+test.mixed.scalar = 1.8;
 
 
 

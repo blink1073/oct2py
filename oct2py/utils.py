@@ -56,7 +56,7 @@ def get_nout():
         howmany = bytecode[frame.f_lasti + 4]
         howmany = ord(howmany) if PY2 else howmany
         return howmany
-    elif instruction == dis.opmap['POP_TOP']:
+    elif instruction in [dis.opmap['POP_TOP'], dis.opmap['PRINT_EXPR']]:
         return 0
     return 1
 
@@ -121,11 +121,11 @@ class Struct(dict):
         elif self._is_allowed(frame.f_back):
             dict.__setitem__(self, attr, Struct())
         return dict.__getitem__(self, attr)
-            
+
     def _is_allowed(self, frame):
         """Check for allowed op code in the calling frame"""
         allowed = [dis.opmap['STORE_ATTR'], dis.opmap['LOAD_CONST'],
-                   dis.opmap['STOP_CODE']]
+                   dis.opmap.get('STOP_CODE', 0)]
         bytecode = frame.f_code.co_code
         instruction = bytecode[frame.f_lasti + 3]
         instruction = ord(instruction) if PY2 else instruction
