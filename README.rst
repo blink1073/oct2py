@@ -48,7 +48,8 @@ Installation
 ------------
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
 way to get Octave is to use an installer from `Sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
-On Linux, it should be available from your package manager.
+On Linux, it should be available from your package manager.  You should also
+install pexpect (see the documentation for the reasons).
 Additionally, you must have the Numpy and Scipy libraries installed.
 
 To install Oct2Py, simply:
