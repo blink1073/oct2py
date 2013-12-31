@@ -3,7 +3,14 @@
 Release History
 ---------------
 
-1.2.0
+1.3.0
++++++
+- Added support for keyboard function (requires pexpect on Linux)
+- (Linux) When pexpect is installed, Octave no longer closes session when
+  a Syntax Error is encountered 
+- Fixed: M-files with no docstrings are now supported
+
+1.2.0 (2013-12-14)
 ++++++++++++++++++
 - OctaveMagic is now part of Oct2Py: ``%load_ext oct2py.ipython``
 - Enhanced Struct behavior - supports REPL completion and pickling
