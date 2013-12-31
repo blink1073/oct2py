@@ -172,7 +172,7 @@ class Oct2Py(object):
         """
         if self._first_run:
             self._first_run = False
-            self._set_graphics_toolkit()
+            self._setup_session()
 
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
@@ -473,7 +473,7 @@ class Oct2Py(object):
         setattr(self, attr, octave_command)
         return octave_command
 
-    def _set_graphics_toolkit(self):
+    def _setup_session(self):
         try:
             self._eval("graphics_toolkit('gnuplot')", verbose=False)
         except Oct2PyError:  # pragma: no cover
@@ -490,14 +490,12 @@ class Oct2Py(object):
 
             set(0, 'DefaultFigureCreateFcn', @fig_create);
         """)
-        self._graphics_toolkit = 'gnuplot'
 
     def restart(self):
         """Restart an Octave session in a clean state
         """
         self._session = _Session()
         self._first_run = True
-        self._graphics_toolkit = None
         self._reader = MatRead()
         self._writer = MatWrite()
 
@@ -695,6 +693,7 @@ class _Session(object):
         msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
                    'Octave returned Syntax Error:\n%s' % (main_line, 
                                                           errline))
+        msg += '\nIf using an m-file script, make sure it runs in Octave'
         if not self.use_pexpect:
             msg += '\nSession Closed by Octave'
             self.close()
