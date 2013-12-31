@@ -587,11 +587,8 @@ class BasicUsageTest(test.TestCase):
     def test_help(self):
         """Testing help command
         """
-        out = octave.cos.__doc__
-        try:
-            self.assertEqual(out[:5], '\ncos ')
-        except AssertionError:
-            self.assertEqual(out[:5], '\n`cos')
+        doc = octave.cos.__doc__
+        assert 'Compute the cosine for each element of X in radians.' in doc
 
     def test_dynamic(self):
         """Test the creation of a dynamic function
