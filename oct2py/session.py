@@ -177,7 +177,7 @@ class Oct2Py(object):
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
         timeout = kwargs.get('timeout', self.timeout)
-
+        
         # handle references to script names - and paths to them
         if func.endswith('.m'):
             if os.path.dirname(func):
@@ -210,7 +210,7 @@ class Oct2Py(object):
         post_call = ''
 
         if 'command' in kwargs and not '__ipy_figures' in func:
-            if not call_line.endswith(')'):
+            if not call_line.endswith(')') and nout:
                 call_line += '();\n'
             else:
                 call_line += ';\n'
@@ -609,13 +609,6 @@ class _Session(object):
         else:
             main_line = '\n'.join(cmds)
         output = '\n'.join(lines)
-        pattern = re.compile(r'(keyboard\(.*\);?|keyboard;?)')
-        keyboard = re.search(pattern, output)
-        if keyboard and not self.interaction_file in output:
-            self._make_interaction_file('octave> ')
-            output = re.sub(pattern, ';' + self.interaction_file + ';',
-                            output, count=1)
-            output = re.sub(pattern, ';', output)
         self.write(output)
         resp = self.expect(['\x03', 'syntax error'])
         if resp.endswith('syntax error'):
@@ -637,21 +630,17 @@ class _Session(object):
         resp = []
         syntax_error = False
         while 1:
-            line = self.expect(['\n', 'debug> ', 'octave> ',
-                                'stopped in ']).rstrip()
-            if line.startswith('stopped in '):
-                import pdb; pdb.set_trace()
-                pass
-            if line == '\x03':
+            line = self.expect(['\n', '\A[\w ]*>'])
+            if line.rstrip() == '\x03':
                 break
-            elif line == '\x15':
-                msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\nOctave returned:\n{1}'
+            elif line.rstrip() == '\x15':
+                msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
+                      'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
-            elif line in ['debug>', 'octave>']:
-                msg = 'Entering Octave Debug Prompt...\n%s ' % line
-                self.stdout.write(msg)
-                self._interact(line + ' ')
+            elif line.endswith('>'):
+                line += self.expect(' ')
+                self.interact(line)
                 self.write('clear _\n')
                 resp = resp[:-4]
                 self.expect('\x03')
@@ -705,19 +694,19 @@ class _Session(object):
             while 1:
                 line += self.read()
                 for string in strings:
-                    if line.endswith(string):
+                    if re.search(string, line):
                         return line
 
-    def _make_interaction_file(self, prompt):
+    def make_interaction_file(self, prompt):
         cmds = ['fid = fopen ("%s.m", "w");' % self.interaction_file,
                 '''fputs (fid, 'keyboard("%s")\\n');''' % prompt,
                 'fclose (fid);']
         self.evaluate(cmds, False, False)
         
-    def _remove_interaction_file(self):
+    def remove_interaction_file(self):
         self.evaluate(['unlink "%s.m"' % self.interaction_file], False, False)
 
-    def _find_prompt(self, prompt='debug> ', disp=True):
+    def find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
         output = ''
         while 1:
@@ -758,8 +747,10 @@ class _Session(object):
         else:
             self.proc.stdin.write(message.encode('utf-8'))
 
-    def _interact(self, prompt='debug> '):
+    def interact(self, prompt='debug> '):
         """Manage an Octave Debug Prompt interaction"""
+        msg = 'Entering Octave Debug Prompt...\n%s' % prompt
+        self.stdout.write(msg)
         while 1:
             inp_func = input if not PY2 else raw_input
             inp = inp_func() + '\n'
@@ -768,8 +759,8 @@ class _Session(object):
             self.write('disp(char(3));' + inp)
             if inp == 'return\n':
                 return
-            self.expect('\x03\r\n')
-            self._find_prompt(prompt)
+            self.expect('\x03\r?\n')
+            self.find_prompt(prompt)
 
     def close(self):
         """Cleanly close an Octave session
