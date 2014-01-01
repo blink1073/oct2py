@@ -769,14 +769,14 @@ def test_using_closed_session():
     test.assert_raises(Oct2PyError, oc.call, 'ones')
 
 
-def test_interact():
+def test_keyboard():
 
     if not os.name == 'nt':
         try:
             import pexpect
         except ImportError:
             oc = Oct2Py()
-            test.assert_raises(Oct2PyError, oc.interact)
+            test.assert_raises(Oct2PyError, oc.keyboard)
             return
 
     oc = Oct2Py()
@@ -787,13 +787,12 @@ def test_interact():
     output = StringIO()
     sys.stdin = StringIO('a\nreturn')
     oc._session.stdout = output
-    oc.interact()
+    oc.keyboard()
     sys.stdin.flush()
     sys.stdin = stdin
     oc._session.stdout = stdout
 
-    expected = ('Starting Octave Interactive Prompt...\n'
-                'Type "return" when finished\noctave> a =  1\r\noctave> ')
+    expected = ('Entering Octave Debug Prompt...\ndebug> a =  1\r\ndebug> ')
     assert output.getvalue() == expected
 
 
