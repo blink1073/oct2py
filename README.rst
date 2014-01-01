@@ -44,16 +44,15 @@ Features
 - Supports logging of session commands.
 - Optional timeout command parameter to prevent runaway Octave sessions.
 
-.. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
 
 Installation
 ------------
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from `Sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
+way to get Octave is to use an installer from SourceForge_.
 You must have the Numpy and Scipy libraries installed.
-On Linux, it should be available from your package manager.  Linux users 
-should also install `pexpect` to allow the keyboard function to work and to 
-prevent Syntax Errors from closing the Octave session.
+On Linux, it should be available from your package manager.  
+Linux users should also install `pexpect` prevent Syntax Errors from closing 
+the Octave session. Unfortunately, there is no such option on Windows.
 
 To install Oct2Py, simply:
 
@@ -73,6 +72,9 @@ Documentation
 
 Documentation is available online_.
 
-For version information, see `the Revision History <https://github.com/blink1073/oct2py/blob/master/history.rst>`_.
+For version information, see the Revision History_.
 
+.. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+.. _SourceForge: http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
 .. _online: http://blink1073.github.io/oct2py/docs/
+.. _History: https://github.com/blink1073/oct2py/blob/master/history.rst

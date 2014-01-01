@@ -9,9 +9,6 @@ Oct2Py supports the Octave `keyboard` function
 which drops you into an interactive Octave prompt in the current session.
 This also works in the IPython Notebook.
 
-Note: If you are on Linux, you must have pexpect installed, or Oct2Py will
-hang on any keyboard call and the `keyboard` method will raise an error.
-
 
 Syntax Errors
 =============
@@ -54,10 +51,10 @@ The methods that shadow Octave builtins are: close, get, lookfor, and run
 Timeout
 =======
 Oct2Py sessions have a `timeout` attribute that determines how long to wait
-for a command to complete.  The default is 1e6 seconds (indefinite).  This
-is the time to wait between returned characters from the Octave 
-session.  You may either set the timeout for the session, or as a keyword
-argument to an individual command.
+for a command to complete.  The default is 1e6 seconds (indefinite). 
+You may either set the timeout for the session, or as a keyword
+argument to an individual command.  The session is closed in the event of a
+timeout.
 
 
 .. code-block:: python
@@ -143,6 +140,7 @@ interfere with any other session.
 
 IPython Notebook
 ================
-Oct2Py provides OctaveMagic_ for IPython, including inline plotting in notebooks.
+Oct2Py provides OctaveMagic_ for IPython, including inline plotting in 
+notebooks.
 
 .. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
