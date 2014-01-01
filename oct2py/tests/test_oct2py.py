@@ -639,10 +639,8 @@ class BasicUsageTest(test.TestCase):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
         
-        try:
-            import pexpect
-        except ImportError:
-            self.assertRaises(Oct2PyError, oc.ones, 1)
+        if not oc._session.use_pexpect:
+            self.assertRaises(Oct2PyError, oc._eval, "a=1")
         else:
             oc.put('a', 1)
             a = oc.get('a')
@@ -780,13 +778,12 @@ def test_using_closed_session():
 
 def test_keyboard():
     
-    if not os.name == 'nt':
-        try:
-            import pexpect
-        except ImportError:
-            return
-
     oc = Oct2Py()
+    
+    if not os.name == 'nt':
+        if not oc._session.use_pexpect:
+            return
+            
     oc._eval('a=1')
 
     stdin = sys.stdin
@@ -819,8 +816,8 @@ def test_func_noexist():
 
 def test_timeout():
     oc = Oct2Py(timeout=2)
-    oc.sleep(1, timeout=1.5)
-    test.assert_raises(Oct2PyError, oc.sleep, 2.1)
+    oc.sleep(2.1, timeout=5)
+    test.assert_raises(Oct2PyError, oc.sleep, 3)
 
 
 if __name__ == '__main__':  # pragma: no cover
