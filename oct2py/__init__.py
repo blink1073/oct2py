@@ -47,7 +47,7 @@ except Oct2PyError as e:
 # clean up namespace
 del functools, imp, os
 try:
-    del session, utils
+    del session, utils, speed_check, thread_check
 except NameError:  # pragma: no cover
     pass
 
