@@ -3,6 +3,23 @@
 Information
 ******************
 
+Using M-Files
+=============
+There are several ways to use an m-file in Oct2Py.  First, you can either 
+call the script using the full path to it, or `addpath` for the directory 
+containing the script.  When using `addpath`, you can use `run`, `call`, 
+or the magic method to call the function.
+
+.. code-block:: python
+    
+    >>> from oct2py import octave
+    >>> octave.call('/path/to/myscript.m')
+    >>> octave.addpath('/path/to/')
+    >>> octave.run('myscript')
+    >>> octave.call('myscript.m')
+    >>> octave.myscript()
+
+
 Interactivity
 =============
 Oct2Py will create methods for you on the fly, which correspond to Octave
@@ -29,9 +46,21 @@ Oct2Py supports code completion in IPython, so once you have created a method,
 you can recall it on the fly, so octave.one<TAB> would give you ones.
 Structs (mentioned below) also support code completion for attributes.
 
+You can share data with an Octave session explicitly using the `put` and 
+`get` methods.  When using other Oct2Py methods, the variable names in Octave
+start with underscores because they are temporary (you would only see this if 
+you were using logging).
 
-Octave Session Interaction
-==========================
+.. code-block:: python
+
+    >>> from oct2py import octave
+    >>> octave.put('a', 1)
+    >>> octave.get('a')
+    1
+
+
+Direct Interaction
+==================
 Oct2Py supports the Octave `keyboard` function
 which drops you into an interactive Octave prompt in the current session.
 This also works in the IPython Notebook.
@@ -186,3 +215,6 @@ Oct2Py provides OctaveMagic_ for IPython, including inline plotting in
 notebooks.
 
 .. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+
+
+
