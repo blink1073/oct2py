@@ -779,6 +779,12 @@ def test_using_closed_session():
 
 
 def test_keyboard():
+    
+    if not os.name == 'nt':
+        try:
+            import pexpect
+        except ImportError:
+            return
 
     oc = Oct2Py()
     oc._eval('a=1')
