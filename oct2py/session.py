@@ -651,14 +651,11 @@ class _Session(object):
             elif line in ['debug>', 'octave>']:
                 msg = 'Entering Octave Debug Prompt...\n%s ' % line
                 self.stdout.write(msg)
-                cont = self._interact(line + ' ')
+                self._interact(line + ' ')
                 self.write('clear _\n')
                 resp = resp[:-4]
                 self.expect('\x03')
-                if not cont:
-                    return
-                else:
-                    continue
+                continue
             if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
@@ -766,13 +763,11 @@ class _Session(object):
         while 1:
             inp_func = input if not PY2 else raw_input
             inp = inp_func() + '\n'
-            if inp == 'exit\n':
+            if inp in ['exit\n', 'quit\n', 'dbcont\n', 'dbquit\n']:
                 inp = 'return\n'
             self.write('disp(char(3));' + inp)
-            if inp in ['dbcont\n', 'return\n']:
-                return True
-            if inp in ['dbquit\n']:
-                return False
+            if inp == 'return\n':
+                return
             self.expect('\x03\r\n')
             self._find_prompt(prompt)
 
