@@ -442,9 +442,7 @@ class Oct2Py(object):
             raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
         try:
-            print('here I am %s' % name)
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
-            print('and there I go')
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
@@ -531,7 +529,7 @@ class _Session(object):
         self.timeout = int(1e6)
         self.use_pexpect = not pexpect is None
         self.read_queue = queue.Queue()
-        self.interaction_file = ''
+        self.interaction_file = '__oct2py_interact_%s' % id(self)
         self.proc = self.start()
         self.stdout = sys.stdout
         self.set_timeout()
@@ -639,7 +637,11 @@ class _Session(object):
         resp = []
         syntax_error = False
         while 1:
-            line = self.expect(['\n', 'debug> ', 'octave> ']).rstrip()
+            line = self.expect(['\n', 'debug> ', 'octave> ',
+                                'stopped in ']).rstrip()
+            if line.startswith('stopped in '):
+                import pdb; pdb.set_trace()
+                pass
             if line == '\x03':
                 break
             elif line == '\x15':
@@ -652,7 +654,7 @@ class _Session(object):
                 cont = self._interact(line + ' ')
                 self.write('clear _\n')
                 resp = resp[:-4]
-                self.expect('\n')
+                self.expect('\x03')
                 if not cont:
                     return
                 else:
@@ -669,8 +671,6 @@ class _Session(object):
                 logger.debug(line)
             if resp or line:
                 resp.append(line)
-        if keyboard:
-            self._remove_interaction_file()
         return '\n'.join(resp)
 
     def handle_syntax_error(self, resp, main_line):
@@ -696,6 +696,7 @@ class _Session(object):
             try:
                 self.proc.expect(strings)
             except pexpect.TIMEOUT:
+                self.close()
                 raise Oct2PyError('Session timed out')
             line = self.proc.before + self.proc.after
             try:
@@ -711,14 +712,13 @@ class _Session(object):
                         return line
 
     def _make_interaction_file(self, prompt):
-        self.interaction_file = '__oct2py_interact_%s' % id(self)
-        cmds = ['fid = fopen (%s, "w");' % self.interaction_file,
-                'fputs (fid, "keyboard(%s)");' % prompt,
+        cmds = ['fid = fopen ("%s.m", "w");' % self.interaction_file,
+                '''fputs (fid, 'keyboard("%s")\\n');''' % prompt,
                 'fclose (fid);']
         self.evaluate(cmds, False, False)
         
     def _remove_interaction_file(self):
-        self.evaluate(['unlink %s' % self.interaction_file], False, False)
+        self.evaluate(['unlink "%s.m"' % self.interaction_file], False, False)
 
     def _find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
@@ -763,8 +763,6 @@ class _Session(object):
 
     def _interact(self, prompt='debug> '):
         """Manage an Octave Debug Prompt interaction"""
-        if not os.name == 'nt' and not self.use_pexpect:
-            raise Oct2PyError('Please install pexpect for interaction capability')
         while 1:
             inp_func = input if not PY2 else raw_input
             inp = inp_func() + '\n'
