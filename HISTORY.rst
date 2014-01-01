@@ -3,12 +3,13 @@
 Release History
 ---------------
 
-1.3.0
-+++++
-- Added support for keyboard function (requires pexpect on Linux)
+1.3.0 (2014-01-02)
+++++++++++++++++++
+- Added support for Octave keyboard function (requires pexpect on Linux).
 - (Linux) When pexpect is installed, Octave no longer closes session when
-  a Syntax Error is encountered 
-- Fixed: M-files with no docstrings are now supported
+  a Syntax Error is encountered.
+- Fixed: M-files with no docstrings are now supported.
+
 
 1.2.0 (2013-12-14)
 ++++++++++++++++++
@@ -16,11 +17,13 @@ Release History
 - Enhanced Struct behavior - supports REPL completion and pickling
 - Fixed: Oct2Py will install on Python3 when using setup.py
 
+
 1.1.1 (2013-11-14)
 ++++++++++++++++++
 - Added support for wheels.
 - Fixed: Put docs back in the manifest.
 - Fixed: Oct2py will install when there is no Octave available.
+
 
 1.1.0 (2013-10-27)
 ++++++++++++++++++

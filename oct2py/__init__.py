@@ -20,7 +20,7 @@ trust a code translator, this is your library.
 
 
 __title__ = 'oct2py'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2013 Steven Silvester'
