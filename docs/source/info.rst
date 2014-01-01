@@ -3,6 +3,33 @@
 Information
 ******************
 
+Interactivity
+=============
+Oct2Py will create methods for you on the fly, which correspond to Octave
+functions.  For example:
+
+.. code-block:: python
+
+    >>> from oct2py import octave
+    >>> octave.ones(3)
+    array([[ 1.,  1.,  1.],
+       [ 1.,  1.,  1.],
+       [ 1.,  1.,  1.]])
+
+Additionally, you can look up the documentation for one of these methods using
+`help()`
+
+.. code-block:: python
+
+    >>> help(octave.ones)
+    'ones' is a built-in function
+    ...
+
+Oct2Py supports code completion in IPython, so once you have created a method,
+you can recall it on the fly, so octave.one<TAB> would give you ones.
+Structs (mentioned below) also support code completion for attributes.
+
+
 Octave Session Interaction
 ==========================
 Oct2Py supports the Octave `keyboard` function
@@ -92,11 +119,26 @@ temporary m-files will be deleted when the Context Manager exits.
     >>>     oc.ones(10)
 
 
+Nargout
+=======
+Oct2Py handles nargout the same way that Octave would (which is not how it 
+normally works in Python).  The number return variables affects the 
+behavior of the Octave function.  For example, the following two calls to SVD
+return different results:
+
+.. code-block:: python
+
+    >>> from oct2py import octave
+    >>> out = octave.svd(np.array([[1,2], [1,3]])))
+    >>> U, S, V = octave.svd([[1,2], [1,3]])
+
+
 Structs
 =======
 Struct is a convenience class that mimics an Octave structure variable type.
 It is a dictionary with attribute lookup, and it creates sub-structures on the
-fly.  It can be pickled.
+fly of arbitrary nesting depth.  It can be pickled. You can also use tab 
+completion for attributes when in IPython.
 
 .. code-block:: python
 
