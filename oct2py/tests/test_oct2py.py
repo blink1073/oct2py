@@ -818,6 +818,18 @@ def test_timeout():
     oc = Oct2Py(timeout=2)
     oc.sleep(2.1, timeout=5)
     test.assert_raises(Oct2PyError, oc.sleep, 3)
+    
+
+def test_call_path():
+    oc = Oct2Py()
+    octave.addpath(os.path.dirname(__file__))
+    DATA = octave.call('test_datatypes.m')
+    assert DATA.string.basic == 'spam'
+    
+    oc = Oct2Py()
+    path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
+    DATA = oc.call(path)
+    assert DATA.string.basic == 'spam'
 
 
 if __name__ == '__main__':  # pragma: no cover
