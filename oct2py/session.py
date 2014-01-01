@@ -437,7 +437,7 @@ class Oct2Py(object):
         if name == 'keyboard':
             return 'Built-in Function: keyboard ()'
         exist = self._eval('exist {0}'.format(name), log=False, verbose=False)
-        if exist == 'ans = 0':
+        if exist.strip() == 'ans = 0':
             msg = 'Name: "%s" does not exist on the Octave session path'
             raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
@@ -645,6 +645,7 @@ class _Session(object):
                 resp = resp[:-4]
                 self.expect('\x03')
                 continue
+            line = line.rstrip()
             if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
