@@ -41,6 +41,8 @@ Features
 - Thread-safety: each Oct2Py object uses an independent Octave session.
 - Can be used as a context manager.
 - Supports Unicode characters.
+- Supports logging of session commands.
+- Optional timeout command parameter to prevent runaway Octave sessions.
 
 .. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
 
@@ -48,9 +50,10 @@ Installation
 ------------
 You must have GNU Octave installed and in your PATH. On Windows, the easiest
 way to get Octave is to use an installer from `Sourceforge <http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/>`_.
-On Linux, it should be available from your package manager.  You should also
-install pexpect (see the documentation for the reasons).
-Additionally, you must have the Numpy and Scipy libraries installed.
+You must have the Numpy and Scipy libraries installed.
+On Linux, it should be available from your package manager.  Linux users 
+should also install `pexpect` to allow the keyboard function to work and to 
+prevent Syntax Errors from closing the Octave session.
 
 To install Oct2Py, simply:
 
