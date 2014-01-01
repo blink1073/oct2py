@@ -365,7 +365,10 @@ class OctaveMagics(Magics):
             self._publish_display_data(source, data)
 
         if return_output:
-            ans = self._oct.get('_')
+            try:
+                ans = self._oct.get('_')
+            except oct2py.Oct2PyError:
+                return
 
             # Unfortunately, Octave doesn't have a "None" object,
             # so we can't return any NaN outputs
