@@ -792,7 +792,7 @@ def test_keyboard():
     sys.stdin = stdin
     oc._session.stdout = stdout
 
-    expected = ('Entering Octave Debug Prompt...\ndebug> a =  1\r\ndebug> ')
+    expected = ('Entering Octave Debug Prompt...\noctave> a =  1\r\noctave> ')
     assert output.getvalue() == expected
 
 
