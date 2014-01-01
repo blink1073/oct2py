@@ -638,6 +638,15 @@ class BasicUsageTest(test.TestCase):
         self.assertRaises(Oct2PyError, oc._eval, "a='1")
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
+        
+        try:
+            import pexpect
+        except ImportError:
+            self.assertRaises(Oct2PyError, oc.ones, 1)
+        else:
+            oc.put('a', 1)
+            a = oc.get('a')
+            self.assertEqual(a, 1)
 
     def test_octave_error(self):
         oc = Oct2Py()
@@ -770,14 +779,6 @@ def test_using_closed_session():
 
 
 def test_keyboard():
-
-    if not os.name == 'nt':
-        try:
-            import pexpect
-        except ImportError:
-            oc = Oct2Py()
-            test.assert_raises(Oct2PyError, oc.keyboard)
-            return
 
     oc = Oct2Py()
     oc._eval('a=1')
