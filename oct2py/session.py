@@ -36,7 +36,7 @@ if not os.name == 'nt':
 from .matwrite import MatWrite
 from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
-from .compat import unicode, input, queue
+from .compat import unicode, PY2, queue
 
 
 class Oct2Py(object):
@@ -241,7 +241,7 @@ class Oct2Py(object):
         elif 'command' in kwargs:
             try:
                 ans = self.get('_')
-            except KeyError:
+            except (KeyError, Oct2PyError):
                 return
             # Unfortunately, Octave doesn't have a "None" object,
             # so we can't return any NaN outputs
@@ -401,7 +401,8 @@ class Oct2Py(object):
             """ Octave command """
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
-            self._eval('clear {}'.format(name), log=False, verbose=False)
+            if not 'Built-in Function' in doc:
+                self._eval('clear {}'.format(name), log=False, verbose=False)
             kwargs['command'] = True
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
@@ -433,13 +434,17 @@ class Oct2Py(object):
            If the procedure or object does not exist.
 
         """
+        if name == 'keyboard':
+            return 'Built-in Function: keyboard ()'
         exist = self._eval('exist {0}'.format(name), log=False, verbose=False)
         if exist == 'ans = 0':
             msg = 'Name: "%s" does not exist on the Octave session path'
             raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
         try:
+            print('here I am %s' % name)
             doc = self._eval('help {0}'.format(name), log=False, verbose=False)
+            print('and there I go')
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
@@ -499,27 +504,6 @@ class Oct2Py(object):
         self._reader = MatRead()
         self._writer = MatWrite()
 
-    def interact(self, prompt='octave> ', banner=None, timeout=-1):
-        """Interact with the Octave session directly.
-
-        Parameters
-        ----------
-        prompt : str
-            The interactive prompt string.
-
-        banner: str
-            The interactive prompt welcome banner.
-
-        timeout: float
-            Optional timeout value for responses from Octave
-
-        Raises
-        ------
-        Oct2PyError
-           If on a POSIX System and pexpect is not installed.
-        """
-        self._session.interact(prompt, banner, timeout)
-
 
 class _Reader(object):
     """Read characters from an Octave session in a thread.
@@ -547,6 +531,7 @@ class _Session(object):
         self.timeout = int(1e6)
         self.use_pexpect = not pexpect is None
         self.read_queue = queue.Queue()
+        self.interaction_file = ''
         self.proc = self.start()
         self.stdout = sys.stdout
         self.set_timeout()
@@ -628,9 +613,10 @@ class _Session(object):
         output = '\n'.join(lines)
         pattern = re.compile(r'(keyboard\(.*\);?|keyboard;?)')
         keyboard = re.search(pattern, output)
-        if keyboard:
-            name = self._make_interaction_file('octave> ')
-            output = re.sub(pattern, ';' + name + ';', output, count=1)
+        if keyboard and not self.interaction_file in output:
+            self._make_interaction_file('octave> ')
+            output = re.sub(pattern, ';' + self.interaction_file + ';',
+                            output, count=1)
             output = re.sub(pattern, ';', output)
         self.write(output)
         resp = self.expect(['\x03', 'syntax error'])
@@ -684,7 +670,7 @@ class _Session(object):
             if resp or line:
                 resp.append(line)
         if keyboard:
-            os.remove(self.interaction_file)
+            self._remove_interaction_file()
         return '\n'.join(resp)
 
     def handle_syntax_error(self, resp, main_line):
@@ -724,43 +710,15 @@ class _Session(object):
                     if line.endswith(string):
                         return line
 
-    def interact(self, prompt='octave> ', banner=None, timeout=-1):
-        """Interact with the Octave session directly"""
-        if not os.name == 'nt' and not self.use_pexpect:
-            raise Oct2PyError('Please install pexpect for interaction capability')
-        if not banner:
-            banner = ('Starting Octave Interactive Prompt...\n'
-                     'Type "return" when finished\n')
-        if not banner.endswith('\n'):
-            banner += '\n'
-        if not timeout == -1:
-            self.set_timeout(timeout)
-        self.stdout.write(banner)
-        name = self._make_interaction_file(prompt)
-        self.write('%s;\n' % name)
-        first = self.expect(prompt)
-        if 'keyboard(' in first:
-            self.read(4)
-            self._find_prompt(prompt)
-        else:
-            self.stdout.write(prompt)
-        os.remove(self.interaction_file)
-        self._interact(prompt)
-
     def _make_interaction_file(self, prompt):
-        pwd = self.get_pwd()
-        self.write('addpath("%s");\n' % pwd)
-        path = '%s/__oct2py_interact.m' % pwd
-        with open(path, 'wb') as fid:
-            msg = 'keyboard("%s")\n' % prompt
-            fid.write(msg.encode('utf-8'))
-        self.interaction_file = path
-        return '__oct2py_interact'
-
-    def get_pwd(self):
-        """Get the present working directory of the session"""
-        pwd = self.evaluate(['pwd'], False, False)
-        return pwd.splitlines()[-1][6:]
+        self.interaction_file = '__oct2py_interact_%s' % id(self)
+        cmds = ['fid = fopen (%s, "w");' % self.interaction_file,
+                'fputs (fid, "keyboard(%s)");' % prompt,
+                'fclose (fid);']
+        self.evaluate(cmds, False, False)
+        
+    def _remove_interaction_file(self):
+        self.evaluate(['unlink %s' % self.interaction_file], False, False)
 
     def _find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
@@ -808,7 +766,8 @@ class _Session(object):
         if not os.name == 'nt' and not self.use_pexpect:
             raise Oct2PyError('Please install pexpect for interaction capability')
         while 1:
-            inp = input() + '\n'
+            inp_func = input if not PY2 else raw_input
+            inp = inp_func() + '\n'
             if inp == 'exit\n':
                 inp = 'return\n'
             self.write('disp(char(3));' + inp)
