@@ -1,3 +1,4 @@
+# Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release gh-pages
 
 all:  
@@ -12,7 +13,8 @@ clean:
 test: 
 	make clean
 	python setup.py build
-	cd build; nosetests --exe -v --with-doctest && ~/Anaconda/envs/py3k/Scripts/nosetests --exe -v
+	cd build; nosetests --exe -v --with-doctest
+	cd build; ~/anaconda/envs/py3k/bin/nosetests --exe -v
 	rm -rf build	
 	python setup.py check -r
 	
