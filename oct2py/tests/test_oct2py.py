@@ -779,11 +779,7 @@ def test_using_closed_session():
 def test_keyboard():
     
     oc = Oct2Py()
-    
-    if not os.name == 'nt':
-        if not oc._session.use_pexpect:
-            return
-            
+        
     oc._eval('a=1')
 
     stdin = sys.stdin
@@ -796,8 +792,8 @@ def test_keyboard():
     sys.stdin = stdin
     oc._session.stdout = stdout
 
-    expected = ('Entering Octave Debug Prompt...\noctave> a =  1\r\noctave> ')
-    assert output.getvalue() == expected
+    expected = ('Entering Octave Debug Prompt...\ndebug> a =  1\ndebug> ')
+    assert output.getvalue().splitlines() == expected.splitlines()
 
 
 def test_func_without_docstring():
