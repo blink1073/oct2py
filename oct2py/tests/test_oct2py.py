@@ -787,7 +787,11 @@ def test_keyboard():
     output = StringIO()
     sys.stdin = StringIO('a\nreturn')
     oc._session.stdout = output
-    oc.keyboard()
+    try:
+        oc.keyboard(timeout=3)
+    except Oct2PyError as e:
+        if str(e) == 'Session timed out' and oc._session.use_pexpect:
+            return
     sys.stdin.flush()
     sys.stdin = stdin
     oc._session.stdout = stdout
