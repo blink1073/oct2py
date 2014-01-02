@@ -796,8 +796,9 @@ def test_keyboard():
     sys.stdin = stdin
     oc._session.stdout = stdout
 
-    expected = ('Entering Octave Debug Prompt...\ndebug> a =  1\ndebug> ')
-    assert output.getvalue().splitlines() == expected.splitlines()
+    out = output.getvalue()
+    assert 'Entering Octave Debug Prompt' in out
+    assert 'a =  1' in out
 
 
 def test_func_without_docstring():
