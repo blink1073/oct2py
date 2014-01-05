@@ -63,7 +63,7 @@ Direct Interaction
 ==================
 Oct2Py supports the Octave `keyboard` function
 which drops you into an interactive Octave prompt in the current session.
-This also works in the IPython Notebook.
+This also works in the IPython Notebook.  Note: If you use the `keyboard` command and the session hangs, try opening an Octave session from your terminal and see if the `keyboard` command hangs there too.  You may need to update your version of Octave.
 
 
 Syntax Errors

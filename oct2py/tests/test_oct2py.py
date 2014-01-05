@@ -790,7 +790,7 @@ def test_keyboard():
     try:
         oc.keyboard(timeout=3)
     except Oct2PyError as e:
-        if str(e) == 'Session timed out' and oc._session.use_pexpect:
+        if str(e) == 'Session timed out':
             return
     sys.stdin.flush()
     sys.stdin = stdin

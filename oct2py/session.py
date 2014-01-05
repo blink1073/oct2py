@@ -698,15 +698,6 @@ class _Session(object):
                     if re.search(string, line):
                         return line
 
-    def make_interaction_file(self, prompt):
-        cmds = ['fid = fopen ("%s.m", "w");' % self.interaction_file,
-                '''fputs (fid, 'keyboard("%s")\\n');''' % prompt,
-                'fclose (fid);']
-        self.evaluate(cmds, False, False)
-        
-    def remove_interaction_file(self):
-        self.evaluate(['unlink "%s.m"' % self.interaction_file], False, False)
-
     def find_prompt(self, prompt='debug> ', disp=True):
         """Look for the prompt in the Octave output, print chars if disp"""
         output = ''
