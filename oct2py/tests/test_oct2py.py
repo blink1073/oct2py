@@ -797,7 +797,7 @@ def test_keyboard():
     oc._session.stdout = stdout
 
     out = output.getvalue()
-    print('output: %s' % output, file=sys.stdout)
+    print('output: %s' % output, file=sys.stderr)
     assert 'Entering Octave Debug Prompt' in out
     assert 'a =  1' in out
 
