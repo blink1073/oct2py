@@ -177,7 +177,7 @@ class Oct2Py(object):
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
         timeout = kwargs.get('timeout', self.timeout)
-        
+
         # handle references to script names - and paths to them
         if func.endswith('.m'):
             if os.path.dirname(func):
@@ -664,7 +664,7 @@ class _Session(object):
         """Handle an Octave syntax error"""
         errline = '\n'.join(resp.splitlines()[-2:])
         msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
-                   'Octave returned Syntax Error:\n%s' % (main_line, 
+                   'Octave returned Syntax Error:\n%s' % (main_line,
                                                           errline))
         msg += '\nIf using an m-file script, make sure it runs in Octave'
         if not self.use_pexpect:
@@ -684,7 +684,7 @@ class _Session(object):
                 self.proc.expect(strings)
             except pexpect.TIMEOUT:
                 self.close()
-                raise Oct2PyError('Session timed out')
+                raise Oct2PyError('Session Timed Out, closing')
             line = self.proc.before + self.proc.after
             try:
                 return line.decode('utf-8', 'replace')

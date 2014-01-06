@@ -790,13 +790,14 @@ def test_keyboard():
     try:
         oc.keyboard(timeout=3)
     except Oct2PyError as e:
-        if 'Session timed out' in str(e):
+        if 'session timed out' in str(e).lower():
             return
     sys.stdin.flush()
     sys.stdin = stdin
     oc._session.stdout = stdout
 
     out = output.getvalue()
+    assert 'Entering Octave Debug Prompt...' in out
     assert 'a =  1' in out
 
 
