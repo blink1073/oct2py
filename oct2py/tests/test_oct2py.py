@@ -638,7 +638,7 @@ class BasicUsageTest(test.TestCase):
         self.assertRaises(Oct2PyError, oc._eval, "a='1")
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
-        
+
         if not oc._session.use_pexpect:
             self.assertRaises(Oct2PyError, oc._eval, "a=1")
         else:
@@ -777,9 +777,9 @@ def test_using_closed_session():
 
 
 def test_keyboard():
-    
+
     oc = Oct2Py()
-        
+
     oc._eval('a=1')
 
     stdin = sys.stdin
@@ -797,6 +797,7 @@ def test_keyboard():
     oc._session.stdout = stdout
 
     out = output.getvalue()
+    print('output: %s' % output, file=sys.stdout)
     assert 'Entering Octave Debug Prompt' in out
     assert 'a =  1' in out
 
@@ -819,14 +820,14 @@ def test_timeout():
     oc = Oct2Py(timeout=2)
     oc.sleep(2.1, timeout=5)
     test.assert_raises(Oct2PyError, oc.sleep, 3)
-    
+
 
 def test_call_path():
     oc = Oct2Py()
     octave.addpath(os.path.dirname(__file__))
     DATA = octave.call('test_datatypes.m')
     assert DATA.string.basic == 'spam'
-    
+
     oc = Oct2Py()
     path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
     DATA = oc.call(path)
