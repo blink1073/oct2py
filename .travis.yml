@@ -49,10 +49,13 @@ script:
     # Run all tests
     - if [[ $PYVER == '2.x' ]]; then
     -     nosetests --exe -v --with-doctest --with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
+    -     pip install --use-mirrors pexpect
     - fi
     - if [[ $PYVER == '3.x' ]]; then
     -     nosetests --exe -v oct2py
+    -     pip install --use-mirrors pexpect-u
     - fi
+    - nosetests --exe -v oct2py
     
 
 after_success:

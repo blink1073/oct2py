@@ -10,6 +10,10 @@ The best way to install this library is by using pip_::
 
    pip oct2py install
 
+
+On Linux, it is recommended that you also install `pexpect`.
+
+
 .. _here: http://scipy.org/Download
 .. _pip: http://www.pip-installer.org/en/latest/installing.html
 

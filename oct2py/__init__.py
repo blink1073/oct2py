@@ -20,7 +20,7 @@ trust a code translator, this is your library.
 
 
 __title__ = 'oct2py'
-__version__ = '1.2.0'
+__version__ = '1.3.0'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2013 Steven Silvester'
@@ -47,7 +47,7 @@ except Oct2PyError as e:
 # clean up namespace
 del functools, imp, os
 try:
-    del session, utils
+    del session, utils, speed_check, thread_check
 except NameError:  # pragma: no cover
     pass
 

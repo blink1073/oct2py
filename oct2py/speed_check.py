@@ -53,10 +53,10 @@ class SpeedCheck(object):
         time.sleep(1)
 
         print('Raw speed: ')
-        avg = timeit.timeit(self.raw_speed, number=200) / 200
+        avg = timeit.timeit(self.raw_speed, number=10) / 10
         print('    {0:0.01f} usec per loop'.format(avg * 1e6))
         sides = [1, 10, 100, 1000]
-        runs = [200, 200, 100, 10]
+        runs = [10, 10, 10, 5]
         for (side, nruns) in zip(sides, runs):
             self.array = np.reshape(np.arange(side ** 2), (-1))
             print('Put {0}x{1}: '.format(side, side))

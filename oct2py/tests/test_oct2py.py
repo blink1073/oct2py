@@ -15,14 +15,17 @@ float16/96/128 and complex192/256 can be recast as float64 and complex128.
 from __future__ import absolute_import, print_function
 import logging
 import os
+import pickle
+import sys
+
 import numpy as np
 import numpy.testing as test
-import pickle
+
 
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
-from oct2py.compat import unicode, long, PY2
+from oct2py.compat import unicode, long, StringIO
 
 
 octave = Oct2Py()
@@ -420,7 +423,7 @@ class NumpyTest(test.TestCase):
     blacklist_names = ['float128', 'float96', 'complex192', 'complex256']
 
     def test_scalars(self):
-        """Send a scalar numpy type and make sure we get the same number back.
+        """Send scalar numpy types and make sure we get the same number back.
         """
         for typecode in self.codes:
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
@@ -443,7 +446,7 @@ class NumpyTest(test.TestCase):
                                    outgoing)
 
     def test_ndarrays(self):
-        """Send an ndarray and make sure we get the same array back
+        """Send ndarrays and make sure we get the same array back
         """
         for typecode in self.codes:
             for ndims in [2, 3, 4]:
@@ -584,11 +587,8 @@ class BasicUsageTest(test.TestCase):
     def test_help(self):
         """Testing help command
         """
-        out = octave.cos.__doc__
-        try:
-            self.assertEqual(out[:5], '\ncos ')
-        except AssertionError:
-            self.assertEqual(out[:5], '\n`cos')
+        doc = octave.cos.__doc__
+        assert 'Compute the cosine for each element of X in radians.' in doc
 
     def test_dynamic(self):
         """Test the creation of a dynamic function
@@ -639,6 +639,13 @@ class BasicUsageTest(test.TestCase):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
 
+        if not oc._session.use_pexpect:
+            self.assertRaises(Oct2PyError, oc._eval, "a=1")
+        else:
+            oc.put('a', 1)
+            a = oc.get('a')
+            self.assertEqual(a, 1)
+
     def test_octave_error(self):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc.run, 'a = ones2(1)')
@@ -674,10 +681,6 @@ def test_singleton_sparses():
 def test_logging():
     # create a stringio and a handler to log to it
     def get_handler():
-        if PY2:
-            from StringIO import StringIO
-        else:
-            from io import StringIO
         sobj = StringIO()
         hdlr = logging.StreamHandler(sobj)
         hdlr.setLevel(logging.DEBUG)
@@ -695,7 +698,9 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 21
+    resp = '\n'.join(lines)
+    assert 'zeros(A__)' in resp
+    assert 'ans =  1' in resp
     assert lines[0].startswith('load')
 
     # now make an object with a desired logger
@@ -713,7 +718,9 @@ def test_logging():
 
     # check the output
     lines = hdlr.stream.getvalue().strip().split('\n')
-    assert len(lines) == 39
+    resp = '\n'.join(lines)
+    assert 'zeros(A__)' in resp
+    assert 'ans =  1' in resp
     assert lines[0].startswith('load')
 
 
@@ -734,19 +741,16 @@ def test_remove_files():
     _remove_temp_files()
 
 
-def test_speed():
-    from oct2py import speed_test
-    speed_test()
-
-
 def test_threads():
     from oct2py import thread_test
     thread_test()
 
 
 def test_plot():
-    octave.plot([1])
-    
+    n = octave.figure()
+    octave.plot([1, 2, 3])
+    octave.close_(n)
+
 
 def test_narg_out():
     oc = Oct2Py()
@@ -771,7 +775,64 @@ def test_using_closed_session():
     oc.close()
     test.assert_raises(Oct2PyError, oc.call, 'ones')
 
-    
+
+def test_keyboard():
+
+    oc = Oct2Py()
+
+    oc._eval('a=1')
+
+    stdin = sys.stdin
+    stdout = sys.stdout
+    output = StringIO()
+    sys.stdin = StringIO('a\nreturn')
+    oc._session.stdout = output
+    try:
+        oc.keyboard(timeout=3)
+    except Oct2PyError as e:
+        if 'session timed out' in str(e).lower():
+            return
+    sys.stdin.flush()
+    sys.stdin = stdin
+    oc._session.stdout = stdout
+
+    out = output.getvalue()
+    assert 'Entering Octave Debug Prompt...' in out
+    assert 'a =  1' in out
+
+
+def test_func_without_docstring():
+    oc = Oct2Py()
+    oc.addpath(os.path.dirname(__file__))
+    out = oc.test_nodocstring(5)
+    assert out == 5
+    assert 'user-defined function' in oc.test_nodocstring.__doc__
+    assert os.path.dirname(__file__) in oc.test_nodocstring.__doc__
+
+
+def test_func_noexist():
+    oc = Oct2Py()
+    test.assert_raises(Oct2PyError, oc.call, 'oct2py_dummy')
+
+
+def test_timeout():
+    oc = Oct2Py(timeout=2)
+    oc.sleep(2.1, timeout=5)
+    test.assert_raises(Oct2PyError, oc.sleep, 3)
+
+
+def test_call_path():
+    oc = Oct2Py()
+    octave.addpath(os.path.dirname(__file__))
+    DATA = octave.call('test_datatypes.m')
+    assert DATA.string.basic == 'spam'
+
+    oc = Oct2Py()
+    path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
+    DATA = oc.call(path)
+    assert DATA.string.basic == 'spam'
+
+
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
     print('*' * 20)
