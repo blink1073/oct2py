@@ -51,7 +51,7 @@ gh-pages:
 	cp -R ../temp_docs/docs/ .
 	git add .
 	git commit -m "rebuild docs"
-	git push upstream-rw gh-pages
+	git push origin gh-pages
 	rm -rf ../temp_docs
 	git checkout master
 
