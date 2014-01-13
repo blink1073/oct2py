@@ -11,6 +11,7 @@
    source/examples
    source/conversions
    source/api
+   source/info
 
 `API Reference <source/api.html>`_
 ------------------------------------------------
@@ -22,13 +23,20 @@ Documentation for the functions included in Oct2Py.
 
 How to install Oct2Py.
 
+
 `Examples <source/examples.html>`_
 ------------------------------------------------
 
 Introductory examples.
        
        
-`Conversions <source/conversions.html>`_
+`Type Conversions <source/conversions.html>`_
 ------------------------------------------------
    
 Oct2Py data type conversions.
+
+
+`Information <source/reference.html>`_
+-------------------------------------
+
+Other information about Oct2Py.

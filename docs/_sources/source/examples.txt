@@ -19,7 +19,9 @@ Octave path, can be called like any other Octave function.
 To explicitly add to the path, use::
 
    >>> from oct2py import octave
-   >>> octave.addpath('/path/to/file.m')
+   >>> octave.addpath('/path/to/directory')
+
+to add the directory in which your m-file is located to Octave's path.
 
 
 Roundtrip

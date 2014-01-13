@@ -1,12 +1,4 @@
 
-
-  
-  
- 
-  
- 
-
-
 <!DOCTYPE html>
 
 
@@ -14,17 +6,17 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 1.2.0 documentation</title>
+    <title>API Reference &mdash; Oct2Py 1.3.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.0.0/cosmo/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.2.0',
+        VERSION:     '1.3.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -37,7 +29,8 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.2.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 1.3.0 documentation" href="../index.html" />
+    <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -59,8 +52,9 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="../index.html">Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.2.0</b></span>
+        <a class="navbar-brand" href="../index.html">
+          Oct2Py</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.3.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -79,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="conversions.html">Conversions</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="info.html">Information</a></li>
 </ul>
 </ul>
 </li>
@@ -101,14 +96,20 @@
             
               
                 
-  <li><a href="conversions.html"
-         title="Previous Chapter: Conversions">&laquo; Conversions</a></li>
+  <li>
+    <a href="conversions.html" title="Previous Chapter: Conversions"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm">&laquo; Conversions</span>
+    </a>
+  </li>
+  <li>
+    <a href="info.html" title="Next Chapter: Information"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm">Information &raquo;</span>
+    </a>
+  </li>
               
             
             
             
             
-              <li>
+              <li class="hidden-sm">
 <div id="sourcelink">
   <a href="../_sources/source/api.txt"
      rel="nofollow">Source</a>
@@ -153,7 +154,7 @@
 <span id="oct2py"></span><h2>Oct2Py<a class="headerlink" href="#module-oct2py.session" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-session"></span><dl class="class">
 <dt id="oct2py.session.Oct2Py">
-<em class="property">class </em><tt class="descclassname">oct2py.session.</tt><tt class="descname">Oct2Py</tt><big>(</big><em>logger=None</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">oct2py.session.</tt><tt class="descname">Oct2Py</tt><big>(</big><em>logger=None</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages an Octave session.</p>
 <p>Uses MAT files to pass data between Octave and Numpy.
 The function must either exist as an m-file in this directory or
@@ -273,7 +274,7 @@ Otherwise, returns the output displayed by Octave.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
 <span class="go">array([[ 0.,  0.]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;svd&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">((</span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span><span class="p">))</span>
 <span class="go">(array([[-0.57604844, -0.81741556],</span>
 <span class="go">       [-0.81741556,  0.57604844]]), array([[ 3.86432845,  0.        ],</span>
 <span class="go">       [ 0.        ,  0.25877718]]), array([[-0.36059668, -0.93272184],</span>
@@ -284,7 +285,7 @@ Otherwise, returns the output displayed by Octave.</p>
 
 <dl class="method">
 <dt id="oct2py.session.Oct2Py.put">
-<tt class="descname">put</tt><big>(</big><em>names</em>, <em>var</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.put" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">put</tt><big>(</big><em>names</em>, <em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.put" title="Permalink to this definition">¶</a></dt>
 <dd><p>Put a variable into the Octave session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -295,8 +296,12 @@ Otherwise, returns the output displayed by Octave.</p>
 <div><p>Name of the variable(s).</p>
 </div></blockquote>
 <p><strong>var</strong> : object or list</p>
-<blockquote class="last">
+<blockquote>
 <div><p>The value(s) to pass.</p>
+</div></blockquote>
+<p><strong>timeout</strong> : float</p>
+<blockquote class="last">
+<div><p>Time to wait for response from Octave (per character).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -317,7 +322,7 @@ Otherwise, returns the output displayed by Octave.</p>
 
 <dl class="method">
 <dt id="oct2py.session.Oct2Py.get">
-<tt class="descname">get</tt><big>(</big><em>var</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.get" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get</tt><big>(</big><em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve a value from the Octave session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -326,6 +331,10 @@ Otherwise, returns the output displayed by Octave.</p>
 <tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>var</strong> : str</p>
 <blockquote>
 <div><p>Name of the variable to retrieve.</p>
+</div></blockquote>
+<p><strong>timeout</strong> : float</p>
+<blockquote>
+<div><p>Time to wait for response from Octave (per character).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -360,7 +369,7 @@ Otherwise, returns the output displayed by Octave.</p>
 
 <dl class="method">
 <dt id="oct2py.session.Oct2Py.lookfor">
-<tt class="descname">lookfor</tt><big>(</big><em>string</em>, <em>verbose=False</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.lookfor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.lookfor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">lookfor</tt><big>(</big><em>string</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.lookfor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.lookfor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the Octave &#8220;lookfor&#8221; command.</p>
 <p>Uses with the &#8220;-all&#8221; switch to search within help strings.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -374,6 +383,10 @@ Otherwise, returns the output displayed by Octave.</p>
 <p><strong>verbose</strong> : bool, optional</p>
 <blockquote>
 <div><p>Log Octave output at info level.</p>
+</div></blockquote>
+<p><strong>timeout</strong> : float</p>
+<blockquote>
+<div><p>Time to wait for response from Octave (per character).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -470,7 +483,7 @@ and supports code completion in a REPL.</p>
       
     </p>
     <p>
-        &copy; Copyright 2011 - 2013, Oct2Py contributors.<br/>
+        &copy; Copyright 2011 - 2014, Oct2Py contributors.<br/>
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.<br/>
     </p>
   </div>

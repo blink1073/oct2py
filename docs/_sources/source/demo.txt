@@ -5,15 +5,14 @@ Demo
 
 Output of Oct2Py demo script, showing most of the features of the library.  Note that the two
 plot commands will generate an interactive plot in the actual demo.
-To run interactively::
+To run interactively:
+
+
+.. code-block:: python
 
    >>> import oct2py
    >>> oct2py.demo()
 
-::
-
-   oct2py demo
-    ********************
     >>> import numpy as np
     >>> from oct2py import Oct2Py
     >>> oc = Oct2Py()
@@ -28,7 +27,7 @@ To run interactively::
 
 .. image:: static/plot.png
 
-::
+.. code-block:: python
 
    >>> xx = np.arange(-2*np.pi, 2*np.pi, 0.2)
    >>> oc.surf(np.subtract.outer(np.sin(xx), np.cos(xx)))
@@ -36,7 +35,7 @@ To run interactively::
 
 .. image:: static/surf.png
 
-::
+.. code-block:: python
 
     >>> # getting help
     >>> help(oc.svd)
