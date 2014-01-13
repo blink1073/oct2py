@@ -75,6 +75,9 @@ Documentation is available online_.
 For version information, see the Revision History_.
 
 .. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+
 .. _SourceForge: http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
+
 .. _online: http://blink1073.github.io/oct2py/docs/
+
 .. _History: https://github.com/blink1073/oct2py/blob/master/history.rst

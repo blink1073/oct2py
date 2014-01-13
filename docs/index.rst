@@ -37,6 +37,6 @@ Oct2Py data type conversions.
 
 
 `Information <source/reference.html>`_
--------------------------------------
+-----------------------------------------
 
 Other information about Oct2Py.
