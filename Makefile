@@ -38,12 +38,13 @@ release:
 	echo "Make sure to push to hg"
 
 gh-pages:
+	pip install sphinx-bootstrap-theme
 	git checkout master
 	git pull origin master
 	rm -rf ../temp_docs
 	mkdir ../temp_docs
 	rm -rf docs/build
-	-make -C docs html
+	make -C docs html
 	cp -R docs/_build/html/ ../temp_docs
 	mv ../temp_docs/html ../temp_docs/docs
 	git checkout gh-pages
