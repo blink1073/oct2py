@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-1.3.0 (2014-01-02)
+1.3.0 (2014-01-12)
 ++++++++++++++++++
 - Added support for Octave keyboard function (requires pexpect on Linux).
 - (Linux) When pexpect is installed, Octave no longer closes session when
