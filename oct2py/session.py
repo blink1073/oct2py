@@ -638,7 +638,7 @@ class _Session(object):
                       'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
-            elif line.endswith('>'):
+            elif line.endswith('>') and not syntax_error:
                 line += self.expect(' ')
                 self.interact(line)
                 self.write('clear _\n')
