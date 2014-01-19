@@ -22,6 +22,7 @@ if not os.name == 'nt':
     # needed for testing support
     if not hasattr(sys.stdout, 'buffer'):  # pragma: no cover
         class Dummy(object):
+
             def write(self):
                 pass
         try:
@@ -40,6 +41,7 @@ from .compat import unicode, PY2, queue
 
 
 class Oct2Py(object):
+
     """Manages an Octave session.
 
     Uses MAT files to pass data between Octave and Numpy.
@@ -53,6 +55,7 @@ class Oct2Py(object):
     when calling a command, then they will be logged as info.
 
     """
+
     def __init__(self, logger=None, timeout=-1):
         """Start Octave and create our MAT helpers
         """
@@ -504,8 +507,10 @@ class Oct2Py(object):
 
 
 class _Reader(object):
+
     """Read characters from an Octave session in a thread.
     """
+
     def __init__(self, proc, queue):
         self.proc = proc
         self.queue = queue
@@ -523,8 +528,10 @@ class _Reader(object):
 
 
 class _Session(object):
+
     """Low-level session Octave session interaction.
     """
+
     def __init__(self):
         self.timeout = int(1e6)
         self.use_pexpect = not pexpect is None
@@ -635,7 +642,7 @@ class _Session(object):
                 break
             elif line.rstrip() == '\x15':
                 msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
-                      'Octave returned:\n{1}'
+                       'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
             elif line.endswith('>') and not syntax_error:
@@ -649,9 +656,9 @@ class _Session(object):
             if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
-               resp.append(line)
-               self.handle_syntax_error(''.join(resp), main_line)
-               return
+                resp.append(line)
+                self.handle_syntax_error(''.join(resp), main_line)
+                return
             if verbose and logger:
                 logger.info(line)
             elif log and logger:
@@ -664,8 +671,8 @@ class _Session(object):
         """Handle an Octave syntax error"""
         errline = '\n'.join(resp.splitlines()[-2:])
         msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
-                   'Octave returned Syntax Error:\n%s' % (main_line,
-                                                          errline))
+               'Octave returned Syntax Error:\n%s' % (main_line,
+                                                      errline))
         msg += '\nIf using an m-file script, make sure it runs in Octave'
         if not self.use_pexpect:
             msg += '\nSession Closed by Octave'
