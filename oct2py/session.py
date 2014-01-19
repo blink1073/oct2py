@@ -671,7 +671,7 @@ class _Session(object):
         """Handle an Octave syntax error"""
         errline = '\n'.join(resp.splitlines()[-2:])
         msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
-               'Octave returned Syntax Error:\n%s' % (main_line,
+               'Octave returned Syntax Error:\n""""%s\n"""' % (main_line,
                                                       errline))
         msg += '\nIf using an m-file script, make sure it runs in Octave'
         if not self.use_pexpect:
