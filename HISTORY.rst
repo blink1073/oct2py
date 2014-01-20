@@ -3,9 +3,10 @@
 Release History
 ---------------
 
-1.3.0 (2014-01-12)
+1.3.0 (2014-01-20)
 ++++++++++++++++++
 - Added support for Octave keyboard function (requires pexpect on Linux).
+- Improved error messages when things go wrong in the Octave session
 - (Linux) When pexpect is installed, Octave no longer closes session when
   a Syntax Error is encountered.
 - Fixed: M-files with no docstrings are now supported.
@@ -59,7 +60,7 @@ Release History
 
 0.3.6 (2012-10-08)
 ++++++++++++++++++
- 
+
 - Default Octave working directory set to same as OS working dir
 - Fixed: Plot rending on older Octave versions
 
