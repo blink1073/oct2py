@@ -638,9 +638,9 @@ class _Session(object):
         syntax_error = False
         while 1:
             line = self.expect(['\n', '\A[\w ]*>'])
-            if line.rstrip() == '\x03':
+            if line.rstrip().endswith('\x03'):
                 break
-            elif line.rstrip() == '\x15':
+            elif line.rstrip().endswith('\x15'):
                 msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
                        'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
