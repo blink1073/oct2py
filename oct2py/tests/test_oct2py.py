@@ -452,13 +452,15 @@ class NumpyTest(test.TestCase):
             for ndims in [2, 3, 4]:
                 size = [np.random.randint(1, 10) for i in range(ndims)]
                 outgoing = (np.random.randint(-255, 255, tuple(size)))
-                outgoing += np.random.rand(*size).astype(outgoing.dtype,
-                                                         casting='unsafe')
+                try:
+                    outgoing += np.random.rand(*size).astype(outgoing.dtype,
+                                                             casting='unsafe')
+                except TypeError:  # pragma: no cover
+                    outgoing += np.random.rand(*size).astype(outgoing.dtype)
                 if typecode in ['U', 'S']:
                     outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
                                 [['spam', 'eggs'], ['spam', 'eggs']]]
-                    outgoing = np.array(outgoing).astype(typecode,
-                                                         casting='unsafe')
+                    outgoing = np.array(outgoing).astype(typecode)
                 else:
                     try:
                         outgoing = outgoing.astype(typecode)
