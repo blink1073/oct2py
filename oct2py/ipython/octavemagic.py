@@ -345,8 +345,10 @@ class OctaveMagics(Magics):
             display_data.append((key, {'text/plain': text_output}))
 
         # Publish images
-        images = [open(imgfile, 'rb').read() for imgfile in \
-                  glob("%s/*" % plot_dir)]
+        images = []
+        for imgfile in glob("%s/*" % plot_dir):
+            with open(imgfile, 'rb') as fid:
+                images.append(fid.read())
         rmtree(plot_dir)
 
         plot_mime_type = _mimetypes.get(plot_format, 'image/png')

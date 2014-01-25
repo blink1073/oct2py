@@ -452,11 +452,13 @@ class NumpyTest(test.TestCase):
             for ndims in [2, 3, 4]:
                 size = [np.random.randint(1, 10) for i in range(ndims)]
                 outgoing = (np.random.randint(-255, 255, tuple(size)))
-                outgoing += np.random.rand(*size)
+                outgoing += np.random.rand(*size).astype(outgoing.dtype,
+                                                         casting='unsafe')
                 if typecode in ['U', 'S']:
                     outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
                                 [['spam', 'eggs'], ['spam', 'eggs']]]
-                    outgoing = np.array(outgoing).astype(typecode)
+                    outgoing = np.array(outgoing).astype(typecode,
+                                                         casting='unsafe')
                 else:
                     try:
                         outgoing = outgoing.astype(typecode)
