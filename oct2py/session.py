@@ -637,7 +637,7 @@ class _Session(object):
         resp = []
         syntax_error = False
         while 1:
-            line = self.expect(['\n', '\A[\w ]*>'])
+            line = self.expect(['\n', '\A[\w]+>>? '])
             if line.rstrip().endswith('\x03'):
                 break
             elif line.rstrip().endswith('\x15'):
@@ -645,8 +645,7 @@ class _Session(object):
                        'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
-            elif line.endswith('>') and not syntax_error:
-                line += self.expect(' ')
+            elif not line.endswith('\n') and not syntax_error:
                 self.interact(line)
                 self.write('clear _\n')
                 resp = resp[:-4]
