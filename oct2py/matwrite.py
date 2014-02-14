@@ -66,7 +66,7 @@ class MatWrite(object):
         if not os.path.exists(self.in_file):
             self.in_file = create_file()
         try:
-            savemat(self.in_file, data, appendmat=False, oned_as='row')
+            savemat(self.in_file, data, appendmat=False, oned_as='row', long_field_names=True)
         except KeyError:  # pragma: no cover
             raise Exception('could not save mat file')
         load_line = 'load {} "{}"'.format(self.in_file,
