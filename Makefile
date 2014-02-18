@@ -13,8 +13,8 @@ clean:
 test:
 	make clean
 	python setup.py build
-	cd build; nosetests --exe -v --with-doctest
-	cd build; ~/anaconda/envs/py3k/bin/nosetests --exe -v
+	PYTHONWARNINGS="d"; cd build; nosetests --exe -v --with-doctest
+	PYTHONWARNINGS="d"; cd build; ~/anaconda/envs/py3k/bin/nosetests --exe -v
 	rm -rf build
 	python setup.py check -r
 
