@@ -82,4 +82,4 @@ For version information, see the Revision History_.
 
 .. _online: http://blink1073.github.io/oct2py/docs/
 
-.. _History: https://github.com/blink1073/oct2py/blob/master/history.rst
+.. _History: https://github.com/blink1073/oct2py/blob/master/HISTORY.rst
