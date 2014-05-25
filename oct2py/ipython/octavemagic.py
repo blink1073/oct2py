@@ -364,7 +364,9 @@ class OctaveMagics(Magics):
                 self.shell.push({output: self._oct.get(output)})
 
         for source, data in display_data:
-            self._publish_display_data(source, data)
+            # source is deprecated in IPython 3.0.
+            # specify with kwarg for backward compatibility.
+            self._publish_display_data(source=source, data=data)
 
         if return_output:
             try:

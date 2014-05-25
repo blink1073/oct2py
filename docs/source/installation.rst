@@ -8,7 +8,7 @@ Additionally, you must have the Numpy and Scipy libraries installed.  On Windows
 
 The best way to install this library is by using pip_::
 
-   pip oct2py install
+   pip install oct2py
 
 
 On Linux, it is recommended that you also install pexpect_.
