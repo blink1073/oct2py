@@ -751,7 +751,10 @@ class _Session(object):
         self.stdout.write(msg)
         while 1:
             inp_func = input if not PY2 else raw_input
-            inp = inp_func() + '\n'
+            try:
+                inp = inp_func() + '\n'
+            except EOFError:
+                return
             if inp in ['exit\n', 'quit\n', 'dbcont\n', 'dbquit\n']:
                 inp = 'return\n'
             self.write('disp(char(3));' + inp)
