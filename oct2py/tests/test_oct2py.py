@@ -827,8 +827,8 @@ def test_timeout():
 
 def test_call_path():
     oc = Oct2Py()
-    octave.addpath(os.path.dirname(__file__))
-    DATA = octave.call('test_datatypes.m')
+    oc.addpath(os.path.dirname(__file__))
+    DATA = oc.call('test_datatypes.m')
     assert DATA.string.basic == 'spam'
 
     oc = Oct2Py()
