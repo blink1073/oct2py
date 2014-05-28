@@ -751,9 +751,10 @@ def test_threads():
 
 
 def test_plot():
-    n = octave.figure()
-    octave.plot([1, 2, 3])
-    octave.close_(n)
+    oc = Oct2Py()
+    n = oc.figure()
+    oc.plot([1, 2, 3])
+    oc.close_(n)
 
 
 def test_narg_out():
