@@ -79,11 +79,12 @@ class MatRead(object):
         for arg in argout_list:
             try:
                 val = data[arg]
-            except KeyError as e:
+            except KeyError:
                 if len(arg) > 31 and arg[:31] in data:
                     val = data[arg[:31]]
                 else:
-                    raise Oct2PyError(e)
+                    msg = '%s not found in file %s' % (arg, self.out_file)
+                    raise Oct2PyError(msg)
             val = get_data(val)
             outputs.append(val)
         if len(outputs) > 1:
