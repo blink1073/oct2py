@@ -80,7 +80,10 @@ class MatRead(object):
             try:
                 val = data[arg]
             except KeyError as e:
-                raise Oct2PyError(e)
+                if len(arg) > 31 and arg[:31] in data:
+                    val = data[arg[:31]]
+                else:
+                    raise Oct2PyError(e)
             val = get_data(val)
             outputs.append(val)
         if len(outputs) > 1:

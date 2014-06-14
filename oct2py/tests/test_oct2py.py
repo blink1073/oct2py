@@ -836,6 +836,14 @@ def test_call_path():
     path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
     DATA = oc.call(path)
     assert DATA.string.basic == 'spam'
+    
+
+def test_long_variable_name():
+    oc = Oct2Py()
+    name = 'this_variable_name_is_over_32_char'
+    oc.put(name, 1)
+    x = oc.get(name)
+    assert x == 1
 
 
 if __name__ == '__main__':  # pragma: no cover
