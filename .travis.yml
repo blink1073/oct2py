@@ -30,7 +30,7 @@ install:
   - conda update conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy IPython nose
+  - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy IPython nose pip
   - source activate test-environment
   - which pip
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
