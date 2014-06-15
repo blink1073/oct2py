@@ -14,11 +14,12 @@ python:
 install:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
   -    sudo apt-get update
+  -    sudo apt-get install octave
   - else
-  -    sudo apt-add-repository ppa:octave/stable
+  -    sudo apt-add-repository -y ppa:picaso/octave
   -    sudo apt-get update
+  -    sudo apt-get install octave liboctave-dev
   - fi
-  -  sudo apt-get install -qq octave
 
   - # You may want to periodically update this, although the conda update
   -   # conda line below will keep everything up-to-date.
