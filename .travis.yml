@@ -19,6 +19,7 @@ install:
     else
       sudo apt-get update
       sudo apt-get install octave
+    fi
 
   # You may want to periodically update this, although the conda update
   # conda line below will keep everything up-to-date.
