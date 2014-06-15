@@ -12,7 +12,13 @@ python:
   - "3.4"
 
 install:
-  - sudo apt-get update
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  -    sudo apt-get update
+  - else
+  -    sudo apt-add-repository ppa:octave/stable
+  -    sudo apt-get update
+  -  sudo apt-get install -qq octave
+
   - # You may want to periodically update this, although the conda update
   -   # conda line below will keep everything up-to-date.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
@@ -30,7 +36,6 @@ install:
   - conda info -a
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy IPython
   - source activate test-environment
-  - sudo apt-get install -qq octave
     
     - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then
     -     pip install --use-mirrors nose-cov
