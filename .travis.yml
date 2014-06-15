@@ -14,7 +14,7 @@ python:
 install:
   - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then sudo apt-add-repository -y ppa:picaso/octave; true; fi
   - sudo apt-get update
-  - sudo apt-get install octave
+  - sudo apt-get install octave liboctave-dev; true
 
   - # You may want to periodically update this, although the conda update
   -   # conda line below will keep everything up-to-date.
