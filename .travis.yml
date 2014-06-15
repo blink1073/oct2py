@@ -21,7 +21,7 @@ install:
 
   - # You may want to periodically update this, although the conda update
   -   # conda line below will keep everything up-to-date.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then
   -      # This saves us some downloading for this version
   -      wget http://repo.continuum.io/miniconda/Miniconda-3.4.2-Linux-x86_64.sh -O miniconda.sh;
   -    else
@@ -37,16 +37,16 @@ install:
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy IPython
   - source activate test-environment
     
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then
-    -     pip install --use-mirrors nose-cov
-    -     pip install --use-mirrors python-coveralls
-    - fi
+  - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then
+  -     pip install --use-mirrors nose-cov
+  -     pip install --use-mirrors python-coveralls
+  - fi
   - python setup.py install
 
 script:
     - cd
     # Run all tests
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then
+    - if [[ $TRAVIS_PYTHON_VERSION == "2.7" ]]; then
     -     nosetests --exe -v --with-doctest --with-cov --cov oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
     -     pip install --use-mirrors pexpect
     - else
