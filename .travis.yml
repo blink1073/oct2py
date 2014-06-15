@@ -12,7 +12,7 @@ python:
   - "3.4"
 
 install:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then
   -   sudo apt-add-repository -y ppa:picaso/octave; true
   -   sudo apt-get update
   -   sudo apt-get install octave liboctave-dev
@@ -23,7 +23,7 @@ install:
 
   - # You may want to periodically update this, although the conda update
   -   # conda line below will keep everything up-to-date.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then
         # This saves us some downloading for this version
   -      wget http://repo.continuum.io/miniconda/Miniconda-3.4.2-Linux-x86_64.sh -O miniconda.sh;
   - else
@@ -39,7 +39,7 @@ install:
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy IPython nose pip
   - source activate test-environment
   - which pip
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+  - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then
   -     pip install nose-cov
   -     pip install python-coveralls
   - fi
@@ -49,7 +49,7 @@ script:
     - which nosetests
     - which pip
     # Run all tests
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+    - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then
     -     nosetests --exe -v --with-doctest --with-cov --cover-package oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
     -     pip install pexpect
     - else
