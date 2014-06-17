@@ -59,36 +59,34 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.complex128, 'double', np.complex128), ]
 
 
-class TypeConversions(test.TestCase):
-    """Test roundtrip datatypes starting from Python
+def test_python_conversions():
+    """Test roundtrip python type conversions
     """
-
-    def test_python_conversions(self):
-        """Test roundtrip python type conversions
-        """
-        for out_type, oct_type, in_type in TYPE_CONVERSIONS:
-            if out_type == dict:
-                outgoing = dict(x=1)
-            elif out_type == None:
-                outgoing = None
+    oc = Oct2Py()
+    oc.addpath(os.path.dirname(__file__))
+    for out_type, oct_type, in_type in TYPE_CONVERSIONS:
+        if out_type == dict:
+            outgoing = dict(x=1)
+        elif out_type == None:
+            outgoing = None
+        else:
+            outgoing = out_type(1)
+        incoming, octave_type = oc.roundtrip(outgoing)
+        if octave_type == 'int32' and oct_type == 'int64':
+            pass
+        elif octave_type == 'char' and oct_type == 'cell':
+            pass
+        elif octave_type == 'single' and oct_type == 'double':
+            pass
+        elif octave_type == 'int64' and oct_type == 'int32':
+            pass
+        else:
+            assert octave_type == oct_type
+        if type(incoming) != in_type:
+            if type(incoming) == np.int32 and in_type == np.int64:
+                pass
             else:
-                outgoing = out_type(1)
-            incoming, octave_type = octave.roundtrip(outgoing)
-            if octave_type == 'int32' and oct_type == 'int64':
-                pass
-            elif octave_type == 'char' and oct_type == 'cell':
-                pass
-            elif octave_type == 'single' and oct_type == 'double':
-                pass
-            elif octave_type == 'int64' and oct_type == 'int32':
-                pass
-            else:
-                self.assertEqual(octave_type, oct_type)
-            if type(incoming) != in_type:
-                if type(incoming) == np.int32 and in_type == np.int64:
-                    pass
-                else:
-                    assert in_type(incoming) == incoming
+                assert in_type(incoming) == incoming
 
 
 class IncomingTest(test.TestCase):
@@ -187,6 +185,10 @@ class RoundtripTest(test.TestCase):
         making sure the value and the type are preserved.
 
     """
+    def setUp(self):
+        self.oc = Oct2Py()
+        self.oc.addpath(os.path.dirname(__file__))
+
     def nested_equal(self, val1, val2):
         """Test for equality in a nested list or ndarray
         """
@@ -219,7 +221,7 @@ class RoundtripTest(test.TestCase):
             Object to send to Octave.
 
         """
-        incoming = octave.roundtrip(outgoing)
+        incoming = self.oc.roundtrip(outgoing)
         if expected_type is None:
             expected_type = type(outgoing)
         self.nested_equal(incoming, outgoing)
@@ -277,12 +279,12 @@ class RoundtripTest(test.TestCase):
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
         '''
-        octave.run('x = test_datatypes()')
-        octave.put('y', DATA)
+        self.oc.run('x = test_datatypes()')
+        self.oc.put('y', DATA)
         for key in DATA.keys():
             if key != 'struct_array':
-                cmd = 'isequalwithequalnans(x.{0},y.{0})'.format(key)
-                ret = octave.run(cmd)
+                cmd = 'isequaln(x.{0},y.{0})'.format(key)
+                ret = self.oc.run(cmd)
                 assert ret == 'ans =  1'
 
 
@@ -293,6 +295,10 @@ class BuiltinsTest(test.TestCase):
     were brought in properly.
 
     """
+    def setUp(self):
+        self.oc = Oct2Py()
+        self.oc.addpath(os.path.dirname(__file__))
+
     def helper(self, outgoing, incoming=None, expected_type=None):
         """
         Uses roundtrip.m to make sure the data goes out and back intact.
@@ -306,7 +312,7 @@ class BuiltinsTest(test.TestCase):
 
         """
         if incoming is None:
-            incoming = octave.roundtrip(outgoing)
+            incoming = self.oc.roundtrip(outgoing)
         if not expected_type:
             for out_type, _, in_type in TYPE_CONVERSIONS:
                 if out_type == type(outgoing):
@@ -319,14 +325,14 @@ class BuiltinsTest(test.TestCase):
         except ValueError:
             assert np.allclose(np.array(incoming), np.array(outgoing))
         if type(incoming) != expected_type:
-            incoming = octave.roundtrip(outgoing)
+            incoming = self.oc.roundtrip(outgoing)
             assert expected_type(incoming) == incoming
 
     def test_dict(self):
         """Test python dictionary
         """
         test = dict(x='spam', y=[1, 2, 3])
-        incoming = octave.roundtrip(test)
+        incoming = self.oc.roundtrip(test)
         #incoming = dict(incoming)
         for key in incoming:
             self.helper(test[key], incoming[key])
@@ -335,7 +341,7 @@ class BuiltinsTest(test.TestCase):
         """Test nested python dictionary
         """
         test = dict(x=dict(y=1e3, z=[1, 2]), y='spam')
-        incoming = octave.roundtrip(test)
+        incoming = self.oc.roundtrip(test)
         incoming = dict(incoming)
         for key in test:
             if isinstance(test[key], dict):
@@ -348,7 +354,7 @@ class BuiltinsTest(test.TestCase):
         """Test python set type
         """
         test = set((1, 2, 3, 3))
-        incoming = octave.roundtrip(test)
+        incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
         self.assertEqual(type(incoming), np.ndarray)
 
@@ -395,7 +401,7 @@ class BuiltinsTest(test.TestCase):
         test = [[1, 2], [3, 4]]
         self.helper(test)
         test = [[1, 2], [3, 4, 5]]
-        incoming = octave.roundtrip(test)
+        incoming = self.oc.roundtrip(test)
         for i in range(len(test)):
             assert np.alltrue(incoming[i] == np.array(test[i]))
 
@@ -404,14 +410,14 @@ class BuiltinsTest(test.TestCase):
         """
         tests = (True, False)
         for test in tests:
-            incoming = octave.roundtrip(test)
+            incoming = self.oc.roundtrip(test)
             self.assertEqual(incoming, test)
             self.assertEqual(incoming.dtype, np.dtype('int8'))
 
     def test_none(self):
         """Test sending None type
         """
-        incoming = octave.roundtrip(None)
+        incoming = self.oc.roundtrip(None)
         assert np.isnan(incoming)
 
 
@@ -421,6 +427,10 @@ class NumpyTest(test.TestCase):
     codes = np.typecodes['All']
     blacklist_codes = 'V'
     blacklist_names = ['float128', 'float96', 'complex192', 'complex256']
+
+    def setUp(self):
+        self.oc = Oct2Py()
+        self.oc.addpath(os.path.dirname(__file__))
 
     def test_scalars(self):
         """Send scalar numpy types and make sure we get the same number back.
@@ -433,9 +443,9 @@ class NumpyTest(test.TestCase):
                 continue
             if (typecode in self.blacklist_codes or
                 outgoing.dtype.name in self.blacklist_names):
-                self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
+                self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
                 continue
-            incoming = octave.roundtrip(outgoing)
+            incoming = self.oc.roundtrip(outgoing)
             if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
                 outgoing = outgoing.astype(np.uint64)
             try:
@@ -468,9 +478,9 @@ class NumpyTest(test.TestCase):
                         continue
                 if (typecode in self.blacklist_codes or
                      outgoing.dtype.name in self.blacklist_names):
-                    self.assertRaises(Oct2PyError, octave.roundtrip, outgoing)
+                    self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
                     continue
-                incoming = octave.roundtrip(outgoing)
+                incoming = self.oc.roundtrip(outgoing)
                 incoming = np.array(incoming)
                 if outgoing.size == 1:
                     outgoing = outgoing.squeeze()
@@ -500,7 +510,7 @@ class NumpyTest(test.TestCase):
         rand = csr_matrix(rand)
         iden = identity(1000)
         for test in [rand, iden]:
-            incoming, type_ = octave.roundtrip(test)
+            incoming, type_ = self.oc.roundtrip(test)
             assert test.shape == incoming.shape
             assert test.nnz == incoming.nnz
             assert np.allclose(test.todense(), incoming.todense())
@@ -511,7 +521,7 @@ class NumpyTest(test.TestCase):
         '''Test roundtrip empty matrices
         '''
         test = np.empty((100, 100))
-        incoming, type_ = octave.roundtrip(test)
+        incoming, type_ = self.oc.roundtrip(test)
         assert test.squeeze().shape == incoming.squeeze().shape
         assert np.allclose(test[np.isfinite(test)],
                             incoming[np.isfinite(incoming)])
@@ -522,7 +532,7 @@ class NumpyTest(test.TestCase):
         '''
         test = np.random.rand(1000)
         test = np.mat(test)
-        incoming, type_ = octave.roundtrip(test)
+        incoming, type_ = self.oc.roundtrip(test)
         assert np.allclose(test, incoming)
         assert test.dtype == incoming.dtype
         assert type_ == 'double'
@@ -532,7 +542,7 @@ class NumpyTest(test.TestCase):
         '''
         test = np.random.rand(100)
         test = np.ma.array(test)
-        incoming, type_ = octave.roundtrip(test)
+        incoming, type_ = self.oc.roundtrip(test)
         assert np.allclose(test, incoming)
         assert test.dtype == incoming.dtype
         assert type_ == 'double'
@@ -541,10 +551,14 @@ class NumpyTest(test.TestCase):
 class BasicUsageTest(test.TestCase):
     """Excercise the basic interface of the package
     """
+    def setUp(self):
+        self.oc = Oct2Py()
+        self.oc.addpath(os.path.dirname(__file__))
+
     def test_run(self):
         """Test the run command
         """
-        out = octave.run('y=ones(3,3)')
+        out = self.oc.run('y=ones(3,3)')
         desired = """y =
 
         1        1        1
@@ -552,60 +566,60 @@ class BasicUsageTest(test.TestCase):
         1        1        1
 """
         self.assertEqual(out, desired)
-        out = octave.run('x = mean([[1, 2], [3, 4]])', verbose=True)
+        out = self.oc.run('x = mean([[1, 2], [3, 4]])', verbose=True)
         self.assertEqual(out, 'x =  2.5000')
-        self.assertRaises(Oct2PyError, octave.run, '_spam')
+        self.assertRaises(Oct2PyError, self.oc.run, '_spam')
 
     def test_call(self):
         """Test the call command
         """
-        out = octave.call('ones', 1, 2)
+        out = self.oc.call('ones', 1, 2)
         assert np.allclose(out, np.ones((1, 2)))
-        U, S, V = octave.call('svd', [[1, 2], [1, 3]])
+        U, S, V = self.oc.call('svd', [[1, 2], [1, 3]])
         assert np.allclose(U, ([[-0.57604844, -0.81741556],
                             [-0.81741556, 0.57604844]]))
         assert np.allclose(S,  ([[3.86432845, 0.],
                              [0., 0.25877718]]))
         assert np.allclose(V,  ([[-0.36059668, -0.93272184],
          [-0.93272184, 0.36059668]]))
-        out = octave.call('roundtrip.m', 1)
+        out = self.oc.call('roundtrip.m', 1)
         self.assertEqual(out, 1)
         fname = os.path.join(__file__, 'roundtrip.m')
-        out = octave.call(fname, 1)
+        out = self.oc.call(fname, 1)
         self.assertEqual(out, 1)
-        self.assertRaises(Oct2PyError, octave.call, '_spam')
+        self.assertRaises(Oct2PyError, self.oc.call, '_spam')
 
     def test_put_get(self):
         """Test putting and getting values
         """
-        octave.put('spam', [1, 2])
-        out = octave.get('spam')
+        self.oc.put('spam', [1, 2])
+        out = self.oc.get('spam')
         assert np.allclose(out, np.array([1, 2]))
-        octave.put(['spam', 'eggs'], ['foo', [1, 2, 3, 4]])
-        spam, eggs = octave.get(['spam', 'eggs'])
+        self.oc.put(['spam', 'eggs'], ['foo', [1, 2, 3, 4]])
+        spam, eggs = self.oc.get(['spam', 'eggs'])
         self.assertEqual(spam, 'foo')
         assert np.allclose(eggs, np.array([[1, 2, 3, 4]]))
-        self.assertRaises(Oct2PyError, octave.put, '_spam', 1)
-        self.assertRaises(Oct2PyError, octave.get, '_spam')
+        self.assertRaises(Oct2PyError, self.oc.put, '_spam', 1)
+        self.assertRaises(Oct2PyError, self.oc.get, '_spam')
 
     def test_help(self):
         """Testing help command
         """
-        doc = octave.cos.__doc__
+        doc = self.oc.cos.__doc__
         assert 'Compute the cosine for each element of X in radians.' in doc
 
     def test_dynamic(self):
         """Test the creation of a dynamic function
         """
-        tests = [octave.zeros, octave.ones, octave.plot]
+        tests = [self.oc.zeros, self.oc.ones, self.oc.plot]
         for test in tests:
             try:
                 self.assertEqual(repr(type(test)), "<type 'function'>")
             except AssertionError:
                 self.assertEqual(repr(type(test)), "<class 'function'>")
-        self.assertRaises(Oct2PyError, octave.__getattr__, 'aaldkfasd')
-        self.assertRaises(Oct2PyError, octave.__getattr__, '_foo')
-        self.assertRaises(Oct2PyError, octave.__getattr__, 'foo\W')
+        self.assertRaises(Oct2PyError, self.oc.__getattr__, 'aaldkfasd')
+        self.assertRaises(Oct2PyError, self.oc.__getattr__, '_foo')
+        self.assertRaises(Oct2PyError, self.oc.__getattr__, 'foo\W')
 
     def test_open_close(self):
         """Test opening and closing the Octave session
@@ -657,7 +671,9 @@ class BasicUsageTest(test.TestCase):
 
 def test_unicode_docstring():
     '''Make sure unicode docstrings in Octave functions work'''
-    help(octave.test_datatypes)
+    oc = Oct2Py()
+    oc.addpath(os.path.dirname(__file__))
+    help(oc.test_datatypes)
 
 
 def test_context_manager():
@@ -737,7 +753,7 @@ def test_demo():
 
 
 def test_lookfor():
-    assert 'cosd' in octave.lookfor('cos')
+    assert 'cosd' in Oct2Py().lookfor('cos')
 
 
 def test_remove_files():
