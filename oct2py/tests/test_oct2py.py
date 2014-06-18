@@ -281,9 +281,14 @@ class RoundtripTest(test.TestCase):
         '''
         self.oc.run('x = test_datatypes()')
         self.oc.put('y', DATA)
+        try:
+            self.oc.isequaln
+            func = 'isequaln'
+        except Oct2PyError:
+            func = 'isequalwithequalnans'
         for key in DATA.keys():
             if key != 'struct_array':
-                cmd = 'isequaln(x.{0},y.{0})'.format(key)
+                cmd = '{0}(x.{1},y.{1})'.format(func, key)
                 ret = self.oc.run(cmd)
                 assert ret == 'ans =  1'
 
