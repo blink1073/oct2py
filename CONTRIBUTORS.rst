@@ -22,4 +22,6 @@ Patches and Suggestions
 - Konstantin Markov
 - Benedikt Sauer @filmore
 - Jason Moore @moorepants
-
+- @andrewbolster
+- @zimoun
+- @takluyver

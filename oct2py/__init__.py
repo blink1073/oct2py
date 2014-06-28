@@ -20,10 +20,10 @@ trust a code translator, this is your library.
 
 
 __title__ = 'oct2py'
-__version__ = '1.3.0'
+__version__ = '1.4.0'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
-__copyright__ = 'Copyright 2013 Steven Silvester'
+__copyright__ = 'Copyright 2014 Steven Silvester'
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
            'thread_test', '__version__', 'get_log']
 

@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+1.4.0 (2014-06-28)
+++++++++++++++++++
+- Add support for Python 3.4 and Octave 3.8
+- Supports long_field names
+- Dropped support for Python 3.2
+
+
 1.3.0 (2014-01-20)
 ++++++++++++++++++
 - Added support for Octave keyboard function (requires pexpect on Linux).
