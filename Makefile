@@ -26,7 +26,6 @@ cover:
 
 release:
 	make clean
-	pip install numpydoc
 	python setup.py register
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar upload
@@ -36,6 +35,7 @@ release:
 
 gh-pages:
 	pip install sphinx-bootstrap-theme
+	pip install numpydoc
 	git checkout master
 	git pull origin master
 	rm -rf ../temp_docs
