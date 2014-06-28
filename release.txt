@@ -1,7 +1,7 @@
 Release Checklist:
 - Update HISTORY.py
 - Check links in README on github
-- Change VERSION in setup.py
+- Change VERSION in __init__.py
 - Run `make test` and `make coverage` (shoot for >90%)
 - Create a tag and a new branch for the version
 - Upload to github
