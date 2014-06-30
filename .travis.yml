@@ -28,6 +28,15 @@ script:
   - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
   - source deactivate
   - popd
+  # run with oldest supported versions
+  - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose pip
+  - source activate py26
+  - pip install coverage
+  - python setup.py install
+  - pushd ..
+  - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
+  - source deactivate
+  - popd
   # upgrade Octave to 3.6
   - sudo apt-add-repository -y ppa:picaso/octave;
     sudo apt-get update;

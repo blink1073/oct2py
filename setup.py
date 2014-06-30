@@ -7,7 +7,7 @@ MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
-REQUIRES = ["numpy (>= 1.6.0)", "scipy (>= 0.9.0)"]
+REQUIRES = ["numpy (>= 1.6.2)", "scipy (>= 0.11.0)"]
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME, 
             '%s/ipython/tests' % DISTNAME]
 PACKAGE_DATA = {DISTNAME: ['tests/*.m']}
@@ -18,6 +18,7 @@ Intended Audience :: Science/Research
 License :: OSI Approved :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
+Programming Language :: Python :: 2.6
 Programming Language :: Python :: 2.7
 Programming Language :: Python :: 3.3
 Programming Language :: Python :: 3.4
