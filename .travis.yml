@@ -19,7 +19,7 @@ install:
   - conda info -a
 
 script:
-  # run with baseline numpy, scipy and Octave versions
+  # run with default environment and Octave versions
   - conda create -n py27 numpy scipy IPython nose pip
   - source activate py27
   - pip install coverage
@@ -28,13 +28,13 @@ script:
   - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
   - source deactivate
   - popd
-  # run with oldest supported versions
-  - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose pip
-  - source activate py26
+  # run with baseline numpy, scipy and Octave versions
+  - conda create -n py27base numpy=1.6.2 scipy=0.11.0 IPython nose pip
+  - source activate py27base
   - pip install coverage
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
+  - nosetests --exe -v oct2py
   - source deactivate
   - popd
   # upgrade Octave to 3.6
