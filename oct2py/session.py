@@ -16,23 +16,10 @@ import sys
 import threading
 import time
 
-
-pexpect = None
-if not os.name == 'nt':
-    # needed for testing support
-    if not hasattr(sys.stdout, 'buffer'):  # pragma: no cover
-        class Dummy(object):
-
-            def write(self):
-                pass
-        try:
-            sys.stdout.buffer = Dummy()
-        except AttributeError:
-            pass
-    try:
-        import pexpect
-    except ImportError:
-        pass
+try:
+    import pty
+except ImportError:
+    pty = None
 
 from .matwrite import MatWrite
 from .matread import MatRead
@@ -511,20 +498,35 @@ class _Reader(object):
     """Read characters from an Octave session in a thread.
     """
 
-    def __init__(self, proc, queue):
-        self.proc = proc
+    def __init__(self, fid, queue):
+        self.fid = fid
         self.queue = queue
         self.thread = threading.Thread(target=self.read_incoming)
         self.thread.setDaemon(True)
         self.thread.start()
 
     def read_incoming(self):
+        """"Read text up to 100 chars at a time, parsing into lines
+        and putting them in the queue.
+        If there is a line with only a ">" char, put that on the queue
+        """
+        buf = ''
+        debug = re.compile(r'\A[\w]+>>? ')
         while 1:
-            char = self.proc.stdout.read(1)
-            try:
-                self.queue.put(char)
-            except:
-                return
+            buf += os.read(self.fid, 100)
+            while '\n' in buf:
+                i = buf.index('\n')
+                try:
+                    self.queue.put(buf[:i].replace('\r', ''))
+                except:
+                    return
+                buf = buf[i+1:]
+            if re.match(debug, buf):
+                try:
+                    self.queue.put(buf)
+                except:
+                    return
+                buf = ''
 
 
 class _Session(object):
@@ -534,7 +536,6 @@ class _Session(object):
 
     def __init__(self):
         self.timeout = int(1e6)
-        self.use_pexpect = not pexpect is None
         self.read_queue = queue.Queue()
         self.interaction_file = '__oct2py_interact_%s' % id(self)
         self.proc = self.start()
@@ -562,42 +563,38 @@ class _Session(object):
         Matlab compatibilty mode.
 
         """
-        if self.use_pexpect:
-            try:
-                return pexpect.spawn('octave', ['-q', '--braindead'],
-                                     timeout=60.)
-            except Exception:
-                return self.start_subprocess()
-        else:
-            return self.start_subprocess()
+        return self.start_subprocess()
 
     def start_subprocess(self):
         """Start octave using a subprocess (no tty support)"""
-        self.use_pexpect = False
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
-        kwargs = dict(stderr=subprocess.STDOUT, stdin=subprocess.PIPE,
-                      stdout=subprocess.PIPE, close_fds=ON_POSIX,
-                      bufsize=0)
+        if not pty is None:
+            master, slave = pty.openpty()
+            self.wfid, self.rfid = master, master
+            rpipe, wpipe = slave, slave
+        else:
+            self.rfid, wpipe = os.pipe()
+            rpipe, self.wfid = os.pipe()
+        kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
+                      stderr=wpipe, stdout=wpipe)
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             kwargs['startupinfo'] = startupinfo
         try:
-            proc = subprocess.Popen(['octave', '-q', '--braindead'], **kwargs)
+            proc = subprocess.Popen(['octave', '-q', '--braindead'],
+                                    **kwargs)
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
         else:
-            self.reader = _Reader(proc, self.read_queue)
+            self.reader = _Reader(self.rfid, self.read_queue)
             return proc
 
     def set_timeout(self, timeout=-1):
         if timeout == -1:
             timeout = int(1e6)
-        if self.use_pexpect:
-            self.proc.timeout = timeout
-        else:
-            self.timeout = timeout
+        self.timeout = timeout
 
     def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
         """Perform the low-level interaction with an Octave Session
@@ -619,39 +616,26 @@ class _Session(object):
         self.write(output)
         resp = self.expect(['\x03', 'syntax error'])
         if resp.endswith('syntax error'):
-            if self.use_pexpect:
-                resp += self.expect('\^')
+            resp = self.expect('\^')
+            if not pty is None:
                 self.expect('\^')
                 self.expect('\^')
                 self.expect('\^')
-            else:
-                resp += self.expect('^')
-            resp += self.expect('\n')
             self.handle_syntax_error(resp, main_line)
             return
-        if not self.use_pexpect:
-            try:
-                self.proc.stdin.flush()
-            except OSError:  # pragma: no cover
-                pass
         resp = []
         syntax_error = False
         while 1:
-            line = self.expect(['\n', '\A[\w]+>>? '])
-            if line.rstrip().endswith('\x03'):
+            line = self.readline()
+            if line == '\x03':
                 break
-            elif line.rstrip().endswith('\x15'):
+            elif line == '\x15':
                 msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
                        'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
-            elif not line.endswith('\n') and not syntax_error:
+            elif line.endswith('> '):
                 self.interact(line)
-                self.write('clear _\n')
-                resp = resp[:-4]
-                self.expect('\x03')
-                continue
-            line = line.rstrip()
             if "syntax error" in line:
                 syntax_error = True
             elif syntax_error and "^" in line:
@@ -668,12 +652,12 @@ class _Session(object):
 
     def handle_syntax_error(self, resp, main_line):
         """Handle an Octave syntax error"""
-        errline = '\n'.join(resp.splitlines()[-2:])
+        errline = '\n'.join(resp.splitlines()[:])
         msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
                'Octave returned Syntax Error:\n""""\n%s\n"""' % (main_line,
-                                                      errline))
+                                                                 errline))
         msg += '\nIf using an m-file script, make sure it runs in Octave'
-        if not self.use_pexpect:
+        if pty is None:
             msg += '\nSession Closed by Octave'
             self.close()
             raise Oct2PyError(msg)
@@ -684,66 +668,30 @@ class _Session(object):
         """Look for a string or strings in the incoming data"""
         if not isinstance(strings, list):
             strings = [strings]
-        line = ''
-        if self.use_pexpect:
-            try:
-                self.proc.expect(strings)
-            except pexpect.TIMEOUT:
-                self.close()
-                raise Oct2PyError('Session Timed Out, closing')
-            line = self.proc.before + self.proc.after
-            try:
-                return line.decode('utf-8', 'replace')
-            except:
-                return line
-        else:
-            line = ''
-            while 1:
-                line += self.read()
+        lines = []
+        while 1:
+            line = self.readline()
+            lines.append(line)
+            if line:
                 for string in strings:
                     if re.search(string, line):
-                        return line
+                        return '\n'.join(lines)
 
-    def find_prompt(self, prompt='debug> ', disp=True):
-        """Look for the prompt in the Octave output, print chars if disp"""
-        output = ''
+    def readline(self):
+        t0 = time.time()
         while 1:
-            output += self.read()
-            if output.endswith(prompt):
-                if disp:
-                    self.stdout.write(output)
-                return
-
-    def read(self, n=1):
-        """Read characters from the process with utf-8 encoding"""
-        if self.use_pexpect:
-            chars = self.proc.read(n)
             try:
-                return chars.decode('utf-8', 'replace')
-            except:
-                return chars
-        else:
-            t0 = time.time()
-            chars = []
-            while 1:
-                try:
-                    chars.append(self.read_queue.get_nowait())
-                except queue.Empty:
-                    pass
-                time.sleep(1e-6)
-                if len(chars) == n:
-                    chars = b''.join(chars)
-                    return chars.decode('utf-8', 'replace')
-                if (time.time() - t0) > self.timeout:
-                    self.close()
-                    raise Oct2PyError('Session Timed Out, closing')
+                return self.read_queue.get_nowait()
+            except queue.Empty:
+                pass
+            time.sleep(1e-6)
+            if (time.time() - t0) > self.timeout:
+                self.close()
+                raise Oct2PyError('Session Timed Out, closing')
 
     def write(self, message):
         """Write a message to the process using utf-8 encoding"""
-        if self.use_pexpect:
-            self.proc.write(message.encode('utf-8'))
-        else:
-            self.proc.stdin.write(message.encode('utf-8'))
+        os.write(self.wfid, message.encode('utf-8'))
 
     def interact(self, prompt='debug> '):
         """Manage an Octave Debug Prompt interaction"""
@@ -759,9 +707,16 @@ class _Session(object):
                 inp = 'return\n'
             self.write('disp(char(3));' + inp)
             if inp == 'return\n':
+                self.write('return\n')
+                self.write('clear _\n')
+                self.readline()
+                self.readline()
+                if not pty is None:
+                    self.readline()
+                self.write('disp(char(3))\n')
                 return
-            self.expect('\x03\r?\n')
-            self.find_prompt(prompt)
+            self.expect('\x03')
+            self.stdout.write(self.expect(prompt))
 
     def close(self):
         """Cleanly close an Octave session

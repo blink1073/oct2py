@@ -59,6 +59,19 @@ TYPE_CONVERSIONS = [(int, 'int32', np.int32),
                 (np.complex128, 'double', np.complex128), ]
 
 
+if not os.name == 'nt':
+    # needed for testing support
+    if not hasattr(sys.stdout, 'buffer'):  # pragma: no cover
+        class Dummy(object):
+
+            def write(self):
+                pass
+        try:
+            sys.stdout.buffer = Dummy()
+        except AttributeError:
+            pass
+
+
 def test_python_conversions():
     """Test roundtrip python type conversions
     """
@@ -662,7 +675,7 @@ class BasicUsageTest(test.TestCase):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
 
-        if not oc._session.use_pexpect:
+        if os.name == 'nt':
             self.assertRaises(Oct2PyError, oc._eval, "a=1")
         else:
             oc.put('a', 1)
