@@ -27,7 +27,6 @@ from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
 from oct2py.compat import unicode, long, StringIO
 
-
 octave = Oct2Py()
 octave.addpath(os.path.dirname(__file__))
 DATA = octave.test_datatypes()
@@ -816,7 +815,6 @@ def test_using_closed_session():
 
 
 def test_keyboard():
-
     oc = Oct2Py()
 
     oc._eval('a=1')
@@ -824,13 +822,17 @@ def test_keyboard():
     stdin = sys.stdin
     stdout = sys.stdout
     output = StringIO()
-    sys.stdin = StringIO('a\nreturn')
+    sys.stdin = StringIO('a\nexit')
     oc._session.stdout = output
     try:
         oc.keyboard(timeout=3)
-    except Oct2PyError as e:
+    except Oct2PyError as e:  # pragma: no cover
         if 'session timed out' in str(e).lower():
+            # the keyboard command is not supported
+            # (likely using Octave 3.2)
             return
+        else:
+            raise(e)
     sys.stdin.flush()
     sys.stdin = stdin
     oc._session.stdout = stdout
@@ -870,7 +872,7 @@ def test_call_path():
     path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
     DATA = oc.call(path)
     assert DATA.string.basic == 'spam'
-    
+
 
 def test_long_variable_name():
     oc = Oct2Py()
