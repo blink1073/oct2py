@@ -25,7 +25,7 @@ script:
   - pip install coverage
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py --cov-config blink1073/oct2py/.coveragerc oct2py;
+  - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
   - source deactivate
   - popd
   # upgrade Octave to 3.6
@@ -37,7 +37,7 @@ script:
   - source activate py33
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v
+  - nosetests --exe -v oct2py
   - source deactivate
   - popd
   # run with python 3.4
@@ -45,7 +45,7 @@ script:
   - source activate py34
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v
+  - nosetests --exe -v oct2py
   - source deactivate
   - popd
 
