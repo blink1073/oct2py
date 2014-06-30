@@ -68,9 +68,7 @@ This also works in the IPython Notebook.  Note: If you use the `keyboard` comman
 
 Syntax Errors
 =============
-An Octave Syntax Error will result in the Octave Session being closed
-*unless* you are on Linux and have `pexpect` installed.  This is because Octave
-is expecting a tty connection (which pexpect emulates).
+An Octave Syntax Error will result in the Octave Session being closed if you are on Windows.  This is because Octave is expecting a pseudo-tty connection (which is not available on Windows).
 
 
 Logging

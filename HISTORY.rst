@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+1.5.0 (2014-06-29)
+++++++++++++++++++
+- Remove optional pexpect dependency
+
+
 1.4.0 (2014-06-28)
 ++++++++++++++++++
 - Add support for Python 3.4 and Octave 3.8
