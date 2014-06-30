@@ -105,7 +105,7 @@ class Oct2Py(object):
                 1        1        1
         <BLANKLINE>
         >>> octave.run('x = mean([[1, 2], [3, 4]])')
-        'x =  2.5000'
+        u'x =  2.5000'
 
         """
         # don't return a value from a script
