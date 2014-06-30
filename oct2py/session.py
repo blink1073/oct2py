@@ -105,7 +105,7 @@ class Oct2Py(object):
                 1        1        1
         <BLANKLINE>
         >>> octave.run('x = mean([[1, 2], [3, 4]])')
-        u'x =  2.5000'
+        'x =  2.5000'
 
         """
         # don't return a value from a script
@@ -513,7 +513,7 @@ class _Reader(object):
         buf = ''
         debug = re.compile(r'\A[\w]+>>? ')
         while 1:
-            buf += os.read(self.fid, 100)
+            buf += os.read(self.fid, 100).decode('utf8')
             while '\n' in buf:
                 i = buf.index('\n')
                 try:
