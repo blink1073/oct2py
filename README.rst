@@ -50,8 +50,8 @@ Features
 
 Installation
 ------------
-You must have GNU Octave installed and in your PATH. On Windows, the easiest
-way to get Octave is to use an installer from SourceForge_.
+You must have GNU Octave installed and in your PATH (versions 3.2-3.8). 
+On Windows, the easiest way to get Octave is to use an installer from SourceForge_.
 You must have the Numpy and Scipy libraries installed.
 On Linux, it should be available from your package manager.  
 Linux users should also install `pexpect` prevent Syntax Errors from closing 

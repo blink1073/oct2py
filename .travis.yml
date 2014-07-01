@@ -19,19 +19,9 @@ install:
   - conda info -a
 
 script:
-  # run with default environment and Octave versions
-  - conda create -n py27 numpy scipy IPython nose pip
-  - source activate py27
-  - pip install coverage
-  - python setup.py install
-  - pushd ..
-  - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
-  - source deactivate
-  - popd
-  # run with baseline numpy, scipy and Octave versions
-  - conda create -n py27base numpy=1.6.2 scipy=0.11.0 IPython nose pip
-  - source activate py27base
-  - pip install coverage
+  # run with oldest python, numpy, scipy and Octave versions
+  - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose pip
+  - source activate py26
   - python setup.py install
   - pushd ..
   - nosetests --exe -v oct2py
@@ -41,6 +31,15 @@ script:
   - sudo apt-add-repository -y ppa:picaso/octave;
     sudo apt-get update;
     sudo apt-get install octave liboctave-dev;
+  # run with default environment and Octave versions
+  - conda create -n py27 numpy scipy IPython nose pip
+  - source activate py27
+  - pip install coverage
+  - python setup.py install
+  - pushd ..
+  - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
+  - source deactivate
+  - popd
     # run with python 3.3
   - conda create -n py33 python=3.3 numpy scipy IPython nose pip
   - source activate py33

@@ -392,7 +392,7 @@ class Oct2Py(object):
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
             if not 'Built-in Function' in doc:
-                self._eval('clear {}'.format(name), log=False, verbose=False)
+                self._eval('clear {0}'.format(name), log=False, verbose=False)
             kwargs['command'] = True
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
