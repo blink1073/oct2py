@@ -882,6 +882,14 @@ def test_long_variable_name():
     assert x == 1
 
 
+def test_syntax_error_embedded():
+    oc = Oct2Py()
+    test.assert_raises(Oct2PyError, oc.run, """eval("a='1")""")
+    oc.put('b', 1)
+    x = oc.get('b')
+    assert x == 1
+
+
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
     print('*' * 20)

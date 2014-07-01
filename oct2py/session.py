@@ -624,7 +624,6 @@ class _Session(object):
             self.handle_syntax_error(resp, main_line)
             return
         resp = []
-        syntax_error = False
         while 1:
             line = self.readline()
             if line == '\x03':
@@ -636,12 +635,6 @@ class _Session(object):
                 raise Oct2PyError(msg)
             elif line.endswith('> '):
                 self.interact(line)
-            if "syntax error" in line:
-                syntax_error = True
-            elif syntax_error and "^" in line:
-                resp.append(line)
-                self.handle_syntax_error(''.join(resp), main_line)
-                return
             if verbose and logger:
                 logger.info(line)
             elif log and logger:
