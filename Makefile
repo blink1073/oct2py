@@ -29,10 +29,8 @@ release:
 	pip install wheel
 	python setup.py register
 	python setup.py bdist_wheel upload
-	python setup.py sdist --formats=gztar upload
-	echo "Make sure to tag the branch"
-	echo "Make sure to upload gh-pages"
-	echo "Make sure to push to hg"
+	python setup.py sdist --formats=gztar,zip upload
+	echo "Do not forget to add a tag"
 
 gh-pages:
 	pip install sphinx-bootstrap-theme
