@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -6,17 +5,17 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; Oct2Py 1.3.0 documentation</title>
+    <title>Installation &mdash; Oct2Py 1.5.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootswatch-3.0.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.1.0/cosmo/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.3.0',
+        VERSION:     '1.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +24,11 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.3.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 1.5.0 documentation" href="../index.html" />
     <link rel="next" title="Demo" href="demo.html" />
     <link rel="prev" title="Oct2Py: Python to GNU Octave Bridge" href="../index.html" />
 <meta charset='utf-8'>
@@ -54,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.3.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.5.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -63,11 +62,14 @@
             
             
               <li class="dropdown globaltoc-container">
-  <a href="../index.html"
-     class="dropdown-toggle"
-     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
-    ><ul class="current">
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demo.html">Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -79,8 +81,14 @@
 </li>
               
                 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"><ul>
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#library-installation">Library Installation</a></li>
 <li><a class="reference internal" href="#gnu-octave-installation">GNU Octave Installation</a></li>
@@ -151,9 +159,9 @@
 <p>You must have GNU Octave installed and in your PATH (see instructions below).
 Additionally, you must have the Numpy and Scipy libraries installed.  On Windows, you can get the install files <a class="reference external" href="http://scipy.org/Download">here</a>.</p>
 <p>The best way to install this library is by using <a class="reference external" href="http://www.pip-installer.org/en/latest/installing.html">pip</a>:</p>
-<div class="highlight-python"><pre>pip oct2py install</pre>
+<div class="highlight-python"><div class="highlight"><pre>pip install oct2py
+</pre></div>
 </div>
-<p>On Linux, it is recommended that you also install <a class="reference external" href="https://pypi.python.org/pypi/pexpect/">pexpect</a>.</p>
 </div>
 <div class="section" id="gnu-octave-installation">
 <h2>GNU Octave Installation<a class="headerlink" href="#gnu-octave-installation" title="Permalink to this headline">¶</a></h2>
@@ -165,7 +173,8 @@ instructions from <a class="reference external" href="http://www.gnu.org/softwar
 <li><p class="first">On Windows, download the latest MinGW or .NET <a class="reference external" href="http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/">version</a>.
 The MinGW version requires the <a class="reference external" href="http://portableapps.com/apps/utilities/7-zip_portable">7zip</a> program for installation.
 Finally, to add Octave to your path. You can do so from the Environmental Variables dialog for your version of Windows, or set from the command prompt:</p>
-<div class="highlight-python"><pre>setx PATH "%PATH%;&lt;path-to-octave-bin-dir&gt;</pre>
+<div class="highlight-python"><div class="highlight"><pre>setx PATH &quot;%PATH%;&lt;path-to-octave-bin-dir&gt;
+</pre></div>
 </div>
 </li>
 </ul>
@@ -185,7 +194,7 @@ Finally, to add Octave to your path. You can do so from the Environmental Variab
     </p>
     <p>
         &copy; Copyright 2011 - 2014, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

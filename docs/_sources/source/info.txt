@@ -5,13 +5,13 @@ Information
 
 Using M-Files
 =============
-There are several ways to use an m-file in Oct2Py.  First, you can either 
-call the script using the full path to it, or `addpath` for the directory 
-containing the script.  When using `addpath`, you can use `run`, `call`, 
+There are several ways to use an m-file in Oct2Py.  First, you can either
+call the script using the full path to it, or `addpath` for the directory
+containing the script.  When using `addpath`, you can use `run`, `call`,
 or the magic method to call the function.
 
 .. code-block:: python
-    
+
     >>> from oct2py import octave
     >>> octave.call('/path/to/myscript.m')
     >>> octave.addpath('/path/to/')
@@ -46,9 +46,9 @@ Oct2Py supports code completion in IPython, so once you have created a method,
 you can recall it on the fly, so octave.one<TAB> would give you ones.
 Structs (mentioned below) also support code completion for attributes.
 
-You can share data with an Octave session explicitly using the `put` and 
+You can share data with an Octave session explicitly using the `put` and
 `get` methods.  When using other Oct2Py methods, the variable names in Octave
-start with underscores because they are temporary (you would only see this if 
+start with underscores because they are temporary (you would only see this if
 you were using logging).
 
 .. code-block:: python
@@ -68,10 +68,8 @@ This also works in the IPython Notebook.  Note: If you use the `keyboard` comman
 
 Syntax Errors
 =============
-An Octave Syntax Error will result in the Octave Session being closed 
-*unless* you are on Linux and have `pexpect` installed.  This is because Octave
-is expecting a tty connection (which pexpect emulates).
-    
+An Octave Syntax Error will result in the Octave Session being closed if you are on Windows.  This is because Octave is expecting a pseudo-tty connection (which is not available on Windows).
+
 
 Logging
 =======
@@ -92,7 +90,7 @@ logged at the INFO level, otherwise they are logged at the DEBUG level.
 
 Shadowed Function Names
 =======================
-If you'd like to call an Octave function that is also an Oct2Py method, 
+If you'd like to call an Octave function that is also an Oct2Py method,
 you must add a trailing underscore. For example:
 
 .. code-block:: python
@@ -101,13 +99,13 @@ you must add a trailing underscore. For example:
     >>> fig = octave.figure()
     >>> octave.close_(fig)
 
-The methods that shadow Octave builtins are: close, get, lookfor, and run 
+The methods that shadow Octave builtins are: close, get, lookfor, and run
 
 
 Timeout
 =======
 Oct2Py sessions have a `timeout` attribute that determines how long to wait
-for a command to complete.  The default is 1e6 seconds (indefinite). 
+for a command to complete.  The default is 1e6 seconds (indefinite).
 You may either set the timeout for the session, or as a keyword
 argument to an individual command.  The session is closed in the event of a
 timeout.
@@ -134,7 +132,7 @@ Oct2Py uses the `gnuplot` graphics toolkit by default.  To change toolkits:
     >>> octave.available_graphics_toolkits()
     [u'fltk', u'gnuplot']
     >>> octave.graphics_toolkit('fltk')
-    
+
 
 Context Manager
 ===============
@@ -150,8 +148,8 @@ temporary m-files will be deleted when the Context Manager exits.
 
 Nargout
 =======
-Oct2Py handles nargout the same way that Octave would (which is not how it 
-normally works in Python).  The number return variables affects the 
+Oct2Py handles nargout the same way that Octave would (which is not how it
+normally works in Python).  The number return variables affects the
 behavior of the Octave function.  For example, the following two calls to SVD
 return different results:
 
@@ -166,7 +164,7 @@ Structs
 =======
 Struct is a convenience class that mimics an Octave structure variable type.
 It is a dictionary with attribute lookup, and it creates sub-structures on the
-fly of arbitrary nesting depth.  It can be pickled. You can also use tab 
+fly of arbitrary nesting depth.  It can be pickled. You can also use tab
 completion for attributes when in IPython.
 
 .. code-block:: python
@@ -189,10 +187,10 @@ contain them.
 
 Speed
 =====
-There is a performance penalty for passing information using MAT files.  
+There is a performance penalty for passing information using MAT files.
 If you have a lot of calculations, it is probably better to make an m-file
 that does the looping and data aggregation, and pass that back to Python
-for further processing.  To see an example of the speed penalty on your 
+for further processing.  To see an example of the speed penalty on your
 machine, run:
 
 .. code-block:: python
@@ -205,14 +203,14 @@ Threading
 =========
 If you want to use threading, you *must* create a new `Oct2Py` instance for
 each thread.  The `octave` convenience instance is in itself *not* threadsafe.
-Each `Oct2Py` instance has its own dedicated Octave session and will not 
+Each `Oct2Py` instance has its own dedicated Octave session and will not
 interfere with any other session.
 
 
 IPython Notebook
 ================
-Oct2Py provides OctaveMagic_ for IPython, including inline plotting in 
-notebooks.
+Oct2Py provides OctaveMagic_ for IPython, including inline plotting in
+notebooks.  This requires IPython >= 1.0.0.
 
 .. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
 

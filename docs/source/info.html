@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -6,17 +5,17 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Information &mdash; Oct2Py 1.3.0 documentation</title>
+    <title>Information &mdash; Oct2Py 1.5.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootswatch-3.0.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.1.0/cosmo/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.3.0',
+        VERSION:     '1.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +24,11 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.3.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 1.5.0 documentation" href="../index.html" />
     <link rel="prev" title="API Reference" href="api.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -53,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.3.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.5.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -62,11 +61,14 @@
             
             
               <li class="dropdown globaltoc-container">
-  <a href="../index.html"
-     class="dropdown-toggle"
-     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
-    ><ul class="current">
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demo.html">Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -78,8 +80,14 @@
 </li>
               
                 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"><ul>
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">Information</a><ul>
 <li><a class="reference internal" href="#using-m-files">Using M-Files</a></li>
 <li><a class="reference internal" href="#interactivity">Interactivity</a></li>
@@ -222,9 +230,7 @@ This also works in the IPython Notebook.  Note: If you use the <cite>keyboard</c
 </div>
 <div class="section" id="syntax-errors">
 <h2>Syntax Errors<a class="headerlink" href="#syntax-errors" title="Permalink to this headline">¶</a></h2>
-<p>An Octave Syntax Error will result in the Octave Session being closed
-<em>unless</em> you are on Linux and have <cite>pexpect</cite> installed.  This is because Octave
-is expecting a tty connection (which pexpect emulates).</p>
+<p>An Octave Syntax Error will result in the Octave Session being closed if you are on Windows.  This is because Octave is expecting a pseudo-tty connection (which is not available on Windows).</p>
 </div>
 <div class="section" id="logging">
 <h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
@@ -344,7 +350,7 @@ interfere with any other session.</p>
 <div class="section" id="ipython-notebook">
 <h2>IPython Notebook<a class="headerlink" href="#ipython-notebook" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py provides <a class="reference external" href="http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1">OctaveMagic</a> for IPython, including inline plotting in
-notebooks.</p>
+notebooks.  This requires IPython &gt;= 1.0.0.</p>
 </div>
 </div>
 
@@ -361,7 +367,7 @@ notebooks.</p>
     </p>
     <p>
         &copy; Copyright 2011 - 2014, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>

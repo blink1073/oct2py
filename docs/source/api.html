@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -6,17 +5,17 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 1.3.0 documentation</title>
+    <title>API Reference &mdash; Oct2Py 1.5.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootswatch-3.0.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.1.0/cosmo/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.3.0',
+        VERSION:     '1.5.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,11 +24,11 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.3.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 1.5.0 documentation" href="../index.html" />
     <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
@@ -54,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.3.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.5.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -63,11 +62,14 @@
             
             
               <li class="dropdown globaltoc-container">
-  <a href="../index.html"
-     class="dropdown-toggle"
-     data-toggle="dropdown">Site <b class="caret"></b></a>
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
-    ><ul class="current">
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demo.html">Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
@@ -79,8 +81,14 @@
 </li>
               
                 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"><ul>
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
 <li><a class="reference internal" href="#module-oct2py.session">Oct2Py</a></li>
 <li><a class="reference internal" href="#module-oct2py.utils">Oct2PyError</a></li>
@@ -179,7 +187,7 @@ when calling a command, then they will be logged as info.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>script</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>script</strong> : str</p>
 <blockquote>
 <div><p>Command script to send to Octave for execution.</p>
 </div></blockquote>
@@ -189,13 +197,13 @@ when calling a command, then they will be logged as info.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>out</strong> : str</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : str</p>
 <blockquote>
 <div><p>Octave printed output.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong></p>
 <blockquote class="last">
 <div><p>If the script cannot be run by Octave.</p>
 </div></blockquote>
@@ -227,7 +235,7 @@ when calling a command, then they will be logged as info.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>func</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>func</strong> : str</p>
 <blockquote>
 <div><p>Function name to call.</p>
 </div></blockquote>
@@ -249,14 +257,14 @@ different value.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>out</strong> : str or tuple</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : str or tuple</p>
 <blockquote>
 <div><p>If nout &gt; 0, returns the values from Octave as a tuple.
 Otherwise, returns the output displayed by Octave.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong></p>
 <blockquote class="last">
 <div><p>If the call is unsucessful.</p>
 </div></blockquote>
@@ -291,7 +299,7 @@ Otherwise, returns the output displayed by Octave.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>names</strong> : str or list</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>names</strong> : str or list</p>
 <blockquote>
 <div><p>Name of the variable(s).</p>
 </div></blockquote>
@@ -328,7 +336,7 @@ Otherwise, returns the output displayed by Octave.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>var</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>var</strong> : str</p>
 <blockquote>
 <div><p>Name of the variable to retrieve.</p>
 </div></blockquote>
@@ -338,11 +346,11 @@ Otherwise, returns the output displayed by Octave.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>out</strong> : object</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : object</p>
 <blockquote>
 <div><p>Object returned by Octave.</p>
 </div></blockquote>
-<p><strong>Raises:</strong> :</p>
+<p>Raises:</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>Oct2PyError</dt>
@@ -350,7 +358,7 @@ Otherwise, returns the output displayed by Octave.</p>
 </dd>
 </dl>
 </div></blockquote>
-<p><strong>Examples:</strong> :</p>
+<p>Examples:</p>
 <div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -376,7 +384,7 @@ Otherwise, returns the output displayed by Octave.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>string</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>string</strong> : str</p>
 <blockquote>
 <div><p>Search string for the lookfor command.</p>
 </div></blockquote>
@@ -390,7 +398,7 @@ Otherwise, returns the output displayed by Octave.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>out</strong> : str</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : str</p>
 <blockquote class="last">
 <div><p>Output from the Octave lookfor command.</p>
 </div></blockquote>
@@ -430,7 +438,7 @@ Otherwise, returns the output displayed by Octave.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
 <blockquote class="last">
 <div><p>Name of the log.</p>
 </div></blockquote>
@@ -484,7 +492,7 @@ and supports code completion in a REPL.</p>
     </p>
     <p>
         &copy; Copyright 2011 - 2014, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>
