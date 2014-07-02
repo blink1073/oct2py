@@ -19,33 +19,35 @@ install:
   - conda info -a
 
 script:
+  - export TEST_ARGS="--exe -v --processes=1 --process-timeout=20 --process-restartworker"
   # run with oldest python, numpy, scipy and Octave versions
   - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose pip
   - source activate py26
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v oct2py
+  - nosetests $TEST_ARGS oct2py
   - source deactivate
   - popd
   # upgrade Octave to 3.6
   - sudo apt-add-repository -y ppa:picaso/octave;
     sudo apt-get update;
     sudo apt-get install octave liboctave-dev;
-  # run with default environment and Octave versions
+  # run with default environment and Octave versions - with coverage
   - conda create -n py27 numpy scipy IPython nose pip
   - source activate py27
   - pip install coverage
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py
+  - nosetests $TEST_ARGS --with-doctest --with-cov --cover-package oct2py oct2py
   - source deactivate
   - popd
-    # run with python 3.3
+    # run with python 3.3 - without pty
   - conda create -n py33 python=3.3 numpy scipy IPython nose pip
   - source activate py33
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v oct2py
+  - export NO_PTY=1
+  - nosetests $TEST_ARGS oct2py
   - source deactivate
   - popd
   # run with python 3.4
@@ -53,7 +55,7 @@ script:
   - source activate py34
   - python setup.py install
   - pushd ..
-  - nosetests --exe -v oct2py
+  - nosetests $TEST_ARGS oct2py
   - source deactivate
   - popd
 
