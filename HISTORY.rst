@@ -3,15 +3,16 @@
 Release History
 ---------------
 
-1.5.0 (2014-06-29)
+1.5.0 (2014-07-03)
 ++++++++++++++++++
-- Remove optional pexpect dependency
+- Removed optional pexpect dependency
+- Brought back support for Python 2.6
 
 
 1.4.0 (2014-06-28)
 ++++++++++++++++++
-- Add support for Python 3.4 and Octave 3.8
-- Supports long_field names
+- Added support for Python 3.4 and Octave 3.8
+- Support long_field names
 - Dropped support for Python 3.2
 
 
