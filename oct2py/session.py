@@ -511,22 +511,20 @@ class _Reader(object):
         If there is a line with only a ">" char, put that on the queue
         """
         buf = ''
-        debug = re.compile(r'\A[\w]+>>? ')
+        debug_prompt = re.compile(r'\A[\w]+>>? ')
         while 1:
             buf += os.read(self.fid, 100).decode('utf8')
-            while '\n' in buf:
-                i = buf.index('\n')
-                try:
-                    self.queue.put(buf[:i].replace('\r', ''))
-                except:
-                    return
-                buf = buf[i+1:]
-            if re.match(debug, buf):
-                try:
-                    self.queue.put(buf)
-                except:
-                    return
+            lines = buf.splitlines()
+            for line in lines[:-1]:
+                self.queue.put(line)
+            if buf.endswith('\n'):
+                self.queue.put(lines[-1])
                 buf = ''
+            elif re.match(debug_prompt, lines[-1]):
+                self.queue.put(lines[-1])
+                buf = ''
+            else:
+                buf = lines[-1]
 
 
 class _Session(object):
@@ -537,7 +535,7 @@ class _Session(object):
     def __init__(self):
         self.timeout = int(1e6)
         self.read_queue = queue.Queue()
-        self.interaction_file = '__oct2py_interact_%s' % id(self)
+        self.use_pty = (not pty is None) and (not 'NO_PTY' in os.environ)
         self.proc = self.start()
         self.stdout = sys.stdout
         self.set_timeout()
@@ -569,7 +567,7 @@ class _Session(object):
         """Start octave using a subprocess (no tty support)"""
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
-        if not pty is None:
+        if self.use_pty:
             master, slave = pty.openpty()
             self.wfid, self.rfid = master, master
             rpipe, wpipe = slave, slave
@@ -617,7 +615,7 @@ class _Session(object):
         resp = self.expect(['\x03', 'syntax error'])
         if resp.endswith('syntax error'):
             resp = self.expect('\^')
-            if not pty is None:
+            if self.use_pty:
                 self.expect('\^')
                 self.expect('\^')
                 self.expect('\^')
@@ -650,7 +648,7 @@ class _Session(object):
                'Octave returned Syntax Error:\n""""\n%s\n"""' % (main_line,
                                                                  errline))
         msg += '\nIf using an m-file script, make sure it runs in Octave'
-        if pty is None:
+        if not self.use_pty:
             msg += '\nSession Closed by Octave'
             self.close()
             raise Oct2PyError(msg)
