@@ -19,7 +19,7 @@ install:
   - conda info -a
 
 script:
-  - export TEST_ARGS="--exe -v --processes=1 --process-timeout=30 --process-restartworker"
+  - export TEST_ARGS="--exe -v --processes=1 --process-timeout=60 --process-restartworker"
   # run with oldest python, numpy, scipy and Octave versions
   - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose pip
   - source activate py26
@@ -41,20 +41,20 @@ script:
   - nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py
   - source deactivate
   - popd
-    # run with python 3.3 - without pty
+    # run with python 3.3 
   - conda create -n py33 python=3.3 numpy scipy IPython nose pip
   - source activate py33
   - python setup.py install
   - pushd ..
-  - export NO_PTY=1
   - nosetests $TEST_ARGS oct2py
   - source deactivate
   - popd
-  # run with python 3.4
+  # run with python 3.4 - without pty
   - conda create -n py34 python=3.4 numpy scipy IPython nose pip
   - source activate py34
   - python setup.py install
   - pushd ..
+  - export NO_PTY=1
   - nosetests $TEST_ARGS oct2py
   - source deactivate
   - popd

@@ -674,7 +674,7 @@ class BasicUsageTest(test.TestCase):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
 
-        if os.name == 'nt':
+        if not oc._session.use_pty:
             self.assertRaises(Oct2PyError, oc._eval, "a=1")
         else:
             oc.put('a', 1)
