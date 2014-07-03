@@ -56,6 +56,7 @@ def kill_octave():
         os.system('taskkill /im octave /f')
     else:
         os.system('killall -9 octave')
+        os.system('killall -9 octave-cli')
     octave.restart()
 
 
