@@ -7,6 +7,7 @@ Release History
 ++++++++++++++++++
 - Removed optional pexpect dependency
 - Brought back support for Python 2.6
+- Add kill_octave convenience method to kill zombies
 
 
 1.4.0 (2014-06-28)
