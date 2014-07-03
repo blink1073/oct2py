@@ -38,7 +38,7 @@ script:
   - pip install coverage
   - python setup.py install
   - pushd ..
-  - nosetests $TEST_ARGS --with-doctest --with-cov --cover-package oct2py oct2py
+  - nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py
   - source deactivate
   - popd
     # run with python 3.3 - without pty
