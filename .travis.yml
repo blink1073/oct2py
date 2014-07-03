@@ -19,7 +19,7 @@ install:
   - conda info -a
 
 script:
-  - export TEST_ARGS="--exe -v --processes=1 --process-timeout=20 --process-restartworker"
+  - export TEST_ARGS="--exe -v --processes=1 --process-timeout=30 --process-restartworker"
   # run with oldest python, numpy, scipy and Octave versions
   - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose pip
   - source activate py26
