@@ -730,12 +730,6 @@ class _Session(object):
     def close(self):
         """Cleanly close an Octave session
         """
-        if not self.proc:
-            return
-        try:
-            self.write('exit\n')
-        except (IOError, AttributeError, TypeError):
-            pass
         try:
             self.proc.terminate()
         except (OSError, AttributeError):  # pragma: no cover
