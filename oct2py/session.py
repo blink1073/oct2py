@@ -492,6 +492,9 @@ class Oct2Py(object):
         self._reader = MatRead()
         self._writer = MatWrite()
 
+    def __del__(self):
+        self.close()
+
 
 class _Reader(object):
 
@@ -513,7 +516,11 @@ class _Reader(object):
         buf = ''
         debug_prompt = re.compile(r'\A[\w]+>>? ')
         while 1:
-            buf += os.read(self.fid, 100).decode('utf8')
+            try:
+                buf += os.read(self.fid, 100).decode('utf8')
+            except:
+                self.queue.put(None)
+                return
             lines = buf.splitlines()
             for line in lines[:-1]:
                 self.queue.put(line)
@@ -672,9 +679,15 @@ class _Session(object):
         t0 = time.time()
         while 1:
             try:
-                return self.read_queue.get_nowait()
+                val = self.read_queue.get_nowait()
             except queue.Empty:
                 pass
+            else:
+                if val is None:
+                    self.close()
+                    return
+                else:
+                    return val
             time.sleep(1e-6)
             if (time.time() - t0) > self.timeout:
                 self.close()
@@ -714,7 +727,7 @@ class _Session(object):
         """
         try:
             self.write('exit\n')
-        except (IOError, AttributeError):
+        except (IOError, AttributeError, TypeError):
             pass
         try:
             self.proc.terminate()
