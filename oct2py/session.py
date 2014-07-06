@@ -51,6 +51,7 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = get_log()
+        self._session = None
         self.restart()
 
     def __enter__(self):
@@ -69,8 +70,11 @@ class Oct2Py(object):
         if self._session:
             self._session.close()
         self._session = None
-        self._writer.remove_file()
-        self._reader.remove_file()
+        try:
+            self._writer.remove_file()
+            self._reader.remove_file()
+        except Oct2PyError:
+            pass
 
     def run(self, script, **kwargs):
         """
@@ -493,6 +497,7 @@ class Oct2Py(object):
         self._writer = MatWrite()
 
     def __del__(self):
+        
         self.close()
 
 
@@ -725,6 +730,8 @@ class _Session(object):
     def close(self):
         """Cleanly close an Octave session
         """
+        if not self.proc:
+            return
         try:
             self.write('exit\n')
         except (IOError, AttributeError, TypeError):
