@@ -27,35 +27,33 @@ from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
 from oct2py.compat import unicode, long, StringIO
 
-octave = Oct2Py()
-octave.addpath(os.path.dirname(__file__))
-DATA = octave.test_datatypes()
 
-
-TYPE_CONVERSIONS = [(int, 'int32', np.int32),
-                (long, 'int64', np.int64),
-                (float, 'double', np.float64),
-                (complex, 'double', np.complex128),
-                (str, 'char', unicode),
-                (unicode, 'cell', unicode),
-                (bool, 'int8', np.int8),
-                (None, 'double', np.float64),
-                (dict, 'struct', Struct),
-                (np.int8, 'int8', np.int8),
-                (np.int16, 'int16', np.int16),
-                (np.int32, 'int32', np.int32),
-                (np.int64, 'int64', np.int64),
-                (np.uint8, 'uint8', np.uint8),
-                (np.uint16, 'uint16', np.uint16),
-                (np.uint32, 'uint32', np.uint32),
-                (np.uint64, 'uint64', np.uint64),
-                #(np.float16, 'double', np.float64),
-                (np.float32, 'double', np.float64),
-                (np.float64, 'double', np.float64),
-                (np.str, 'char', np.unicode),
-                (np.double, 'double', np.float64),
-                (np.complex64, 'double', np.complex128),
-                (np.complex128, 'double', np.complex128), ]
+TYPE_CONVERSIONS = [
+    (int, 'int32', np.int32),
+    (long, 'int64', np.int64),
+    (float, 'double', np.float64),
+    (complex, 'double', np.complex128),
+    (str, 'char', unicode),
+    (unicode, 'cell', unicode),
+    (bool, 'int8', np.int8),
+    (None, 'double', np.float64),
+    (dict, 'struct', Struct),
+    (np.int8, 'int8', np.int8),
+    (np.int16, 'int16', np.int16),
+    (np.int32, 'int32', np.int32),
+    (np.int64, 'int64', np.int64),
+    (np.uint8, 'uint8', np.uint8),
+    (np.uint16, 'uint16', np.uint16),
+    (np.uint32, 'uint32', np.uint32),
+    (np.uint64, 'uint64', np.uint64),
+    #(np.float16, 'double', np.float64),
+    (np.float32, 'double', np.float64),
+    (np.float64, 'double', np.float64),
+    (np.str, 'char', np.unicode),
+    (np.double, 'double', np.float64),
+    (np.complex64, 'double', np.complex128),
+    (np.complex128, 'double', np.complex128),
+]
 
 
 if not os.name == 'nt':
@@ -71,34 +69,43 @@ if not os.name == 'nt':
             pass
 
 
-def test_python_conversions():
-    """Test roundtrip python type conversions
-    """
-    oc = Oct2Py()
-    oc.addpath(os.path.dirname(__file__))
-    for out_type, oct_type, in_type in TYPE_CONVERSIONS:
-        if out_type == dict:
-            outgoing = dict(x=1)
-        elif out_type == None:
-            outgoing = None
-        else:
-            outgoing = out_type(1)
-        incoming, octave_type = oc.roundtrip(outgoing)
-        if octave_type == 'int32' and oct_type == 'int64':
-            pass
-        elif octave_type == 'char' and oct_type == 'cell':
-            pass
-        elif octave_type == 'single' and oct_type == 'double':
-            pass
-        elif octave_type == 'int64' and oct_type == 'int32':
-            pass
-        else:
-            assert octave_type == oct_type
-        if type(incoming) != in_type:
-            if type(incoming) == np.int32 and in_type == np.int64:
+class ConversionTest(test.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.oc = Oct2Py()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.oc.close()
+
+    def test_python_conversions(self):
+        """Test roundtrip python type conversions
+        """
+        self.oc.addpath(os.path.dirname(__file__))
+        for out_type, oct_type, in_type in TYPE_CONVERSIONS:
+            if out_type == dict:
+                outgoing = dict(x=1)
+            elif out_type is None:
+                outgoing = None
+            else:
+                outgoing = out_type(1)
+            incoming, octave_type = self.oc.roundtrip(outgoing)
+            if octave_type == 'int32' and oct_type == 'int64':
+                pass
+            elif octave_type == 'char' and oct_type == 'cell':
+                pass
+            elif octave_type == 'single' and oct_type == 'double':
+                pass
+            elif octave_type == 'int64' and oct_type == 'int32':
                 pass
             else:
-                assert in_type(incoming) == incoming
+                assert octave_type == oct_type
+            if type(incoming) != in_type:
+                if type(incoming) == np.int32 and in_type == np.int64:
+                    pass
+                else:
+                    assert in_type(incoming) == incoming
 
 
 class IncomingTest(test.TestCase):
@@ -109,6 +116,12 @@ class IncomingTest(test.TestCase):
         brought in properly.
 
     """
+    @classmethod
+    def setUpClass(cls):
+        with Oct2Py() as oc:
+            oc.addpath(os.path.dirname(__file__))
+            cls.data = oc.test_datatypes()
+
     def helper(self, base, keys, types):
         """
         Perform type checking of the values
@@ -134,18 +147,18 @@ class IncomingTest(test.TestCase):
         """Test incoming integer types
         """
         keys = ['int8', 'int16', 'int32', 'int64',
-                    'uint8', 'uint16', 'uint32', 'uint64']
+                'uint8', 'uint16', 'uint32', 'uint64']
         types = [np.int8, np.int16, np.int32, np.int64,
-                    np.uint8, np.uint16, np.uint32, np.uint64]
-        self.helper(DATA.num.int, keys, types)
+                 np.uint8, np.uint16, np.uint32, np.uint64]
+        self.helper(self.data.num.int, keys, types)
 
     def test_floats(self):
         """Test incoming float types
         """
         keys = ['float32', 'float64', 'complex', 'complex_matrix']
         types = [np.float64, np.float64, np.complex128, np.ndarray]
-        self.helper(DATA.num, keys, types)
-        self.assertEqual(DATA.num.complex_matrix.dtype,
+        self.helper(self.data.num, keys, types)
+        self.assertEqual(self.data.num.complex_matrix.dtype,
                          np.dtype('complex128'))
 
     def test_misc_num(self):
@@ -155,38 +168,38 @@ class IncomingTest(test.TestCase):
                 'matrix5d']
         types = [np.float64, np.float64, np.ndarray, np.ndarray, np.ndarray,
                  np.ndarray, np.ndarray]
-        self.helper(DATA.num, keys, types)
+        self.helper(self.data.num, keys, types)
 
     def test_logical(self):
         """Test incoming logical type
         """
-        self.assertEqual(type(DATA.logical), np.ndarray)
+        self.assertEqual(type(self.data.logical), np.ndarray)
 
     def test_string(self):
         """Test incoming string types
         """
         keys = ['basic', 'char_array', 'cell_array']
         types = [unicode, list, list]
-        self.helper(DATA.string, keys, types)
+        self.helper(self.data.string, keys, types)
 
     def test_struct_array(self):
         ''' Test incoming struct array types '''
         keys = ['name', 'age']
         types = [list, list]
-        self.helper(DATA.struct_array, keys, types)
+        self.helper(self.data.struct_array, keys, types)
 
     def test_cell_array(self):
         ''' Test incoming cell array types '''
         keys = ['vector', 'matrix']
         types = [list, list]
-        self.helper(DATA.cell, keys, types)
+        self.helper(self.data.cell, keys, types)
 
     def test_mixed_struct(self):
         '''Test mixed struct type
         '''
         keys = ['array', 'cell', 'scalar']
         types = [list, list, float]
-        self.helper(DATA.mixed, keys, types)
+        self.helper(self.data.mixed, keys, types)
 
 
 class RoundtripTest(test.TestCase):
@@ -197,9 +210,15 @@ class RoundtripTest(test.TestCase):
         making sure the value and the type are preserved.
 
     """
-    def setUp(self):
-        self.oc = Oct2Py()
-        self.oc.addpath(os.path.dirname(__file__))
+    @classmethod
+    def setUpClass(cls):
+        cls.oc = Oct2Py()
+        cls.oc.addpath(os.path.dirname(__file__))
+        cls.data = cls.oc.test_datatypes()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.oc.close()
 
     def nested_equal(self, val1, val2):
         """Test for equality in a nested list or ndarray
@@ -248,57 +267,57 @@ class RoundtripTest(test.TestCase):
         """
         for key in ['int8', 'int16', 'int32', 'int64',
                     'uint8', 'uint16', 'uint32', 'uint64']:
-            self.helper(DATA.num.int[key])
+            self.helper(self.data.num.int[key])
 
     def test_float(self):
         """Test roundtrip value and type preservation for float types
         """
         for key in ['float64', 'complex', 'complex_matrix']:
-            self.helper(DATA.num[key])
-        self.helper(DATA.num['float32'], np.float64)
+            self.helper(self.data.num[key])
+        self.helper(self.data.num['float32'], np.float64)
 
     def test_misc_num(self):
         """Test roundtrip value and type preservation for misc numeric types
         """
         for key in ['inf', 'NaN', 'matrix', 'vector', 'column_vector',
                     'matrix3d', 'matrix5d']:
-            self.helper(DATA.num[key])
+            self.helper(self.data.num[key])
 
     def test_logical(self):
         """Test roundtrip value and type preservation for logical type
         """
-        self.helper(DATA.logical)
+        self.helper(self.data.logical)
 
     def test_string(self):
         """Test roundtrip value and type preservation for string types
         """
         for key in ['basic', 'cell_array']:
-            self.helper(DATA.string[key])
+            self.helper(self.data.string[key])
 
     def test_struct_array(self):
         """Test roundtrip value and type preservation for struct array types
         """
-        self.helper(DATA.struct_array['name'])
-        self.helper(DATA.struct_array['age'], np.ndarray)
+        self.helper(self.data.struct_array['name'])
+        self.helper(self.data.struct_array['age'], np.ndarray)
 
     def test_cell_array(self):
         """Test roundtrip value and type preservation for cell array types
         """
         for key in ['vector', 'matrix', 'array']:
-            self.helper(DATA.cell[key])
+            self.helper(self.data.cell[key])
         #self.helper(DATA.cell['array'], np.ndarray)
 
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
         '''
         self.oc.run('x = test_datatypes()')
-        self.oc.put('y', DATA)
+        self.oc.put('y', self.data)
         try:
             self.oc.isequaln
             func = 'isequaln'
         except Oct2PyError:
             func = 'isequalwithequalnans'
-        for key in DATA.keys():
+        for key in self.data.keys():
             if key != 'struct_array':
                 cmd = '{0}(x.{1},y.{1})'.format(func, key)
                 ret = self.oc.run(cmd)
@@ -312,9 +331,14 @@ class BuiltinsTest(test.TestCase):
     were brought in properly.
 
     """
-    def setUp(self):
-        self.oc = Oct2Py()
-        self.oc.addpath(os.path.dirname(__file__))
+    @classmethod
+    def setUpClass(cls):
+        cls.oc = Oct2Py()
+        cls.oc.addpath(os.path.dirname(__file__))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.oc.close()
 
     def helper(self, outgoing, incoming=None, expected_type=None):
         """
@@ -445,9 +469,14 @@ class NumpyTest(test.TestCase):
     blacklist_codes = 'V'
     blacklist_names = ['float128', 'float96', 'complex192', 'complex256']
 
-    def setUp(self):
-        self.oc = Oct2Py()
-        self.oc.addpath(os.path.dirname(__file__))
+    @classmethod
+    def setUpClass(cls):
+        cls.oc = Oct2Py()
+        cls.oc.addpath(os.path.dirname(__file__))
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.oc.close()
 
     def test_scalars(self):
         """Send scalar numpy types and make sure we get the same number back.
@@ -459,7 +488,7 @@ class NumpyTest(test.TestCase):
             except TypeError:
                 continue
             if (typecode in self.blacklist_codes or
-                outgoing.dtype.name in self.blacklist_names):
+                    outgoing.dtype.name in self.blacklist_names):
                 self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
                 continue
             incoming = self.oc.roundtrip(outgoing)
@@ -468,9 +497,9 @@ class NumpyTest(test.TestCase):
             try:
                 assert np.allclose(incoming, outgoing)
             except (ValueError, TypeError, NotImplementedError,
-                     AssertionError):
+                    AssertionError):
                 assert np.alltrue(np.array(incoming).astype(typecode) ==
-                                   outgoing)
+                                  outgoing)
 
     def test_ndarrays(self):
         """Send ndarrays and make sure we get the same array back
@@ -494,7 +523,7 @@ class NumpyTest(test.TestCase):
                     except TypeError:
                         continue
                 if (typecode in self.blacklist_codes or
-                     outgoing.dtype.name in self.blacklist_names):
+                        outgoing.dtype.name in self.blacklist_names):
                     self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
                     continue
                 incoming = self.oc.roundtrip(outgoing)
@@ -512,12 +541,12 @@ class NumpyTest(test.TestCase):
                 try:
                     assert np.allclose(incoming, outgoing)
                 except (AssertionError, ValueError, TypeError,
-                         NotImplementedError):
+                        NotImplementedError):
                     if 'c' in incoming.dtype.str:
                         incoming = np.abs(incoming)
                         outgoing = np.abs(outgoing)
                     assert np.alltrue(np.array(incoming).astype(typecode) ==
-                                       outgoing)
+                                      outgoing)
 
     def test_sparse(self):
         '''Test roundtrip sparse matrices
@@ -541,7 +570,7 @@ class NumpyTest(test.TestCase):
         incoming, type_ = self.oc.roundtrip(test)
         assert test.squeeze().shape == incoming.squeeze().shape
         assert np.allclose(test[np.isfinite(test)],
-                            incoming[np.isfinite(incoming)])
+                           incoming[np.isfinite(incoming)])
         assert type_ == 'double'
 
     def test_mat(self):
@@ -594,11 +623,11 @@ class BasicUsageTest(test.TestCase):
         assert np.allclose(out, np.ones((1, 2)))
         U, S, V = self.oc.call('svd', [[1, 2], [1, 3]])
         assert np.allclose(U, ([[-0.57604844, -0.81741556],
-                            [-0.81741556, 0.57604844]]))
+                           [-0.81741556, 0.57604844]]))
         assert np.allclose(S,  ([[3.86432845, 0.],
-                             [0., 0.25877718]]))
+                           [0., 0.25877718]]))
         assert np.allclose(V,  ([[-0.36059668, -0.93272184],
-         [-0.93272184, 0.36059668]]))
+                           [-0.93272184, 0.36059668]]))
         out = self.oc.call('roundtrip.m', 1)
         self.assertEqual(out, 1)
         fname = os.path.join(__file__, 'roundtrip.m')
@@ -686,209 +715,180 @@ class BasicUsageTest(test.TestCase):
         self.assertRaises(Oct2PyError, oc.run, 'a = ones2(1)')
 
 
-def test_unicode_docstring():
-    '''Make sure unicode docstrings in Octave functions work'''
-    oc = Oct2Py()
-    oc.addpath(os.path.dirname(__file__))
-    help(oc.test_datatypes)
+class MiscTests(test.TestCase):
 
+    def setUp(self):
+        self.oc = Oct2Py()
+        self.oc.addpath(os.path.dirname(__file__))
 
-def test_context_manager():
-    '''Make sure oct2py works within a context manager'''
-    oc = Oct2Py()
-    with oc as oc1:
-        ones = oc1.ones(1)
-    assert ones == np.ones(1)
-    with oc as oc2:
-         ones = oc2.ones(1)
-    assert ones == np.ones(1)
+    def tearDown(self):
+        self.oc.close()
 
+    def test_unicode_docstring(self):
+        '''Make sure unicode docstrings in Octave functions work'''
+        help(self.oc.test_datatypes)
 
-def test_singleton_sparses():
-    '''Make sure a singleton sparse matrix works'''
-    import scipy.sparse
-    data = scipy.sparse.csc.csc_matrix(1)
-    oc = Oct2Py()
-    oc.put('x', data)
-    assert np.allclose(data.toarray(), oc.get('x').toarray())
-    oc.put('y', [data])
-    assert np.allclose(data.toarray(), oc.get('y').toarray())
+    def test_context_manager(self):
+        '''Make sure oct2py works within a context manager'''
+        with self.oc as oc1:
+            ones = oc1.ones(1)
+        assert ones == np.ones(1)
+        with self.oc as oc2:
+            ones = oc2.ones(1)
+        assert ones == np.ones(1)
 
+    def test_singleton_sparses(self):
+        '''Make sure a singleton sparse matrix works'''
+        import scipy.sparse
+        data = scipy.sparse.csc.csc_matrix(1)
+        self.oc.put('x', data)
+        assert np.allclose(data.toarray(), self.oc.get('x').toarray())
+        self.oc.put('y', [data])
+        assert np.allclose(data.toarray(), self.oc.get('y').toarray())
 
-def test_logging():
-    # create a stringio and a handler to log to it
-    def get_handler():
-        sobj = StringIO()
-        hdlr = logging.StreamHandler(sobj)
-        hdlr.setLevel(logging.DEBUG)
-        return hdlr
+    def test_logging(self):
+        # create a stringio and a handler to log to it
+        def get_handler():
+            sobj = StringIO()
+            hdlr = logging.StreamHandler(sobj)
+            hdlr.setLevel(logging.DEBUG)
+            return hdlr
+        hdlr = get_handler()
+        self.oc.logger.addHandler(hdlr)
 
-    oc = Oct2Py()
-    hdlr = get_handler()
-    oc.logger.addHandler(hdlr)
+        # generate some messages (logged and not logged)
+        self.oc.ones(1, verbose=True)
 
-    # generate some messages (logged and not logged)
-    oc.ones(1, verbose=True)
+        self.oc.logger.setLevel(logging.DEBUG)
+        self.oc.zeros(1)
 
-    oc.logger.setLevel(logging.DEBUG)
-    oc.zeros(1)
+        # check the output
+        lines = hdlr.stream.getvalue().strip().split('\n')
+        resp = '\n'.join(lines)
+        assert 'zeros(A__)' in resp
+        assert 'ans =  1' in resp
+        assert lines[0].startswith('load')
 
-    # check the output
-    lines = hdlr.stream.getvalue().strip().split('\n')
-    resp = '\n'.join(lines)
-    assert 'zeros(A__)' in resp
-    assert 'ans =  1' in resp
-    assert lines[0].startswith('load')
+        # now make an object with a desired logger
+        logger = oct2py.get_log('test')
+        hdlr = get_handler()
+        logger.addHandler(hdlr)
+        logger.setLevel(logging.INFO)
+        with Oct2Py(logger=logger) as oc2:
+            # generate some messages (logged and not logged)
+            oc2.ones(1, verbose=True)
+            oc2.logger.setLevel(logging.DEBUG)
+            oc2.zeros(1)
 
-    # now make an object with a desired logger
-    logger = oct2py.get_log('test')
-    hdlr = get_handler()
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.INFO)
-    oc2 = Oct2Py(logger=logger)
+        # check the output
+        lines = hdlr.stream.getvalue().strip().split('\n')
+        resp = '\n'.join(lines)
+        assert 'zeros(A__)' in resp
+        assert 'ans =  1' in resp
+        assert lines[0].startswith('load')
 
-     # generate some messages (logged and not logged)
-    oc2.ones(1, verbose=True)
+    def test_demo(self):
+        from oct2py import demo
+        try:
+            demo.demo(0.01, interactive=False)
+        except AttributeError:
+            demo(0.01, interactive=False)
 
-    oc2.logger.setLevel(logging.DEBUG)
-    oc2.zeros(1)
+    def test_lookfor(self):
+        assert 'cosd' in self.oc.lookfor('cos')
 
-    # check the output
-    lines = hdlr.stream.getvalue().strip().split('\n')
-    resp = '\n'.join(lines)
-    assert 'zeros(A__)' in resp
-    assert 'ans =  1' in resp
-    assert lines[0].startswith('load')
+    def test_remove_files(self):
+        from oct2py.utils import _remove_temp_files
+        _remove_temp_files()
 
+    def test_threads(self):
+        from oct2py import thread_test
+        thread_test()
 
-def test_demo():
-    from oct2py import demo
-    try:
-        demo.demo(0.01, interactive=False)
-    except AttributeError:
-        demo(0.01, interactive=False)
+    def test_plot(self):
+        n = self.oc.figure()
+        self.oc.plot([1, 2, 3])
+        self.oc.close_(n)
 
+    def test_narg_out(self):
+        s = self.oc.svd(np.array([[1, 2], [1, 3]]))
+        assert s.shape == (2, 1)
+        U, S, V = self.oc.svd([[1, 2], [1, 3]])
+        assert U.shape == S.shape == V.shape == (2, 2)
 
-def test_lookfor():
-    assert 'cosd' in Oct2Py().lookfor('cos')
+    def test_help(self):
+        help(self.oc)
 
+    def test_trailing_underscore(self):
+        x = self.oc.ones_()
+        assert np.allclose(x, np.ones(1))
 
-def test_remove_files():
-    from oct2py.utils import _remove_temp_files
-    _remove_temp_files()
+    def test_using_closed_session(self):
+        with Oct2Py() as oc:
+            oc.close()
+            test.assert_raises(Oct2PyError, oc.call, 'ones')
 
+    def test_keyboard(self):
+        self.oc._eval('a=1')
 
-def test_threads():
-    from oct2py import thread_test
-    thread_test()
+        stdin = sys.stdin
+        stdout = sys.stdout
+        output = StringIO()
+        sys.stdin = StringIO('a\nexit')
+        self.oc._session.stdout = output
+        try:
+            self.oc.keyboard(timeout=3)
+        except Oct2PyError as e:  # pragma: no cover
+            if 'session timed out' in str(e).lower():
+                # the keyboard command is not supported
+                # (likely using Octave 3.2)
+                return
+            else:
+                raise(e)
+        sys.stdin.flush()
+        sys.stdin = stdin
+        self.oc._session.stdout = stdout
 
+        out = output.getvalue()
+        assert 'Entering Octave Debug Prompt...' in out
+        assert 'a =  1' in out
 
-def test_plot():
-    oc = Oct2Py()
-    n = oc.figure()
-    oc.plot([1, 2, 3])
-    oc.close_(n)
+    def test_func_without_docstring(self):
+        out = self.oc.test_nodocstring(5)
+        assert out == 5
+        assert 'user-defined function' in self.oc.test_nodocstring.__doc__
+        assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
 
+    def test_func_noexist(self):
+        test.assert_raises(Oct2PyError, self.oc.call, 'oct2py_dummy')
 
-def test_narg_out():
-    oc = Oct2Py()
-    s = oc.svd(np.array([[1,2], [1,3]]))
-    assert s.shape == (2, 1)
-    U, S, V = oc.svd([[1,2], [1,3]])
-    assert U.shape == S.shape == V.shape == (2, 2)
+    def test_timeout(self):
+        with Oct2Py(timeout=2) as oc:
+            oc.sleep(2.1, timeout=5)
+            test.assert_raises(Oct2PyError, oc.sleep, 3)
 
+    def test_call_path(self):
+        with Oct2Py() as oc:
+            oc.addpath(os.path.dirname(__file__))
+            DATA = oc.call('test_datatypes.m')
+        assert DATA.string.basic == 'spam'
 
-def test_help():
-    help(Oct2Py())
+        with Oct2Py() as oc:
+            path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
+            DATA = oc.call(path)
+        assert DATA.string.basic == 'spam'
 
+    def test_long_variable_name(self):
+        name = 'this_variable_name_is_over_32_char'
+        self.oc.put(name, 1)
+        x = self.oc.get(name)
+        assert x == 1
 
-def test_trailing_underscore():
-    oc = Oct2Py()
-    x = oc.ones_()
-    assert np.allclose(x, np.ones(1))
-
-
-def test_using_closed_session():
-    oc = Oct2Py()
-    oc.close()
-    test.assert_raises(Oct2PyError, oc.call, 'ones')
-
-
-def test_keyboard():
-    oc = Oct2Py()
-
-    oc._eval('a=1')
-
-    stdin = sys.stdin
-    stdout = sys.stdout
-    output = StringIO()
-    sys.stdin = StringIO('a\nexit')
-    oc._session.stdout = output
-    try:
-        oc.keyboard(timeout=3)
-    except Oct2PyError as e:  # pragma: no cover
-        if 'session timed out' in str(e).lower():
-            # the keyboard command is not supported
-            # (likely using Octave 3.2)
-            return
-        else:
-            raise(e)
-    sys.stdin.flush()
-    sys.stdin = stdin
-    oc._session.stdout = stdout
-
-    out = output.getvalue()
-    assert 'Entering Octave Debug Prompt...' in out
-    assert 'a =  1' in out
-
-
-def test_func_without_docstring():
-    oc = Oct2Py()
-    oc.addpath(os.path.dirname(__file__))
-    out = oc.test_nodocstring(5)
-    assert out == 5
-    assert 'user-defined function' in oc.test_nodocstring.__doc__
-    assert os.path.dirname(__file__) in oc.test_nodocstring.__doc__
-
-
-def test_func_noexist():
-    oc = Oct2Py()
-    test.assert_raises(Oct2PyError, oc.call, 'oct2py_dummy')
-
-
-def test_timeout():
-    oc = Oct2Py(timeout=2)
-    oc.sleep(2.1, timeout=5)
-    test.assert_raises(Oct2PyError, oc.sleep, 3)
-
-
-def test_call_path():
-    oc = Oct2Py()
-    oc.addpath(os.path.dirname(__file__))
-    DATA = oc.call('test_datatypes.m')
-    assert DATA.string.basic == 'spam'
-
-    oc = Oct2Py()
-    path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
-    DATA = oc.call(path)
-    assert DATA.string.basic == 'spam'
-
-
-def test_long_variable_name():
-    oc = Oct2Py()
-    name = 'this_variable_name_is_over_32_char'
-    oc.put(name, 1)
-    x = oc.get(name)
-    assert x == 1
-
-
-def test_syntax_error_embedded():
-    oc = Oct2Py()
-    test.assert_raises(Oct2PyError, oc.run, """eval("a='1")""")
-    oc.put('b', 1)
-    x = oc.get('b')
-    assert x == 1
-
+    def test_syntax_error_embedded(self):
+        test.assert_raises(Oct2PyError, self.oc.run, """eval("a='1")""")
+        self.oc.put('b', 1)
+        x = self.oc.get('b')
+        assert x == 1
 
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
