@@ -24,6 +24,7 @@ install:
   - conda create -n py34 python=3.4 scipy IPython nose
 
 script:
+  - export PYTHONWARNINGS="d"; 
   # run with oldest python, numpy, scipy and Octave versions
   - source activate py26
   - python setup.py install -q
