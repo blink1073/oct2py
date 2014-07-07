@@ -17,45 +17,44 @@ install:
   - conda update conda
   # Useful for debugging any issues with conda
   - conda info -a
+  - conda install numpy scipy IPython nose pip
+  - pip install coverage
+  - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose
+  - conda create -n py33 python=3.3 scipy IPython nose
+  - conda create -n py34 python=3.4 scipy IPython nose
 
 script:
-  - export TEST_ARGS="--exe -v --processes=1 --process-timeout=60 --process-restartworker"
   # run with oldest python, numpy, scipy and Octave versions
-  - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose pip
   - source activate py26
-  - python setup.py install
+  - python setup.py install -q
   - pushd ..
-  - nosetests $TEST_ARGS oct2py
+  - nosetests -v --exe oct2py
   - source deactivate
   - popd
   # upgrade Octave to 3.6
-  - sudo apt-add-repository -y ppa:picaso/octave;
-    sudo apt-get update;
-    sudo apt-get install octave liboctave-dev;
+  - sudo apt-add-repository -y -qq ppa:picaso/octave;
+    sudo apt-get update -qq;
+    sudo apt-get install -qq octave liboctave-dev;
   # run with default environment and Octave versions - with coverage
-  - conda create -n py27 numpy scipy IPython nose pip
-  - source activate py27
-  - pip install coverage
-  - python setup.py install
+  - source deactivate
+  - python setup.py install -q
   - pushd ..
   - nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py
   - source deactivate
   - popd
     # run with python 3.3 
-  - conda create -n py33 python=3.3 numpy scipy IPython nose pip
   - source activate py33
-  - python setup.py install
+  - python setup.py install -q
   - pushd ..
-  - nosetests $TEST_ARGS oct2py
+  - nosetests -v --exe oct2py
   - source deactivate
   - popd
   # run with python 3.4 - without pty
-  - conda create -n py34 python=3.4 numpy scipy IPython nose pip
   - source activate py34
-  - python setup.py install
+  - python setup.py install -q
   - pushd ..
   - export NO_PTY=1
-  - nosetests $TEST_ARGS oct2py
+  - nosetests --exe -v oct2py
   - source deactivate
   - popd
 
