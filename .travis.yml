@@ -29,10 +29,9 @@ script:
   - python setup.py install -q
   - pushd ..
   - nosetests -v --exe oct2py
-  - source deactivate
   - popd
   # upgrade Octave to 3.6
-  - sudo apt-add-repository -y -qq ppa:picaso/octave;
+  - sudo apt-add-repository -y ppa:picaso/octave;
     sudo apt-get update -qq;
     sudo apt-get install -qq octave liboctave-dev;
   # run with default environment and Octave versions - with coverage
@@ -40,7 +39,6 @@ script:
   - python setup.py install -q
   - pushd ..
   - nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py
-  - source deactivate
   - popd
     # run with python 3.3 
   - source activate py33
@@ -55,8 +53,6 @@ script:
   - pushd ..
   - export NO_PTY=1
   - nosetests --exe -v oct2py
-  - source deactivate
-  - popd
 
 after_success:
     - coveralls
