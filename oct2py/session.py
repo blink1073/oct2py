@@ -497,8 +497,10 @@ class Oct2Py(object):
         self._writer = MatWrite()
 
     def __del__(self):
-        
-        self.close()
+        try:
+            self.close()
+        except AttributeError:
+            pass
 
 
 class _Reader(object):
