@@ -17,8 +17,7 @@ install:
   - conda update conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda install numpy scipy IPython nose pip
-  - pip install coverage
+  - conda install numpy scipy IPython nose pip coverage
   - conda create -n py26 python=2.6 numpy=1.6.2 scipy=0.11.0 IPython nose
   - conda create -n py33 python=3.3 scipy IPython nose
   - conda create -n py34 python=3.4 scipy IPython nose
