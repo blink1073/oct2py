@@ -90,13 +90,13 @@ class Struct(dict):
 
     Examples
     ========
+    >>> from pprint import pprint
     >>> from oct2py import Struct
     >>> a = Struct()
     >>> a.b = 'spam'  # a["b"] == 'spam'
     >>> a.c["d"] = 'eggs'  # a.c.d == 'eggs'
-    >>> print(a)
-    {'c': {'d': 'eggs'}, 'b': 'spam'}
-
+    >>> pprint(a)
+    {'b': 'spam', 'c': {'d': 'eggs'}}
     """
     def __getattr__(self, attr):
         """Access the dictionary keys for unknown attributes."""
@@ -187,33 +187,3 @@ def _setup_log():
     log.propagate = False
 
 _setup_log()
-
-
-def _test():  # pragma: no cover
-    """Run the doctests for this module
-    """
-    doctest.testmod()
-
-
-if __name__ == "__main__":  # pragma: no cover
-#    import doctest
-    #_test()
-    import pickle
-    a = Struct()
-    a['foo'] = 3
-    a['bar'] = 2
-    a.baz['bar'] = 1
-    a.bob.charlie = 1
-    a['fizz']['buzz'] = 3
-    a['fizz']['bongo']['bear'] = 4
-    #a['fizz']['bongo']
-    a['fizz'].dog = 'fido'
-    #a['fizz'].yappy
-    #a.micro
-    #a.baz.dodo
-    test = Struct()
-    test.spam = 'eggs'
-    test.eggs.spam = 'eggs'
-    test["foo"]["bar"] = 10
-    p = pickle.dumps(test)
-    test2 = pickle.loads(p)
