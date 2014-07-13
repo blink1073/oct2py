@@ -52,7 +52,8 @@ class Oct2Py(object):
         If 'row', write 1-D numpy arrays as row vectors.}
     temp_dir : str, optional
         If specified, the session's MAT files will be created in the
-        directory, otherwise a default directory is used.
+        directory, otherwise a default directory is used.  This can be
+        a shared memory (tmpfs) path.
     """
 
     def __init__(self, logger=None, timeout=-1, oned_as='row',
