@@ -19,10 +19,11 @@ class MatRead(object):
     Strives to preserve both value and type in transit.
 
     """
-    def __init__(self):
+    def __init__(self, temp_dir=None):
         """Initialize our output file
         """
-        self.out_file = create_file()
+        self.temp_dir = temp_dir
+        self.out_file = create_file(self.temp_dir)
 
     def setup(self, nout, names=None):
         """
@@ -48,7 +49,7 @@ class MatRead(object):
             else:
                 argout_list.append("%s__" % chr(i + 97))
         if not os.path.exists(self.out_file):
-            self.out_file = create_file()
+            self.out_file = create_file(self.temp_dir)
         save_line = 'save "-v6" {0} "{1}"'.format(self.out_file,
                                                   '" "'.join(argout_list))
         return argout_list, save_line

@@ -20,9 +20,10 @@ class MatWrite(object):
 
     Strives to preserve both value and type in transit.
     """
-    def __init__(self, oned_as='row'):
+    def __init__(self, temp_dir=None, oned_as='row'):
         self.oned_as = oned_as
-        self.in_file = create_file()
+        self.temp_dir = temp_dir
+        self.in_file = create_file(self.temp_dir)
 
     def create_file(self, inputs, names=None):
         """
@@ -65,7 +66,7 @@ class MatWrite(object):
                 raise
             ascii_code += 1
         if not os.path.exists(self.in_file):
-            self.in_file = create_file()
+            self.in_file = create_file(self.temp_dir)
         try:
             savemat(self.in_file, data, appendmat=False,
                     oned_as=self.oned_as, long_field_names=True)

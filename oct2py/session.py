@@ -43,19 +43,24 @@ class Oct2Py(object):
 
     Parameters
     ----------
-    logger : logging object
+    logger : logging object, optional
         Optional logger to use for Oct2Py session
-    timeout : float
+    timeout : float, opional
         Timeout in seconds for commands
     oned_as : {'row', 'column'}, optional
         If 'column', write 1-D numpy arrays as column vectors.
         If 'row', write 1-D numpy arrays as row vectors.}
+    temp_dir : str, optional
+        If specified, the session's MAT files will be created in the
+        directory, otherwise a default directory is used.
     """
 
-    def __init__(self, logger=None, timeout=-1, oned_as='row'):
+    def __init__(self, logger=None, timeout=-1, oned_as='row',
+                 temp_dir=None):
         """Start Octave and create our MAT helpers
         """
         self._oned_as = oned_as
+        self._temp_dir = temp_dir
         self.timeout = timeout
         if not logger is None:
             self.logger = logger
@@ -503,8 +508,8 @@ class Oct2Py(object):
         """
         self._session = _Session()
         self._first_run = True
-        self._reader = MatRead()
-        self._writer = MatWrite(self._oned_as)
+        self._reader = MatRead(self._temp_dir)
+        self._writer = MatWrite(self._temp_dir, self._oned_as)
 
     def __del__(self):
         try:

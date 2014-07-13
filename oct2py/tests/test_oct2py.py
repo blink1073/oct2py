@@ -898,6 +898,11 @@ class MiscTests(test.TestCase):
         oc.put('x', x)
         assert oc.get('x').shape == x[:, np.newaxis].shape
 
+    def test_temp_dir(self):
+        oc = Oct2Py(temp_dir='.')
+        thisdir = os.path.dirname(os.path.abspath('.'))
+        assert oc._reader.out_file.startswith(thisdir)
+        assert oc._writer.in_file.startswith(thisdir)
 
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')

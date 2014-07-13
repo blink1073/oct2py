@@ -61,16 +61,23 @@ def get_nout():
     return 1
 
 
-def create_file():
+def create_file(temp_dir=None):
     """
     Create a MAT file with a random name in the temp directory
+
+    Parameters
+    ==========
+    temp_dir : str, optional
+        If specified, the file will be created in that directory,
+    otherwise a default directory is used.
 
     Returns
     =======
     out : str
         Random file name with the desired extension
     """
-    temp_file = tempfile.NamedTemporaryFile(suffix='.mat', delete=False)
+    temp_file = tempfile.NamedTemporaryFile(suffix='.mat', delete=False,
+                                            dir=temp_dir)
     temp_file.close()
     return os.path.abspath(temp_file.name)
 
