@@ -5,7 +5,9 @@ Release History
 
 1.6.0 (2014-??-??)
 ++++++++++++++++++
-- Add kill_octave convenience method to kill zombies
+- Added 'kill_octave' convenience method to kill zombies (#46)
+- Improved Octave shutdown handling (#45, #46)
+- Added 'oned_as' argument to Oct2Py constructor (#49)
 
 
 1.5.0 (2014-07-01)

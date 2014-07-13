@@ -20,7 +20,8 @@ class MatWrite(object):
 
     Strives to preserve both value and type in transit.
     """
-    def __init__(self):
+    def __init__(self, oned_as='row'):
+        self.oned_as = oned_as
         self.in_file = create_file()
 
     def create_file(self, inputs, names=None):
@@ -66,7 +67,8 @@ class MatWrite(object):
         if not os.path.exists(self.in_file):
             self.in_file = create_file()
         try:
-            savemat(self.in_file, data, appendmat=False, oned_as='row', long_field_names=True)
+            savemat(self.in_file, data, appendmat=False,
+                    oned_as=self.oned_as, long_field_names=True)
         except KeyError:  # pragma: no cover
             raise Exception('could not save mat file')
         load_line = 'load {0} "{1}"'.format(self.in_file,

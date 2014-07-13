@@ -890,6 +890,15 @@ class MiscTests(test.TestCase):
         x = self.oc.get('b')
         assert x == 1
 
+    def test_oned_as(self):
+        x = np.ones(10)
+        self.oc.put('x', x)
+        assert self.oc.get('x').shape == x[:, np.newaxis].T.shape
+        oc = Oct2Py(oned_as='column')
+        oc.put('x', x)
+        assert oc.get('x').shape == x[:, np.newaxis].shape
+
+
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
     print('*' * 20)

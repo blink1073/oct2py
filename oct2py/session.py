@@ -41,11 +41,21 @@ class Oct2Py(object):
     default will be used.  Events will be logged as debug unless verbose is set
     when calling a command, then they will be logged as info.
 
+    Parameters
+    ----------
+    logger : logging object
+        Optional logger to use for Oct2Py session
+    timeout : float
+        Timeout in seconds for commands
+    oned_as : {'row', 'column'}, optional
+        If 'column', write 1-D numpy arrays as column vectors.
+        If 'row', write 1-D numpy arrays as row vectors.}
     """
 
-    def __init__(self, logger=None, timeout=-1):
+    def __init__(self, logger=None, timeout=-1, oned_as='row'):
         """Start Octave and create our MAT helpers
         """
+        self._oned_as = oned_as
         self.timeout = timeout
         if not logger is None:
             self.logger = logger
@@ -494,7 +504,7 @@ class Oct2Py(object):
         self._session = _Session()
         self._first_run = True
         self._reader = MatRead()
-        self._writer = MatWrite()
+        self._writer = MatWrite(self._oned_as)
 
     def __del__(self):
         try:
