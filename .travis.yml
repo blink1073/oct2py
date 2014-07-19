@@ -14,7 +14,7 @@ env:
 
 before_install:
   - sudo apt-get update -qq;
-  - if [[ $CONDA == "python=2.7*" ]]; then
+  - if [[ $CONDA == "python=2.6*" ]]; then
         sudo apt-get install -qq octave;
     else
         sudo apt-add-repository -y ppa:picaso/octave;
