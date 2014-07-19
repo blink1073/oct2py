@@ -28,7 +28,7 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - conda create -n test $CONDA IPython nose pip coverage"
+  - conda create -n test $CONDA IPython nose pip coverage
   - source activate test
   - pip install coveralls
 
