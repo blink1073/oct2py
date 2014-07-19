@@ -46,7 +46,7 @@ script:
   - if [[ $CONDA == "python=2.7*" ]]; then
       nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py;
     else
-      nosetests --exe -v -with-doctest oct2py;
+      nosetests --exe -v --with-doctest oct2py;
     fi
 
 after_success:
