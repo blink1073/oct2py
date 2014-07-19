@@ -39,16 +39,16 @@ install:
 script:
     # turn off PTY on py3.4 (just for variety)
   - if [[ $CONDA == "python=3.4*" ]]; then
-       export NO_PTY=1
+       export NO_PTY=1;
     fi
     # run coverage on py2.7, regular on others
   - if [[ $CONDA == "python=2.7*" ]]; then
-      nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py
+      nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py;
     else
-      nosetests --exe -v -with-doctest oct2py
+      nosetests --exe -v -with-doctest oct2py;
     fi
 
 after_success:
     - if [[ $CONDA == "python=2.7*" ]]; then
-          coveralls
+          coveralls;
       fi
