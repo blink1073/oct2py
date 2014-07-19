@@ -14,7 +14,7 @@ env:
 
 before_install:
   - sudo apt-get update -qq;
-  - if [[ $CONDA == "python=2.6*" ]]; then
+  - if [[ $CONDA == python=2.6* ]]; then
         sudo apt-get install -qq octave;
     else
         sudo apt-add-repository -y ppa:picaso/octave;
@@ -39,17 +39,17 @@ install:
 
 script:
     # turn off PTY on py3.4 (just for variety)
-  - if [[ $CONDA == "python=3.4*" ]]; then
+  - if [[ $CONDA == python=3.4* ]]; then
        export NO_PTY=1;
     fi
     # run coverage on py2.7, regular on others
-  - if [[ $CONDA == "python=2.7*" ]]; then
+  - if [[ $CONDA == python=2.7* ]]; then
       nosetests -v --exe --with-doctest --with-cov --cover-package oct2py oct2py;
     else
       nosetests --exe -v --with-doctest oct2py;
     fi
 
 after_success:
-    - if [[ $CONDA == "python=2.7*" ]]; then
+    - if [[ $CONDA == python=2.7* ]]; then
           coveralls;
       fi
