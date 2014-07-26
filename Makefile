@@ -15,7 +15,7 @@ clean:
 test:
 	make clean
 	python setup.py build
-	export PYTHONWARNINGS="d"; 
+	export PYTHONWARNINGS="all"; 
 	cd build; nosetests $(TEST_ARGS)
 	cd build; ~/anaconda/envs/py34/bin/nosetests $(TEST_ARGS)
 	rm -rf build
