@@ -34,7 +34,7 @@ release:
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload
 	echo "*** Do not forget to add a tag"
-	echo "*** Do not forget to `make gh-pages`"
+	echo "*** Do not forget to 'make gh-pages'"
 
 gh-pages:
 	pip install sphinx-bootstrap-theme
