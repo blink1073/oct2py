@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 1.5.0 documentation</title>
+    <title>API Reference &mdash; Oct2Py 1.6.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.5.0',
+        VERSION:     '1.6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.5.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 1.6.0 documentation" href="../index.html" />
     <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.5.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.6.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -90,10 +90,8 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#module-oct2py.session">Oct2Py</a></li>
-<li><a class="reference internal" href="#module-oct2py.utils">Oct2PyError</a></li>
-<li><a class="reference internal" href="#module-oct2py.utils">get_log</a></li>
-<li><a class="reference internal" href="#module-oct2py.utils">Struct</a></li>
+<li><a class="reference internal" href="#module-oct2py">Oct2Py</a></li>
+<li><a class="reference internal" href="#utils">Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -144,10 +142,8 @@
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#module-oct2py.session">Oct2Py</a></li>
-<li><a class="reference internal" href="#module-oct2py.utils">Oct2PyError</a></li>
-<li><a class="reference internal" href="#module-oct2py.utils">get_log</a></li>
-<li><a class="reference internal" href="#module-oct2py.utils">Struct</a></li>
+<li><a class="reference internal" href="#module-oct2py">Oct2Py</a></li>
+<li><a class="reference internal" href="#utils">Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -158,11 +154,11 @@
       
   <div class="section" id="api-reference">
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-oct2py.session">
-<span id="oct2py"></span><h2>Oct2Py<a class="headerlink" href="#module-oct2py.session" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-session"></span><dl class="class">
-<dt id="oct2py.session.Oct2Py">
-<em class="property">class </em><tt class="descclassname">oct2py.session.</tt><tt class="descname">Oct2Py</tt><big>(</big><em>logger=None</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="module-oct2py">
+<span id="oct2py"></span><h2>Oct2Py<a class="headerlink" href="#module-oct2py" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="oct2py.Oct2Py">
+<em class="property">class </em><tt class="descclassname">oct2py.</tt><tt class="descname">Oct2Py</tt><big>(</big><em>logger=None</em>, <em>timeout=-1</em>, <em>oned_as='row'</em>, <em>temp_dir=None</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages an Octave session.</p>
 <p>Uses MAT files to pass data between Octave and Numpy.
 The function must either exist as an m-file in this directory or
@@ -172,16 +168,43 @@ The subsequent commands will be much faster.</p>
 <p>You may provide a logger object for logging events, or the oct2py.get_log()
 default will be used.  Events will be logged as debug unless verbose is set
 when calling a command, then they will be logged as info.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>logger</strong> : logging object, optional</p>
+<blockquote>
+<div><p>Optional logger to use for Oct2Py session</p>
+</div></blockquote>
+<p><strong>timeout</strong> : float, opional</p>
+<blockquote>
+<div><p>Timeout in seconds for commands</p>
+</div></blockquote>
+<p><strong>oned_as</strong> : {&#8216;row&#8217;, &#8216;column&#8217;}, optional</p>
+<blockquote>
+<div><p>If &#8216;column&#8217;, write 1-D numpy arrays as column vectors.
+If &#8216;row&#8217;, write 1-D numpy arrays as row vectors.}</p>
+</div></blockquote>
+<p><strong>temp_dir</strong> : str, optional</p>
+<blockquote class="last">
+<div><p>If specified, the session&#8217;s MAT files will be created in the
+directory, otherwise a default directory is used.  This can be
+a shared memory (tmpfs) path.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 <p>Start Octave and create our MAT helpers</p>
 <dl class="method">
-<dt id="oct2py.session.Oct2Py.close">
-<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.close" title="Permalink to this definition">¶</a></dt>
+<dt id="oct2py.Oct2Py.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Closes this octave session and removes temp files</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.session.Oct2Py.run">
-<tt class="descname">run</tt><big>(</big><em>script</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.run" title="Permalink to this definition">¶</a></dt>
+<dt id="oct2py.Oct2Py.run">
+<tt class="descname">run</tt><big>(</big><em>script</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run artibrary Octave code.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -228,8 +251,8 @@ when calling a command, then they will be logged as info.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.session.Oct2Py.call">
-<tt class="descname">call</tt><big>(</big><em>func</em>, <em>*inputs</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.call" title="Permalink to this definition">¶</a></dt>
+<dt id="oct2py.Oct2Py.call">
+<tt class="descname">call</tt><big>(</big><em>func</em>, <em>*inputs</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call an Octave function with optional arguments.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -292,8 +315,8 @@ Otherwise, returns the output displayed by Octave.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.session.Oct2Py.put">
-<tt class="descname">put</tt><big>(</big><em>names</em>, <em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.put" title="Permalink to this definition">¶</a></dt>
+<dt id="oct2py.Oct2Py.put">
+<tt class="descname">put</tt><big>(</big><em>names</em>, <em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.put" title="Permalink to this definition">¶</a></dt>
 <dd><p>Put a variable into the Octave session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -329,8 +352,8 @@ Otherwise, returns the output displayed by Octave.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.session.Oct2Py.get">
-<tt class="descname">get</tt><big>(</big><em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.get" title="Permalink to this definition">¶</a></dt>
+<dt id="oct2py.Oct2Py.get">
+<tt class="descname">get</tt><big>(</big><em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve a value from the Octave session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -376,8 +399,8 @@ Otherwise, returns the output displayed by Octave.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.session.Oct2Py.lookfor">
-<tt class="descname">lookfor</tt><big>(</big><em>string</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.lookfor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.lookfor" title="Permalink to this definition">¶</a></dt>
+<dt id="oct2py.Oct2Py.lookfor">
+<tt class="descname">lookfor</tt><big>(</big><em>string</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.lookfor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the Octave &#8220;lookfor&#8221; command.</p>
 <p>Uses with the &#8220;-all&#8221; switch to search within help strings.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -409,28 +432,25 @@ Otherwise, returns the output displayed by Octave.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.session.Oct2Py.restart">
-<tt class="descname">restart</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oct2py/session.html#Oct2Py.restart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.session.Oct2Py.restart" title="Permalink to this definition">¶</a></dt>
+<dt id="oct2py.Oct2Py.restart">
+<tt class="descname">restart</tt><big>(</big><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restart an Octave session in a clean state</p>
 </dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="module-oct2py.utils">
-<span id="oct2pyerror"></span><h2>Oct2PyError<a class="headerlink" href="#module-oct2py.utils" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-utils"></span><dl class="exception">
-<dt id="oct2py.utils.Oct2PyError">
-<em class="property">exception </em><tt class="descclassname">oct2py.utils.</tt><tt class="descname">Oct2PyError</tt><a class="reference internal" href="../_modules/oct2py/utils.html#Oct2PyError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.utils.Oct2PyError" title="Permalink to this definition">¶</a></dt>
+<div class="section" id="utils">
+<h2>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="oct2py.Oct2PyError">
+<em class="property">class </em><tt class="descclassname">oct2py.</tt><tt class="descname">Oct2PyError</tt><a class="headerlink" href="#oct2py.Oct2PyError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called when we can&#8217;t open Octave or Octave throws an error</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-oct2py.utils">
-<span id="get-log"></span><h2>get_log<a class="headerlink" href="#module-oct2py.utils" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-utils"></span><dl class="function">
-<dt id="oct2py.utils.get_log">
-<tt class="descclassname">oct2py.utils.</tt><tt class="descname">get_log</tt><big>(</big><em>name=None</em><big>)</big><a class="reference internal" href="../_modules/oct2py/utils.html#get_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.utils.get_log" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="oct2py.get_log">
+<tt class="descclassname">oct2py.</tt><tt class="descname">get_log</tt><big>(</big><em>name=None</em><big>)</big><a class="headerlink" href="#oct2py.get_log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a console logger.</p>
 <p>Output may be sent to the logger using the <cite>debug</cite>, <cite>info</cite>, <cite>warning</cite>,
 <cite>error</cite> and <cite>critical</cite> methods.</p>
@@ -456,24 +476,30 @@ Otherwise, returns the output displayed by Octave.</p>
 </table>
 </dd></dl>
 
-</div>
-<div class="section" id="module-oct2py.utils">
-<span id="struct"></span><h2>Struct<a class="headerlink" href="#module-oct2py.utils" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-utils"></span><dl class="class">
-<dt id="oct2py.utils.Struct">
-<em class="property">class </em><tt class="descclassname">oct2py.utils.</tt><tt class="descname">Struct</tt><a class="reference internal" href="../_modules/oct2py/utils.html#Struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.utils.Struct" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="oct2py.Struct">
+<tt class="descclassname">oct2py.</tt><tt class="descname">Struct</tt><big>(</big><big>)</big><a class="headerlink" href="#oct2py.Struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Octave style struct, enhanced.</p>
 <p>Supports dictionary and attribute style access.  Can be pickled,
 and supports code completion in a REPL.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Struct</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Struct</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s">&#39;spam&#39;</span>  <span class="c"># a[&quot;b&quot;] == &#39;spam&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="s">&quot;d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;eggs&#39;</span>  <span class="c"># a.c.d == &#39;eggs&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-<span class="go">{&#39;c&#39;: {&#39;d&#39;: &#39;eggs&#39;}, &#39;b&#39;: &#39;spam&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">{&#39;b&#39;: &#39;spam&#39;, &#39;c&#39;: {&#39;d&#39;: &#39;eggs&#39;}}</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="function">
+<dt id="oct2py.kill_octave">
+<tt class="descclassname">oct2py.</tt><tt class="descname">kill_octave</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oct2py.html#kill_octave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oct2py.kill_octave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill all octave instances (cross-platform).</p>
+<p>This will restart the &#8220;octave&#8221; instance.  If you have instantiated
+Any other Oct2Py objects, you must restart them.</p>
 </dd></dl>
 
 </div>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oct2py &mdash; Oct2Py 1.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.1.0/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="Oct2Py 1.6.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+  
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          Oct2Py</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.6.0</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            <li class="divider-vertical"></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/demo.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/conversions.html">Conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../source/info.html">Information</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9">
+      
+  <h1>Source code for oct2py</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Oct2Py is a means to seamlessly call M-files and GNU Octave functions from Python.</span>
+<span class="sd">It manages the Octave session for you, sharing data behind the scenes using</span>
+<span class="sd">MAT files.  Usage is as simple as:</span>
+
+<span class="sd">.. code-block:: python</span>
+
+<span class="sd">    &gt;&gt;&gt; import oct2py</span>
+<span class="sd">    &gt;&gt;&gt; oc = oct2py.Oct2Py() </span>
+<span class="sd">    &gt;&gt;&gt; x = oc.zeros(3,3)</span>
+<span class="sd">    &gt;&gt;&gt; print x, x.dtype</span>
+<span class="sd">    [[ 0.  0.  0.]</span>
+<span class="sd">     [ 0.  0.  0.]</span>
+<span class="sd">     [ 0.  0.  0.]] float64</span>
+
+<span class="sd">If you want to run legacy m-files, do not have MATLAB(TM), and do not fully</span>
+<span class="sd">trust a code translator, this is your library.  </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">__title__</span> <span class="o">=</span> <span class="s">&#39;oct2py&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;1.6.0&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Steven Silvester&#39;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&#39;MIT&#39;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&#39;Copyright 2014 Steven Silvester&#39;</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Oct2Py&#39;</span><span class="p">,</span> <span class="s">&#39;Oct2PyError&#39;</span><span class="p">,</span> <span class="s">&#39;octave&#39;</span><span class="p">,</span> <span class="s">&#39;Struct&#39;</span><span class="p">,</span> <span class="s">&#39;demo&#39;</span><span class="p">,</span> <span class="s">&#39;speed_test&#39;</span><span class="p">,</span>
+           <span class="s">&#39;thread_test&#39;</span><span class="p">,</span> <span class="s">&#39;__version__&#39;</span><span class="p">,</span> <span class="s">&#39;get_log&#39;</span><span class="p">]</span>
+
+
+<span class="kn">import</span> <span class="nn">imp</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">.session</span> <span class="kn">import</span> <span class="n">Oct2Py</span><span class="p">,</span> <span class="n">Oct2PyError</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Struct</span><span class="p">,</span> <span class="n">get_log</span>
+<span class="kn">from</span> <span class="nn">.demo</span> <span class="kn">import</span> <span class="n">demo</span>
+<span class="kn">from</span> <span class="nn">.speed_check</span> <span class="kn">import</span> <span class="n">speed_test</span>
+<span class="kn">from</span> <span class="nn">.thread_check</span> <span class="kn">import</span> <span class="n">thread_test</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">octave</span> <span class="o">=</span> <span class="n">Oct2Py</span><span class="p">()</span>
+<span class="k">except</span> <span class="n">Oct2PyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="kill_octave"><a class="viewcode-back" href="../source/api.html#oct2py.kill_octave">[docs]</a><span class="k">def</span> <span class="nf">kill_octave</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Kill all octave instances (cross-platform).</span>
+
+<span class="sd">    This will restart the &quot;octave&quot; instance.  If you have instantiated</span>
+<span class="sd">    Any other Oct2Py objects, you must restart them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;taskkill /im octave /f&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;killall -9 octave&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;killall -9 octave-cli&#39;</span><span class="p">)</span>
+    <span class="n">octave</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
+
+
+<span class="c"># clean up namespace</span></div>
+<span class="k">del</span> <span class="n">functools</span><span class="p">,</span> <span class="n">imp</span><span class="p">,</span> <span class="n">os</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">del</span> <span class="n">session</span><span class="p">,</span> <span class="n">utils</span><span class="p">,</span> <span class="n">speed_check</span><span class="p">,</span> <span class="n">thread_check</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="k">pass</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2011 - 2014, Oct2Py contributors.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

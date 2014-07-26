@@ -4,20 +4,17 @@ API Reference
 
 Oct2Py
 ======
-.. automodule:: oct2py.session
-   :members: Oct2Py
+.. module:: oct2py
+.. autoclass:: Oct2Py
+   :members:
 
-Oct2PyError
-===========
-.. automodule:: oct2py.utils
-   :members: Oct2PyError
-   
-get_log
-=======
-.. automodule:: oct2py.utils
-   :members: get_log
-   
-Struct
-=======
-.. automodule:: oct2py.utils
-   :members: Struct
+Utils
+=====
+
+.. autoclass:: Oct2PyError
+
+.. autofunction:: get_log
+
+.. autofunction:: Struct
+
+.. autofunction:: kill_octave
