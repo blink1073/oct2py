@@ -3,7 +3,7 @@
 Release History
 ---------------
 
-1.6.0 (2014-??-??)
+1.6.0 (2014-07-26)
 ++++++++++++++++++
 - Added 'temp_dir' argument to Oct2Py constructor (#50)
 - Added 'kill_octave' convenience method to kill zombies (#46)
