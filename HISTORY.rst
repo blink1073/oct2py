@@ -5,7 +5,8 @@ Release History
 
 1.7.0 (2014-xx-xx)
 ++++++++++++++++++
-- Added ability to interrupt commands with CTRL+C
+- Added ability to interrupt commands with CTRL+C.
+- Fixed Octavemagic not following current working directory.
 
 
 1.6.0 (2014-07-26)

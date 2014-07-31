@@ -41,6 +41,7 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 
 import tempfile
 from glob import glob
+import os
 from shutil import rmtree
 import sys
 import re
@@ -248,6 +249,9 @@ class OctaveMagics(Magics):
                 ...: plot([1, 2, 3]);
 
         '''
+        # match current working directory
+        self._oct.cd(os.getcwd()) 
+
         args = parse_argstring(self.octave, line)
 
         # arguments 'code' in line are prepended to the cell lines
