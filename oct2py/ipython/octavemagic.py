@@ -60,15 +60,15 @@ from IPython.core.magic_arguments import (
 from IPython.utils.py3compat import unicode_to_str
 from IPython.utils.text import dedent
 
+
 class OctaveMagicError(oct2py.Oct2PyError):
     pass
 
-_mimetypes = {'png' : 'image/png',
-             'svg' : 'image/svg+xml',
-             'jpg' : 'image/jpeg',
+_mimetypes = {'png': 'image/png',
+              'svg': 'image/svg+xml',
+              'jpg': 'image/jpeg',
               'jpeg': 'image/jpeg'}
 
-PROCESS = None
 
 @magics_class
 class OctaveMagics(Magics):
@@ -83,8 +83,6 @@ class OctaveMagics(Magics):
         """
         super(OctaveMagics, self).__init__(shell)
         self._oct = oct2py.Oct2Py()
-        global PROCESS
-        PROCESS = self._oct._session.proc
         if sys.platform == 'win32':
             # Use svg by default due to lack of Ghostscript on Windows Octave
             self._plot_format = 'svg'
@@ -94,7 +92,6 @@ class OctaveMagics(Magics):
         # Allow publish_display_data to be overridden for
         # testing purposes.
         self._publish_display_data = publish_display_data
-
 
     def _fix_gnuplot_svg_size(self, image, size=None):
         """
@@ -122,7 +119,6 @@ class OctaveMagics(Magics):
         svg.setAttribute('height', '%dpx' % height)
         return svg.toxml()
 
-
     @skip_doctest
     @line_magic
     def octave_push(self, line):
@@ -149,7 +145,6 @@ class OctaveMagics(Magics):
         for input in inputs:
             input = unicode_to_str(input)
             self._oct.put(input, self.shell.user_ns[input])
-
 
     @skip_doctest
     @line_magic
@@ -250,7 +245,7 @@ class OctaveMagics(Magics):
 
         '''
         # match current working directory
-        self._oct.cd(os.getcwd()) 
+        self._oct.cd(os.getcwd())
 
         args = parse_argstring(self.octave, line)
 
@@ -387,9 +382,9 @@ class OctaveMagics(Magics):
 
 
 __doc__ = __doc__.format(
-    OCTAVE_DOC = dedent(OctaveMagics.octave.__doc__),
-    OCTAVE_PUSH_DOC = dedent(OctaveMagics.octave_push.__doc__),
-    OCTAVE_PULL_DOC = dedent(OctaveMagics.octave_pull.__doc__)
+    OCTAVE_DOC=dedent(OctaveMagics.octave.__doc__),
+    OCTAVE_PUSH_DOC=dedent(OctaveMagics.octave_push.__doc__),
+    OCTAVE_PULL_DOC=dedent(OctaveMagics.octave_pull.__doc__)
     )
 
 
