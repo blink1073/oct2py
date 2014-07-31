@@ -16,10 +16,12 @@ from __future__ import absolute_import, print_function
 import logging
 import os
 import pickle
+import signal
 import sys
 
 import numpy as np
 import numpy.testing as test
+from numpy.testing.decorators import skipif
 
 
 import oct2py
@@ -555,21 +557,21 @@ class NumpyTest(test.TestCase):
         rand = np.random.rand(100, 100)
         rand = csr_matrix(rand)
         iden = identity(1000)
-        for test in [rand, iden]:
-            incoming, type_ = self.oc.roundtrip(test)
-            assert test.shape == incoming.shape
-            assert test.nnz == incoming.nnz
-            assert np.allclose(test.todense(), incoming.todense())
-            assert test.dtype == incoming.dtype
+        for item in [rand, iden]:
+            incoming, type_ = self.oc.roundtrip(item)
+            assert item.shape == incoming.shape
+            assert item.nnz == incoming.nnz
+            assert np.allclose(item.todense(), incoming.todense())
+            assert item.dtype == incoming.dtype
             assert (type_ == 'double' or type_ == 'cell')
 
     def test_empty(self):
         '''Test roundtrip empty matrices
         '''
-        test = np.empty((100, 100))
-        incoming, type_ = self.oc.roundtrip(test)
-        assert test.squeeze().shape == incoming.squeeze().shape
-        assert np.allclose(test[np.isfinite(test)],
+        empty = np.empty((100, 100))
+        incoming, type_ = self.oc.roundtrip(empty)
+        assert empty.squeeze().shape == incoming.squeeze().shape
+        assert np.allclose(empty[np.isfinite(empty)],
                            incoming[np.isfinite(incoming)])
         assert type_ == 'double'
 
@@ -658,11 +660,11 @@ class BasicUsageTest(test.TestCase):
         """Test the creation of a dynamic function
         """
         tests = [self.oc.zeros, self.oc.ones, self.oc.plot]
-        for test in tests:
+        for item in tests:
             try:
-                self.assertEqual(repr(type(test)), "<type 'function'>")
+                self.assertEqual(repr(type(item)), "<type 'function'>")
             except AssertionError:
-                self.assertEqual(repr(type(test)), "<class 'function'>")
+                self.assertEqual(repr(type(item)), "<class 'function'>")
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'aaldkfasd')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, '_foo')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'foo\W')
@@ -903,6 +905,22 @@ class MiscTests(test.TestCase):
         thisdir = os.path.dirname(os.path.abspath('.'))
         assert oc._reader.out_file.startswith(thisdir)
         assert oc._writer.in_file.startswith(thisdir)
+
+    @skipif(not hasattr(signal, 'alarm'))
+    def test_interrupt(self):
+
+        def receive_signal(signum, stack):
+            raise KeyboardInterrupt
+
+        signal.signal(signal.SIGALRM, receive_signal)
+
+        signal.alarm(2)
+        self.oc.sleep(100)
+
+        self.oc.put('c', 10)
+        x = self.oc.get('c')
+        assert x == 10
+
 
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
