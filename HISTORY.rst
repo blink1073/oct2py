@@ -5,7 +5,8 @@ Release History
 
 1.7.0 (2014-xx-xx)
 ++++++++++++++++++
-- Add ability to interrupt commands with CTRL+C
+- Added ability to interrupt commands with CTRL+C
+
 
 1.6.0 (2014-07-26)
 ++++++++++++++++++
