@@ -11,6 +11,7 @@ import os
 import re
 import atexit
 import doctest
+import signal
 import subprocess
 import sys
 import threading
@@ -398,8 +399,12 @@ class Oct2Py(object):
             [self.logger.debug(line) for line in cmds]
         if timeout == -1:
             timeout = self.timeout
-        return self._session.evaluate(cmds, verbose, log, self.logger,
+        try:
+            return self._session.evaluate(cmds, verbose, log, self.logger,
                                       timeout=timeout)
+        except KeyboardInterrupt:
+            self._session.interrupt()
+            return 'Octave Session Interrupted'
 
     def _make_octave_command(self, name, doc=None):
         """Create a wrapper to an Octave procedure or object
@@ -684,6 +689,9 @@ class _Session(object):
             raise Oct2PyError(msg)
         else:
             raise Oct2PyError(msg)
+
+    def interrupt(self):
+        self.proc.send_signal(signal.SIGINT)
 
     def expect(self, strings):
         """Look for a string or strings in the incoming data"""
