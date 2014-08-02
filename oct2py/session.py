@@ -237,9 +237,11 @@ class Oct2Py(object):
         # do not interfere with octavemagic logic
         if not "DefaultFigureCreateFcn" in call_line:
             post_call += """
-            for f = __oct2py_figures
-                try
-                   refresh(f);
+            if exist("__oct2py_figures")
+                for f = __oct2py_figures
+                    try
+                       refresh(f);
+                    end
                 end
             end"""
 
@@ -401,7 +403,7 @@ class Oct2Py(object):
             timeout = self.timeout
         try:
             return self._session.evaluate(cmds, verbose, log, self.logger,
-                                      timeout=timeout)
+                                          timeout=timeout)
         except KeyboardInterrupt:
             self._session.interrupt()
             return 'Octave Session Interrupted'
