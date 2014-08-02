@@ -921,6 +921,10 @@ class MiscTests(test.TestCase):
         x = self.oc.get('c')
         assert x == 10
 
+    def test_clear(self):
+        """Make sure clearing variables does not mess anything up."""
+        self.oc.clear()
+
 
 if __name__ == '__main__':  # pragma: no cover
     print('oct2py test')
