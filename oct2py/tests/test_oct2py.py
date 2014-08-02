@@ -914,7 +914,7 @@ class MiscTests(test.TestCase):
 
         signal.signal(signal.SIGALRM, receive_signal)
 
-        signal.alarm(2)
+        signal.alarm(4)
         self.oc.run("sleep(10);kladjflsd")
 
         self.oc.put('c', 10)
