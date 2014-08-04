@@ -50,8 +50,8 @@ class MatRead(object):
                 argout_list.append("%s__" % chr(i + 97))
         if not os.path.exists(self.out_file):
             self.out_file = create_file(self.temp_dir)
-        save_line = 'save "-v6" {0} "{1}"'.format(self.out_file,
-                                                  '" "'.join(argout_list))
+        save_line = 'save -v6 {0} {1}'.format(self.out_file,
+                                                  ' '.join(argout_list))
         return argout_list, save_line
 
     def remove_file(self):

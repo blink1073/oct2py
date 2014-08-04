@@ -705,12 +705,9 @@ class BasicUsageTest(test.TestCase):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
 
-        if not oc._session.use_pty:
-            self.assertRaises(Oct2PyError, oc._eval, "a=1")
-        else:
-            oc.put('a', 1)
-            a = oc.get('a')
-            self.assertEqual(a, 1)
+        oc.put('a', 1)
+        a = oc.get('a')
+        self.assertEqual(a, 1)
 
     def test_octave_error(self):
         oc = Oct2Py()

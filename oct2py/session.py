@@ -17,11 +17,6 @@ import sys
 import threading
 import time
 
-try:
-    import pty
-except ImportError:
-    pty = None
-
 from .matwrite import MatWrite
 from .matread import MatRead
 from .utils import get_nout, Oct2PyError, get_log
@@ -500,15 +495,12 @@ class Oct2Py(object):
             pass
         # set up the plot renderer
         self.run("""
-            global __oct2py_figures = [];
-            page_screen_output(0);
-
-            function fig_create(src, event)
-              global __oct2py_figures;
-              __oct2py_figures(size(__oct2py_figures) + 1) = src;
-            end
-
-            set(0, 'DefaultFigureCreateFcn', @fig_create);
+        function fig_create(src, event)
+            global __oct2py_figures;
+          __oct2py_figures(size(__oct2py_figures) + 1) = src;
+        end
+        page_screen_output(0);
+        set(0, 'DefaultFigureCreateFcn', @fig_create);
         """)
 
     def restart(self):
@@ -539,7 +531,7 @@ class _Reader(object):
         self.thread.start()
 
     def read_incoming(self):
-        """"Read text up to 100 chars at a time, parsing into lines
+        """"Read text a chunk at a time, parsing into lines
         and putting them in the queue.
         If there is a line with only a ">" char, put that on the queue
         """
@@ -547,7 +539,7 @@ class _Reader(object):
         debug_prompt = re.compile(r'\A[\w]+>>? ')
         while 1:
             try:
-                buf += os.read(self.fid, 100).decode('utf8')
+                buf += os.read(self.fid, 1024).decode('utf8')
             except:
                 self.queue.put(None)
                 return
@@ -572,7 +564,6 @@ class _Session(object):
     def __init__(self):
         self.timeout = int(1e6)
         self.read_queue = queue.Queue()
-        self.use_pty = (not pty is None) and (not 'NO_PTY' in os.environ)
         self.proc = self.start()
         self.stdout = sys.stdout
         self.set_timeout()
@@ -604,13 +595,8 @@ class _Session(object):
         """Start octave using a subprocess (no tty support)"""
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
-        if self.use_pty:
-            master, slave = pty.openpty()
-            self.wfid, self.rfid = master, master
-            rpipe, wpipe = slave, slave
-        else:
-            self.rfid, wpipe = os.pipe()
-            rpipe, self.wfid = os.pipe()
+        self.rfid, wpipe = os.pipe()
+        rpipe, self.wfid = os.pipe()
         kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
                       stderr=wpipe, stdout=wpipe)
         if os.name == 'nt':
@@ -636,61 +622,65 @@ class _Session(object):
         """
         if not timeout == -1:
             self.set_timeout(timeout)
+
         if not self.proc:
             raise Oct2PyError('Session Closed, try a restart()')
-        # use ascii code 21 to signal an error and 3
-        # to signal end of text
-        lines = ['try', 'disp(char(3))', '\n'.join(cmds), 'disp(char(3))',
-                 'catch', 'disp(lasterr())', 'disp(char(21))',
-                 'end', '']
+
+        # use ascii code 2 for start of text, 3 for end of text, and
+        # 24 to signal an error
+        exprs = []
+        for cmd in cmds:
+            items = cmd.replace(';', '\n').split('\n')
+            exprs.extend([i.strip() for i in items
+                          if i.strip()
+                          and not i.strip().startswith(('%', '#'))])
+
+        expr = '\n'.join(exprs)
+        expr = expr.replace('"', "'")
+        expr = expr.replace('\n', '\\n')
+        output = "disp(char(2));"
+        output += """eval("%s\\ndisp(char(3))", """ % expr
+        output += """'disp(lasterr());disp(char(24))');\n"""
+
         if len(cmds) == 5:
             main_line = cmds[2].strip()
         else:
             main_line = '\n'.join(cmds)
-        output = '\n'.join(lines)
-        self.write(output)
-        resp = self.expect(['\x03', 'syntax error'])
-        if resp.endswith('syntax error'):
-            resp = self.expect('\^')
-            if self.use_pty:
-                self.expect('\^')
-                self.expect('\^')
-                self.expect('\^')
-            self.handle_syntax_error(resp, main_line)
+
+        if 'keyboard' in output:
+            self.write('keyboard\n')
+            self.interact()
             return
+
+        self.write(output)
+        self.expect(chr(2))
+
         resp = []
         while 1:
             line = self.readline()
-            if line == '\x03':
+
+            if chr(3) in line:
                 break
-            elif line == '\x15':
+
+            elif chr(24) in line:
                 msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
                        'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
+
             elif line.endswith('> '):
                 self.interact(line)
+
             if verbose and logger:
                 logger.info(line)
+
             elif log and logger:
                 logger.debug(line)
+
             if resp or line:
                 resp.append(line)
-        return '\n'.join(resp)
 
-    def handle_syntax_error(self, resp, main_line):
-        """Handle an Octave syntax error"""
-        errline = '\n'.join(resp.splitlines()[:])
-        msg = ('Oct2Py tried to run:\n"""\n%s\n"""\n'
-               'Octave returned Syntax Error:\n""""\n%s\n"""' % (main_line,
-                                                                 errline))
-        msg += '\nIf using an m-file script, make sure it runs in Octave'
-        if not self.use_pty:
-            msg += '\nSession Closed by Octave'
-            self.close()
-            raise Oct2PyError(msg)
-        else:
-            raise Oct2PyError(msg)
+        return '\n'.join(resp)
 
     def interrupt(self):
         self.proc.send_signal(signal.SIGINT)
@@ -740,17 +730,13 @@ class _Session(object):
                 inp = inp_func() + '\n'
             except EOFError:
                 return
-            if inp in ['exit\n', 'quit\n', 'dbcont\n', 'dbquit\n']:
+            if inp in ['exit\n', 'quit\n', 'dbcont\n', 'dbquit\n',
+                       'exit()\n', 'quit()\n']:
                 inp = 'return\n'
             self.write('disp(char(3));' + inp)
             if inp == 'return\n':
                 self.write('return\n')
                 self.write('clear _\n')
-                self.readline()
-                self.readline()
-                if not pty is None:
-                    self.readline()
-                self.write('disp(char(3))\n')
                 return
             self.expect('\x03')
             self.stdout.write(self.expect(prompt))
