@@ -647,6 +647,7 @@ class _Session(object):
         else:
             main_line = '\n'.join(cmds)
 
+        # TODO: creat custom keyboard command to avoid this
         if 'keyboard' in output:
             self.write('keyboard\n')
             self.interact()
