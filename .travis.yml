@@ -45,9 +45,6 @@ script:
       nosetests --exe -v oct2py;
     fi
 
-  # turn off PTY and run again
-  - export NO_PTY=1; nosetests --exe -v oct2py;
-
 after_success:
     - if [[ $CONDA == python=2.7* ]]; then
           coveralls;

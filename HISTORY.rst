@@ -5,6 +5,7 @@ Release History
 
 1.7.0 (2014-xx-xx)
 ++++++++++++++++++
+- Syntax Errors on Windows no longer crash the session.
 - Added ability to interrupt commands with CTRL+C.
 - Fixed Octavemagic not following current working directory.
 
