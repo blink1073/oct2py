@@ -638,6 +638,7 @@ class _Session(object):
         expr = '\n'.join(exprs)
         expr = expr.replace('"', "'")
         expr = expr.replace('\n', '\\n')
+
         output = "disp(char(2));"
         output += """eval("%s\\ndisp(char(3))", """ % expr
         output += """'disp(lasterr());disp(char(24))');\n"""
@@ -647,7 +648,6 @@ class _Session(object):
         else:
             main_line = '\n'.join(cmds)
 
-        # TODO: creat custom keyboard command to avoid this
         if 'keyboard' in output:
             self.write('keyboard\n')
             self.interact()
