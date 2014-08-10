@@ -77,7 +77,7 @@ class MatRead(object):
             data = loadmat(self.out_file)
         except UnicodeDecodeError as e:
             raise Oct2PyError(str(e))
-        for key in data.keys():
+        for key in list(data.keys()):
             if key.startswith('_') and not key == '_':
                 del data[key]
             else:
