@@ -1,7 +1,7 @@
 """
-.. module:: session
+.. module:: core
    :synopsis: Main module for oct2py package.
-              Contains the Octave session object Oct2Py
+              Contains the core session object Oct2Py
 
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
@@ -511,12 +511,6 @@ class Oct2Py(object):
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
 
-    def __del__(self):
-        try:
-            self.close()
-        except AttributeError:
-            pass
-
 
 class _Reader(object):
 
@@ -750,6 +744,12 @@ class _Session(object):
         except (OSError, AttributeError):  # pragma: no cover
             pass
         self.proc = None
+
+    def __del__(self):
+        try:
+            self.proc.terminate()
+        except (OSError, AttributeError):
+            pass
 
 
 def _test():  # pragma: no cover

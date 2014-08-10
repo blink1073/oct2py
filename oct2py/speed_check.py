@@ -10,7 +10,7 @@ from __future__ import print_function
 import time
 import timeit
 import numpy as np
-from .session import Oct2Py
+from oct2py import Oct2Py
 
 
 class SpeedCheck(object):

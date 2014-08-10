@@ -7,7 +7,7 @@ MAT files.  Usage is as simple as:
 .. code-block:: python
 
     >>> import oct2py
-    >>> oc = oct2py.Oct2Py() 
+    >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
     >>> print x, x.dtype
     [[ 0.  0.  0.]
@@ -15,7 +15,7 @@ MAT files.  Usage is as simple as:
      [ 0.  0.  0.]] float64
 
 If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
-trust a code translator, this is your library.  
+trust a code translator, this is your library.
 """
 
 
@@ -32,7 +32,7 @@ import imp
 import functools
 import os
 
-from .session import Oct2Py, Oct2PyError
+from .core import Oct2Py, Oct2PyError
 from .utils import Struct, get_log
 from .demo import demo
 from .speed_check import speed_test
@@ -63,7 +63,7 @@ def kill_octave():
 # clean up namespace
 del functools, imp, os
 try:
-    del session, utils, speed_check, thread_check
+    del core, utils, speed_check, thread_check
 except NameError:  # pragma: no cover
     pass
 
