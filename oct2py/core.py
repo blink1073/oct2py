@@ -19,7 +19,7 @@ import time
 
 from .matwrite import MatWrite
 from .matread import MatRead
-from .utils import get_nout, Oct2PyError, get_log
+from .utils import get_nout, Oct2PyError, get_log, Struct
 from .compat import unicode, PY2, queue
 
 
@@ -212,52 +212,38 @@ class Oct2Py(object):
             # run foo
             call_line += '{0}'.format(func)
 
-        pre_call = '\nglobal __oct2py_figures = [];\n'
+        pre_call = '\n__oct2py_figures = [];\n'
         post_call = ''
 
-        if 'command' in kwargs and not '__ipy_figures' in func:
+        if not '__ipy_figures' in func:
             if not call_line.endswith(')') and nout:
-                call_line += '();\n'
-            else:
-                call_line += ';\n'
-            post_call += """
-            # Save output of the last execution
-                if exist("ans") == 1
-                  _ = ans;
-                else
-                  _ = "__no_answer";
-                end
-            """
+                call_line += '()'
+
+        # create the command and execute in octave
+        cmd = [load_line, pre_call, call_line, post_call, save_line]
+        data = self._eval(cmd, verbose=verbose, timeout=timeout)
+
+        if isinstance(data, dict) and not isinstance(data, Struct):
+            data = [data.get(v, None) for v in argout_list]
+            if len(data) == 1 and data[0] is None:
+                data = None
+        if verbose:
+            self.logger.info(data)
+        else:
+            self.logger.debug(data)
 
         # do not interfere with octavemagic logic
         if not "DefaultFigureCreateFcn" in call_line:
-            post_call += """
+            self._eval("""
             if exist("__oct2py_figures")
                 for f = __oct2py_figures
                     try
                        refresh(f);
                     end
                 end
-            end"""
+            end""", return_ans=False)
 
-        # create the command and execute in octave
-        cmd = [load_line, pre_call, call_line, post_call, save_line]
-        resp = self._eval(cmd, verbose=verbose, timeout=timeout)
-
-        if nout:
-            return self._reader.extract_file(argout_list)
-        elif 'command' in kwargs:
-            try:
-                ans = self.get('_')
-            except (KeyError, Oct2PyError):
-                return
-            # Unfortunately, Octave doesn't have a "None" object,
-            # so we can't return any NaN outputs
-            if isinstance(ans, (str, unicode)) and ans == "__no_answer":
-                ans = None
-            return ans
-        else:
-            return resp
+        return data
 
     def put(self, names, var, verbose=False, timeout=-1):
         """
@@ -326,14 +312,12 @@ class Oct2Py(object):
         """
         if isinstance(var, (str, unicode)):
             var = [var]
-        # make sure the variable(s) exist
-        for variable in var:
-            if self._eval("exist {0}".format(variable),
-                          verbose=False) == 'ans = 0' and not variable == '_':
-                raise Oct2PyError('{0} does not exist'.format(variable))
         argout_list, save_line = self._reader.setup(len(var), var)
-        self._eval(save_line, verbose=verbose, timeout=timeout)
-        return self._reader.extract_file(argout_list)
+        data = self._eval(save_line, verbose=verbose, timeout=timeout)
+        if isinstance(data, dict) and not isinstance(data, Struct):
+            return [data.get(v, None) for v in argout_list]
+        else:
+            return data
 
     def lookfor(self, string, verbose=False, timeout=-1):
         """
@@ -359,7 +343,8 @@ class Oct2Py(object):
         return self.run('lookfor -all {0}'.format(string), verbose=verbose,
                         timeout=timeout)
 
-    def _eval(self, cmds, verbose=True, log=True, timeout=-1):
+    def _eval(self, cmds, verbose=True, log=True, timeout=-1,
+              return_ans=True):
         """
         Perform raw Octave command.
 
@@ -372,8 +357,10 @@ class Oct2Py(object):
             Commands(s) to pass directly to Octave.
         verbose : bool, optional
              Log Octave output at info level.
-        timeout : float
+        timeout : float, optional
             Time to wait for response from Octave (per character).
+        return_ans: bool, optional
+            Whether to return the "ans" output
 
         Returns
         -------
@@ -396,12 +383,38 @@ class Oct2Py(object):
             [self.logger.debug(line) for line in cmds]
         if timeout == -1:
             timeout = self.timeout
+
+        post_call = ''
+        for cmd in cmds:
+
+            match = re.match('([a-z][a-zA-Z0-9_]*) *=', cmd)
+            if match and not cmd.strip().endswith(';'):
+                post_call = 'ans = %s' % match.groups()[0]
+                break
+
+            match = re.match('([a-z][a-zA-Z0-9_]*)\Z', cmd.strip())
+            if match and not cmd.strip().endswith(';'):
+                post_call = 'ans = %s' % match.groups()[0]
+                break
+
+        cmds.append(post_call)
+
         try:
-            return self._session.evaluate(cmds, verbose, log, self.logger,
-                                          timeout=timeout)
+            resp = self._session.evaluate(cmds, verbose, log, self.logger,
+                                          timeout=timeout,
+                                          return_ans=return_ans)
         except KeyboardInterrupt:
             self._session.interrupt()
-            return 'Octave Session Interrupted'
+            return 'Scilab Session Interrupted'
+
+        if os.path.exists(self._reader.out_file):
+            try:
+                return self._reader.extract_file()
+            except (TypeError, IOError):
+                pass
+
+        if resp:
+            return resp
 
     def _make_octave_command(self, name, doc=None):
         """Create a wrapper to an Octave procedure or object
@@ -449,7 +462,7 @@ class Oct2Py(object):
         if name == 'keyboard':
             return 'Built-in Function: keyboard ()'
         exist = self._eval('exist {0}'.format(name), log=False, verbose=False)
-        if exist.strip() == 'ans = 0':
+        if not exist:
             msg = 'Name: "%s" does not exist on the Octave session path'
             raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
@@ -506,10 +519,10 @@ class Oct2Py(object):
     def restart(self):
         """Restart an Octave session in a clean state
         """
-        self._session = _Session()
         self._first_run = True
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
+        self._session = _Session(self._reader.out_file)
 
 
 class _Reader(object):
@@ -555,11 +568,12 @@ class _Session(object):
     """Low-level session Octave session interaction.
     """
 
-    def __init__(self):
+    def __init__(self, outfile):
         self.timeout = int(1e6)
         self.read_queue = queue.Queue()
         self.proc = self.start()
         self.stdout = sys.stdout
+        self.outfile = outfile
         self.set_timeout()
         atexit.register(self.close)
 
@@ -611,7 +625,8 @@ class _Session(object):
             timeout = int(1e6)
         self.timeout = timeout
 
-    def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
+    def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1,
+                 return_ans=True):
         """Perform the low-level interaction with an Octave Session
         """
         if not timeout == -1:
@@ -620,22 +635,45 @@ class _Session(object):
         if not self.proc:
             raise Oct2PyError('Session Closed, try a restart()')
 
+        if os.path.exists(self.outfile):
+            try:
+                os.remove(self.outfile)
+            except OSError:
+                pass
+
         # use ascii code 2 for start of text, 3 for end of text, and
         # 24 to signal an error
         exprs = []
         for cmd in cmds:
-            items = cmd.replace(';', '\n').split('\n')
-            exprs.extend([i.strip() for i in items
-                          if i.strip()
-                          and not i.strip().startswith(('%', '#'))])
+            cmd = cmd.strip().replace('\n', ';')
+            cmd = re.sub(';\s*;', ';', cmd)
+            cmd = cmd.replace('"', '""')
+            if cmd.replace(';', ''):
+                exprs.append(cmd)
+        expr = ';'.join(exprs)
 
-        expr = '\n'.join(exprs)
-        expr = expr.replace('"', "'")
-        expr = expr.replace('\n', '\\n')
+        if return_ans:
+            code = """
+            if exist("ans") == 1
+                _ = ans;
+                save -v6 %s _;
+            end""" % self.outfile
+        else:
+            code = ""
 
-        output = "disp(char(2));"
-        output += """eval("%s\\ndisp(char(3))", """ % expr
-        output += """'disp(lasterr());disp(char(24))');\n"""
+        output = """
+        clear("ans");
+        disp(char(2));
+        failed = 0;
+        eval("%s", "failed = 1;")
+        if failed
+            disp(lasterr())
+            disp(char(24))
+        else
+            %s
+            disp(char(3))
+        end
+        clear("failed")""" % (expr, code)
 
         if len(cmds) == 5:
             main_line = cmds[2].strip()
@@ -647,7 +685,7 @@ class _Session(object):
             self.interact()
             return
 
-        self.write(output)
+        self.write(output + '\n')
         self.expect(chr(2))
 
         resp = []
@@ -675,7 +713,7 @@ class _Session(object):
             if resp or line:
                 resp.append(line)
 
-        return '\n'.join(resp)
+        return '\n'.join(resp).rstrip()
 
     def interrupt(self):
         self.proc.send_signal(signal.SIGINT)
