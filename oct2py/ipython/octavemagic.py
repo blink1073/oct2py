@@ -301,43 +301,31 @@ class OctaveMagics(Magics):
 
         close all;
         clear ans;
-
-        # ___<end_pre_call>___ #
         '''
 
         post_call = '''
-        # ___<start_post_call>___ #
-
-        # Save output of the last execution
-        if exist("ans") == 1
-          _ = ans;
-        else
-          _ = nan;
-        end
-
         for f = __ipy_figures
           outfile = sprintf('%(plot_dir)s/__ipy_oct_fig_%%03d.png', f);
           try
             print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(size)s');
           end
         end
-
         ''' % locals()
 
-        code = ' '.join((pre_call, code, post_call))
-        try:
-            text_output = self._oct.run(code, verbose=False)
-        except (oct2py.Oct2PyError) as exception:
-            msg = str(exception)
-            if 'Octave Syntax Error' in msg:
+        for code in [pre_call, code, post_call]:
+            try:
+                text_output = self._oct.run(code, verbose=False)
+            except oct2py.Oct2PyError as exception:
+                msg = str(exception)
+                if 'Octave Syntax Error' in msg:
+                    raise OctaveMagicError(msg)
+                msg = msg.replace(pre_call.strip(), '')
+                msg = msg.replace(post_call.strip(), '')
+                msg = re.sub('"""\s+', '"""\n', msg)
+                msg = re.sub('\s+"""', '\n"""', msg)
                 raise OctaveMagicError(msg)
-            msg = msg.replace(pre_call.strip(), '')
-            msg = msg.replace(post_call.strip(), '')
-            msg = re.sub('"""\s+', '"""\n', msg)
-            msg = re.sub('\s+"""', '\n"""', msg)
-            raise OctaveMagicError(msg)
-        key = 'OctaveMagic.Octave'
-        display_data = []
+            key = 'OctaveMagic.Octave'
+            display_data = []
 
         # Publish text output
         if text_output:

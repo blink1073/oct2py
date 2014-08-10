@@ -17,10 +17,10 @@ import sys
 import threading
 import time
 
-from .matwrite import MatWrite
-from .matread import MatRead
-from .utils import get_nout, Oct2PyError, get_log, Struct
-from .compat import unicode, PY2, queue
+from oct2py.matwrite import MatWrite
+from oct2py.matread import MatRead
+from oct2py.utils import get_nout, Oct2PyError, get_log, Struct
+from oct2py.compat import unicode, PY2, queue
 
 
 class Oct2Py(object):
@@ -112,16 +112,14 @@ class Oct2Py(object):
         Examples
         --------
         >>> from oct2py import octave
-        >>> out = octave.run('y=ones(3,3)')
-        >>> print(out)
-        y =
-        <BLANKLINE>
-                1        1        1
-                1        1        1
-                1        1        1
-        <BLANKLINE>
-        >>> octave.run('x = mean([[1, 2], [3, 4]])')
-        u'x =  2.5000'
+        >>> octave.runn'x = ones(3,3);')
+        >>> octave.run('y = mean([[1, 2], [3, 4]]);')
+        >>> octave.get('x')
+        array([[ 1.,  1.,  1.],
+               [ 1.,  1.,  1.],
+               [ 1.,  1.,  1.]])
+        >>> octave.get('y')
+        2.5
 
         """
         # don't return a value from a script
@@ -183,6 +181,7 @@ class Oct2Py(object):
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
         timeout = kwargs.get('timeout', self.timeout)
+        argout_list = ['_']
 
         # handle references to script names - and paths to them
         if func.endswith('.m'):
@@ -205,14 +204,14 @@ class Oct2Py(object):
         if inputs:
             argin_list, load_line = self._writer.create_file(inputs)
             call_line += '{0}({1})'.format(func, ', '.join(argin_list))
-        elif nout:
+        elif nout and not '(' in func:
             # call foo() - no arguments
             call_line += '{0}()'.format(func)
         else:
             # run foo
             call_line += '{0}'.format(func)
 
-        pre_call = '\n__oct2py_figures = [];\n'
+        pre_call = '__oct2py_figures = []'
         post_call = ''
 
         if not '__ipy_figures' in func:
@@ -227,10 +226,6 @@ class Oct2Py(object):
             data = [data.get(v, None) for v in argout_list]
             if len(data) == 1 and data[0] is None:
                 data = None
-        if verbose:
-            self.logger.info(data)
-        else:
-            self.logger.debug(data)
 
         # do not interfere with octavemagic logic
         if not "DefaultFigureCreateFcn" in call_line:
@@ -241,7 +236,7 @@ class Oct2Py(object):
                        refresh(f);
                     end
                 end
-            end""", return_ans=False)
+            end""")
 
         return data
 
@@ -267,7 +262,7 @@ class Oct2Py(object):
         array([[1, 2]])
         >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.get(['x', 'y'])
-        (u'spam', array([[1, 2, 3, 4]]))
+        [u'spam', array([[1, 2, 3, 4]])]
 
         """
         if isinstance(names, (str, unicode)):
@@ -307,7 +302,7 @@ class Oct2Py(object):
           array([[1, 2]])
           >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
           >>> octave.get(['x', 'y'])
-          (u'spam', array([[1, 2, 3, 4]]))
+          [u'spam', array([[1, 2, 3, 4]])]
 
         """
         if isinstance(var, (str, unicode)):
@@ -343,8 +338,7 @@ class Oct2Py(object):
         return self.run('lookfor -all {0}'.format(string), verbose=verbose,
                         timeout=timeout)
 
-    def _eval(self, cmds, verbose=True, log=True, timeout=-1,
-              return_ans=True):
+    def _eval(self, cmds, verbose=True, log=True, timeout=-1):
         """
         Perform raw Octave command.
 
@@ -359,8 +353,6 @@ class Oct2Py(object):
              Log Octave output at info level.
         timeout : float, optional
             Time to wait for response from Octave (per character).
-        return_ans: bool, optional
-            Whether to return the "ans" output
 
         Returns
         -------
@@ -387,6 +379,9 @@ class Oct2Py(object):
         post_call = ''
         for cmd in cmds:
 
+            if cmd.strip() == 'clear':
+                continue
+
             match = re.match('([a-z][a-zA-Z0-9_]*) *=', cmd)
             if match and not cmd.strip().endswith(';'):
                 post_call = 'ans = %s' % match.groups()[0]
@@ -401,8 +396,7 @@ class Oct2Py(object):
 
         try:
             resp = self._session.evaluate(cmds, verbose, log, self.logger,
-                                          timeout=timeout,
-                                          return_ans=return_ans)
+                                          timeout=timeout)
         except KeyboardInterrupt:
             self._session.interrupt()
             return 'Scilab Session Interrupted'
@@ -426,8 +420,8 @@ class Oct2Py(object):
             """ Octave command """
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
-            if not 'Built-in Function' in doc:
-                self._eval('clear {0}'.format(name), log=False, verbose=False)
+            #if not 'Built-in Function' in doc:
+            #    self._eval('clear {0}'.format(name), log=False, verbose=False)
             kwargs['command'] = True
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc
@@ -461,19 +455,23 @@ class Oct2Py(object):
         """
         if name == 'keyboard':
             return 'Built-in Function: keyboard ()'
-        exist = self._eval('exist {0}'.format(name), log=False, verbose=False)
-        if not exist:
+        exist = self._eval('exist {0}'.format(name), log=False,
+                           verbose=False)
+        if exist == 0:
             msg = 'Name: "%s" does not exist on the Octave session path'
             raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
         try:
-            doc = self._eval('help {0}'.format(name), log=False, verbose=False)
+            doc = self._eval('help {0}'.format(name), log=False,
+                             verbose=False)
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
             try:
-                doc = self._eval('type {0}'.format(name), log=False,
+                doc = self._eval('x = type("{0}")'.format(name), log=False,
                                  verbose=False)
+                if isinstance(doc, list):
+                    doc = doc[0]
                 doc = '\n'.join(doc.splitlines()[:3])
             except Oct2PyError as e:
                 pass
@@ -625,8 +623,7 @@ class _Session(object):
             timeout = int(1e6)
         self.timeout = timeout
 
-    def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1,
-                 return_ans=True):
+    def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
         """Perform the low-level interaction with an Octave Session
         """
         if not timeout == -1:
@@ -652,28 +649,25 @@ class _Session(object):
                 exprs.append(cmd)
         expr = ';'.join(exprs)
 
-        if return_ans:
-            code = """
-            if exist("ans") == 1
-                _ = ans;
-                save -v6 %s _;
-            end""" % self.outfile
-        else:
-            code = ""
-
         output = """
         clear("ans");
+        clear("a__");
         disp(char(2));
         failed = 0;
         eval("%s", "failed = 1;")
-        if failed
+        if exist("failed") == 1 && failed
             disp(lasterr())
             disp(char(24))
         else
-            %s
+            if exist("ans") == 1
+                _ = ans;
+                if exist("a__") == 0
+                    save -v6 %s _;
+                end
+            end
             disp(char(3))
         end
-        clear("failed")""" % (expr, code)
+        clear("failed")""" % (expr, self.outfile)
 
         if len(cmds) == 5:
             main_line = cmds[2].strip()
@@ -686,6 +680,7 @@ class _Session(object):
             return
 
         self.write(output + '\n')
+
         self.expect(chr(2))
 
         resp = []

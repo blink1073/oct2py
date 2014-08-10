@@ -21,15 +21,10 @@ class BasicUsageTest(test.TestCase):
         """Test the run command
         """
         out = self.oc.run('y=ones(3,3)')
-        desired = """y =
-
-        1        1        1
-        1        1        1
-        1        1        1
-"""
-        self.assertEqual(out, desired)
+        desired = np.ones((3, 3))
+        test.assert_allclose(out, desired)
         out = self.oc.run('x = mean([[1, 2], [3, 4]])', verbose=True)
-        self.assertEqual(out, 'x =  2.5000')
+        self.assertEqual(out, 2.5)
         self.assertRaises(Oct2PyError, self.oc.run, '_spam')
 
     def test_call(self):
@@ -62,7 +57,6 @@ class BasicUsageTest(test.TestCase):
         self.assertEqual(spam, 'foo')
         assert np.allclose(eggs, np.array([[1, 2, 3, 4]]))
         self.assertRaises(Oct2PyError, self.oc.put, '_spam', 1)
-        self.assertRaises(Oct2PyError, self.oc.get, '_spam')
 
     def test_help(self):
         """Testing help command

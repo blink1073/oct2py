@@ -48,8 +48,6 @@ class MatRead(object):
                 argout_list.append(names.pop(0))
             else:
                 argout_list.append("%s__" % chr(i + 97))
-        if not os.path.exists(self.out_file):
-            self.out_file = create_file(self.temp_dir)
         save_line = 'save -v6 {0} {1}'.format(self.out_file,
                                                   ' '.join(argout_list))
         return argout_list, save_line
@@ -75,7 +73,10 @@ class MatRead(object):
             Variable or tuple of variables extracted.
 
         """
-        data = loadmat(self.out_file)
+        try:
+            data = loadmat(self.out_file)
+        except UnicodeDecodeError as e:
+            raise Oct2PyError(str(e))
         for key in data.keys():
             if key.startswith('_') and not key == '_':
                 del data[key]

@@ -65,7 +65,7 @@ class MiscTests(test.TestCase):
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
         assert 'zeros(A__)' in resp
-        assert 'ans =  1' in resp
+        assert 'ans = 0' in resp
         assert lines[0].startswith('load')
 
         # now make an object with a desired logger

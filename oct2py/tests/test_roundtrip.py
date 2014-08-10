@@ -156,8 +156,7 @@ class RoundtripTest(test.TestCase):
         for key in self.data.keys():
             if key != 'struct_array':
                 cmd = '{0}(x.{1},y.{1})'.format(func, key)
-                ret = self.oc.run(cmd)
-                assert ret == 'ans =  1'
+                assert self.oc.run(cmd)
 
 
 class BuiltinsTest(test.TestCase):
