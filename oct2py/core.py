@@ -112,7 +112,7 @@ class Oct2Py(object):
         Examples
         --------
         >>> from oct2py import octave
-        >>> octave.runn'x = ones(3,3);')
+        >>> octave.run('x = ones(3,3);')
         >>> octave.run('y = mean([[1, 2], [3, 4]]);')
         >>> octave.get('x')
         array([[ 1.,  1.,  1.],
@@ -420,8 +420,8 @@ class Oct2Py(object):
             """ Octave command """
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
-            #if not 'Built-in Function' in doc:
-            #    self._eval('clear {0}'.format(name), log=False, verbose=False)
+            if not 'Built-in Function' in doc:
+                self._eval('clear {0}'.format(name), log=False, verbose=False)
             kwargs['command'] = True
             return self.call(name, *args, **kwargs)
         # convert to ascii for pydoc

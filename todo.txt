@@ -10,7 +10,8 @@ x - Move "exist" logic from call to _eval
 x - Put ans handling in eval
 x - Update tests for new eval logic
 x - fix octavemagic linkage with _
-Check octavemagic link
+x - Check octavemagic link
+x - Check handling of _ in octave kernel
 
-Check handling of _ in octave kernel
-Test plotting with Octave kernel
+Why are mat files being created in the directory for tests?
+Add plotting to Octave kernel

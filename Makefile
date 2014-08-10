@@ -1,7 +1,7 @@
 # Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release gh-pages
 
-export TEST_ARGS="--exe -v --processes=1 --process-timeout=20 --process-restartworker --with-doctest"
+export TEST_ARGS=--exe -v --processes=1 --process-timeout=120 --process-restartworker
 
 all:
 	make clean
@@ -15,9 +15,8 @@ clean:
 test:
 	make clean
 	python setup.py build
-	export PYTHONWARNINGS="all"; 
+	export PYTHONWARNINGS="all";
 	cd build; nosetests $(TEST_ARGS)
-	cd build; ~/anaconda/envs/py34/bin/nosetests $(TEST_ARGS)
 	rm -rf build
 	python setup.py check -r
 
