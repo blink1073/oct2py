@@ -10,6 +10,7 @@ Move "exist" logic from call to _eval
 x - Handle any sphinx errors
 Break test files up
 x- rename to core
+Check handling of _ in octave kernel
 
 if nout:
     # create a dummy list of var names ("a", "b", "c", ...)
