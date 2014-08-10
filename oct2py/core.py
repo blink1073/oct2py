@@ -284,7 +284,7 @@ class Oct2Py(object):
         (u'spam', array([[1, 2, 3, 4]]))
 
         """
-        if isinstance(names, str):
+        if isinstance(names, (str, unicode)):
             var = [var]
             names = [names]
         for name in names:
@@ -324,7 +324,7 @@ class Oct2Py(object):
           (u'spam', array([[1, 2, 3, 4]]))
 
         """
-        if isinstance(var, str):
+        if isinstance(var, (str, unicode)):
             var = [var]
         # make sure the variable(s) exist
         for variable in var:
@@ -388,7 +388,7 @@ class Oct2Py(object):
         """
         if not self._session:
             raise Oct2PyError('No Octave Session')
-        if isinstance(cmds, str):
+        if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
         if verbose and log:
             [self.logger.info(line) for line in cmds]
