@@ -1,14 +1,13 @@
 
-
-Fix isinstance(str)
-Move __del__ to Session
+x - Fix isinstance(str)
+x- Move __del__ to Session
 Put ans handling in eval
-Remove info.rst syntax error warning
+x - Remove info.rst syntax error warning
 Check octavemagic link
 Test plotting with Octave kernel
 x- Update contributors
 Move "exist" logic from call to _eval
-Handle any sphinx errors
+x - Handle any sphinx errors
 Break test files up
 x- rename to core
 

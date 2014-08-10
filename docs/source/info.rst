@@ -66,11 +66,6 @@ which drops you into an interactive Octave prompt in the current session.
 This also works in the IPython Notebook.  Note: If you use the `keyboard` command and the session hangs, try opening an Octave session from your terminal and see if the `keyboard` command hangs there too.  You may need to update your version of Octave.
 
 
-Syntax Errors
-=============
-An Octave Syntax Error will result in the Octave Session being closed if you are on Windows.  This is because Octave is expecting a pseudo-tty connection (which is not available on Windows).
-
-
 Logging
 =======
 Oct2Py supports logging of session interaction.  You can provide a logger
