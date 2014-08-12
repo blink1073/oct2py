@@ -19,7 +19,8 @@ import time
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
-from oct2py.utils import get_nout, Oct2PyError, get_log, Struct
+from oct2py.utils import (
+    get_nout, Oct2PyError, get_log, Struct, _remove_temp_files)
 from oct2py.compat import unicode, PY2, queue
 
 
@@ -58,6 +59,8 @@ class Oct2Py(object):
         """
         self._oned_as = oned_as
         self._temp_dir = temp_dir
+        atexit.register(lambda: _remove_temp_files(temp_dir))
+
         self.timeout = timeout
         if not logger is None:
             self.logger = logger
