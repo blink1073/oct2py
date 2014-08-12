@@ -28,9 +28,9 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - conda create -n test $CONDA IPython nose pip coverage
+  - travis_retry conda create -n test $CONDA IPython nose pip coverage
   - source activate test
-  - pip install coveralls
+  - travis_retry pip install coveralls
 
 install:
   - export PYTHONWARNINGS=all
