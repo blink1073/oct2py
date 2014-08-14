@@ -520,7 +520,7 @@ class Oct2Py(object):
         self._first_run = True
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
-        self._session = _Session(self._reader.out_file)
+        self._session = _Session(self._reader.out_file, self.logger)
 
 
 class _Reader(object):
@@ -566,12 +566,13 @@ class _Session(object):
     """Low-level session Octave session interaction.
     """
 
-    def __init__(self, outfile):
+    def __init__(self, outfile, logger):
         self.timeout = int(1e6)
         self.read_queue = queue.Queue()
         self.proc = self.start()
         self.stdout = sys.stdout
         self.outfile = outfile
+        self.logger = logger
         self.set_timeout()
         atexit.register(self.close)
 
@@ -626,6 +627,8 @@ class _Session(object):
     def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
         """Perform the low-level interaction with an Octave Session
         """
+        self.logger = logger
+
         if not timeout == -1:
             self.set_timeout(timeout)
 
@@ -773,16 +776,17 @@ class _Session(object):
         """Cleanly close an Octave session
         """
         try:
+            self.write('\nexit\n')
+        except Exception as e:
+            self.logger.error(e)
+        try:
             self.proc.terminate()
         except (OSError, AttributeError):  # pragma: no cover
             pass
         self.proc = None
 
     def __del__(self):
-        try:
-            self.proc.terminate()
-        except (OSError, AttributeError):
-            pass
+        self.close()
 
 
 def _test():  # pragma: no cover
