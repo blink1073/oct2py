@@ -2,7 +2,7 @@
 .PHONY: all clean test cover release gh-pages
 
 export TEST_ARGS=--exe -v
-export KILL_OCTAVE="from oct2py import kill_octave; kill_octave())"
+export KILL_OCTAVE="from oct2py import kill_octave; kill_octave()"
 
 all:
 	make clean
