@@ -66,7 +66,7 @@ class MiscTests(test.TestCase):
         resp = '\n'.join(lines)
         assert 'zeros(A__)' in resp
         assert 'ans = 0' in resp
-        assert lines[0].startswith('load')
+        assert 'load ' in resp
 
         # now make an object with a desired logger
         logger = oct2py.get_log('test')
@@ -84,7 +84,7 @@ class MiscTests(test.TestCase):
         resp = '\n'.join(lines)
         assert 'zeros(A__)' in resp
         assert 'ans =  1' in resp
-        assert lines[0].startswith('load')
+        assert 'load ' in resp
 
     def test_demo(self):
         from oct2py import demo
@@ -196,12 +196,14 @@ class MiscTests(test.TestCase):
         oc = Oct2Py(oned_as='column')
         oc.put('x', x)
         assert oc.get('x').shape == x[:, np.newaxis].shape
+        oc.close()
 
     def test_temp_dir(self):
         oc = Oct2Py(temp_dir='.')
         thisdir = os.path.dirname(os.path.abspath('.'))
         assert oc._reader.out_file.startswith(thisdir)
         assert oc._writer.in_file.startswith(thisdir)
+        oc.close()
 
     @skipif(not hasattr(signal, 'alarm'))
     def test_interrupt(self):

@@ -407,8 +407,8 @@ class Oct2Py(object):
         if os.path.exists(self._reader.out_file):
             try:
                 return self._reader.extract_file()
-            except (TypeError, IOError):
-                pass
+            except (TypeError, IOError) as e:
+                self.logger.debug(e)
 
         if resp:
             return resp
@@ -430,8 +430,8 @@ class Oct2Py(object):
         # convert to ascii for pydoc
         try:
             doc = doc.encode('ascii', 'replace').decode('ascii')
-        except UnicodeDecodeError:
-            pass
+        except UnicodeDecodeError as e:
+            self.logger.debug(e)
         octave_command.__doc__ = "\n" + doc
         octave_command.__name__ = name
         return octave_command
@@ -477,7 +477,7 @@ class Oct2Py(object):
                     doc = doc[0]
                 doc = '\n'.join(doc.splitlines()[:3])
             except Oct2PyError as e:
-                pass
+                self.logger.debug(e)
         return doc
 
     def __getattr__(self, attr):
@@ -505,8 +505,8 @@ class Oct2Py(object):
     def _setup_session(self):
         try:
             self._eval("graphics_toolkit('gnuplot')", verbose=False)
-        except Oct2PyError:  # pragma: no cover
-            pass
+        except Oct2PyError as e:  # pragma: no cover
+            self.logger.debug(e)
         # set up the plot renderer
         self.run("""
         function fig_create(src, event)
@@ -641,8 +641,8 @@ class _Session(object):
         if os.path.exists(self.outfile):
             try:
                 os.remove(self.outfile)
-            except OSError:
-                pass
+            except OSError as e:
+                self.logger.debug(e)
 
         # use ascii code 2 for start of text, 3 for end of text, and
         # 24 to signal an error
@@ -654,6 +654,8 @@ class _Session(object):
             if cmd.replace(';', ''):
                 exprs.append(cmd)
         expr = ';'.join(exprs)
+
+        self.logger.debug(expr)
 
         output = """
         clear("ans");
@@ -781,12 +783,12 @@ class _Session(object):
         try:
             self.write('\nexit\n')
         except Exception as e:  # pragma: no cover
-            self.logger.error(e)
+            self.logger.debug(e)
 
         try:
             self.proc.terminate()
         except Exception as e:  # pragma: no cover
-            self.logger.error(e)
+            self.logger.debug(e)
 
         self.proc = None
 
