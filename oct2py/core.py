@@ -777,16 +777,21 @@ class _Session(object):
         """
         try:
             self.write('\nexit\n')
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             self.logger.error(e)
+
         try:
             self.proc.terminate()
-        except (OSError, AttributeError):  # pragma: no cover
-            pass
+        except Exception as e:  # pragma: no cover
+            self.logger.error(e)
+
         self.proc = None
 
     def __del__(self):
-        self.close()
+        try:
+            self.close()
+        except:
+            pass
 
 
 def _test():  # pragma: no cover
