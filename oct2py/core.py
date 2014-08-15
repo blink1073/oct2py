@@ -16,6 +16,7 @@ import subprocess
 import sys
 import threading
 import time
+from tempfile import gettempdir
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
@@ -58,8 +59,8 @@ class Oct2Py(object):
         """Start Octave and create our MAT helpers
         """
         self._oned_as = oned_as
-        self._temp_dir = temp_dir
-        atexit.register(lambda: _remove_temp_files(temp_dir))
+        self._temp_dir = temp_dir or gettempdir()
+        atexit.register(lambda: _remove_temp_files(self._temp_dir))
 
         self.timeout = timeout
         if not logger is None:
@@ -404,7 +405,8 @@ class Oct2Py(object):
             self._session.interrupt()
             return 'Scilab Session Interrupted'
 
-        if os.path.exists(self._reader.out_file):
+        outfile = self._reader.out_file
+        if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
                 return self._reader.extract_file()
             except (TypeError, IOError) as e:

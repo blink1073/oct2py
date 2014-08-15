@@ -98,7 +98,7 @@ class MiscTests(test.TestCase):
 
     def test_remove_files(self):
         from oct2py.utils import _remove_temp_files
-        _remove_temp_files()
+        _remove_temp_files(self.oc._temp_dir)
 
     def test_threads(self):
         from oct2py import thread_test

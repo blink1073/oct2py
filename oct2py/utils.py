@@ -12,18 +12,12 @@ import tempfile
 from oct2py.compat import PY2
 
 
-def _remove_temp_files(dirname=None):
+def _remove_temp_files(dirname):
     """
     Remove the created mat files in the user's temp folder
     """
     import os
     import glob
-
-    if not dirname:
-        import tempfile
-        temp = tempfile.NamedTemporaryFile()
-        temp.close()
-        dirname = os.path.dirname(temp.name)
 
     for fname in glob.glob(os.path.join(dirname, 'tmp*.mat')):
         try:
