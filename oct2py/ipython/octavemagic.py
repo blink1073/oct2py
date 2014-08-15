@@ -287,7 +287,7 @@ class OctaveMagics(Magics):
         else:
             plot_format = 'png'
 
-        pre_call = '__inline=1;'
+        pre_call = '__inline=1;close all;'
 
         post_call = '''
         for f = __oct2py_figures
