@@ -78,7 +78,7 @@ def create_file(temp_dir=None):
     temp_file = tempfile.NamedTemporaryFile(suffix='.mat', delete=False,
                                             dir=temp_dir)
     temp_file.close()
-    return os.path.abspath(temp_file.name)
+    return os.path.abspath(temp_file.name).replace('\\', '/')
 
 
 class Oct2PyError(Exception):
