@@ -313,13 +313,6 @@ class Oct2Py(object):
         timeout = kwargs.get('timeout', self.timeout)
         argout_list = ['_']
 
-        # handle references to script names - and paths to them
-        if func.endswith('.m'):
-            if os.path.dirname(func):
-                self.addpath(os.path.dirname(func))
-                func = os.path.basename(func)
-            func = func[:-2]
-
         # these three lines will form the commands sent to Octave
         # load("-v6", "infile", "invar1", ...)
         # [a, b, c] = foo(A, B, C)
