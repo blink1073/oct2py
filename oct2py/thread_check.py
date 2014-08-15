@@ -28,11 +28,11 @@ class ThreadClass(threading.Thread):
         """
         octave = Oct2Py()
         # write the same variable name in each thread and read it back
-        octave.put('name', self.getName())
-        name = octave.get('name')
+        octave.push('name', self.getName())
+        name = octave.pull('name')
         now = datetime.datetime.now()
         print("{0} got '{1}' at {2}".format(self.getName(), name, now))
-        octave.close()
+        octave.exit()
         try:
             assert self.getName() == name
         except AssertionError:  # pragma: no cover

@@ -147,7 +147,7 @@ class RoundtripTest(test.TestCase):
         '''Test all of the types, originating in octave, and returning
         '''
         self.oc.eval('x = test_datatypes()')
-        self.oc.put('y', self.data)
+        self.oc.push('y', self.data)
         try:
             self.oc.isequaln
             func = 'isequaln'

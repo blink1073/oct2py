@@ -40,10 +40,10 @@ class MiscTests(test.TestCase):
         '''Make sure a singleton sparse matrix works'''
         import scipy.sparse
         data = scipy.sparse.csc.csc_matrix(1)
-        self.oc.put('x', data)
-        assert np.allclose(data.toarray(), self.oc.get('x').toarray())
-        self.oc.put('y', [data])
-        assert np.allclose(data.toarray(), self.oc.get('y').toarray())
+        self.oc.push('x', data)
+        assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
+        self.oc.push('y', [data])
+        assert np.allclose(data.toarray(), self.oc.pull('y').toarray())
 
     def test_logging(self):
         # create a stringio and a handler to log to it
@@ -172,23 +172,23 @@ class MiscTests(test.TestCase):
 
     def test_long_variable_name(self):
         name = 'this_variable_name_is_over_32_char'
-        self.oc.put(name, 1)
-        x = self.oc.get(name)
+        self.oc.push(name, 1)
+        x = self.oc.pull(name)
         assert x == 1
 
     def test_syntax_error_embedded(self):
         test.assert_raises(Oct2PyError, self.oc.eval, """eval("a='1")""")
-        self.oc.put('b', 1)
-        x = self.oc.get('b')
+        self.oc.push('b', 1)
+        x = self.oc.pull('b')
         assert x == 1
 
     def test_oned_as(self):
         x = np.ones(10)
-        self.oc.put('x', x)
-        assert self.oc.get('x').shape == x[:, np.newaxis].T.shape
+        self.oc.push('x', x)
+        assert self.oc.pull('x').shape == x[:, np.newaxis].T.shape
         oc = Oct2Py(oned_as='column')
-        oc.put('x', x)
-        assert oc.get('x').shape == x[:, np.newaxis].shape
+        oc.push('x', x)
+        assert oc.pull('x').shape == x[:, np.newaxis].shape
         oc.exit()
 
     def test_temp_dir(self):
@@ -209,8 +209,8 @@ class MiscTests(test.TestCase):
         signal.alarm(5)
         self.oc.eval("sleep(10);kladjflsd")
 
-        self.oc.put('c', 10)
-        x = self.oc.get('c')
+        self.oc.push('c', 10)
+        x = self.oc.pull('c')
         assert x == 10
 
     def test_clear(self):

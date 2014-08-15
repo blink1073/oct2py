@@ -92,9 +92,9 @@ class Oct2Py(object):
         except Oct2PyError:
             pass
 
-    def put(self, names, var, verbose=False, timeout=-1):
+    def push(self, names, var, verbose=False, timeout=-1):
         """
-        Put a variable into the Octave session.
+        Push a variable or variables into the Octave session.
 
         Parameters
         ----------
@@ -109,11 +109,11 @@ class Oct2Py(object):
         --------
         >>> from oct2py import octave
         >>> y = [1, 2]
-        >>> octave.put('y', y)
-        >>> octave.get('y')
+        >>> octave.push('y', y)
+        >>> octave.pull('y')
         array([[1, 2]])
-        >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
-        >>> octave.get(['x', 'y'])  # doctest: +SKIP
+        >>> octave.push(['x', 'y'], ['spam', [1, 2, 3, 4]])
+        >>> octave.pull(['x', 'y'])  # doctest: +SKIP
         [u'spam', array([[1, 2, 3, 4]])]
 
         """
@@ -126,7 +126,7 @@ class Oct2Py(object):
         _, load_line = self._writer.create_file(var, names)
         self.eval(load_line, verbose=verbose, timeout=timeout)
 
-    def get(self, var, verbose=False, timeout=-1):
+    def pull(self, var, verbose=False, timeout=-1):
         """
         Retrieve a value from the Octave session.
 
@@ -149,11 +149,11 @@ class Oct2Py(object):
         Examples:
           >>> from oct2py import octave
           >>> y = [1, 2]
-          >>> octave.put('y', y)
-          >>> octave.get('y')
+          >>> octave.push('y', y)
+          >>> octave.pull('y')
           array([[1, 2]])
-          >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
-          >>> octave.get(['x', 'y'])  # doctest: +SKIP
+          >>> octave.push(['x', 'y'], ['spam', [1, 2, 3, 4]])
+          >>> octave.pull(['x', 'y'])  # doctest: +SKIP
           [u'spam', array([[1, 2, 3, 4]])]
 
         """

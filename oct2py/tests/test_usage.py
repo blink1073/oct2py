@@ -47,17 +47,17 @@ class BasicUsageTest(test.TestCase):
         self.assertEqual(out, 1)
         self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
 
-    def test_put_get(self):
+    def test_push_pull(self):
         """Test putting and getting values
         """
-        self.oc.put('spam', [1, 2])
-        out = self.oc.get('spam')
+        self.oc.push('spam', [1, 2])
+        out = self.oc.pull('spam')
         assert np.allclose(out, np.array([1, 2]))
-        self.oc.put(['spam', 'eggs'], ['foo', [1, 2, 3, 4]])
-        spam, eggs = self.oc.get(['spam', 'eggs'])
+        self.oc.push(['spam', 'eggs'], ['foo', [1, 2, 3, 4]])
+        spam, eggs = self.oc.pull(['spam', 'eggs'])
         self.assertEqual(spam, 'foo')
         assert np.allclose(eggs, np.array([[1, 2, 3, 4]]))
-        self.assertRaises(Oct2PyError, self.oc.put, '_spam', 1)
+        self.assertRaises(Oct2PyError, self.oc.push, '_spam', 1)
 
     def test_help(self):
         """Testing help command
@@ -81,15 +81,15 @@ class BasicUsageTest(test.TestCase):
     def test_open_close(self):
         """Test opening and closing the Octave session
         """
-        oct_ = Oct2Py()
-        oct_.exit()
-        self.assertRaises(Oct2PyError, oct_.put, names=['a'],
+        oc = Oct2Py()
+        oc.exit()
+        self.assertRaises(Oct2PyError, oc.push, names=['a'],
                           var=[1.0])
-        oct_.restart()
-        oct_.put('a', 5)
-        a = oct_.get('a')
+        oc.restart()
+        oc.push('a', 5)
+        a = oc.pull('a')
         assert a == 5
-        oct_.exit()
+        oc.exit()
 
     def test_struct(self):
         """Test Struct construct
@@ -115,8 +115,8 @@ class BasicUsageTest(test.TestCase):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc.eval, "a=1++3")
 
-        oc.put('a', 1)
-        a = oc.get('a')
+        oc.push('a', 1)
+        a = oc.pull('a')
         self.assertEqual(a, 1)
         oc.exit()
 

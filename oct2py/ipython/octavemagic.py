@@ -144,7 +144,7 @@ class OctaveMagics(Magics):
         inputs = line.split(' ')
         for input in inputs:
             input = unicode_to_str(input)
-            self._oct.put(input, self.shell.user_ns[input])
+            self._oct.push(input, self.shell.user_ns[input])
 
     @skip_doctest
     @line_magic
@@ -170,7 +170,7 @@ class OctaveMagics(Magics):
         outputs = line.split(' ')
         for output in outputs:
             output = unicode_to_str(output)
-            self.shell.push({output: self._oct.get(output)})
+            self.shell.push({output: self._oct.pull(output)})
 
     @skip_doctest
     @magic_arguments()
@@ -270,7 +270,7 @@ class OctaveMagics(Magics):
                     val = local_ns[input]
                 except KeyError:
                     val = self.shell.user_ns[input]
-                self._oct.put(input, val)
+                self._oct.push(input, val)
 
         # generate plots in a temporary directory
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
@@ -335,7 +335,7 @@ class OctaveMagics(Magics):
         if args.output:
             for output in ','.join(args.output).split(','):
                 output = unicode_to_str(output)
-                self.shell.push({output: self._oct.get(output)})
+                self.shell.push({output: self._oct.pull(output)})
 
         for source, data in display_data:
             # source is deprecated in IPython 3.0.
@@ -344,7 +344,7 @@ class OctaveMagics(Magics):
 
         if return_output:
             try:
-                ans = self._oct.get('_')
+                ans = self._oct.pull('_')
             except oct2py.Oct2PyError:
                 return
 

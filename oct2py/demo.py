@@ -46,12 +46,12 @@ def demo(delay=2, interactive=True):
     print(U, S, V)
     # low level constructs
     oc.eval("y=ones(3,3)")
-    print(oc.get("y"))
+    print(oc.pull("y"))
     oc.eval("x=zeros(3,3)", verbose=True)
     t = oc.eval('rand(1, 2)', verbose=True)
     y = np.zeros((3,3))
-    oc.put('y', y)
-    print(oc.get('y'))
+    oc.push('y', y)
+    print(oc.pull('y'))
     from oct2py import Struct
     y = Struct()
     y.b = 'spam'
