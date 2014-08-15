@@ -10,13 +10,13 @@ from __future__ import print_function
 import os
 import re
 import atexit
-import doctest
 import signal
 import subprocess
 import sys
 import threading
 import time
 from tempfile import gettempdir
+import warnings
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
@@ -356,10 +356,6 @@ class Oct2Py(object):
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
-        if self._first_run:
-            self._first_run = False
-            self._setup_session()
-
         if verbose and log:
             [self.logger.info(line) for line in cmds]
         elif log:
@@ -491,25 +487,9 @@ class Oct2Py(object):
         setattr(self, attr, octave_command)
         return octave_command
 
-    def _setup_session(self):
-        try:
-            self._eval("graphics_toolkit('gnuplot')", verbose=False)
-        except Oct2PyError as e:  # pragma: no cover
-            self.logger.debug(e)
-        # set up the plot renderer
-        '''self.run("""
-        function fig_create(src, event)
-            global __oct2py_figures;
-          __oct2py_figures(size(__oct2py_figures) + 1) = src;
-        end
-        page_screen_output(0);
-        set(0, 'DefaultFigureCreateFcn', @fig_create);
-        """)'''
-
     def restart(self):
         """Restart an Octave session in a clean state
         """
-        self._first_run = True
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
         self._session = _Session(self._reader.out_file, self.logger)
@@ -641,14 +621,30 @@ class _Session(object):
             cmd = cmd.strip().replace('\n', ';')
             cmd = re.sub(';\s*;', ';', cmd)
             cmd = cmd.replace('"', '""')
-            if cmd.replace(';', ''):
-                exprs.append(cmd)
-        exprs += """
+            subcmds = cmd.split(';')
+            for sub in subcmds:
+                if sub.replace(';', '') and not sub.startswith(('%', '#')):
+                    exprs.append(sub)
+
+        if self.first_run:
+            self._handle_first_run()
+
+        if '__inline=1;' in ';'.join(exprs):
+            visible = "off"
+        else:
+            visible = "on"
+
+        fig_handler = """
+        global __oct2py_figures = [];
         function fig_create(src, event)
           global __oct2py_figures
-          __oct2py_figures(size(__oct2py_figures) + 1) = src
+          set(src, 'visible', '%s');
+          __oct2py_figures(size(__oct2py_figures) + 1) = src;
         end
-        set(0, 'DefaultFigureCreateFcn', @fig_create)""".splitlines()
+        set(0, 'DefaultFigureCreateFcn', @fig_create)""" % visible
+
+        exprs = fig_handler.strip().splitlines() + exprs
+
         expr = ';'.join(exprs)
 
         self.logger.debug(expr)
@@ -657,8 +653,6 @@ class _Session(object):
         clear("ans");
         clear("a__");
         disp(char(2));
-
-        global __oct2py_figures = [];
 
         eval("%s", "failed = 1;")
         if exist("failed") == 1 && failed
@@ -671,10 +665,11 @@ class _Session(object):
                     save -v6 %s _;
                 end
             end
-            drawnow("expose");
             disp(char(3))
         end
-        clear("failed")""" % (expr, self.outfile)
+        drawnow("expose");
+        clear("failed")
+        """ % (expr, self.outfile)
 
         if len(cmds) == 5:
             main_line = cmds[2].strip()
@@ -716,6 +711,17 @@ class _Session(object):
                 resp.append(line)
 
         return '\n'.join(resp).rstrip()
+
+    def _handle_first_run(self):
+        self.write('disp(available_graphics_toolkits());disp(char(3))\n')
+        resp = self.expect(chr(3))
+        if not 'gnuplot' in resp:
+            warnings.warn('Oct2Py will not be able to display plots '
+                          'properly without gnuplot, please install it '
+                          '(gnuplot-x11 on Linux)')
+        else:
+            self.write("graphics_toolkit('gnuplot')\n")
+        self.first_run = False
 
     def interrupt(self):
         self.proc.send_signal(signal.SIGINT)

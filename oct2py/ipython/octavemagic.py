@@ -287,6 +287,8 @@ class OctaveMagics(Magics):
         else:
             plot_format = 'png'
 
+        pre_call = '__inline=1;'
+
         post_call = '''
         for f = __oct2py_figures
           outfile = sprintf('%(plot_dir)s/__ipy_oct_fig_%%03d.png', f);
@@ -297,22 +299,23 @@ class OctaveMagics(Magics):
         end
         ''' % locals()
 
-        for code in [code, post_call]:
-            try:
-                text_output = self._oct.run(code, verbose=False)
-            except oct2py.Oct2PyError as exception:
-                msg = str(exception)
-                if 'Octave Syntax Error' in msg:
-                    raise OctaveMagicError(msg)
-                msg = msg.replace(post_call.strip(), '')
-                msg = re.sub('"""\s+', '"""\n', msg)
-                msg = re.sub('\s+"""', '\n"""', msg)
+        cmds = [pre_call, code, post_call]
+        try:
+            text_output = str(self._oct._eval(cmds, verbose=False))
+        except oct2py.Oct2PyError as exception:
+            msg = str(exception)
+            if 'Octave Syntax Error' in msg:
                 raise OctaveMagicError(msg)
-            key = 'OctaveMagic.Octave'
-            display_data = []
+            msg = msg.replace(pre_call.strip(), '')
+            msg = msg.replace(post_call.strip(), '')
+            msg = re.sub('"""\s+', '"""\n', msg)
+            msg = re.sub('\s+"""', '\n"""', msg)
+            raise OctaveMagicError(msg)
+        key = 'OctaveMagic.Octave'
+        display_data = []
 
         # Publish text output
-        if text_output:
+        if text_output != "None":
             display_data.append((key, {'text/plain': text_output}))
 
         # Publish images
