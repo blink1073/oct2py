@@ -52,6 +52,10 @@ class ConversionTest(test.TestCase):
         cls.oc.addpath(os.path.dirname(__file__))
         cls.data = cls.oc.test_datatypes()
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.oc.close()
+
     def helper(self, base, keys, types):
         """
         Perform type checking of the values

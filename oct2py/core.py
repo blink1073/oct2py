@@ -16,6 +16,7 @@ import subprocess
 import sys
 import threading
 import time
+from tempfile import gettempdir
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
@@ -58,8 +59,8 @@ class Oct2Py(object):
         """Start Octave and create our MAT helpers
         """
         self._oned_as = oned_as
-        self._temp_dir = temp_dir
-        atexit.register(lambda: _remove_temp_files(temp_dir))
+        self._temp_dir = temp_dir or gettempdir()
+        atexit.register(lambda: _remove_temp_files(self._temp_dir))
 
         self.timeout = timeout
         if not logger is None:
@@ -404,11 +405,12 @@ class Oct2Py(object):
             self._session.interrupt()
             return 'Scilab Session Interrupted'
 
-        if os.path.exists(self._reader.out_file):
+        outfile = self._reader.out_file
+        if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
                 return self._reader.extract_file()
-            except (TypeError, IOError):
-                pass
+            except (TypeError, IOError) as e:
+                self.logger.debug(e)
 
         if resp:
             return resp
@@ -430,8 +432,8 @@ class Oct2Py(object):
         # convert to ascii for pydoc
         try:
             doc = doc.encode('ascii', 'replace').decode('ascii')
-        except UnicodeDecodeError:
-            pass
+        except UnicodeDecodeError as e:
+            self.logger.debug(e)
         octave_command.__doc__ = "\n" + doc
         octave_command.__name__ = name
         return octave_command
@@ -477,7 +479,7 @@ class Oct2Py(object):
                     doc = doc[0]
                 doc = '\n'.join(doc.splitlines()[:3])
             except Oct2PyError as e:
-                pass
+                self.logger.debug(e)
         return doc
 
     def __getattr__(self, attr):
@@ -505,8 +507,8 @@ class Oct2Py(object):
     def _setup_session(self):
         try:
             self._eval("graphics_toolkit('gnuplot')", verbose=False)
-        except Oct2PyError:  # pragma: no cover
-            pass
+        except Oct2PyError as e:  # pragma: no cover
+            self.logger.debug(e)
         # set up the plot renderer
         self.run("""
         function fig_create(src, event)
@@ -523,7 +525,7 @@ class Oct2Py(object):
         self._first_run = True
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
-        self._session = _Session(self._reader.out_file)
+        self._session = _Session(self._reader.out_file, self.logger)
 
 
 class _Reader(object):
@@ -569,12 +571,13 @@ class _Session(object):
     """Low-level session Octave session interaction.
     """
 
-    def __init__(self, outfile):
+    def __init__(self, outfile, logger):
         self.timeout = int(1e6)
         self.read_queue = queue.Queue()
         self.proc = self.start()
         self.stdout = sys.stdout
         self.outfile = outfile
+        self.logger = logger
         self.set_timeout()
         atexit.register(self.close)
 
@@ -629,6 +632,8 @@ class _Session(object):
     def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
         """Perform the low-level interaction with an Octave Session
         """
+        self.logger = logger
+
         if not timeout == -1:
             self.set_timeout(timeout)
 
@@ -638,8 +643,8 @@ class _Session(object):
         if os.path.exists(self.outfile):
             try:
                 os.remove(self.outfile)
-            except OSError:
-                pass
+            except OSError as e:
+                self.logger.debug(e)
 
         # use ascii code 2 for start of text, 3 for end of text, and
         # 24 to signal an error
@@ -651,6 +656,8 @@ class _Session(object):
             if cmd.replace(';', ''):
                 exprs.append(cmd)
         expr = ';'.join(exprs)
+
+        self.logger.debug(expr)
 
         output = """
         clear("ans");
@@ -776,15 +783,21 @@ class _Session(object):
         """Cleanly close an Octave session
         """
         try:
+            self.write('\nexit\n')
+        except Exception as e:  # pragma: no cover
+            self.logger.debug(e)
+
+        try:
             self.proc.terminate()
-        except (OSError, AttributeError):  # pragma: no cover
-            pass
+        except Exception as e:  # pragma: no cover
+            self.logger.debug(e)
+
         self.proc = None
 
     def __del__(self):
         try:
-            self.proc.terminate()
-        except (OSError, AttributeError):
+            self.close()
+        except:
             pass
 
 

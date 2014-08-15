@@ -12,5 +12,8 @@ x - Update tests for new eval logic
 x - fix octavemagic linkage with _
 x - Check octavemagic link
 x - Check handling of _ in octave kernel
-x - Why are mat files being created in the directory for tests?
 x - Add plotting to Octave kernel
+x- Why are mat files being created in the directory for tests?
+x - All tests are failing on python 3
+x - close Oct2Py instances in all of the tests to save memory
+

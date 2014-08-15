@@ -17,6 +17,9 @@ class BasicUsageTest(test.TestCase):
         self.oc = Oct2Py()
         self.oc.addpath(os.path.dirname(__file__))
 
+    def tearDown(self):
+        self.oc.close()
+
     def test_run(self):
         """Test the run command
         """
@@ -88,6 +91,7 @@ class BasicUsageTest(test.TestCase):
         oct_.put('a', 5)
         a = oct_.get('a')
         assert a == 5
+        oct_.close()
 
     def test_struct(self):
         """Test Struct construct
@@ -116,7 +120,9 @@ class BasicUsageTest(test.TestCase):
         oc.put('a', 1)
         a = oc.get('a')
         self.assertEqual(a, 1)
+        oc.close()
 
     def test_octave_error(self):
         oc = Oct2Py()
         self.assertRaises(Oct2PyError, oc.run, 'a = ones2(1)')
+        oc.close()
