@@ -16,4 +16,6 @@ x - Add plotting to Octave kernel
 x- Why are mat files being created in the directory for tests?
 x - All tests are failing on python 3
 x - close Oct2Py instances in all of the tests to save memory
+x - Fix plotting from command prompt
 
+Re-run demo and update docs

@@ -287,39 +287,23 @@ class OctaveMagics(Magics):
         else:
             plot_format = 'png'
 
-        pre_call = '''
-        global __ipy_figures = [];
-        page_screen_output(0);
-
-        function fig_create(src, event)
-          global __ipy_figures;
-          __ipy_figures(size(__ipy_figures) + 1) = src;
-          set(src, "visible", "off");
-        end
-
-        set(0, 'DefaultFigureCreateFcn', @fig_create);
-
-        close all;
-        clear ans;
-        '''
-
         post_call = '''
-        for f = __ipy_figures
+        for f = __oct2py_figures
           outfile = sprintf('%(plot_dir)s/__ipy_oct_fig_%%03d.png', f);
           try
             print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(size)s');
+            close(f);
           end
         end
         ''' % locals()
 
-        for code in [pre_call, code, post_call]:
+        for code in [code, post_call]:
             try:
                 text_output = self._oct.run(code, verbose=False)
             except oct2py.Oct2PyError as exception:
                 msg = str(exception)
                 if 'Octave Syntax Error' in msg:
                     raise OctaveMagicError(msg)
-                msg = msg.replace(pre_call.strip(), '')
                 msg = msg.replace(post_call.strip(), '')
                 msg = re.sub('"""\s+', '"""\n', msg)
                 msg = re.sub('\s+"""', '\n"""', msg)

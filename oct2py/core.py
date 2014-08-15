@@ -178,10 +178,6 @@ class Oct2Py(object):
                [-0.93272184,  0.36059668]]))
 
         """
-        if self._first_run:
-            self._first_run = False
-            self._setup_session()
-
         verbose = kwargs.get('verbose', False)
         nout = kwargs.get('nout', get_nout())
         timeout = kwargs.get('timeout', self.timeout)
@@ -215,32 +211,18 @@ class Oct2Py(object):
             # run foo
             call_line += '{0}'.format(func)
 
-        pre_call = '__oct2py_figures = []'
-        post_call = ''
-
         if not '__ipy_figures' in func:
             if not call_line.endswith(')') and nout:
                 call_line += '()'
 
         # create the command and execute in octave
-        cmd = [load_line, pre_call, call_line, post_call, save_line]
+        cmd = [load_line, call_line, save_line]
         data = self._eval(cmd, verbose=verbose, timeout=timeout)
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             data = [data.get(v, None) for v in argout_list]
             if len(data) == 1 and data[0] is None:
                 data = None
-
-        # do not interfere with octavemagic logic
-        if not "DefaultFigureCreateFcn" in call_line:
-            self._eval("""
-            if exist("__oct2py_figures")
-                for f = __oct2py_figures
-                    try
-                       refresh(f);
-                    end
-                end
-            end""")
 
         return data
 
@@ -265,7 +247,7 @@ class Oct2Py(object):
         >>> octave.get('y')
         array([[1, 2]])
         >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
-        >>> octave.get(['x', 'y'])
+        >>> octave.get(['x', 'y'])  # doctest: +SKIP
         [u'spam', array([[1, 2, 3, 4]])]
 
         """
@@ -305,7 +287,7 @@ class Oct2Py(object):
           >>> octave.get('y')
           array([[1, 2]])
           >>> octave.put(['x', 'y'], ['spam', [1, 2, 3, 4]])
-          >>> octave.get(['x', 'y'])
+          >>> octave.get(['x', 'y'])  # doctest: +SKIP
           [u'spam', array([[1, 2, 3, 4]])]
 
         """
@@ -373,6 +355,11 @@ class Oct2Py(object):
             raise Oct2PyError('No Octave Session')
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
+
+        if self._first_run:
+            self._first_run = False
+            self._setup_session()
+
         if verbose and log:
             [self.logger.info(line) for line in cmds]
         elif log:
@@ -510,14 +497,14 @@ class Oct2Py(object):
         except Oct2PyError as e:  # pragma: no cover
             self.logger.debug(e)
         # set up the plot renderer
-        self.run("""
+        '''self.run("""
         function fig_create(src, event)
             global __oct2py_figures;
           __oct2py_figures(size(__oct2py_figures) + 1) = src;
         end
         page_screen_output(0);
         set(0, 'DefaultFigureCreateFcn', @fig_create);
-        """)
+        """)'''
 
     def restart(self):
         """Restart an Octave session in a clean state
@@ -578,6 +565,7 @@ class _Session(object):
         self.stdout = sys.stdout
         self.outfile = outfile
         self.logger = logger
+        self.first_run = True
         self.set_timeout()
         atexit.register(self.close)
 
@@ -655,6 +643,12 @@ class _Session(object):
             cmd = cmd.replace('"', '""')
             if cmd.replace(';', ''):
                 exprs.append(cmd)
+        exprs += """
+        function fig_create(src, event)
+          global __oct2py_figures
+          __oct2py_figures(size(__oct2py_figures) + 1) = src
+        end
+        set(0, 'DefaultFigureCreateFcn', @fig_create)""".splitlines()
         expr = ';'.join(exprs)
 
         self.logger.debug(expr)
@@ -663,7 +657,9 @@ class _Session(object):
         clear("ans");
         clear("a__");
         disp(char(2));
-        failed = 0;
+
+        global __oct2py_figures = [];
+
         eval("%s", "failed = 1;")
         if exist("failed") == 1 && failed
             disp(lasterr())
@@ -673,6 +669,11 @@ class _Session(object):
                 _ = ans;
                 if exist("a__") == 0
                     save -v6 %s _;
+                end
+            end
+            for f = __oct2py_figures
+                try
+                    drawnow(f);
                 end
             end
             disp(char(3))
@@ -799,15 +800,3 @@ class _Session(object):
             self.close()
         except:
             pass
-
-
-def _test():  # pragma: no cover
-    """Run the doctests for this module.
-    """
-    print('Starting doctest')
-    doctest.testmod()
-    print('Completed doctest')
-
-
-if __name__ == "__main__":  # pragma: no cover
-    _test()

@@ -7,3 +7,4 @@ oct2py.egg-info/*
 build/*
 dist/*
 docs/_build/*
+example/.ipynb_checkpoints/
