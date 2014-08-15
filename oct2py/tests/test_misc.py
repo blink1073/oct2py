@@ -21,7 +21,7 @@ class MiscTests(test.TestCase):
         self.oc.addpath(os.path.dirname(__file__))
 
     def tearDown(self):
-        self.oc.close()
+        self.oc.exit()
 
     def test_unicode_docstring(self):
         '''Make sure unicode docstrings in Octave functions work'''
@@ -94,9 +94,6 @@ class MiscTests(test.TestCase):
         except AttributeError:
             demo(0.01, interactive=False)
 
-    def test_lookfor(self):
-        assert 'cosd' in self.oc.lookfor('cos')
-
     def test_remove_files(self):
         from oct2py.utils import _remove_temp_files
         _remove_temp_files(self.oc._temp_dir)
@@ -108,7 +105,7 @@ class MiscTests(test.TestCase):
     def test_plot(self):
         n = self.oc.figure()
         self.oc.plot([1, 2, 3])
-        self.oc.close_(n)
+        self.oc.close(n)
 
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
@@ -123,13 +120,13 @@ class MiscTests(test.TestCase):
         x = self.oc.ones_()
         assert np.allclose(x, np.ones(1))
 
-    def test_using_closed_session(self):
+    def test_using_exited_session(self):
         with Oct2Py() as oc:
-            oc.close()
-            test.assert_raises(Oct2PyError, oc.call, 'ones')
+            oc.exit()
+            test.assert_raises(Oct2PyError, oc.eval, 'ones')
 
     def test_keyboard(self):
-        self.oc._eval('a=1')
+        self.oc.eval('a=1')
 
         stdin = sys.stdin
         stdout = sys.stdout
@@ -160,7 +157,7 @@ class MiscTests(test.TestCase):
         assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
 
     def test_func_noexist(self):
-        test.assert_raises(Oct2PyError, self.oc.call, 'oct2py_dummy')
+        test.assert_raises(Oct2PyError, self.oc.eval, 'oct2py_dummy')
 
     def test_timeout(self):
         with Oct2Py(timeout=2) as oc:
@@ -170,12 +167,7 @@ class MiscTests(test.TestCase):
     def test_call_path(self):
         with Oct2Py() as oc:
             oc.addpath(os.path.dirname(__file__))
-            DATA = oc.call('test_datatypes.m')
-        assert DATA.string.basic == 'spam'
-
-        with Oct2Py() as oc:
-            path = os.path.join(os.path.dirname(__file__), 'test_datatypes.m')
-            DATA = oc.call(path)
+            DATA = oc.test_datatypes()
         assert DATA.string.basic == 'spam'
 
     def test_long_variable_name(self):
@@ -185,7 +177,7 @@ class MiscTests(test.TestCase):
         assert x == 1
 
     def test_syntax_error_embedded(self):
-        test.assert_raises(Oct2PyError, self.oc.run, """eval("a='1")""")
+        test.assert_raises(Oct2PyError, self.oc.eval, """eval("a='1")""")
         self.oc.put('b', 1)
         x = self.oc.get('b')
         assert x == 1
@@ -197,14 +189,14 @@ class MiscTests(test.TestCase):
         oc = Oct2Py(oned_as='column')
         oc.put('x', x)
         assert oc.get('x').shape == x[:, np.newaxis].shape
-        oc.close()
+        oc.exit()
 
     def test_temp_dir(self):
         oc = Oct2Py(temp_dir='.')
         thisdir = os.path.dirname(os.path.abspath('.')).replace('\\', '/')
         assert oc._reader.out_file.startswith(thisdir)
         assert oc._writer.in_file.startswith(thisdir)
-        oc.close()
+        oc.exit()
 
     @skipif(not hasattr(signal, 'alarm'))
     def test_interrupt(self):
@@ -215,7 +207,7 @@ class MiscTests(test.TestCase):
         signal.signal(signal.SIGALRM, receive_signal)
 
         signal.alarm(5)
-        self.oc.run("sleep(10);kladjflsd")
+        self.oc.eval("sleep(10);kladjflsd")
 
         self.oc.put('c', 10)
         x = self.oc.get('c')

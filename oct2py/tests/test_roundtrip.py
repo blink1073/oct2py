@@ -54,7 +54,7 @@ class RoundtripTest(test.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.oc.close()
+        cls.oc.exit()
 
     def nested_equal(self, val1, val2):
         """Test for equality in a nested list or ndarray
@@ -146,7 +146,7 @@ class RoundtripTest(test.TestCase):
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
         '''
-        self.oc.run('x = test_datatypes()')
+        self.oc.eval('x = test_datatypes()')
         self.oc.put('y', self.data)
         try:
             self.oc.isequaln
@@ -156,7 +156,7 @@ class RoundtripTest(test.TestCase):
         for key in self.data.keys():
             if key != 'struct_array':
                 cmd = '{0}(x.{1},y.{1})'.format(func, key)
-                assert self.oc.run(cmd)
+                assert self.oc.eval(cmd)
 
 
 class BuiltinsTest(test.TestCase):
@@ -173,7 +173,7 @@ class BuiltinsTest(test.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.oc.close()
+        cls.oc.exit()
 
     def helper(self, outgoing, incoming=None, expected_type=None):
         """

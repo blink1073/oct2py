@@ -56,7 +56,7 @@ class Oct2Py(object):
 
     def __init__(self, logger=None, timeout=-1, oned_as='row',
                  temp_dir=None):
-        """Start Octave and create our MAT helpers
+        """Start Octave and set up the session.
         """
         self._oned_as = oned_as
         self._temp_dir = temp_dir or gettempdir()
@@ -78,10 +78,10 @@ class Oct2Py(object):
 
     def __exit__(self, type, value, traceback):
         """Close session"""
-        self.close()
+        self.exit()
 
-    def close(self):
-        """Closes this octave session and removes temp files
+    def exit(self):
+        """Quits this octave session and removes temp files
         """
         if self._session:
             self._session.close()
@@ -91,140 +91,6 @@ class Oct2Py(object):
             self._reader.remove_file()
         except Oct2PyError:
             pass
-
-    def run(self, script, **kwargs):
-        """
-        Run artibrary Octave code.
-
-        Parameters
-        -----------
-        script : str
-            Command script to send to Octave for execution.
-        verbose : bool, optional
-            Log Octave output at info level.
-
-        Returns
-        -------
-        out : str
-            Octave printed output.
-
-        Raises
-        ------
-        Oct2PyError
-            If the script cannot be run by Octave.
-
-        Examples
-        --------
-        >>> from oct2py import octave
-        >>> octave.run('x = ones(3,3);')
-        >>> octave.run('y = mean([[1, 2], [3, 4]]);')
-        >>> octave.get('x')
-        array([[ 1.,  1.,  1.],
-               [ 1.,  1.,  1.],
-               [ 1.,  1.,  1.]])
-        >>> octave.get('y')
-        2.5
-
-        """
-        # don't return a value from a script
-        kwargs['nout'] = 0
-        return self.call(script, **kwargs)
-
-    def call(self, func, *inputs, **kwargs):
-        """
-        Call an Octave function with optional arguments.
-
-        Parameters
-        ----------
-        func : str
-            Function name to call.
-        inputs : array_like
-            Variables to pass to the function.
-        nout : int, optional
-            Number of output arguments.
-            This is set automatically based on the number of
-            return values requested (see example below).
-            You can override this behavior by passing a
-            different value.
-        verbose : bool, optional
-             Log Octave output at info level.
-
-        Returns
-        -------
-        out : str or tuple
-            If nout > 0, returns the values from Octave as a tuple.
-            Otherwise, returns the output displayed by Octave.
-
-        Raises
-        ------
-        Oct2PyError
-            If the call is unsucessful.
-
-        Examples
-        --------
-        >>> from oct2py import octave
-        >>> b = octave.call('ones', 1, 2)
-        >>> print(b)
-        [[ 1.  1.]]
-        >>> x, y = 1, 2
-        >>> a = octave.call('zeros', x, y)
-        >>> a
-        array([[ 0.,  0.]])
-        >>> U, S, V = octave.call('svd', [[1, 2], [1, 3]])
-        >>> print((U, S, V))
-        (array([[-0.57604844, -0.81741556],
-               [-0.81741556,  0.57604844]]), array([[ 3.86432845,  0.        ],
-               [ 0.        ,  0.25877718]]), array([[-0.36059668, -0.93272184],
-               [-0.93272184,  0.36059668]]))
-
-        """
-        verbose = kwargs.get('verbose', False)
-        nout = kwargs.get('nout', get_nout())
-        timeout = kwargs.get('timeout', self.timeout)
-        argout_list = ['_']
-
-        # handle references to script names - and paths to them
-        if func.endswith('.m'):
-            if os.path.dirname(func):
-                self.addpath(os.path.dirname(func))
-                func = os.path.basename(func)
-            func = func[:-2]
-
-        # these three lines will form the commands sent to Octave
-        # load("-v6", "infile", "invar1", ...)
-        # [a, b, c] = foo(A, B, C)
-        # save("-v6", "outfile", "outvar1", ...)
-        load_line = call_line = save_line = ''
-
-        if nout:
-            # create a dummy list of var names ("a", "b", "c", ...)
-            # use ascii char codes so we can increment
-            argout_list, save_line = self._reader.setup(nout)
-            call_line = '[{0}] = '.format(', '.join(argout_list))
-        if inputs:
-            argin_list, load_line = self._writer.create_file(inputs)
-            call_line += '{0}({1})'.format(func, ', '.join(argin_list))
-        elif nout and not '(' in func:
-            # call foo() - no arguments
-            call_line += '{0}()'.format(func)
-        else:
-            # run foo
-            call_line += '{0}'.format(func)
-
-        if not '__ipy_figures' in func:
-            if not call_line.endswith(')') and nout:
-                call_line += '()'
-
-        # create the command and execute in octave
-        cmd = [load_line, call_line, save_line]
-        data = self._eval(cmd, verbose=verbose, timeout=timeout)
-
-        if isinstance(data, dict) and not isinstance(data, Struct):
-            data = [data.get(v, None) for v in argout_list]
-            if len(data) == 1 and data[0] is None:
-                data = None
-
-        return data
 
     def put(self, names, var, verbose=False, timeout=-1):
         """
@@ -258,7 +124,7 @@ class Oct2Py(object):
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
         _, load_line = self._writer.create_file(var, names)
-        self._eval(load_line, verbose=verbose, timeout=timeout)
+        self.eval(load_line, verbose=verbose, timeout=timeout)
 
     def get(self, var, verbose=False, timeout=-1):
         """
@@ -294,47 +160,20 @@ class Oct2Py(object):
         if isinstance(var, (str, unicode)):
             var = [var]
         argout_list, save_line = self._reader.setup(len(var), var)
-        data = self._eval(save_line, verbose=verbose, timeout=timeout)
+        data = self.eval(save_line, verbose=verbose, timeout=timeout)
         if isinstance(data, dict) and not isinstance(data, Struct):
             return [data.get(v, None) for v in argout_list]
         else:
             return data
 
-    def lookfor(self, string, verbose=False, timeout=-1):
+    def eval(self, cmds, verbose=False, log=True, timeout=-1):
         """
-        Call the Octave "lookfor" command.
-
-        Uses with the "-all" switch to search within help strings.
-
-        Parameters
-        ----------
-        string : str
-            Search string for the lookfor command.
-        verbose : bool, optional
-             Log Octave output at info level.
-        timeout : float
-            Time to wait for response from Octave (per character).
-
-        Returns
-        -------
-        out : str
-            Output from the Octave lookfor command.
-
-        """
-        return self.run('lookfor -all {0}'.format(string), verbose=verbose,
-                        timeout=timeout)
-
-    def _eval(self, cmds, verbose=True, log=True, timeout=-1):
-        """
-        Perform raw Octave command.
-
-        This is a low-level command, and should not technically be used
-        directly.  The API could change. You have been warned.
+        Evaluate an Octave command or commands.
 
         Parameters
         ----------
         cmds : str or list
-            Commands(s) to pass directly to Octave.
+            Commands(s) to pass to Octave.
         verbose : bool, optional
              Log Octave output at info level.
         timeout : float, optional
@@ -398,6 +237,17 @@ class Oct2Py(object):
         if resp:
             return resp
 
+    def restart(self):
+        """Restart an Octave session in a clean state
+        """
+        self._reader = MatRead(self._temp_dir)
+        self._writer = MatWrite(self._temp_dir, self._oned_as)
+        self._session = _Session(self._reader.out_file, self.logger)
+
+    # --------------------------------------------------------------
+    # Private API
+    # --------------------------------------------------------------
+
     def _make_octave_command(self, name, doc=None):
         """Create a wrapper to an Octave procedure or object
 
@@ -409,9 +259,9 @@ class Oct2Py(object):
             kwargs['nout'] = get_nout()
             kwargs['verbose'] = kwargs.get('verbose', False)
             if not 'Built-in Function' in doc:
-                self._eval('clear {0}'.format(name), log=False, verbose=False)
+                self.eval('clear {0}'.format(name), log=False, verbose=False)
             kwargs['command'] = True
-            return self.call(name, *args, **kwargs)
+            return self._call(name, *args, **kwargs)
         # convert to ascii for pydoc
         try:
             doc = doc.encode('ascii', 'replace').decode('ascii')
@@ -420,6 +270,87 @@ class Oct2Py(object):
         octave_command.__doc__ = "\n" + doc
         octave_command.__name__ = name
         return octave_command
+
+    def _call(self, func, *inputs, **kwargs):
+        """
+        Call an Octave function with optional arguments.
+
+        This is a low-level command used by dynamic functions.
+
+        Parameters
+        ----------
+        func : str
+            Function name to call.
+        inputs : array_like
+            Variables to pass to the function.
+        nout : int, optional
+            Number of output arguments.
+            This is set automatically based on the number of
+            return values requested (see example below).
+            You can override this behavior by passing a
+            different value.
+        verbose : bool, optional
+             Log Octave output at info level.
+
+        Returns
+        -------
+        out : str or tuple
+            If nout > 0, returns the values from Octave as a tuple.
+            Otherwise, returns the output displayed by Octave.
+
+        Raises
+        ------
+        Oct2PyError
+            If the call is unsucessful.
+
+        """
+        verbose = kwargs.get('verbose', False)
+        nout = kwargs.get('nout', get_nout())
+        timeout = kwargs.get('timeout', self.timeout)
+        argout_list = ['_']
+
+        # handle references to script names - and paths to them
+        if func.endswith('.m'):
+            if os.path.dirname(func):
+                self.addpath(os.path.dirname(func))
+                func = os.path.basename(func)
+            func = func[:-2]
+
+        # these three lines will form the commands sent to Octave
+        # load("-v6", "infile", "invar1", ...)
+        # [a, b, c] = foo(A, B, C)
+        # save("-v6", "outfile", "outvar1", ...)
+        load_line = call_line = save_line = ''
+
+        if nout:
+            # create a dummy list of var names ("a", "b", "c", ...)
+            # use ascii char codes so we can increment
+            argout_list, save_line = self._reader.setup(nout)
+            call_line = '[{0}] = '.format(', '.join(argout_list))
+        if inputs:
+            argin_list, load_line = self._writer.create_file(inputs)
+            call_line += '{0}({1})'.format(func, ', '.join(argin_list))
+        elif nout and not '(' in func:
+            # call foo() - no arguments
+            call_line += '{0}()'.format(func)
+        else:
+            # run foo
+            call_line += '{0}'.format(func)
+
+        if not '__ipy_figures' in func:
+            if not call_line.endswith(')') and nout:
+                call_line += '()'
+
+        # create the command and execute in octave
+        cmd = [load_line, call_line, save_line]
+        data = self.eval(cmd, verbose=verbose, timeout=timeout)
+
+        if isinstance(data, dict) and not isinstance(data, Struct):
+            data = [data.get(v, None) for v in argout_list]
+            if len(data) == 1 and data[0] is None:
+                data = None
+
+        return data
 
     def _get_doc(self, name):
         """
@@ -443,21 +374,21 @@ class Oct2Py(object):
         """
         if name == 'keyboard':
             return 'Built-in Function: keyboard ()'
-        exist = self._eval('exist {0}'.format(name), log=False,
-                           verbose=False)
+        exist = self.eval('exist {0}'.format(name), log=False,
+                          verbose=False)
         if exist == 0:
             msg = 'Name: "%s" does not exist on the Octave session path'
             raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
         try:
-            doc = self._eval('help {0}'.format(name), log=False,
-                             verbose=False)
+            doc = self.eval('help {0}'.format(name), log=False,
+                            verbose=False)
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
             try:
-                doc = self._eval('x = type("{0}")'.format(name), log=False,
-                                 verbose=False)
+                doc = self.eval('x = type("{0}")'.format(name), log=False,
+                                verbose=False)
                 if isinstance(doc, list):
                     doc = doc[0]
                 doc = '\n'.join(doc.splitlines()[:3])
@@ -486,13 +417,6 @@ class Oct2Py(object):
         #!!! attr, *not* name, because we might have python keyword name!
         setattr(self, attr, octave_command)
         return octave_command
-
-    def restart(self):
-        """Restart an Octave session in a clean state
-        """
-        self._reader = MatRead(self._temp_dir)
-        self._writer = MatWrite(self._temp_dir, self._oned_as)
-        self._session = _Session(self._reader.out_file, self.logger)
 
 
 class _Reader(object):

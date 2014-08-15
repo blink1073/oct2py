@@ -18,36 +18,34 @@ class BasicUsageTest(test.TestCase):
         self.oc.addpath(os.path.dirname(__file__))
 
     def tearDown(self):
-        self.oc.close()
+        self.oc.exit()
 
     def test_run(self):
         """Test the run command
         """
-        out = self.oc.run('y=ones(3,3)')
+        out = self.oc.eval('y=ones(3,3)')
         desired = np.ones((3, 3))
         test.assert_allclose(out, desired)
-        out = self.oc.run('x = mean([[1, 2], [3, 4]])', verbose=True)
+        out = self.oc.eval('x = mean([[1, 2], [3, 4]])', verbose=True)
         self.assertEqual(out, 2.5)
-        self.assertRaises(Oct2PyError, self.oc.run, '_spam')
+        self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
 
-    def test_call(self):
-        """Test the call command
+    def test_dynamic_functions(self):
+        """Test some dynamic functions
         """
-        out = self.oc.call('ones', 1, 2)
+        out = self.oc.ones(1, 2)
         assert np.allclose(out, np.ones((1, 2)))
-        U, S, V = self.oc.call('svd', [[1, 2], [1, 3]])
+        U, S, V = self.oc.svd([[1, 2], [1, 3]])
         assert np.allclose(U, ([[-0.57604844, -0.81741556],
                            [-0.81741556, 0.57604844]]))
         assert np.allclose(S,  ([[3.86432845, 0.],
                            [0., 0.25877718]]))
         assert np.allclose(V,  ([[-0.36059668, -0.93272184],
                            [-0.93272184, 0.36059668]]))
-        out = self.oc.call('roundtrip.m', 1)
+        out = self.oc.roundtrip(1)
         self.assertEqual(out, 1)
-        fname = os.path.join(__file__, 'roundtrip.m')
-        out = self.oc.call(fname, 1)
         self.assertEqual(out, 1)
-        self.assertRaises(Oct2PyError, self.oc.call, '_spam')
+        self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
 
     def test_put_get(self):
         """Test putting and getting values
@@ -84,14 +82,14 @@ class BasicUsageTest(test.TestCase):
         """Test opening and closing the Octave session
         """
         oct_ = Oct2Py()
-        oct_.close()
+        oct_.exit()
         self.assertRaises(Oct2PyError, oct_.put, names=['a'],
                           var=[1.0])
         oct_.restart()
         oct_.put('a', 5)
         a = oct_.get('a')
         assert a == 5
-        oct_.close()
+        oct_.exit()
 
     def test_struct(self):
         """Test Struct construct
@@ -113,16 +111,16 @@ class BasicUsageTest(test.TestCase):
         """Make sure a syntax error in Octave throws an Oct2PyError
         """
         oc = Oct2Py()
-        self.assertRaises(Oct2PyError, oc._eval, "a='1")
+        self.assertRaises(Oct2PyError, oc.eval, "a='1")
         oc = Oct2Py()
-        self.assertRaises(Oct2PyError, oc._eval, "a=1++3")
+        self.assertRaises(Oct2PyError, oc.eval, "a=1++3")
 
         oc.put('a', 1)
         a = oc.get('a')
         self.assertEqual(a, 1)
-        oc.close()
+        oc.exit()
 
     def test_octave_error(self):
         oc = Oct2Py()
-        self.assertRaises(Oct2PyError, oc.run, 'a = ones2(1)')
-        oc.close()
+        self.assertRaises(Oct2PyError, oc.eval, 'a = ones2(1)')
+        oc.exit()

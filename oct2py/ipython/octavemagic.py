@@ -301,7 +301,7 @@ class OctaveMagics(Magics):
 
         cmds = [pre_call, code, post_call]
         try:
-            text_output = str(self._oct._eval(cmds, verbose=False))
+            text_output = str(self._oct.eval(cmds, verbose=False))
         except oct2py.Oct2PyError as exception:
             msg = str(exception)
             if 'Octave Syntax Error' in msg:

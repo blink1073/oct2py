@@ -33,11 +33,11 @@ def demo(delay=2, interactive=True):
     # plotting
     oc.plot([1,2,3],'-o')
     raw_input('Press Enter to continue...')
-    oc.close_()
+    oc.close()
     xx = np.arange(-2*np.pi, 2*np.pi, 0.2)
     oc.surf(np.subtract.outer(np.sin(xx), np.cos(xx)))
     raw_input('Press Enter to continue...')
-    oc.close_()
+    oc.close()
     # getting help
     help(oc.svd)
     # single vs. multiple return values
@@ -45,12 +45,10 @@ def demo(delay=2, interactive=True):
     U, S, V = oc.svd([[1,2], [1,3]])
     print(U, S, V)
     # low level constructs
-    oc.run("y=ones(3,3)")
+    oc.eval("y=ones(3,3)")
     print(oc.get("y"))
-    oc.run("x=zeros(3,3)", verbose=True)
-    x = oc.call('rand', 1, 4)
-    print(x)
-    t = oc.call('rand', 1, 2, verbose=True)
+    oc.eval("x=zeros(3,3)", verbose=True)
+    t = oc.eval('rand(1, 2)', verbose=True)
     y = np.zeros((3,3))
     oc.put('y', y)
     print(oc.get('y'))

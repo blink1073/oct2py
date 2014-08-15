@@ -54,7 +54,7 @@ class ConversionTest(test.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.oc.close()
+        cls.oc.exit()
 
     def helper(self, base, keys, types):
         """

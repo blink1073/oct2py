@@ -5,8 +5,16 @@ Release History
 
 2.0.0 (2014-08-14)
 ++++++++++++++++++
-- **Breaking change** - when a command returns "ans", we now
-  evaluate the variable "ans" instead of returning the printed ans string.
+- **Breaking changes**
+ -- Removed ``Oct2Py.run`` and ```Oct2Py.call``, in favor of using
+    ``Oct2Py.eval`` or dynamic functions.
+ -- When a command results in "ans", the value of "ans" is returned
+    instead of the printed string.
+ -- Oct2Py._eval has been renamed to Oct2Py.eval
+ -- Oct2Py.lookfor has been removed (but can still be called as a
+    dynamic function)
+ -- Oct2Py.close has been renamed to Oct2Py.exit to avoid overshadowing
+    the Octave close command.
 - Syntax Errors on Windows no longer crash the session.
 - Added ability to interrupt commands with CTRL+C.
 - Fixed Octavemagic not following current working directory.
