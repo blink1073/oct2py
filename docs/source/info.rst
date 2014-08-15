@@ -3,25 +3,8 @@
 Information
 ******************
 
-Using M-Files
-=============
-There are several ways to use an m-file in Oct2Py.  First, you can either
-call the script using the full path to it, or `addpath` for the directory
-containing the script.  When using `addpath`, you can use `run`, `call`,
-or the magic method to call the function.
-
-.. code-block:: python
-
-    >>> from oct2py import octave
-    >>> octave.call('/path/to/myscript.m')
-    >>> octave.addpath('/path/to/')
-    >>> octave.run('myscript')
-    >>> octave.call('myscript.m')
-    >>> octave.myscript()
-
-
-Interactivity
-=============
+Dynamic Functions
+=================
 Oct2Py will create methods for you on the fly, which correspond to Octave
 functions.  For example:
 
@@ -42,6 +25,8 @@ Additionally, you can look up the documentation for one of these methods using
     'ones' is a built-in function
     ...
 
+Interactivity
+=============
 Oct2Py supports code completion in IPython, so once you have created a method,
 you can recall it on the fly, so octave.one<TAB> would give you ones.
 Structs (mentioned below) also support code completion for attributes.
@@ -57,6 +42,21 @@ you were using logging).
     >>> octave.put('a', 1)
     >>> octave.get('a')
     1
+
+
+Using M-Files
+=============
+In order to use an m-file in Oct2Py you must first call `addpath`
+for the directory containing the script.  You can then use it as
+a dynamic function or use the `eval` function to call it.
+
+.. code-block:: python
+
+    >>> from oct2py import octave
+    >>> octave.addpath('/path/to/')
+    >>> octave.myscript(1, 2)
+    >>> # or
+    >>> octave.eval("myscript(1, 2)")
 
 
 Direct Interaction
@@ -92,9 +92,9 @@ you must add a trailing underscore. For example:
 
     >>> from oct2py import octave
     >>> fig = octave.figure()
-    >>> octave.close_(fig)
+    >>> octave.eval_(fig)
 
-The methods that shadow Octave builtins are: close, get, lookfor, and run
+The methods that shadow Octave builtins are: exit and eval.
 
 
 Timeout
@@ -119,7 +119,8 @@ timeout.
 
 Graphics Toolkit
 ================
-Oct2Py uses the `gnuplot` graphics toolkit by default.  To change toolkits:
+Oct2Py uses the `gnuplot` graphics toolkit by default.  Fltk has been known
+not to work on some systems.  To change toolkits:
 
 .. code-block:: python
 

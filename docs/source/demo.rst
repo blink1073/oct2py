@@ -29,7 +29,7 @@ To run interactively:
 
 .. code-block:: python
 
-    >>> oc.close_()
+    >>> oc.close()
     >>> xx = np.arange(-2*np.pi, 2*np.pi, 0.2)
     >>> oc.surf(np.subtract.outer(np.sin(xx), np.cos(xx)))
     Press Enter to continue...
@@ -38,7 +38,7 @@ To run interactively:
 
 .. code-block:: python
 
-    >>> oc.close_()
+    >>> oc.close()
     >>> # getting help
     >>> help(oc.svd)
 
@@ -119,19 +119,16 @@ To run interactively:
      [ 0.          0.25877718]] [[-0.36059668 -0.93272184]
      [-0.93272184  0.36059668]]
     >>> # low level constructs
-    >>> oc.run("y=ones(3,3)")
-    >>> print(oc.get("y"))
+    >>> oc.eval("y=ones(3,3)")
+    >>> print(oc.pull("y"))
     [[ 1.  1.  1.]
      [ 1.  1.  1.]
      [ 1.  1.  1.]]
-    >>> oc.run("x=zeros(3,3)", verbose=True)
-    >>> x = oc.call('rand', 1, 4)
-    >>> print(x)
-    [[ 0.48931825  0.65269707  0.62965365  0.71283293]]
-    >>> t = oc.call('rand', 1, 2, verbose=True)
+    >>> oc.eval("x=zeros(3,3)", verbose=True)
+    >>> t = oc.eval('rand(1, 2)', verbose=True)
     >>> y = np.zeros((3,3))
-    >>> oc.put('y', y)
-    >>> print(oc.get('y'))
+    >>> oc.push('y', y)
+    >>> print(oc.pull('y'))
     [[ 0.  0.  0.]
      [ 0.  0.  0.]
      [ 0.  0.  0.]]
@@ -146,4 +143,3 @@ To run interactively:
     >>> #########################
     >>> # Demo Complete!
     >>> #########################
-
