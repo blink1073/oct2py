@@ -671,11 +671,7 @@ class _Session(object):
                     save -v6 %s _;
                 end
             end
-            for f = __oct2py_figures
-                try
-                    drawnow(f);
-                end
-            end
+            drawnow("expose");
             disp(char(3))
         end
         clear("failed")""" % (expr, self.outfile)
