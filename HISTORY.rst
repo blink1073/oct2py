@@ -3,8 +3,10 @@
 Release History
 ---------------
 
-1.7.0 (2014-xx-xx)
+2.0.0 (2014-08-14)
 ++++++++++++++++++
+- **Breaking change** - when a command returns "ans", we now
+  evaluate the variable "ans" instead of returning the printed ans string.
 - Syntax Errors on Windows no longer crash the session.
 - Added ability to interrupt commands with CTRL+C.
 - Fixed Octavemagic not following current working directory.
