@@ -92,18 +92,18 @@ class Oct2Py(object):
         except Oct2PyError:
             pass
 
-    def push(self, names, var, verbose=False, timeout=-1):
+    def push(self, name, var, verbose=False, timeout=-1):
         """
-        Push a variable or variables into the Octave session.
+        Put a variable or variables into the Scilab session.
 
         Parameters
         ----------
-        names : str or list
+        name : str or list
             Name of the variable(s).
         var : object or list
             The value(s) to pass.
         timeout : float
-            Time to wait for response from Octave (per character).
+            Time to wait for response from Scilab (per character).
 
         Examples
         --------
@@ -117,25 +117,29 @@ class Oct2Py(object):
         [u'spam', array([[1, 2, 3, 4]])]
 
         """
-        if isinstance(names, (str, unicode)):
-            var = [var]
-            names = [names]
+        if isinstance(name, (str, unicode)):
+            vars_ = [var]
+            names = [name]
+        else:
+            vars_ = var
+            names = name
+
         for name in names:
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
-        _, load_line = self._writer.create_file(var, names)
+        _, load_line = self._writer.create_file(vars_, names)
         self.eval(load_line, verbose=verbose, timeout=timeout)
 
     def pull(self, var, verbose=False, timeout=-1):
         """
-        Retrieve a value from the Octave session.
+        Retrieve a value or values from the Scilab session.
 
         Parameters
         ----------
-        var : str
-            Name of the variable to retrieve.
+        var : str or list
+            Name of the variable(s) to retrieve.
         timeout : float
-            Time to wait for response from Octave (per character).
+            Time to wait for response from Scilab (per character).
 
         Returns
         -------
