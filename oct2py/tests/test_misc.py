@@ -200,7 +200,7 @@ class MiscTests(test.TestCase):
 
     def test_temp_dir(self):
         oc = Oct2Py(temp_dir='.')
-        thisdir = os.path.dirname(os.path.abspath('.'))
+        thisdir = os.path.dirname(os.path.abspath('.')).replace('\\', '/')
         assert oc._reader.out_file.startswith(thisdir)
         assert oc._writer.in_file.startswith(thisdir)
         oc.close()

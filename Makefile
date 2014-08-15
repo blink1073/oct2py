@@ -1,7 +1,7 @@
 # Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release gh-pages
 
-export TEST_ARGS=--exe -v
+export TEST_ARGS=--exe -v  --with-doctest
 export KILL_OCTAVE="from oct2py import kill_octave; kill_octave()"
 
 all:
