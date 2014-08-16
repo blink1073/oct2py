@@ -25,3 +25,10 @@ Patches and Suggestions
 - @andrewbolster
 - @zimoun
 - @takluyver
+- @Arfrever
+- @cel4
+- Michael Hirsh @scienceopen
+- Andrew Clegg @andrewclegg
+- Min RK @minrk
+- @zimoun
+- Andrew Bolster @andrewbolster

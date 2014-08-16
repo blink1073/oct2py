@@ -9,7 +9,7 @@
 from __future__ import print_function
 import threading
 import datetime
-from .session import Oct2Py, Oct2PyError
+from oct2py import Oct2Py, Oct2PyError
 
 
 class ThreadClass(threading.Thread):
@@ -28,11 +28,11 @@ class ThreadClass(threading.Thread):
         """
         octave = Oct2Py()
         # write the same variable name in each thread and read it back
-        octave.put('name', self.getName())
-        name = octave.get('name')
+        octave.push('name', self.getName())
+        name = octave.pull('name')
         now = datetime.datetime.now()
         print("{0} got '{1}' at {2}".format(self.getName(), name, now))
-        octave.close()
+        octave.exit()
         try:
             assert self.getName() == name
         except AssertionError:  # pragma: no cover
@@ -40,7 +40,7 @@ class ThreadClass(threading.Thread):
         return
 
 
-def thread_test(nthreads=3):
+def thread_check(nthreads=3):
     """
     Start a number of threads and verify each has a unique Octave session.
 
@@ -69,4 +69,4 @@ def thread_test(nthreads=3):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    thread_test()
+    thread_check()

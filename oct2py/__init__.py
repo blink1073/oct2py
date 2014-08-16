@@ -7,7 +7,7 @@ MAT files.  Usage is as simple as:
 .. code-block:: python
 
     >>> import oct2py
-    >>> oc = oct2py.Oct2Py() 
+    >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
     >>> print x, x.dtype
     [[ 0.  0.  0.]
@@ -15,12 +15,12 @@ MAT files.  Usage is as simple as:
      [ 0.  0.  0.]] float64
 
 If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
-trust a code translator, this is your library.  
+trust a code translator, this is your library.
 """
 
 
 __title__ = 'oct2py'
-__version__ = '1.6.0'
+__version__ = '2.0.0'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2014 Steven Silvester'
@@ -31,12 +31,36 @@ __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
 import imp
 import functools
 import os
+import ctypes
 
-from .session import Oct2Py, Oct2PyError
+try:
+    import thread
+except ImportError:
+    import _thread as thread
+
+
+if os.name == 'nt':
+    """
+    Allow Windows to intecept KeyboardInterrupt
+    http://stackoverflow.com/questions/15457786/ctrl-c-crashes-python-after-importing-scipy-stats
+    """
+    basepath = imp.find_module('numpy')[1]
+    lib1 = ctypes.CDLL(os.path.join(basepath, 'core', 'libmmd.dll'))
+    lib2 = ctypes.CDLL(os.path.join(basepath, 'core', 'libifcoremd.dll'))
+
+    def handler(sig, hook=thread.interrupt_main):
+        hook()
+        return 1
+
+    routine = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)(handler)
+    ctypes.windll.kernel32.SetConsoleCtrlHandler(routine, 1)
+
+
+from .core import Oct2Py, Oct2PyError
 from .utils import Struct, get_log
 from .demo import demo
-from .speed_check import speed_test
-from .thread_check import thread_test
+from .speed_check import speed_check
+from .thread_check import thread_check
 
 
 try:
@@ -61,9 +85,5 @@ def kill_octave():
 
 
 # clean up namespace
-del functools, imp, os
-try:
-    del session, utils, speed_check, thread_check
-except NameError:  # pragma: no cover
-    pass
-
+del functools, imp, os, ctypes, thread
+del core, utils

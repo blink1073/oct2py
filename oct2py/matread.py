@@ -48,8 +48,6 @@ class MatRead(object):
                 argout_list.append(names.pop(0))
             else:
                 argout_list.append("%s__" % chr(i + 97))
-        if not os.path.exists(self.out_file):
-            self.out_file = create_file(self.temp_dir)
         save_line = 'save -v6 {0} {1}'.format(self.out_file,
                                                   ' '.join(argout_list))
         return argout_list, save_line
@@ -60,13 +58,13 @@ class MatRead(object):
         except (OSError, AttributeError):  # pragma: no cover
             pass
 
-    def extract_file(self, argout_list):
+    def extract_file(self, variables=None):
         """
         Extract the variables in argout_list from the M file
 
         Parameters
         ----------
-        argout_list : array-like
+        variables : array-like, optional
             List of variables to extract from the file
 
         Returns
@@ -75,23 +73,19 @@ class MatRead(object):
             Variable or tuple of variables extracted.
 
         """
-        data = loadmat(self.out_file)
-        outputs = []
-        for arg in argout_list:
-            try:
-                val = data[arg]
-            except KeyError:
-                if len(arg) > 31 and arg[:31] in data:
-                    val = data[arg[:31]]
-                else:
-                    msg = '%s not found in file %s' % (arg, self.out_file)
-                    raise Oct2PyError(msg)
-            val = get_data(val)
-            outputs.append(val)
-        if len(outputs) > 1:
-            return tuple(outputs)
-        else:
-            return outputs[0]
+        try:
+            data = loadmat(self.out_file)
+        except UnicodeDecodeError as e:
+            raise Oct2PyError(str(e))
+        for key in list(data.keys()):
+            if key.startswith('_') and not key == '_':
+                del data[key]
+            else:
+                data[key] = get_data(data[key])
+        if len(data) == 1:
+            return list(data.values())[0]
+        elif data:
+            return data
 
 
 def get_data(val):

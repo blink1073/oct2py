@@ -3,8 +3,16 @@
 Release History
 ---------------
 
-1.7.0 (2014-xx-xx)
+2.0.0 (2014-08-14)
 ++++++++++++++++++
+- **Breaking changes**
+ -- Removed methods: `run`, `call`, `lookfor`
+ -- Renamed methods: `_eval` -> `eval`, `get` -> `pull`, `put` -> `push`,
+    `close` -> `exit`
+ -- Removed run and call in favor of using eval dynamic functions.
+ -- Renamed methods to avoid overshadowing Octave builtins and for clarity.
+ -- When a command results in "ans", the value of "ans" is returned
+    instead of the printed string.
 - Syntax Errors on Windows no longer crash the session.
 - Added ability to interrupt commands with CTRL+C.
 - Fixed Octavemagic not following current working directory.

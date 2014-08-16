@@ -1,7 +1,8 @@
 # Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release gh-pages
 
-export TEST_ARGS="--exe -v --processes=1 --process-timeout=20 --process-restartworker --with-doctest"
+export TEST_ARGS=--exe -v --with-doctest
+export KILL_OCTAVE="from oct2py import kill_octave; kill_octave()"
 
 all:
 	make clean
@@ -11,20 +12,19 @@ clean:
 	rm -rf build
 	rm -rf dist
 	find . -name "*.pyc" -o -name "*.py,cover"| xargs rm -f
+	python -c $(KILL_OCTAVE)
+	killall -9 nosetests; true
 
 test:
 	make clean
 	python setup.py build
-	export PYTHONWARNINGS="all"; 
-	cd build; nosetests $(TEST_ARGS)
-	cd build; ~/anaconda/envs/py34/bin/nosetests $(TEST_ARGS)
-	rm -rf build
-	python setup.py check -r
+	export PYTHONWARNINGS="all"; cd build; nosetests $(TEST_ARGS)
+	make clean
 
 cover:
 	make clean
 	pip install nose-cov
-	nosetests -v --exe --with-cov --cov oct2py --cov-config .coveragerc oct2py
+	nosetests $(TEST_ARGS) --with-cov --cov oct2py oct2py
 	coverage annotate
 
 release:

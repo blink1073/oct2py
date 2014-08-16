@@ -4,7 +4,7 @@ Examples
 
 OctaveMagic
 ==========================
-Oct2Py provides a plugin for IPython to bring Octave to the IPython prompt or the 
+Oct2Py provides a plugin for IPython to bring Octave to the IPython prompt or the
 IPython Notebook_.
 
 .. _Notebook: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
@@ -47,9 +47,6 @@ Python Session
    >>> import numpy as np
    >>> x = np.array([[1, 2], [3, 4]], dtype=float)
    >>> out, oclass = octave.roundtrip(x)
-   >>> # or octave.call('roundtrip', x)
-   >>> # or octave.call('roundtrip.m', x)
-   >>> # or octave.call('/path/to/roundtrip.m', x)
    >>> import pprint
    >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])
    [array([[ 1.,  2.],

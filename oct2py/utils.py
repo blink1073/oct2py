@@ -9,28 +9,21 @@ import os
 import inspect
 import dis
 import tempfile
-import atexit
 from oct2py.compat import PY2
 
 
-def _remove_temp_files():
+def _remove_temp_files(dirname):
     """
     Remove the created mat files in the user's temp folder
     """
     import os
     import glob
-    import tempfile
-    temp = tempfile.NamedTemporaryFile()
-    temp.close()
-    dirname = os.path.dirname(temp.name)
+
     for fname in glob.glob(os.path.join(dirname, 'tmp*.mat')):
         try:
             os.remove(fname)
         except OSError:  # pragma: no cover
             pass
-
-
-atexit.register(_remove_temp_files)
 
 
 def get_nout():
@@ -79,7 +72,7 @@ def create_file(temp_dir=None):
     temp_file = tempfile.NamedTemporaryFile(suffix='.mat', delete=False,
                                             dir=temp_dir)
     temp_file.close()
-    return os.path.abspath(temp_file.name)
+    return os.path.abspath(temp_file.name).replace('\\', '/')
 
 
 class Oct2PyError(Exception):

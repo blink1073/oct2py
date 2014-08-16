@@ -7,20 +7,15 @@
 language: python
 
 env:
-    - CONDA="python=2.6 numpy=1.6 scipy=0.11"
-    - CONDA="python=2.7 numpy scipy"
+    - CONDA="python=2.7 numpy=1.7.1 scipy=0.12"
     - CONDA="python=3.3 numpy scipy"
     - CONDA="python=3.4 numpy scipy"
 
 before_install:
   - sudo apt-get update -qq;
-  - if [[ $CONDA == python=2.6* ]]; then
-        sudo apt-get install -qq octave;
-    else
-        sudo apt-add-repository -y ppa:picaso/octave;
-        sudo apt-get update -qq;
-        sudo apt-get install -qq octave liboctave-dev;
-    fi
+  - sudo apt-add-repository -y ppa:picaso/octave;
+  - sudo apt-get update -qq;
+  - sudo apt-get install -qq octave liboctave-dev;
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
@@ -28,9 +23,9 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - conda create -n test $CONDA IPython nose pip coverage
+  - travis_retry conda create -n test $CONDA IPython nose pip coverage
   - source activate test
-  - pip install coveralls
+  - travis_retry pip install coveralls
 
 install:
   - export PYTHONWARNINGS=all

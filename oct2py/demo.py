@@ -21,6 +21,9 @@ def demo(delay=2, interactive=True):
 
     """
     script = """
+    #########################
+    # Oct2Py demo
+    #########################
     import numpy as np
     from oct2py import Oct2Py
     oc = Oct2Py()
@@ -30,9 +33,11 @@ def demo(delay=2, interactive=True):
     # plotting
     oc.plot([1,2,3],'-o')
     raw_input('Press Enter to continue...')
+    oc.close()
     xx = np.arange(-2*np.pi, 2*np.pi, 0.2)
     oc.surf(np.subtract.outer(np.sin(xx), np.cos(xx)))
     raw_input('Press Enter to continue...')
+    oc.close()
     # getting help
     help(oc.svd)
     # single vs. multiple return values
@@ -40,27 +45,26 @@ def demo(delay=2, interactive=True):
     U, S, V = oc.svd([[1,2], [1,3]])
     print(U, S, V)
     # low level constructs
-    oc.run("y=ones(3,3)")
-    print(oc.get("y"))
-    oc.run("x=zeros(3,3)", verbose=True)
-    x = oc.call('rand', 1, 4)
-    print(x)
-    t = oc.call('rand', 1, 2, verbose=True)
+    oc.eval("y=ones(3,3)")
+    print(oc.pull("y"))
+    oc.eval("x=zeros(3,3)", verbose=True)
+    t = oc.eval('rand(1, 2)', verbose=True)
     y = np.zeros((3,3))
-    oc.put('y', y)
-    print(oc.get('y'))
+    oc.push('y', y)
+    print(oc.pull('y'))
     from oct2py import Struct
     y = Struct()
     y.b = 'spam'
     y.c.d = 'eggs'
     print(y.c['d'])
     print(y)
+    #########################
+    # Demo Complete!
+    #########################
     """
     if not PY2:
         script = script.replace('raw_input', 'input')
 
-    print('oct2py demo')
-    print('*' * 20)
     for line in script.strip().split('\n'):
         line = line.strip()
         if not 'input(' in line:
@@ -71,9 +75,6 @@ def demo(delay=2, interactive=True):
             if 'plot' in line or 'surf' in line or 'input(' in line:
                 line = 'print()'
         exec(line)
-    time.sleep(delay)
-    print('*' * 20)
-    print('DEMO COMPLETE!')
 
 if __name__ == '__main__':  # pragma: no cover
     demo(delay=0.5)

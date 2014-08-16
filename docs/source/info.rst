@@ -3,25 +3,8 @@
 Information
 ******************
 
-Using M-Files
-=============
-There are several ways to use an m-file in Oct2Py.  First, you can either
-call the script using the full path to it, or `addpath` for the directory
-containing the script.  When using `addpath`, you can use `run`, `call`,
-or the magic method to call the function.
-
-.. code-block:: python
-
-    >>> from oct2py import octave
-    >>> octave.call('/path/to/myscript.m')
-    >>> octave.addpath('/path/to/')
-    >>> octave.run('myscript')
-    >>> octave.call('myscript.m')
-    >>> octave.myscript()
-
-
-Interactivity
-=============
+Dynamic Functions
+=================
 Oct2Py will create methods for you on the fly, which correspond to Octave
 functions.  For example:
 
@@ -42,21 +25,38 @@ Additionally, you can look up the documentation for one of these methods using
     'ones' is a built-in function
     ...
 
+Interactivity
+=============
 Oct2Py supports code completion in IPython, so once you have created a method,
 you can recall it on the fly, so octave.one<TAB> would give you ones.
 Structs (mentioned below) also support code completion for attributes.
 
-You can share data with an Octave session explicitly using the `put` and
-`get` methods.  When using other Oct2Py methods, the variable names in Octave
+You can share data with an Octave session explicitly using the `push` and
+`pull` methods.  When using other Oct2Py methods, the variable names in Octave
 start with underscores because they are temporary (you would only see this if
 you were using logging).
 
 .. code-block:: python
 
     >>> from oct2py import octave
-    >>> octave.put('a', 1)
-    >>> octave.get('a')
+    >>> octave.push('a', 1)
+    >>> octave.pull('a')
     1
+
+
+Using M-Files
+=============
+In order to use an m-file in Oct2Py you must first call `addpath`
+for the directory containing the script.  You can then use it as
+a dynamic function or use the `eval` function to call it.
+
+.. code-block:: python
+
+    >>> from oct2py import octave
+    >>> octave.addpath('/path/to/')
+    >>> octave.myscript(1, 2)
+    >>> # or
+    >>> octave.eval("myscript(1, 2)")
 
 
 Direct Interaction
@@ -64,11 +64,6 @@ Direct Interaction
 Oct2Py supports the Octave `keyboard` function
 which drops you into an interactive Octave prompt in the current session.
 This also works in the IPython Notebook.  Note: If you use the `keyboard` command and the session hangs, try opening an Octave session from your terminal and see if the `keyboard` command hangs there too.  You may need to update your version of Octave.
-
-
-Syntax Errors
-=============
-An Octave Syntax Error will result in the Octave Session being closed if you are on Windows.  This is because Octave is expecting a pseudo-tty connection (which is not available on Windows).
 
 
 Logging
@@ -96,10 +91,10 @@ you must add a trailing underscore. For example:
 .. code-block:: python
 
     >>> from oct2py import octave
-    >>> fig = octave.figure()
-    >>> octave.close_(fig)
+    >>> octave.eval_('a=1')
+    'a =  1'
 
-The methods that shadow Octave builtins are: close, get, lookfor, and run
+The methods that shadow Octave builtins are: `exit` and `eval`.
 
 
 Timeout
@@ -124,7 +119,8 @@ timeout.
 
 Graphics Toolkit
 ================
-Oct2Py uses the `gnuplot` graphics toolkit by default.  To change toolkits:
+Oct2Py uses the `gnuplot` graphics toolkit by default.  Fltk has been known
+not to work on some systems.  To change toolkits:
 
 .. code-block:: python
 

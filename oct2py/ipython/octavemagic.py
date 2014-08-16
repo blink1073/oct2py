@@ -144,7 +144,7 @@ class OctaveMagics(Magics):
         inputs = line.split(' ')
         for input in inputs:
             input = unicode_to_str(input)
-            self._oct.put(input, self.shell.user_ns[input])
+            self._oct.push(input, self.shell.user_ns[input])
 
     @skip_doctest
     @line_magic
@@ -170,7 +170,7 @@ class OctaveMagics(Magics):
         outputs = line.split(' ')
         for output in outputs:
             output = unicode_to_str(output)
-            self.shell.push({output: self._oct.get(output)})
+            self.shell.push({output: self._oct.pull(output)})
 
     @skip_doctest
     @magic_arguments()
@@ -270,7 +270,7 @@ class OctaveMagics(Magics):
                     val = local_ns[input]
                 except KeyError:
                     val = self.shell.user_ns[input]
-                self._oct.put(input, val)
+                self._oct.push(input, val)
 
         # generate plots in a temporary directory
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
@@ -287,47 +287,22 @@ class OctaveMagics(Magics):
         else:
             plot_format = 'png'
 
-        pre_call = '''
-        global __ipy_figures = [];
-        page_screen_output(0);
-
-        function fig_create(src, event)
-          global __ipy_figures;
-          __ipy_figures(size(__ipy_figures) + 1) = src;
-          set(src, "visible", "off");
-        end
-
-        set(0, 'DefaultFigureCreateFcn', @fig_create);
-
-        close all;
-        clear ans;
-
-        # ___<end_pre_call>___ #
-        '''
+        pre_call = '__inline=1;close all;'
 
         post_call = '''
-        # ___<start_post_call>___ #
-
-        # Save output of the last execution
-        if exist("ans") == 1
-          _ = ans;
-        else
-          _ = nan;
-        end
-
-        for f = __ipy_figures
+        for f = __oct2py_figures
           outfile = sprintf('%(plot_dir)s/__ipy_oct_fig_%%03d.png', f);
           try
             print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(size)s');
+            close(f);
           end
         end
-
         ''' % locals()
 
-        code = ' '.join((pre_call, code, post_call))
+        cmds = [pre_call, code, post_call]
         try:
-            text_output = self._oct.run(code, verbose=False)
-        except (oct2py.Oct2PyError) as exception:
+            text_output = str(self._oct.eval(cmds, verbose=False))
+        except oct2py.Oct2PyError as exception:
             msg = str(exception)
             if 'Octave Syntax Error' in msg:
                 raise OctaveMagicError(msg)
@@ -340,7 +315,7 @@ class OctaveMagics(Magics):
         display_data = []
 
         # Publish text output
-        if text_output:
+        if text_output != "None":
             display_data.append((key, {'text/plain': text_output}))
 
         # Publish images
@@ -360,7 +335,7 @@ class OctaveMagics(Magics):
         if args.output:
             for output in ','.join(args.output).split(','):
                 output = unicode_to_str(output)
-                self.shell.push({output: self._oct.get(output)})
+                self.shell.push({output: self._oct.pull(output)})
 
         for source, data in display_data:
             # source is deprecated in IPython 3.0.
@@ -369,7 +344,7 @@ class OctaveMagics(Magics):
 
         if return_output:
             try:
-                ans = self._oct.get('_')
+                ans = self._oct.pull('_')
             except oct2py.Oct2PyError:
                 return
 
