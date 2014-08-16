@@ -31,16 +31,16 @@ Oct2Py supports code completion in IPython, so once you have created a method,
 you can recall it on the fly, so octave.one<TAB> would give you ones.
 Structs (mentioned below) also support code completion for attributes.
 
-You can share data with an Octave session explicitly using the `put` and
-`get` methods.  When using other Oct2Py methods, the variable names in Octave
+You can share data with an Octave session explicitly using the `push` and
+`pull` methods.  When using other Oct2Py methods, the variable names in Octave
 start with underscores because they are temporary (you would only see this if
 you were using logging).
 
 .. code-block:: python
 
     >>> from oct2py import octave
-    >>> octave.put('a', 1)
-    >>> octave.get('a')
+    >>> octave.push('a', 1)
+    >>> octave.pull('a')
     1
 
 
@@ -91,10 +91,10 @@ you must add a trailing underscore. For example:
 .. code-block:: python
 
     >>> from oct2py import octave
-    >>> fig = octave.figure()
-    >>> octave.eval_(fig)
+    >>> octave.eval_('a=1')
+    'a =  1'
 
-The methods that shadow Octave builtins are: exit and eval.
+The methods that shadow Octave builtins are: `exit` and `eval`.
 
 
 Timeout
