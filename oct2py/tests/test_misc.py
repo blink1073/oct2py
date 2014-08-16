@@ -99,8 +99,12 @@ class MiscTests(test.TestCase):
         _remove_temp_files(self.oc._temp_dir)
 
     def test_threads(self):
-        from oct2py import thread_test
-        thread_test()
+        from oct2py import thread_check
+        thread_check()
+
+    def test_speed_check(self):
+        from oct2py import speed_check
+        speed_check()
 
     def test_plot(self):
         n = self.oc.figure()

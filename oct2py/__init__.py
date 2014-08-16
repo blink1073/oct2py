@@ -35,8 +35,8 @@ import os
 from .core import Oct2Py, Oct2PyError
 from .utils import Struct, get_log
 from .demo import demo
-from .speed_check import speed_test
-from .thread_check import thread_test
+from .speed_check import speed_check
+from .thread_check import thread_check
 
 
 try:
@@ -62,8 +62,4 @@ def kill_octave():
 
 # clean up namespace
 del functools, imp, os
-try:
-    del core, utils, speed_check, thread_check
-except NameError:  # pragma: no cover
-    pass
-
+del core, utils

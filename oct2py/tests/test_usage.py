@@ -83,7 +83,7 @@ class BasicUsageTest(test.TestCase):
         """
         oc = Oct2Py()
         oc.exit()
-        self.assertRaises(Oct2PyError, oc.push, names=['a'],
+        self.assertRaises(Oct2PyError, oc.push, name=['a'],
                           var=[1.0])
         oc.restart()
         oc.push('a', 5)

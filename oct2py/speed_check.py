@@ -21,34 +21,34 @@ class SpeedCheck(object):
 
     """
     def __init__(self):
-        """Create our octave instance and initialize the data array
+        """Create our Octave instance and initialize the data array
         """
         self.octave = Oct2Py()
         self.array = []
 
     def raw_speed(self):
-        """Run a fast matlab command and see how long it takes.
+        """Run a fast Octave command and see how long it takes.
         """
-        self.octave.run("x = 1")
+        self.octave.eval("x = 1")
 
     def large_array_put(self):
         """Create a large matrix and load it into the octave session.
         """
-        self.octave.put('x', self.array)
+        self.octave.push('x', self.array)
 
     def large_array_get(self):
         """Retrieve the large matrix from the octave session
         """
-        self.octave.get('x')
+        self.octave.pull('x')
 
     def run(self):
-        """Perform the oct2py speed analysis.
+        """Perform the Oct2Py speed analysis.
 
         Uses timeit to test the raw execution of an Octave command,
         Then tests progressively larger array passing.
 
         """
-        print('oct2py speed test')
+        print('Oct2Py speed test')
         print('*' * 20)
         time.sleep(1)
 
@@ -72,7 +72,7 @@ class SpeedCheck(object):
         print('Test complete!')
 
 
-def speed_test():
+def speed_check():
     """Checks the speed penalty of the Python to Octave bridge.
 
     Uses timeit to test the raw execution of a Octave command,
@@ -84,4 +84,4 @@ def speed_test():
 
 
 if __name__ == '__main__':
-    speed_test()
+    speed_check()
