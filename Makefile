@@ -28,13 +28,14 @@ cover:
 	coverage annotate
 
 release:
-	make clean
+	make cover
+	make gh-pages
 	pip install wheel
 	python setup.py register
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload
-	echo "*** Do not forget to add a tag"
-	echo "*** Do not forget to 'make gh-pages'"
+	git tag v`python -c "import oct2py;print(oct2py.__version__)"`
+	git push origin master --all
 
 gh-pages:
 	pip install sphinx-bootstrap-theme
@@ -55,4 +56,3 @@ gh-pages:
 	git push origin gh-pages
 	rm -rf ../temp_docs
 	git checkout master
-
