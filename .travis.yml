@@ -13,13 +13,9 @@ env:
 
 before_install:
   - sudo apt-get update -qq;
-  - if [[ $CONDA == python=3.3* ]]; then
-        sudo apt-get install -qq octave;
-    else
-        sudo apt-add-repository -y ppa:picaso/octave;
-        sudo apt-get update -qq;
-        sudo apt-get install -qq octave liboctave-dev;
-    fi
+  - sudo apt-add-repository -y ppa:picaso/octave;
+  - sudo apt-get update -qq;
+  - sudo apt-get install -qq octave liboctave-dev;
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
