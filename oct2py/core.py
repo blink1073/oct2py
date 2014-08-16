@@ -675,8 +675,8 @@ class _Session(object):
                     return val
             time.sleep(1e-6)
             if (time.time() - t0) > self.timeout:
-                self.close()
-                raise Oct2PyError('Session Timed Out, closing')
+                self.interrupt()
+                raise Oct2PyError('Timed out, interrupting')
 
     def write(self, message):
         """Write a message to the process using utf-8 encoding"""
