@@ -17,7 +17,7 @@ MAT files.  Usage is as simple as:
 
 .. code-block:: python
 
-    >>> oc = oct2py.Oct2Py() 
+    >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
     >>> print x, x.dtype
     [[ 0.  0.  0.]
@@ -26,7 +26,7 @@ MAT files.  Usage is as simple as:
     ...
 
 If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
-trust a code translator, this is your library.  
+trust a code translator, this is your library.
 
 
 Features
@@ -50,10 +50,10 @@ Features
 
 Installation
 ------------
-You must have GNU Octave installed and in your PATH (versions 3.2-3.8). 
+You must have GNU Octave 3.6 or newer installed and in your PATH.
 On Windows, the easiest way to get Octave is to use an installer from SourceForge_.
 You must have the Numpy and Scipy libraries installed.
-On Linux, it should be available from your package manager.  
+On Linux, it should be available from your package manager.
 
 To install Oct2Py, simply:
 

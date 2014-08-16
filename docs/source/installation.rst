@@ -3,7 +3,8 @@ Installation
 
 Library Installation
 --------------------
-You must have GNU Octave installed and in your PATH (see instructions below).
+You must have GNU Octave 3.6 or newer installed and in your PATH
+(see instructions below).
 Additionally, you must have the Numpy and Scipy libraries installed.  On Windows, you can get the install files here_.
 
 The best way to install this library is by using pip_::
