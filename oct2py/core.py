@@ -17,6 +17,7 @@ import threading
 import time
 from tempfile import gettempdir
 import warnings
+import ctypes
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
@@ -229,7 +230,7 @@ class Oct2Py(object):
                                           timeout=timeout)
         except KeyboardInterrupt:
             self._session.interrupt()
-            return 'Scilab Session Interrupted'
+            return 'Octave Session Interrupted'
 
         outfile = self._reader.out_file
         if os.path.exists(outfile) and os.stat(outfile).st_size:
@@ -504,6 +505,7 @@ class _Session(object):
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             kwargs['startupinfo'] = startupinfo
+            kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
         try:
             proc = subprocess.Popen(['octave', '-q', '--braindead'],
                                     **kwargs)
@@ -645,7 +647,12 @@ class _Session(object):
         self.first_run = False
 
     def interrupt(self):
-        self.proc.send_signal(signal.SIGINT)
+        if os.name == 'nt':
+            CTRL_BREAK_EVENT = 1
+            interrupt = ctypes.windll.kernel32.GenerateConsoleCtrlEvent
+            interrupt(CTRL_BREAK_EVENT, self.proc.pid)
+        else:
+            self.proc.send_signal(signal.SIGINT)
 
     def expect(self, strings):
         """Look for a string or strings in the incoming data"""
