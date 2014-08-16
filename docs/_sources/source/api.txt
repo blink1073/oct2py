@@ -15,6 +15,6 @@ Utils
 
 .. autofunction:: get_log
 
-.. autofunction:: Struct
+.. autoclass:: Struct
 
 .. autofunction:: kill_octave

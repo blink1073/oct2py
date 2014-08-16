@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 1.6.0 documentation</title>
+    <title>API Reference &mdash; Oct2Py 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.6.0',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.6.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.0.0 documentation" href="../index.html" />
     <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.6.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.0.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -195,134 +195,22 @@ a shared memory (tmpfs) path.</p>
 </tr>
 </tbody>
 </table>
-<p>Start Octave and create our MAT helpers</p>
+<p>Start Octave and set up the session.</p>
 <dl class="method">
-<dt id="oct2py.Oct2Py.close">
-<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.close" title="Permalink to this definition">¶</a></dt>
-<dd><p>Closes this octave session and removes temp files</p>
+<dt id="oct2py.Oct2Py.exit">
+<tt class="descname">exit</tt><big>(</big><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quits this octave session and removes temp files</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.Oct2Py.run">
-<tt class="descname">run</tt><big>(</big><em>script</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run artibrary Octave code.</p>
+<dt id="oct2py.Oct2Py.push">
+<tt class="descname">push</tt><big>(</big><em>name</em>, <em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.push" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put a variable or variables into the Scilab session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>script</strong> : str</p>
-<blockquote>
-<div><p>Command script to send to Octave for execution.</p>
-</div></blockquote>
-<p><strong>verbose</strong> : bool, optional</p>
-<blockquote>
-<div><p>Log Octave output at info level.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : str</p>
-<blockquote>
-<div><p>Octave printed output.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong></p>
-<blockquote class="last">
-<div><p>If the script cannot be run by Octave.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&#39;y=ones(3,3)&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="go">y =</span>
-
-<span class="go">        1        1        1</span>
-<span class="go">        1        1        1</span>
-<span class="go">        1        1        1</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&#39;x = mean([[1, 2], [3, 4]])&#39;</span><span class="p">)</span>
-<span class="go">u&#39;x =  2.5000&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="oct2py.Oct2Py.call">
-<tt class="descname">call</tt><big>(</big><em>func</em>, <em>*inputs</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call an Octave function with optional arguments.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>func</strong> : str</p>
-<blockquote>
-<div><p>Function name to call.</p>
-</div></blockquote>
-<p><strong>inputs</strong> : array_like</p>
-<blockquote>
-<div><p>Variables to pass to the function.</p>
-</div></blockquote>
-<p><strong>nout</strong> : int, optional</p>
-<blockquote>
-<div><p>Number of output arguments.
-This is set automatically based on the number of
-return values requested (see example below).
-You can override this behavior by passing a
-different value.</p>
-</div></blockquote>
-<p><strong>verbose</strong> : bool, optional</p>
-<blockquote>
-<div><p>Log Octave output at info level.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : str or tuple</p>
-<blockquote>
-<div><p>If nout &gt; 0, returns the values from Octave as a tuple.
-Otherwise, returns the output displayed by Octave.</p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong></p>
-<blockquote class="last">
-<div><p>If the call is unsucessful.</p>
-</div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;ones&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
-<span class="go">[[ 1.  1.]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;zeros&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
-<span class="go">array([[ 0.,  0.]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;svd&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">((</span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span><span class="p">))</span>
-<span class="go">(array([[-0.57604844, -0.81741556],</span>
-<span class="go">       [-0.81741556,  0.57604844]]), array([[ 3.86432845,  0.        ],</span>
-<span class="go">       [ 0.        ,  0.25877718]]), array([[-0.36059668, -0.93272184],</span>
-<span class="go">       [-0.93272184,  0.36059668]]))</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="oct2py.Oct2Py.put">
-<tt class="descname">put</tt><big>(</big><em>names</em>, <em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.put" title="Permalink to this definition">¶</a></dt>
-<dd><p>Put a variable into the Octave session.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>names</strong> : str or list</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str or list</p>
 <blockquote>
 <div><p>Name of the variable(s).</p>
 </div></blockquote>
@@ -332,7 +220,7 @@ Otherwise, returns the output displayed by Octave.</p>
 </div></blockquote>
 <p><strong>timeout</strong> : float</p>
 <blockquote class="last">
-<div><p>Time to wait for response from Octave (per character).</p>
+<div><p>Time to wait for response from Scilab (per character).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -341,31 +229,31 @@ Otherwise, returns the output displayed by Octave.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
 <span class="go">array([[1, 2]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">put</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">])</span>
-<span class="go">(u&#39;spam&#39;, array([[1, 2, 3, 4]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">])</span>  
+<span class="go">[u&#39;spam&#39;, array([[1, 2, 3, 4]])]</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.Oct2Py.get">
-<tt class="descname">get</tt><big>(</big><em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve a value from the Octave session.</p>
+<dt id="oct2py.Oct2Py.pull">
+<tt class="descname">pull</tt><big>(</big><em>var</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.pull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a value or values from the Scilab session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>var</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>var</strong> : str or list</p>
 <blockquote>
-<div><p>Name of the variable to retrieve.</p>
+<div><p>Name of the variable(s) to retrieve.</p>
 </div></blockquote>
 <p><strong>timeout</strong> : float</p>
 <blockquote>
-<div><p>Time to wait for response from Octave (per character).</p>
+<div><p>Time to wait for response from Scilab (per character).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -384,12 +272,12 @@ Otherwise, returns the output displayed by Octave.</p>
 <p>Examples:</p>
 <div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
 <span class="go">array([[1, 2]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">put</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">])</span>
-<span class="go">(u&#39;spam&#39;, array([[1, 2, 3, 4]]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">])</span>  
+<span class="go">[u&#39;spam&#39;, array([[1, 2, 3, 4]])]</span>
 </pre></div>
 </div>
 </td>
@@ -399,31 +287,36 @@ Otherwise, returns the output displayed by Octave.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="oct2py.Oct2Py.lookfor">
-<tt class="descname">lookfor</tt><big>(</big><em>string</em>, <em>verbose=False</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.lookfor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call the Octave &#8220;lookfor&#8221; command.</p>
-<p>Uses with the &#8220;-all&#8221; switch to search within help strings.</p>
+<dt id="oct2py.Oct2Py.eval">
+<tt class="descname">eval</tt><big>(</big><em>cmds</em>, <em>verbose=False</em>, <em>log=True</em>, <em>timeout=-1</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.eval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate an Octave command or commands.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>string</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>cmds</strong> : str or list</p>
 <blockquote>
-<div><p>Search string for the lookfor command.</p>
+<div><p>Commands(s) to pass to Octave.</p>
 </div></blockquote>
 <p><strong>verbose</strong> : bool, optional</p>
 <blockquote>
 <div><p>Log Octave output at info level.</p>
 </div></blockquote>
-<p><strong>timeout</strong> : float</p>
+<p><strong>timeout</strong> : float, optional</p>
 <blockquote>
 <div><p>Time to wait for response from Octave (per character).</p>
 </div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : str</p>
+<blockquote>
+<div><p>Results printed by Octave.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong></p>
 <blockquote class="last">
-<div><p>Output from the Octave lookfor command.</p>
+<div><p>If the command(s) fail.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -476,9 +369,9 @@ Otherwise, returns the output displayed by Octave.</p>
 </table>
 </dd></dl>
 
-<dl class="function">
+<dl class="class">
 <dt id="oct2py.Struct">
-<tt class="descclassname">oct2py.</tt><tt class="descname">Struct</tt><big>(</big><big>)</big><a class="headerlink" href="#oct2py.Struct" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">oct2py.</tt><tt class="descname">Struct</tt><a class="headerlink" href="#oct2py.Struct" title="Permalink to this definition">¶</a></dt>
 <dd><p>Octave style struct, enhanced.</p>
 <p>Supports dictionary and attribute style access.  Can be pickled,
 and supports code completion in a REPL.</p>

@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; Oct2Py 1.6.0 documentation</title>
+    <title>Installation &mdash; Oct2Py 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.6.0',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.6.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.0.0 documentation" href="../index.html" />
     <link rel="next" title="Demo" href="demo.html" />
     <link rel="prev" title="Oct2Py: Python to GNU Octave Bridge" href="../index.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.6.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.0.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -156,7 +156,8 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="library-installation">
 <h2>Library Installation<a class="headerlink" href="#library-installation" title="Permalink to this headline">¶</a></h2>
-<p>You must have GNU Octave installed and in your PATH (see instructions below).
+<p>You must have GNU Octave 3.6 or newer installed and in your PATH
+(see instructions below).
 Additionally, you must have the Numpy and Scipy libraries installed.  On Windows, you can get the install files <a class="reference external" href="http://scipy.org/Download">here</a>.</p>
 <p>The best way to install this library is by using <a class="reference external" href="http://www.pip-installer.org/en/latest/installing.html">pip</a>:</p>
 <div class="highlight-python"><div class="highlight"><pre>pip install oct2py
@@ -167,11 +168,13 @@ Additionally, you must have the Numpy and Scipy libraries installed.  On Windows
 <h2>GNU Octave Installation<a class="headerlink" href="#gnu-octave-installation" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>On Linux platforms, try your package manager, or follow the
-instructions from <a class="reference external" href="http://www.gnu.org/software/octave/doc/interpreter/Installation.html">Octave</a>.</li>
+instructions from <a class="reference external" href="http://www.gnu.org/software/octave/doc/interpreter/Installation.html">Octave</a>.  You must also have gnuplot installed, and
+gnuplot-x11, if available.</li>
 </ul>
 <ul>
 <li><p class="first">On Windows, download the latest MinGW or .NET <a class="reference external" href="http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/">version</a>.
 The MinGW version requires the <a class="reference external" href="http://portableapps.com/apps/utilities/7-zip_portable">7zip</a> program for installation.
+Make sure to install gnuplot if prompted.
 Finally, to add Octave to your path. You can do so from the Environmental Variables dialog for your version of Windows, or set from the command prompt:</p>
 <div class="highlight-python"><div class="highlight"><pre>setx PATH &quot;%PATH%;&lt;path-to-octave-bin-dir&gt;
 </pre></div>

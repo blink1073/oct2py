@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Information &mdash; Oct2Py 1.6.0 documentation</title>
+    <title>Information &mdash; Oct2Py 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '1.6.0',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 1.6.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.0.0 documentation" href="../index.html" />
     <link rel="prev" title="API Reference" href="api.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.6.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.0.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -89,10 +89,10 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">Information</a><ul>
-<li><a class="reference internal" href="#using-m-files">Using M-Files</a></li>
+<li><a class="reference internal" href="#dynamic-functions">Dynamic Functions</a></li>
 <li><a class="reference internal" href="#interactivity">Interactivity</a></li>
+<li><a class="reference internal" href="#using-m-files">Using M-Files</a></li>
 <li><a class="reference internal" href="#direct-interaction">Direct Interaction</a></li>
-<li><a class="reference internal" href="#syntax-errors">Syntax Errors</a></li>
 <li><a class="reference internal" href="#logging">Logging</a></li>
 <li><a class="reference internal" href="#shadowed-function-names">Shadowed Function Names</a></li>
 <li><a class="reference internal" href="#timeout">Timeout</a></li>
@@ -150,10 +150,10 @@
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
 <li><a class="reference internal" href="#">Information</a><ul>
-<li><a class="reference internal" href="#using-m-files">Using M-Files</a></li>
+<li><a class="reference internal" href="#dynamic-functions">Dynamic Functions</a></li>
 <li><a class="reference internal" href="#interactivity">Interactivity</a></li>
+<li><a class="reference internal" href="#using-m-files">Using M-Files</a></li>
 <li><a class="reference internal" href="#direct-interaction">Direct Interaction</a></li>
-<li><a class="reference internal" href="#syntax-errors">Syntax Errors</a></li>
 <li><a class="reference internal" href="#logging">Logging</a></li>
 <li><a class="reference internal" href="#shadowed-function-names">Shadowed Function Names</a></li>
 <li><a class="reference internal" href="#timeout">Timeout</a></li>
@@ -175,23 +175,8 @@
       
   <div class="section" id="information">
 <h1>Information<a class="headerlink" href="#information" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="using-m-files">
-<h2>Using M-Files<a class="headerlink" href="#using-m-files" title="Permalink to this headline">¶</a></h2>
-<p>There are several ways to use an m-file in Oct2Py.  First, you can either
-call the script using the full path to it, or <cite>addpath</cite> for the directory
-containing the script.  When using <cite>addpath</cite>, you can use <cite>run</cite>, <cite>call</cite>,
-or the magic method to call the function.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;/path/to/myscript.m&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">addpath</span><span class="p">(</span><span class="s">&#39;/path/to/&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s">&#39;myscript&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&#39;myscript.m&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">myscript</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="interactivity">
-<h2>Interactivity<a class="headerlink" href="#interactivity" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="dynamic-functions">
+<h2>Dynamic Functions<a class="headerlink" href="#dynamic-functions" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py will create methods for you on the fly, which correspond to Octave
 functions.  For example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
@@ -208,17 +193,33 @@ functions.  For example:</p>
 <span class="gp">...</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="interactivity">
+<h2>Interactivity<a class="headerlink" href="#interactivity" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py supports code completion in IPython, so once you have created a method,
 you can recall it on the fly, so octave.one&lt;TAB&gt; would give you ones.
 Structs (mentioned below) also support code completion for attributes.</p>
-<p>You can share data with an Octave session explicitly using the <cite>put</cite> and
-<cite>get</cite> methods.  When using other Oct2Py methods, the variable names in Octave
+<p>You can share data with an Octave session explicitly using the <cite>push</cite> and
+<cite>pull</cite> methods.  When using other Oct2Py methods, the variable names in Octave
 start with underscores because they are temporary (you would only see this if
 you were using logging).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
 <span class="go">1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-m-files">
+<h2>Using M-Files<a class="headerlink" href="#using-m-files" title="Permalink to this headline">¶</a></h2>
+<p>In order to use an m-file in Oct2Py you must first call <cite>addpath</cite>
+for the directory containing the script.  You can then use it as
+a dynamic function or use the <cite>eval</cite> function to call it.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">addpath</span><span class="p">(</span><span class="s">&#39;/path/to/&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">myscript</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># or</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;myscript(1, 2)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -227,10 +228,6 @@ you were using logging).</p>
 <p>Oct2Py supports the Octave <cite>keyboard</cite> function
 which drops you into an interactive Octave prompt in the current session.
 This also works in the IPython Notebook.  Note: If you use the <cite>keyboard</cite> command and the session hangs, try opening an Octave session from your terminal and see if the <cite>keyboard</cite> command hangs there too.  You may need to update your version of Octave.</p>
-</div>
-<div class="section" id="syntax-errors">
-<h2>Syntax Errors<a class="headerlink" href="#syntax-errors" title="Permalink to this headline">¶</a></h2>
-<p>An Octave Syntax Error will result in the Octave Session being closed if you are on Windows.  This is because Octave is expecting a pseudo-tty connection (which is not available on Windows).</p>
 </div>
 <div class="section" id="logging">
 <h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
@@ -251,11 +248,11 @@ logged at the INFO level, otherwise they are logged at the DEBUG level.</p>
 <p>If you&#8217;d like to call an Octave function that is also an Oct2Py method,
 you must add a trailing underscore. For example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">close_</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval_</span><span class="p">(</span><span class="s">&#39;a=1&#39;</span><span class="p">)</span>
+<span class="go">&#39;a =  1&#39;</span>
 </pre></div>
 </div>
-<p>The methods that shadow Octave builtins are: close, get, lookfor, and run</p>
+<p>The methods that shadow Octave builtins are: <cite>exit</cite> and <cite>eval</cite>.</p>
 </div>
 <div class="section" id="timeout">
 <h2>Timeout<a class="headerlink" href="#timeout" title="Permalink to this headline">¶</a></h2>
@@ -276,7 +273,8 @@ timeout.</p>
 </div>
 <div class="section" id="graphics-toolkit">
 <h2>Graphics Toolkit<a class="headerlink" href="#graphics-toolkit" title="Permalink to this headline">¶</a></h2>
-<p>Oct2Py uses the <cite>gnuplot</cite> graphics toolkit by default.  To change toolkits:</p>
+<p>Oct2Py uses the <cite>gnuplot</cite> graphics toolkit by default.  Fltk has been known
+not to work on some systems.  To change toolkits:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">available_graphics_toolkits</span><span class="p">()</span>
 <span class="go">[u&#39;fltk&#39;, u&#39;gnuplot&#39;]</span>
