@@ -48,8 +48,6 @@ class BasicUsageTest(test.TestCase):
         self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
 
     def test_push_pull(self):
-        """Test putting and getting values
-        """
         self.oc.push('spam', [1, 2])
         out = self.oc.pull('spam')
         assert np.allclose(out, np.array([1, 2]))

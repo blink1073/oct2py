@@ -1,13 +1,13 @@
 from __future__ import absolute_import, print_function
 import logging
 import os
-import signal
 import sys
+import threading
+import time
+import thread
 
 import numpy as np
 import numpy.testing as test
-from numpy.testing.decorators import skipif
-
 
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
@@ -208,20 +208,19 @@ class MiscTests(test.TestCase):
         assert oc._writer.in_file.startswith(thisdir)
         oc.exit()
 
-    @skipif(not hasattr(signal, 'alarm'))
     def test_interrupt(self):
 
-        def receive_signal(signum, stack):
-            raise KeyboardInterrupt
+        def action():
+            time.sleep(1.0)
+            thread.interrupt_main()
 
-        signal.signal(signal.SIGALRM, receive_signal)
+        interrupter = threading.Thread(target=action)
+        interrupter.start()
 
-        signal.alarm(5)
-        self.oc.eval("sleep(10);kladjflsd")
+        self.oc.push('a', 10)
+        self.oc.eval("for i=1:30; pause(1); end; kladjflsd")
 
-        self.oc.push('c', 10)
-        x = self.oc.pull('c')
-        assert x == 10
+        assert self.oc.pull('a') == 10
 
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""

@@ -22,7 +22,7 @@ class NumpyTest(test.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.oc.close()
+        cls.oc.exit()
 
     def test_scalars(self):
         """Send scalar numpy types and make sure we get the same number back.
