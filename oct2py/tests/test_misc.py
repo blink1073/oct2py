@@ -100,11 +100,17 @@ class MiscTests(test.TestCase):
 
     def test_threads(self):
         from oct2py import thread_check
-        thread_check()
+        try:
+            thread_check()
+        except TypeError:
+            thread_check.thread_check()
 
     def test_speed_check(self):
         from oct2py import speed_check
-        speed_check()
+        try:
+            speed_check()
+        except TypeError:
+            speed_check.speed_check()
 
     def test_plot(self):
         n = self.oc.figure()
