@@ -4,7 +4,11 @@ import os
 import sys
 import threading
 import time
-import thread
+
+try:
+    import thread
+except ImportError:
+    import _thread as thread
 
 import numpy as np
 import numpy.testing as test
