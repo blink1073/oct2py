@@ -240,9 +240,12 @@ class Oct2Py(object):
                 self.logger.debug(e)
             else:
                 if resp is not None:
-                    self.logger.debug(resp)
+                    if verbose and log:
+                        self.logger.info(resp)
+                    elif log:
+                        self.logger.debug(resp)
 
-        if resp != '':
+        if str(resp):
             return resp
 
     def restart(self):
