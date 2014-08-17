@@ -299,6 +299,9 @@ class Oct2Py(object):
             different value.
         verbose : bool, optional
              Log Octave output at info level.
+        kwargs : dictionary, optional
+            Key - value pairs to be passed as prop - value inputs to the
+            function.
 
         Returns
         -------
@@ -345,10 +348,6 @@ class Oct2Py(object):
         if prop_vals:
             call_line += ', ' + prop_vals
         call_line += ')'
-
-        if not '__ipy_figures' in func:
-            if not call_line.endswith(')') and nout:
-                call_line += '()'
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
