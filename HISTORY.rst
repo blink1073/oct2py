@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+2.1.0 (2014-xx-xx)
+++++++++++++++++++
+- Allow keyword arguments in functions (e.g. `plot([1,2,3], linewidth=2))`).
+  These are translated to ("prop", value) arguments to the function.
+
 2.0.0 (2014-08-14)
 ++++++++++++++++++
 - **Breaking changes**

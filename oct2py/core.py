@@ -235,9 +235,13 @@ class Oct2Py(object):
         outfile = self._reader.out_file
         if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
-                return self._reader.extract_file()
+                data = self._reader.extract_file()
             except (TypeError, IOError) as e:
                 self.logger.debug(e)
+            else:
+                if len(data) == 1 and data.values()[0] is None:
+                    data = None
+                return data
 
         if resp:
             return resp
@@ -265,7 +269,6 @@ class Oct2Py(object):
             kwargs['verbose'] = kwargs.get('verbose', False)
             if not 'Built-in Function' in doc:
                 self.eval('clear {0}'.format(name), log=False, verbose=False)
-            kwargs['command'] = True
             return self._call(name, *args, **kwargs)
         # convert to ascii for pydoc
         try:
@@ -309,9 +312,9 @@ class Oct2Py(object):
             If the call is unsucessful.
 
         """
-        verbose = kwargs.get('verbose', False)
-        nout = kwargs.get('nout', get_nout())
-        timeout = kwargs.get('timeout', self.timeout)
+        verbose = kwargs.pop('verbose', False)
+        nout = kwargs.pop('nout', get_nout())
+        timeout = kwargs.pop('timeout', self.timeout)
         argout_list = ['_']
 
         # these three lines will form the commands sent to Octave
@@ -320,20 +323,28 @@ class Oct2Py(object):
         # save("-v6", "outfile", "outvar1", ...)
         load_line = call_line = save_line = ''
 
+        prop_vals = []
+        for (key, value) in kwargs.items():
+            if isinstance(value, (str, unicode, int, float)):
+                prop_vals.append('"%s", %s' % (key, repr(value)))
+            else:
+                msg = 'Keyword arguments must be a string or number: '
+                msg += '%s = %s' % (key, value)
+                raise Oct2PyError(msg)
+        prop_vals = ', '.join(prop_vals)
+
         if nout:
             # create a dummy list of var names ("a", "b", "c", ...)
             # use ascii char codes so we can increment
             argout_list, save_line = self._reader.setup(nout)
             call_line = '[{0}] = '.format(', '.join(argout_list))
+        call_line += func + '('
         if inputs:
             argin_list, load_line = self._writer.create_file(inputs)
-            call_line += '{0}({1})'.format(func, ', '.join(argin_list))
-        elif nout and not '(' in func:
-            # call foo() - no arguments
-            call_line += '{0}()'.format(func)
-        else:
-            # run foo
-            call_line += '{0}'.format(func)
+            call_line += ', '.join(argin_list)
+        if prop_vals:
+            call_line += ', ' + prop_vals
+        call_line += ')'
 
         if not '__ipy_figures' in func:
             if not call_line.endswith(')') and nout:
@@ -345,8 +356,6 @@ class Oct2Py(object):
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             data = [data.get(v, None) for v in argout_list]
-            if len(data) == 1 and data[0] is None:
-                data = None
 
         return data
 
