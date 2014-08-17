@@ -235,13 +235,9 @@ class Oct2Py(object):
         outfile = self._reader.out_file
         if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
-                data = self._reader.extract_file()
+                return self._reader.extract_file()
             except (TypeError, IOError) as e:
                 self.logger.debug(e)
-            else:
-                if len(data) == 1 and data.values()[0] is None:
-                    data = None
-                return data
 
         if resp:
             return resp
@@ -281,39 +277,31 @@ class Oct2Py(object):
 
     def _call(self, func, *inputs, **kwargs):
         """
-        Call an Octave function with optional arguments.
-
-        This is a low-level command used by dynamic functions.
-
-        Parameters
+        Oct2Py Parameters
         ----------
-        func : str
-            Function name to call.
         inputs : array_like
             Variables to pass to the function.
         nout : int, optional
             Number of output arguments.
             This is set automatically based on the number of
-            return values requested (see example below).
+            return values requested.
             You can override this behavior by passing a
             different value.
         verbose : bool, optional
-             Log Octave output at info level.
+             Log Scilab output at info level.
         kwargs : dictionary, optional
             Key - value pairs to be passed as prop - value inputs to the
-            function.
+            function.  The values must be strings or numbers.
 
         Returns
         -------
-        out : str or tuple
-            If nout > 0, returns the values from Octave as a tuple.
-            Otherwise, returns the output displayed by Octave.
+        out : value
+            Value returned by the function.
 
         Raises
         ------
         Oct2PyError
-            If the call is unsucessful.
-
+            If the function call is unsucessful.
         """
         verbose = kwargs.pop('verbose', False)
         nout = kwargs.pop('nout', get_nout())
@@ -355,6 +343,8 @@ class Oct2Py(object):
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             data = [data.get(v, None) for v in argout_list]
+            if len(data) == 1 and data.values()[0] is None:
+                data = None
 
         return data
 
@@ -400,6 +390,10 @@ class Oct2Py(object):
                 doc = '\n'.join(doc.splitlines()[:3])
             except Oct2PyError as e:
                 self.logger.debug(e)
+
+        default = self._call.__doc__
+        doc += '\n' + '\n'.join([line[8:] for line in default.splitlines()])
+
         return doc
 
     def __getattr__(self, attr):
