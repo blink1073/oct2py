@@ -79,15 +79,13 @@ class BasicUsageTest(test.TestCase):
     def test_open_close(self):
         """Test opening and closing the Octave session
         """
-        oc = Oct2Py()
-        oc.exit()
-        self.assertRaises(Oct2PyError, oc.push, name=['a'],
+        self.oc.exit()
+        self.assertRaises(Oct2PyError, self.oc.push, name=['a'],
                           var=[1.0])
-        oc.restart()
-        oc.push('a', 5)
-        a = oc.pull('a')
+        self.oc.restart()
+        self.oc.push('a', 5)
+        a = self.oc.pull('a')
         assert a == 5
-        oc.exit()
 
     def test_struct(self):
         """Test Struct construct
@@ -108,17 +106,17 @@ class BasicUsageTest(test.TestCase):
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError
         """
-        oc = Oct2Py()
-        self.assertRaises(Oct2PyError, oc.eval, "a='1")
-        oc = Oct2Py()
-        self.assertRaises(Oct2PyError, oc.eval, "a=1++3")
+        self.assertRaises(Oct2PyError, self.oc.eval, "a='1")
+        self.assertRaises(Oct2PyError, self.oc.eval, "a=1++3")
 
-        oc.push('a', 1)
-        a = oc.pull('a')
+        self.oc.push('a', 1)
+        a = self.oc.pull('a')
         self.assertEqual(a, 1)
-        oc.exit()
 
     def test_octave_error(self):
-        oc = Oct2Py()
-        self.assertRaises(Oct2PyError, oc.eval, 'a = ones2(1)')
-        oc.exit()
+        self.assertRaises(Oct2PyError, self.oc.eval, 'a = ones2(1)')
+
+    def test_keyword_arguments(self):
+        self.oc.set(0, DefaultFigureColor='b')
+        self.oc.plot([1, 2, 3], linewidth=3)
+        self.oc.close()
