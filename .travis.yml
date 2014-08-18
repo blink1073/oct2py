@@ -35,7 +35,7 @@ install:
 script:
     # run coverage on py2.7, regular on others
   - if [[ $CONDA == python=2.7* ]]; then
-      nosetests --exe -v --with-doctest --with-cov --cover-package oct2py;
+      nosetests --exe -v --with-doctest --with-cov --cover-package oct2py oct2py;
     else
       nosetests --exe -v oct2py;
     fi
