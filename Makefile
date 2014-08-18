@@ -4,8 +4,7 @@
 export TEST_ARGS=--exe -v --with-doctest
 export KILL_OCTAVE="from oct2py import kill_octave; kill_octave()"
 
-all:
-	make clean
+all: clean
 	python setup.py install
 
 clean:
@@ -15,21 +14,17 @@ clean:
 	python -c $(KILL_OCTAVE)
 	killall -9 nosetests; true
 
-test:
-	make clean
+test: clean
 	python setup.py build
 	export PYTHONWARNINGS="all"; cd build; nosetests $(TEST_ARGS)
 	make clean
 
-cover:
-	make clean
+cover: clean
 	pip install nose-cov
 	nosetests $(TEST_ARGS) --with-cov --cov oct2py oct2py
 	coverage annotate
 
-release:
-	make test
-	make gh-pages
+release: test gh-pages
 	pip install wheel
 	python setup.py register
 	python setup.py bdist_wheel upload
@@ -37,7 +32,7 @@ release:
 	git tag v`python -c "import oct2py;print(oct2py.__version__)"`
 	git push origin master --all
 
-gh-pages:
+gh-pages: clean
 	pip install sphinx-bootstrap-theme
 	pip install numpydoc
 	git checkout master
