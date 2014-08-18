@@ -23,9 +23,9 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - travis_retry conda create -n test $CONDA IPython nose pip
+  - travis_retry conda create -n test $CONDA IPython pip nose
   - source activate test
-  - travis_retry pip install python-coveralls nose-cov
+  - travis_retry pip install coveralls
 
 install:
   - export PYTHONWARNINGS=all
@@ -35,7 +35,7 @@ install:
 script:
     # run coverage on py2.7, regular on others
   - if [[ $CONDA == python=2.7* ]]; then
-      nosetests --exe -v --with-doctest --with-cov --cover-package oct2py --cov-config blink1073/oct2py/.coveragerc oct2py
+      nosetests --exe -v --with-doctest --with-cov --cover-package oct2py;
     else
       nosetests --exe -v oct2py;
     fi
