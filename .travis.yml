@@ -25,7 +25,7 @@ before_install:
   - conda info -a
   - travis_retry conda create -n test $CONDA IPython nose pip coverage
   - source activate test
-  - travis_retry pip install coveralls
+  - travis_retry pip install python-coveralls
 
 install:
   - export PYTHONWARNINGS=all
