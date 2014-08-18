@@ -28,7 +28,7 @@ cover:
 	coverage annotate
 
 release:
-	make cover
+	make test
 	make gh-pages
 	pip install wheel
 	python setup.py register

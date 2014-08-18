@@ -42,6 +42,8 @@ class Oct2Py(object):
 
     Parameters
     ----------
+    executable : str, optional
+        Name of the Octave executable, can be a system path.
     logger : logging object, optional
         Optional logger to use for Oct2Py session
     timeout : float, opional
@@ -55,12 +57,13 @@ class Oct2Py(object):
         a shared memory (tmpfs) path.
     """
 
-    def __init__(self, logger=None, timeout=-1, oned_as='row',
-                 temp_dir=None):
+    def __init__(self, executable=None, logger=None, timeout=-1,
+                 oned_as='row', temp_dir=None):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
         self._temp_dir = temp_dir or gettempdir()
+        self._executable= executable
         atexit.register(lambda: _remove_temp_files(self._temp_dir))
 
         self.timeout = timeout
@@ -254,7 +257,8 @@ class Oct2Py(object):
         """
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
-        self._session = _Session(self._reader.out_file, self.logger)
+        self._session = _Session(self._executable,
+                                 self._reader.out_file, self.logger)
 
     # --------------------------------------------------------------
     # Private API
@@ -475,10 +479,10 @@ class _Session(object):
     """Low-level session Octave session interaction.
     """
 
-    def __init__(self, outfile, logger):
+    def __init__(self, executable, outfile, logger):
         self.timeout = int(1e6)
         self.read_queue = queue.Queue()
-        self.proc = self.start()
+        self.proc = self.start(executable)
         self.stdout = sys.stdout
         self.outfile = outfile
         self.logger = logger
@@ -486,9 +490,14 @@ class _Session(object):
         self.set_timeout()
         atexit.register(self.close)
 
-    def start(self):
+    def start(self, executable):
         """
-        Start an octave session in a subprocess.
+        Start an Octave session in a subprocess.
+
+        Parameters
+        ==========
+        executable : str
+            Name or path to Scilab process.
 
         Returns
         =======
@@ -506,26 +515,29 @@ class _Session(object):
         Matlab compatibilty mode.
 
         """
-        return self.start_subprocess()
-
-    def start_subprocess(self):
-        """Start octave using a subprocess (no tty support)"""
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
         self.rfid, wpipe = os.pipe()
         rpipe, self.wfid = os.pipe()
         kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
                       stderr=wpipe, stdout=wpipe)
+
+        if not executable:
+            executable = 'octave'
+
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             kwargs['startupinfo'] = startupinfo
             kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+
         try:
-            proc = subprocess.Popen(['octave', '-q', '--braindead'],
+            proc = subprocess.Popen([executable, '-q', '--braindead'],
                                     **kwargs)
+
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
+
         else:
             self.reader = _Reader(self.rfid, self.read_queue)
             return proc
