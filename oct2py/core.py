@@ -42,6 +42,8 @@ class Oct2Py(object):
 
     Parameters
     ----------
+    executable : str, optional
+        Name of the Octave executable, can be a system path.
     logger : logging object, optional
         Optional logger to use for Oct2Py session
     timeout : float, opional
@@ -55,12 +57,13 @@ class Oct2Py(object):
         a shared memory (tmpfs) path.
     """
 
-    def __init__(self, logger=None, timeout=-1, oned_as='row',
-                 temp_dir=None):
+    def __init__(self, executable=None, logger=None, timeout=-1,
+                 oned_as='row', temp_dir=None):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
         self._temp_dir = temp_dir or gettempdir()
+        self._executable= executable
         atexit.register(lambda: _remove_temp_files(self._temp_dir))
 
         self.timeout = timeout
@@ -235,9 +238,16 @@ class Oct2Py(object):
         outfile = self._reader.out_file
         if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
-                return self._reader.extract_file()
+                data = self._reader.extract_file()
             except (TypeError, IOError) as e:
                 self.logger.debug(e)
+            else:
+                if data is not None:
+                    if verbose and log:
+                        self.logger.info(data)
+                    elif log:
+                        self.logger.debug(data)
+                return data
 
         if resp:
             return resp
@@ -247,7 +257,8 @@ class Oct2Py(object):
         """
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
-        self._session = _Session(self._reader.out_file, self.logger)
+        self._session = _Session(self._executable,
+                                 self._reader.out_file, self.logger)
 
     # --------------------------------------------------------------
     # Private API
@@ -265,7 +276,6 @@ class Oct2Py(object):
             kwargs['verbose'] = kwargs.get('verbose', False)
             if not 'Built-in Function' in doc:
                 self.eval('clear {0}'.format(name), log=False, verbose=False)
-            kwargs['command'] = True
             return self._call(name, *args, **kwargs)
         # convert to ascii for pydoc
         try:
@@ -278,40 +288,35 @@ class Oct2Py(object):
 
     def _call(self, func, *inputs, **kwargs):
         """
-        Call an Octave function with optional arguments.
-
-        This is a low-level command used by dynamic functions.
-
-        Parameters
+        Oct2Py Parameters
         ----------
-        func : str
-            Function name to call.
         inputs : array_like
             Variables to pass to the function.
         nout : int, optional
             Number of output arguments.
             This is set automatically based on the number of
-            return values requested (see example below).
+            return values requested.
             You can override this behavior by passing a
             different value.
         verbose : bool, optional
-             Log Octave output at info level.
+             Log Scilab output at info level.
+        kwargs : dictionary, optional
+            Key - value pairs to be passed as prop - value inputs to the
+            function.  The values must be strings or numbers.
 
         Returns
         -------
-        out : str or tuple
-            If nout > 0, returns the values from Octave as a tuple.
-            Otherwise, returns the output displayed by Octave.
+        out : value
+            Value returned by the function.
 
         Raises
         ------
         Oct2PyError
-            If the call is unsucessful.
-
+            If the function call is unsucessful.
         """
-        verbose = kwargs.get('verbose', False)
-        nout = kwargs.get('nout', get_nout())
-        timeout = kwargs.get('timeout', self.timeout)
+        verbose = kwargs.pop('verbose', False)
+        nout = kwargs.pop('nout', get_nout())
+        timeout = kwargs.pop('timeout', self.timeout)
         argout_list = ['_']
 
         # these three lines will form the commands sent to Octave
@@ -320,24 +325,34 @@ class Oct2Py(object):
         # save("-v6", "outfile", "outvar1", ...)
         load_line = call_line = save_line = ''
 
+        prop_vals = []
+        for (key, value) in kwargs.items():
+            if isinstance(value, (str, unicode, int, float)):
+                prop_vals.append('"%s", %s' % (key, repr(value)))
+            else:
+                msg = 'Keyword arguments must be a string or number: '
+                msg += '%s = %s' % (key, value)
+                raise Oct2PyError(msg)
+        prop_vals = ', '.join(prop_vals)
+
         if nout:
             # create a dummy list of var names ("a", "b", "c", ...)
             # use ascii char codes so we can increment
             argout_list, save_line = self._reader.setup(nout)
             call_line = '[{0}] = '.format(', '.join(argout_list))
+
+        call_line += func + '('
+
         if inputs:
             argin_list, load_line = self._writer.create_file(inputs)
-            call_line += '{0}({1})'.format(func, ', '.join(argin_list))
-        elif nout and not '(' in func:
-            # call foo() - no arguments
-            call_line += '{0}()'.format(func)
-        else:
-            # run foo
-            call_line += '{0}'.format(func)
+            call_line += ', '.join(argin_list)
 
-        if not '__ipy_figures' in func:
-            if not call_line.endswith(')') and nout:
-                call_line += '()'
+        if prop_vals:
+            if inputs:
+                call_line += ', '
+            call_line += prop_vals
+
+        call_line += ')'
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
@@ -345,7 +360,7 @@ class Oct2Py(object):
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             data = [data.get(v, None) for v in argout_list]
-            if len(data) == 1 and data[0] is None:
+            if len(data) == 1 and data.values()[0] is None:
                 data = None
 
         return data
@@ -392,6 +407,10 @@ class Oct2Py(object):
                 doc = '\n'.join(doc.splitlines()[:3])
             except Oct2PyError as e:
                 self.logger.debug(e)
+
+        default = self._call.__doc__
+        doc += '\n' + '\n'.join([line[8:] for line in default.splitlines()])
+
         return doc
 
     def __getattr__(self, attr):
@@ -460,10 +479,10 @@ class _Session(object):
     """Low-level session Octave session interaction.
     """
 
-    def __init__(self, outfile, logger):
+    def __init__(self, executable, outfile, logger):
         self.timeout = int(1e6)
         self.read_queue = queue.Queue()
-        self.proc = self.start()
+        self.proc = self.start(executable)
         self.stdout = sys.stdout
         self.outfile = outfile
         self.logger = logger
@@ -471,9 +490,14 @@ class _Session(object):
         self.set_timeout()
         atexit.register(self.close)
 
-    def start(self):
+    def start(self, executable):
         """
-        Start an octave session in a subprocess.
+        Start an Octave session in a subprocess.
+
+        Parameters
+        ==========
+        executable : str
+            Name or path to Scilab process.
 
         Returns
         =======
@@ -491,26 +515,29 @@ class _Session(object):
         Matlab compatibilty mode.
 
         """
-        return self.start_subprocess()
-
-    def start_subprocess(self):
-        """Start octave using a subprocess (no tty support)"""
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
         self.rfid, wpipe = os.pipe()
         rpipe, self.wfid = os.pipe()
         kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
                       stderr=wpipe, stdout=wpipe)
+
+        if not executable:
+            executable = 'octave'
+
         if os.name == 'nt':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             kwargs['startupinfo'] = startupinfo
             kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+
         try:
-            proc = subprocess.Popen(['octave', '-q', '--braindead'],
+            proc = subprocess.Popen([executable, '-q', '--braindead'],
                                     **kwargs)
+
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
+
         else:
             self.reader = _Reader(self.rfid, self.read_queue)
             return proc

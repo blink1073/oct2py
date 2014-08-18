@@ -193,6 +193,10 @@ class OctaveMagics(Magics):
         '-f', '--format', action='store',
         help='Plot format (png, svg or jpg).'
         )
+    @argument(
+        '-g', '--gui', action='store_true', default=False,
+        help='Show a gui for plots.  Default is False'
+        )
 
     @needs_local_scope
     @argument(
@@ -298,6 +302,10 @@ class OctaveMagics(Magics):
           end
         end
         ''' % locals()
+
+        if args.gui:
+            pre_call = ''
+            post_call = ''
 
         cmds = [pre_call, code, post_call]
         try:
