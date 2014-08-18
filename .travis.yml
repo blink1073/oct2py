@@ -41,6 +41,4 @@ script:
     fi
 
 after_success:
-    - if [[ $CONDA == python=2.7* ]]; then
-          coveralls;
-      fi
+    - coveralls
