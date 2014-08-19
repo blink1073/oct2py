@@ -227,6 +227,10 @@ class OctaveMagics(Magics):
 
         will create a line plot.
 
+        Plots can also be shown in an Octave plot GUI, via the -g flag.
+
+            %scilab -g plot([1 2 3], [4 5 6])
+
         Objects can be passed back and forth between Octave and IPython via the
         -i and -o flags in line::
 
