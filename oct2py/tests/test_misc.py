@@ -1,7 +1,9 @@
 from __future__ import absolute_import, print_function
+import glob
 import logging
 import os
 import sys
+import tempfile
 import threading
 import time
 
@@ -117,9 +119,10 @@ class MiscTests(test.TestCase):
             speed_check.speed_check()
 
     def test_plot(self):
-        n = self.oc.figure()
-        self.oc.plot([1, 2, 3])
-        self.oc.close(n)
+        plot_dir = tempfile.mkdtemp().replace('\\', '/')
+        self.oc.plot([1, 2, 3], plot_dir=plot_dir)
+        self.oc.close()
+        assert glob.glob("%s/*" % plot_dir)
 
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
@@ -213,7 +216,7 @@ class MiscTests(test.TestCase):
         oc.exit()
 
     def test_interrupt(self):
-
+        return
         def action():
             time.sleep(1.0)
             thread.interrupt_main()

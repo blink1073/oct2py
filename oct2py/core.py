@@ -57,13 +57,13 @@ class Oct2Py(object):
         a shared memory (tmpfs) path.
     """
 
-    def __init__(self, executable=None, logger=None, timeout=-1,
+    def __init__(self, executable=None, logger=None, timeout=None,
                  oned_as='row', temp_dir=None):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
         self._temp_dir = temp_dir or gettempdir()
-        self._executable= executable
+        self._executable = executable
         atexit.register(lambda: _remove_temp_files(self._temp_dir))
 
         self.timeout = timeout
@@ -96,7 +96,7 @@ class Oct2Py(object):
         except Oct2PyError:
             pass
 
-    def push(self, name, var, verbose=False, timeout=-1):
+    def push(self, name, var, verbose=False, timeout=None):
         """
         Put a variable or variables into the Scilab session.
 
@@ -134,7 +134,7 @@ class Oct2Py(object):
         _, load_line = self._writer.create_file(vars_, names)
         self.eval(load_line, verbose=verbose, timeout=timeout)
 
-    def pull(self, var, verbose=False, timeout=-1):
+    def pull(self, var, verbose=False, timeout=None):
         """
         Retrieve a value or values from the Scilab session.
 
@@ -174,7 +174,9 @@ class Oct2Py(object):
         else:
             return data
 
-    def eval(self, cmds, verbose=False, log=True, timeout=-1):
+    def eval(self, cmds, verbose=False, timeout=None, log=True,
+                 plot_dir=None, plot_name='figure', plot_format='png',
+                 plot_width=400, plot_height=240):
         """
         Evaluate an Octave command or commands.
 
@@ -183,9 +185,24 @@ class Oct2Py(object):
         cmds : str or list
             Commands(s) to pass to Octave.
         verbose : bool, optional
-             Log Octave output at info level.
+             Log Octave output at INFO level.  If False, log at DEBUG level.
+        log : bool, optional
+            Whether to log at all.
         timeout : float, optional
             Time to wait for response from Octave (per character).
+        plot_dir: str, optional
+            If specificed, save the session's plot figures to the plot
+            directory instead of displaying the plot window.
+        plot_name : str, optional
+            Saved plots will start with `plot_name` and
+            end with "_%%.xxx' where %% is the plot number and
+            xxx is the `plot_format`.
+        plot_format: str, optional
+            The format in which to save the plot (PNG by default).
+        plot_width: int, optional
+            The plot with in pixels (default 400).
+        plot_height: int, optional
+            The plot height in pixels (default 240)
 
         Returns
         -------
@@ -203,13 +220,15 @@ class Oct2Py(object):
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
-        if verbose and log:
+        if verbose:
             [self.logger.info(line) for line in cmds]
         elif log:
             [self.logger.debug(line) for line in cmds]
-        if timeout == -1:
+
+        if timeout is None:
             timeout = self.timeout
 
+        # make sure we get an "ans"
         post_call = ''
         for cmd in cmds:
 
@@ -228,9 +247,25 @@ class Oct2Py(object):
 
         cmds.append(post_call)
 
+        if not plot_dir is None:
+            plot_call = '''
+        for f = __oct2py_figures
+          outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f);
+          try
+            print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(plot_width)s,%(plot_height)s');
+            close(f);
+          end
+        end
+        ''' % locals()
+
+            cmds.append(plot_call)
+
         try:
-            resp = self._session.evaluate(cmds, verbose, log, self.logger,
-                                          timeout=timeout)
+            resp = self._session.evaluate(cmds, verbose=verbose,
+                                         logger=self.logger,
+                                         log=log,
+                                         timeout=timeout,
+                                         show_plots=plot_dir is None)
         except KeyboardInterrupt:
             self._session.interrupt()
             return 'Octave Session Interrupted'
@@ -238,19 +273,17 @@ class Oct2Py(object):
         outfile = self._reader.out_file
         if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
-                data = self._reader.extract_file()
+                resp = self._reader.extract_file()
             except (TypeError, IOError) as e:
                 self.logger.debug(e)
             else:
-                if data is not None:
-                    if verbose and log:
-                        self.logger.info(data)
+                if resp is not None:
+                    if verbose:
+                        self.logger.info(resp)
                     elif log:
-                        self.logger.debug(data)
-                return data
+                        self.logger.debug(resp)
 
-        if resp:
-            return resp
+        return resp
 
     def restart(self):
         """Restart an Octave session in a clean state
@@ -272,7 +305,7 @@ class Oct2Py(object):
         """
         def octave_command(*args, **kwargs):
             """ Octave command """
-            kwargs['nout'] = get_nout()
+            kwargs['nout'] = kwargs.get('nout', get_nout())
             kwargs['verbose'] = kwargs.get('verbose', False)
             if not 'Built-in Function' in doc:
                 self.eval('clear {0}'.format(name), log=False, verbose=False)
@@ -289,34 +322,46 @@ class Oct2Py(object):
     def _call(self, func, *inputs, **kwargs):
         """
         Oct2Py Parameters
-        ----------
+        --------------------------
         inputs : array_like
             Variables to pass to the function.
+        verbose : bool, optional
+             Log Octave output at INFO level.  If False, log at DEBUG level.
         nout : int, optional
             Number of output arguments.
-            This is set automatically based on the number of
-            return values requested.
-            You can override this behavior by passing a
-            different value.
-        verbose : bool, optional
-             Log Scilab output at info level.
+            This is set automatically based on the number of return values
+            requested.
+            You can override this behavior by passing a different value.
+        timeout : float, optional
+            Time to wait for response from Octave (per character).
+        plot_dir: str, optional
+            If specificed, save the session's plot figures to the plot
+            directory instead of displaying the plot window.
+        plot_name : str, optional
+            Saved plots will start with `plot_name` and
+            end with "_%%.xxx' where %% is the plot number and
+            xxx is the `plot_format`.
+        plot_format: str, optional
+            The format in which to save the plot (PNG by default).
+        plot_width: int, optional
+            The plot with in pixels (default 400).
+        plot_height: int, optional
+            The plot height in pixels (default 240)
         kwargs : dictionary, optional
             Key - value pairs to be passed as prop - value inputs to the
             function.  The values must be strings or numbers.
 
         Returns
-        -------
+        -----------
         out : value
             Value returned by the function.
 
         Raises
-        ------
+        ----------
         Oct2PyError
             If the function call is unsucessful.
         """
-        verbose = kwargs.pop('verbose', False)
         nout = kwargs.pop('nout', get_nout())
-        timeout = kwargs.pop('timeout', self.timeout)
         argout_list = ['_']
 
         # these three lines will form the commands sent to Octave
@@ -326,7 +371,11 @@ class Oct2Py(object):
         load_line = call_line = save_line = ''
 
         prop_vals = []
+        eval_kwargs = {}
         for (key, value) in kwargs.items():
+            if key in ['verbose', 'timeout'] or key.startswith('plot_'):
+                eval_kwargs[key] = value
+                continue
             if isinstance(value, (str, unicode, int, float)):
                 prop_vals.append('"%s", %s' % (key, repr(value)))
             else:
@@ -356,7 +405,7 @@ class Oct2Py(object):
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
-        data = self.eval(cmd, verbose=verbose, timeout=timeout)
+        data = self.eval(cmd, **eval_kwargs)
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             data = [data.get(v, None) for v in argout_list]
@@ -542,17 +591,18 @@ class _Session(object):
             self.reader = _Reader(self.rfid, self.read_queue)
             return proc
 
-    def set_timeout(self, timeout=-1):
-        if timeout == -1:
+    def set_timeout(self, timeout=None):
+        if timeout is None:
             timeout = int(1e6)
         self.timeout = timeout
 
-    def evaluate(self, cmds, verbose=True, log=True, logger=None, timeout=-1):
+    def evaluate(self, cmds, verbose=True, logger=None, log=True,
+                 timeout=None, show_plots=True):
         """Perform the low-level interaction with an Octave Session
         """
         self.logger = logger
 
-        if not timeout == -1:
+        if not timeout is None:
             self.set_timeout(timeout)
 
         if not self.proc:
@@ -579,10 +629,7 @@ class _Session(object):
         if self.first_run:
             self._handle_first_run()
 
-        if '__inline=1;' in ';'.join(exprs):
-            visible = "off"
-        else:
-            visible = "on"
+        visible = 'on' if show_plots else 'off'
 
         fig_handler = """
         global __oct2py_figures = [];
@@ -596,8 +643,6 @@ class _Session(object):
         exprs = fig_handler.strip().splitlines() + exprs
 
         expr = ';'.join(exprs)
-
-        self.logger.debug(expr)
 
         output = """
         clear("ans");
@@ -654,7 +699,7 @@ class _Session(object):
             if verbose and logger:
                 logger.info(line)
 
-            elif log and logger:
+            elif logger and log:
                 logger.debug(line)
 
             if resp or line:

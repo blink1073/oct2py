@@ -1,6 +1,8 @@
 from __future__ import absolute_import, print_function
+import glob
 import os
 import pickle
+import tempfile
 
 import numpy as np
 import numpy.testing as test
@@ -118,5 +120,7 @@ class BasicUsageTest(test.TestCase):
 
     def test_keyword_arguments(self):
         self.oc.set(0, DefaultFigureColor='b')
-        self.oc.plot([1, 2, 3], linewidth=3)
+        plot_dir = tempfile.mkdtemp().replace('\\', '/')
+        self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
         self.oc.close()
+        assert glob.glob("%s/*" % plot_dir)

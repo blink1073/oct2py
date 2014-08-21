@@ -227,10 +227,6 @@ class OctaveMagics(Magics):
 
         will create a line plot.
 
-        Plots can also be shown in an Octave plot GUI, via the -g flag.
-
-            %scilab -g plot([1 2 3], [4 5 6])
-
         Objects can be passed back and forth between Octave and IPython via the
         -i and -o flags in line::
 
@@ -295,31 +291,23 @@ class OctaveMagics(Magics):
         else:
             plot_format = 'png'
 
-        pre_call = '__inline=1;close all;'
-
-        post_call = '''
-        for f = __oct2py_figures
-          outfile = sprintf('%(plot_dir)s/__ipy_oct_fig_%%03d.png', f);
-          try
-            print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(size)s');
-            close(f);
-          end
-        end
-        ''' % locals()
+        plot_name = '__ipy_oct_fig_'
+        plot_width, plot_height = [int(s) for s in size.split(',')]
 
         if args.gui:
-            pre_call = ''
-            post_call = ''
+            plot_dir = None
 
-        cmds = [pre_call, code, post_call]
+        cmds = [code]
+
         try:
-            text_output = str(self._oct.eval(cmds, verbose=False))
+            text_output = str(self._oct.eval(cmds, plot_dir=plot_dir, plot_format=plot_format,
+                                                              plot_width=plot_width,
+                                                              plot_name=plot_name,
+                                                              verbose=False))
         except oct2py.Oct2PyError as exception:
             msg = str(exception)
             if 'Octave Syntax Error' in msg:
                 raise OctaveMagicError(msg)
-            msg = msg.replace(pre_call.strip(), '')
-            msg = msg.replace(post_call.strip(), '')
             msg = re.sub('"""\s+', '"""\n', msg)
             msg = re.sub('\s+"""', '\n"""', msg)
             raise OctaveMagicError(msg)
@@ -332,16 +320,18 @@ class OctaveMagics(Magics):
 
         # Publish images
         images = []
-        for imgfile in glob("%s/*" % plot_dir):
-            with open(imgfile, 'rb') as fid:
-                images.append(fid.read())
-        rmtree(plot_dir)
+        if not args.gui:
+            for imgfile in glob("%s/*" % plot_dir):
+                with open(imgfile, 'rb') as fid:
+                    images.append(fid.read())
+            rmtree(plot_dir)
 
         plot_mime_type = _mimetypes.get(plot_format, 'image/png')
-        width, height = [int(s) for s in size.split(',')]
+
         for image in images:
             if plot_format == 'svg':
-                image = self._fix_gnuplot_svg_size(image, size=(width, height))
+                image = self._fix_gnuplot_svg_size(image, size=(plot_width,
+                                                                                                plot_height))
             display_data.append((key, {plot_mime_type: image}))
 
         if args.output:

@@ -10,6 +10,9 @@ Release History
 - Add option to show plotting gui with `-g` flag in OctaveMagic.
 - Add ability to specify the Octave executable as a keyword argument to
   the Oct2Py object.
+  - Add specifications for plot saving instead of displaying plots to `eval` and
+    dynamic functions.
+
 
 2.0.0 (2014-08-14)
 ++++++++++++++++++
