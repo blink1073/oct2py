@@ -11,6 +11,7 @@ import os
 import re
 import atexit
 import signal
+import glob
 import subprocess
 import sys
 import threading
@@ -175,7 +176,7 @@ class Oct2Py(object):
             return data
 
     def eval(self, cmds, verbose=False, timeout=None, log=True,
-                 plot_dir=None, plot_name='figure', plot_format='png',
+                 plot_dir=None, plot_name='plot', plot_format='png',
                  plot_width=400, plot_height=240):
         """
         Evaluate an Octave command or commands.
@@ -247,10 +248,14 @@ class Oct2Py(object):
 
         cmds.append(post_call)
 
+        spec = '%(plot_dir)s/%(plot_name)s*.%(plot_format)s' % locals()
+        existing = glob.glob(spec)
+        plot_offset = len(existing)
+
         if not plot_dir is None:
             plot_call = '''
         for f = __oct2py_figures
-          outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f);
+          outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
           try
             print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(plot_width)s,%(plot_height)s');
             close(f);
@@ -629,7 +634,11 @@ class _Session(object):
         if self.first_run:
             self._handle_first_run()
 
-        visible = 'on' if show_plots else 'off'
+        if not show_plots:
+            exprs.insert(0, 'close all')
+            visible = 'off'
+        else:
+            visible = 'on'
 
         fig_handler = """
         global __oct2py_figures = [];
