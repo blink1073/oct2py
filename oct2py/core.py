@@ -176,8 +176,8 @@ class Oct2Py(object):
             return data
 
     def eval(self, cmds, verbose=False, timeout=None, log=True,
-                 plot_dir=None, plot_name='plot', plot_format='png',
-                 plot_width=400, plot_height=240):
+             plot_dir=None, plot_name='plot', plot_format='png',
+             plot_width=None, plot_height=None):
         """
         Evaluate an Octave command or commands.
 
@@ -201,9 +201,9 @@ class Oct2Py(object):
         plot_format: str, optional
             The format in which to save the plot (PNG by default).
         plot_width: int, optional
-            The plot with in pixels (default 400).
+            The plot with in pixels.
         plot_height: int, optional
-            The plot height in pixels (default 240)
+            The plot height in pixels.
 
         Returns
         -------
@@ -230,7 +230,6 @@ class Oct2Py(object):
             timeout = self.timeout
 
         # make sure we get an "ans"
-        post_call = ''
         for cmd in cmds:
 
             if cmd.strip() == 'clear':
@@ -238,39 +237,66 @@ class Oct2Py(object):
 
             match = re.match('([a-z][a-zA-Z0-9_]*) *=', cmd)
             if match and not cmd.strip().endswith(';'):
-                post_call = 'ans = %s' % match.groups()[0]
+                cmds.append('ans = %s' % match.groups()[0])
                 break
 
             match = re.match('([a-z][a-zA-Z0-9_]*)\Z', cmd.strip())
             if match and not cmd.strip().endswith(';'):
-                post_call = 'ans = %s' % match.groups()[0]
+                cmds.append('ans = %s' % match.groups()[0])
                 break
 
-        cmds.append(post_call)
+        pre_call = ''
+        post_call = ''
 
         spec = '%(plot_dir)s/%(plot_name)s*.%(plot_format)s' % locals()
         existing = glob.glob(spec)
         plot_offset = len(existing)
 
+        if not plot_height is None or not plot_width is None:
+            pre_call += """
+            close all;
+            """
+
+        if plot_height is None:
+            plot_height = 460
+
+        if plot_width is None:
+            plot_width = 520
+
+        pre_call += """
+            set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
+            """ % locals()
+
         if not plot_dir is None:
-            plot_call = '''
+
+            pre_call += """
+                global __oct2py_figures = [];
+                function fig_create(src, event)
+                  global __oct2py_figures
+                  set(src, 'visible', 'off');
+                  __oct2py_figures(size(__oct2py_figures) + 1) = src;
+                end
+                set(0, 'DefaultFigureCreateFcn', @fig_create);"""
+
+            plot_dir = plot_dir.replace("\\", "/")
+
+            post_call += '''
         for f = __oct2py_figures
-          outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
+          outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f);
           try
-            print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(plot_width)s,%(plot_height)s');
+            print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(plot_width)s,%(plot_height)s')
             close(f);
           end
         end
         ''' % locals()
 
-            cmds.append(plot_call)
-
         try:
             resp = self._session.evaluate(cmds, verbose=verbose,
-                                         logger=self.logger,
-                                         log=log,
-                                         timeout=timeout,
-                                         show_plots=plot_dir is None)
+                                          logger=self.logger,
+                                          log=log,
+                                          timeout=timeout,
+                                          pre_call=pre_call.strip(),
+                                          post_call=post_call.strip())
         except KeyboardInterrupt:
             self._session.interrupt()
             return 'Octave Session Interrupted'
@@ -278,17 +304,19 @@ class Oct2Py(object):
         outfile = self._reader.out_file
         if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
-                resp = self._reader.extract_file()
+                data = self._reader.extract_file()
             except (TypeError, IOError) as e:
                 self.logger.debug(e)
             else:
-                if resp is not None:
+                if data is not None:
                     if verbose:
                         self.logger.info(resp)
                     elif log:
                         self.logger.debug(resp)
+                return data
 
-        return resp
+        if resp:
+            return resp
 
     def restart(self):
         """Restart an Octave session in a clean state
@@ -602,13 +630,12 @@ class _Session(object):
         self.timeout = timeout
 
     def evaluate(self, cmds, verbose=True, logger=None, log=True,
-                 timeout=None, show_plots=True):
+                 timeout=None, pre_call='', post_call=''):
         """Perform the low-level interaction with an Octave Session
         """
         self.logger = logger
 
-        if not timeout is None:
-            self.set_timeout(timeout)
+        self.set_timeout(timeout)
 
         if not self.proc:
             raise Oct2PyError('Session Closed, try a restart()')
@@ -634,53 +661,46 @@ class _Session(object):
         if self.first_run:
             self._handle_first_run()
 
-        if not show_plots:
-            exprs.insert(0, 'close all')
-            visible = 'off'
-        else:
-            visible = 'on'
-
-        fig_handler = """
-        global __oct2py_figures = [];
-        function fig_create(src, event)
-          global __oct2py_figures
-          set(src, 'visible', '%s');
-          __oct2py_figures(size(__oct2py_figures) + 1) = src;
-        end
-        set(0, 'DefaultFigureCreateFcn', @fig_create)""" % visible
-
-        exprs = fig_handler.strip().splitlines() + exprs
-
         expr = ';'.join(exprs)
+        outfile = self.outfile
 
         output = """
+        %(pre_call)s
+
         clear("ans");
         clear("a__");
         disp(char(2));
 
-        eval("%s", "failed = 1;")
+        eval("%(expr)s", "failed = 1;")
+
         if exist("failed") == 1 && failed
             disp(lasterr())
             disp(char(24))
+
         else
             if exist("ans") == 1
                 _ = ans;
                 if exist("a__") == 0
-                    save -v6 %s _;
+                    save -v6 %(outfile)s _;
                 end
             end
-            disp(char(3))
+
         end
+
         drawnow("expose");
         clear("failed")
-        """ % (expr, self.outfile)
+
+        %(post_call)s
+
+        disp(char(3))
+        """ % locals()
 
         if len(cmds) == 5:
             main_line = cmds[2].strip()
         else:
             main_line = '\n'.join(cmds)
 
-        if 'keyboard' in output:
+        if 'keyboard' in expr:
             self.write('keyboard\n')
             self.interact()
             return
@@ -720,7 +740,7 @@ class _Session(object):
         self.write('disp(available_graphics_toolkits());disp(char(3))\n')
         resp = self.expect(chr(3))
         if not 'gnuplot' in resp:
-            warnings.warn('Oct2Py will not be able to display plots '
+            warnings.warn('Oct2Py may not be able to display plots '
                           'properly without gnuplot, please install it '
                           '(gnuplot-x11 on Linux)')
         else:

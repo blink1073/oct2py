@@ -277,7 +277,7 @@ class OctaveMagics(Magics):
                 self._oct.push(input, val)
 
         # generate plots in a temporary directory
-        plot_dir = tempfile.mkdtemp().replace('\\', '/')
+        plot_dir = tempfile.mkdtemp()
         if args.size is not None:
             size = args.size
         else:
@@ -302,6 +302,7 @@ class OctaveMagics(Magics):
         try:
             text_output = str(self._oct.eval(cmds, plot_dir=plot_dir, plot_format=plot_format,
                                                               plot_width=plot_width,
+                                                              plot_height=plot_height,
                                                               plot_name=plot_name,
                                                               verbose=False))
         except oct2py.Oct2PyError as exception:
