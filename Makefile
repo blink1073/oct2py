@@ -38,4 +38,4 @@ gh-pages: clean
 	git pull origin master
 	make -C docs html
 	export MSG="Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
-	ghp-import -n -p -m $MSG docs/_build/html
+	ghp-import -n -p -m $(MSG) docs/_build/html
