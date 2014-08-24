@@ -230,7 +230,7 @@ class Oct2Py(object):
             timeout = self.timeout
 
         # make sure we get an "ans"
-        for cmd in cmds:
+        for cmd in reversed(cmds):
 
             if cmd.strip() == 'clear':
                 continue
