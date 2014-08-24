@@ -26,7 +26,7 @@ cover: clean
 	nosetests $(TEST_ARGS) --with-cov --cov oct2py oct2py
 	coverage annotate
 
-release:
+release: test gh-pages
 	pip install wheel
 	python setup.py register
 	python setup.py bdist_wheel upload
