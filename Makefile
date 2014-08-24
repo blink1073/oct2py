@@ -3,6 +3,8 @@
 
 export TEST_ARGS=--exe -v --with-doctest
 export KILL_OCTAVE="from oct2py import kill_octave; kill_octave()"
+export GH_MSG="Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
+export VERSION=`python -c "import oct2py;print(oct2py.__version__)"`
 
 all: clean
 	python setup.py install
@@ -29,7 +31,7 @@ release:
 	python setup.py register
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload
-	git tag v`python -c "import oct2py;print(oct2py.__version__)"`
+	git tag v$(VERSION)
 	git push origin master --all
 
 gh-pages: clean
@@ -37,5 +39,4 @@ gh-pages: clean
 	git checkout master
 	git pull origin master
 	make -C docs html
-	export MSG="Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
-	ghp-import -n -p -m $(MSG) docs/_build/html
+	ghp-import -n -p -m $(GH_MSG) docs/_build/html
