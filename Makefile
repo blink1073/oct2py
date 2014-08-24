@@ -2,7 +2,7 @@
 .PHONY: all clean test cover release gh-pages
 
 export TEST_ARGS=--exe -v --with-doctest
-export NAME='oct2py'
+export NAME=oct2py
 export KILL_PROC="from $(NAME) import kill_octave; kill_octave()"
 export GHP_MSG="Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
 export VERSION=`python -c "import $(NAME); print($(NAME).__version__)"`

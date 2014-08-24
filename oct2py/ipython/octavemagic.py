@@ -281,7 +281,7 @@ class OctaveMagics(Magics):
         if args.size is not None:
             size = args.size
         else:
-            size = '400,240'
+            size = '690,540'
 
         if args.format is not None:
             plot_format = args.format
