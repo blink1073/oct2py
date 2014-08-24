@@ -1,3 +1,0 @@
-oct2py/ipython/tests
-oct2py/ipython
-oct2py
