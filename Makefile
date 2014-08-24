@@ -33,8 +33,7 @@ release: test gh-pages
 	git push origin master --all
 
 gh-pages: clean
-	pip install sphinx-bootstrap-theme
-	pip install numpydoc
+	pip install sphinx-bootstrap-theme numpydoc sphinx
 	git checkout master
 	git pull origin master
 	rm -rf ../temp_docs
