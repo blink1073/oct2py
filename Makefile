@@ -24,7 +24,7 @@ cover: clean
 	nosetests $(TEST_ARGS) --with-cov --cov oct2py oct2py
 	coverage annotate
 
-release: test gh-pages
+release:
 	pip install wheel
 	python setup.py register
 	python setup.py bdist_wheel upload
@@ -33,20 +33,8 @@ release: test gh-pages
 	git push origin master --all
 
 gh-pages: clean
-	pip install sphinx-bootstrap-theme numpydoc sphinx
+	pip install sphinx-bootstrap-theme numpydoc sphinx ghp-import
 	git checkout master
 	git pull origin master
-	rm -rf ../temp_docs
-	mkdir ../temp_docs
-	rm -rf docs/build
 	make -C docs html
-	cp -R docs/_build/html/ ../temp_docs
-	mv ../temp_docs/html ../temp_docs/docs
-	git checkout gh-pages
-	rm -rf docs
-	cp -R ../temp_docs/docs/ .
-	git add --all docs
-	git commit -m "rebuild docs"
-	git push origin gh-pages; true
-	rm -rf ../temp_docs; true
-	git checkout master; true
+	ghp-import -n -p docs/_build/html
