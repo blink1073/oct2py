@@ -45,7 +45,7 @@ gh-pages: clean
 	git checkout gh-pages
 	rm -rf docs
 	cp -R ../temp_docs/docs/ .
-	git add docs
+	git add --all docs
 	git commit -m "rebuild docs"
 	git push origin gh-pages
 	rm -rf ../temp_docs
