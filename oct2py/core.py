@@ -321,6 +321,8 @@ class Oct2Py(object):
     def restart(self):
         """Restart an Octave session in a clean state
         """
+        if self._session:
+            self._session.close()
         self._reader = MatRead(self._temp_dir)
         self._writer = MatWrite(self._temp_dir, self._oned_as)
         self._session = _Session(self._executable,
