@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+2.2.0 (2014-09-14)
+++++++++++++++++++
+- Fix IPython notebook support in Ubuntu 14.04
+- Fix toggling of inline plotting
+
+
 2.1.0 (2014-08-23)
 ++++++++++++++++++
 - Allow keyword arguments in functions: `octave.plot([1,2,3], linewidth=2))`
