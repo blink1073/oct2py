@@ -32,3 +32,4 @@ Patches and Suggestions
 - Min RK @minrk
 - @zimoun
 - Andrew Bolster @andrewbolster
+- @schlichtanders
