@@ -617,6 +617,8 @@ class _Session(object):
             rpipe, wpipe = slave, slave
         else:
             self.rfid, wpipe = os.pipe()
+            rpipe, self.wfid = os.pipe()
+
         kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
                       stderr=wpipe, stdout=wpipe)
 
