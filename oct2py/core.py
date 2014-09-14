@@ -642,6 +642,27 @@ class _Session(object):
             self.reader = _Reader(self.rfid, self.read_queue)
             return proc
 
+    def parse_cmds(self, cmds):
+        exprs = []
+        for cmd in cmds:
+            cmd = cmd.strip().replace('\n', ';')
+            cmd = re.sub(';\s*;', ';', cmd)
+            cmd = cmd.replace('"', '""')
+            subcmds = cmd.split(';')
+            for sub in subcmds:
+                if sub.replace(';', '') and not sub.strip().startswith(('%', '#')):
+                    # find a '%' that is not in a string
+                    quotes = 0
+                    for (ind, c) in enumerate(sub):
+                        if c == '"':
+                            quotes += 1
+                        elif c == '%':
+                            if not quotes % 2:
+                                sub = sub[:ind]
+                                break
+                    exprs.append(sub)
+        return ';'.join(exprs)
+
     def set_timeout(self, timeout=None):
         if timeout is None:
             timeout = int(1e6)
@@ -664,24 +685,15 @@ class _Session(object):
             except OSError as e:
                 self.logger.debug(e)
 
-        # use ascii code 2 for start of text, 3 for end of text, and
-        # 24 to signal an error
-        exprs = []
-        for cmd in cmds:
-            cmd = cmd.strip().replace('\n', ';')
-            cmd = re.sub(';\s*;', ';', cmd)
-            cmd = cmd.replace('"', '""')
-            subcmds = cmd.split(';')
-            for sub in subcmds:
-                if sub.replace(';', '') and not sub.startswith(('%', '#')):
-                    exprs.append(sub)
+        expr = self.parse_cmds(cmds)
 
         if self.first_run:
             self._handle_first_run()
 
-        expr = ';'.join(exprs)
         outfile = self.outfile
 
+        # use ascii code 2 for start of text, 3 for end of text, and
+        # 24 to signal an error
         output = """
         %(pre_call)s
 
