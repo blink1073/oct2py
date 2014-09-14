@@ -33,7 +33,7 @@ release: test gh-pages
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload
 	git tag v$(VERSION)
-	git push origin --all
+	git push origin --all --tags
 
 gh-pages: clean
 	pip install sphinx-bootstrap-theme numpydoc sphinx ghp-import

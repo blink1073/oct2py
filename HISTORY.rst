@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+2.3.0 (2014-09-14)
+++++++++++++++++++
+- Allow library to install without meeting explicit dependencies
+- Fix handling of cell magic with inline comments.
+
+
 2.2.0 (2014-09-14)
 ++++++++++++++++++
 - Fix IPython notebook support in Ubuntu 14.04
