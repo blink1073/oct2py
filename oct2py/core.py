@@ -19,6 +19,10 @@ import time
 from tempfile import gettempdir
 import warnings
 import ctypes
+try:
+    import pty
+except ImportError:
+    pty = None
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
@@ -289,6 +293,12 @@ class Oct2Py(object):
           end
         end
         ''' % locals()
+        else:
+            pre_call += """
+                function fig_create(src, event)
+                end
+                set(0, 'DefaultFigureCreateFcn', @fig_create)
+            """
 
         try:
             resp = self._session.evaluate(cmds, verbose=verbose,
@@ -601,8 +611,12 @@ class _Session(object):
         """
         errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
         ON_POSIX = 'posix' in sys.builtin_module_names
-        self.rfid, wpipe = os.pipe()
-        rpipe, self.wfid = os.pipe()
+        if pty:
+            master, slave = pty.openpty()
+            self.wfid, self.rfid = master, master
+            rpipe, wpipe = slave, slave
+        else:
+            self.rfid, wpipe = os.pipe()
         kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
                       stderr=wpipe, stdout=wpipe)
 
@@ -675,6 +689,8 @@ class _Session(object):
 
         eval("%(expr)s", "failed = 1;")
 
+        disp(char(3))
+
         if exist("failed") == 1 && failed
             disp(lasterr())
             disp(char(24))
@@ -712,6 +728,28 @@ class _Session(object):
         self.expect(chr(2))
 
         resp = []
+
+        while 1:
+            line = self.readline()
+
+            if chr(3) in line:
+                break
+
+            if '\x1b[C' in line or line.strip() == '>>':
+                line = ''
+
+            if line.endswith('> '):
+                self.interact(line)
+
+            if verbose and logger:
+                logger.info(line)
+
+            elif logger and log:
+                logger.debug(line)
+
+            if resp or line:
+                resp.append(line)
+
         while 1:
             line = self.readline()
 
@@ -723,18 +761,6 @@ class _Session(object):
                        'Octave returned:\n{1}'
                        .format(main_line, '\n'.join(resp)))
                 raise Oct2PyError(msg)
-
-            elif line.endswith('> '):
-                self.interact(line)
-
-            if verbose and logger:
-                logger.info(line)
-
-            elif logger and log:
-                logger.debug(line)
-
-            if resp or line:
-                resp.append(line)
 
         return '\n'.join(resp).rstrip()
 
