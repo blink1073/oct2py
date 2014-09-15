@@ -261,6 +261,9 @@ class Oct2Py(object):
                                           post_call=post_call)
         except KeyboardInterrupt:
             self._session.interrupt()
+            if os.name == 'nt':
+                self.restart()
+                return 'Octave Session Interrupted, Restarting Session'
             return 'Octave Session Interrupted'
 
         outfile = self._reader.out_file
@@ -809,9 +812,7 @@ class _Session(object):
 
     def interrupt(self):
         if os.name == 'nt':
-            CTRL_BREAK_EVENT = 1
-            interrupt = ctypes.windll.kernel32.GenerateConsoleCtrlEvent
-            interrupt(CTRL_BREAK_EVENT, self.proc.pid)
+            self.close()
         else:
             self.proc.send_signal(signal.SIGINT)
 
