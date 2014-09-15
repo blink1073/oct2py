@@ -124,8 +124,12 @@ def get_data(val):
                         if not np.isscalar(val[row][i]):
                             if val[row][i].size > 1:
                                 val[row][i] = val[row][i].squeeze()
-                            else:
+                            elif val[row][i].size:
                                 val[row][i] = val[row][i][0]
+                            else:
+                                val[row][i] = val[row][i].tolist()
+            except IndexError:
+                return val.tolist()
         else:
             val = np.array([get_data(val[i])
                             for i in range(val.size)])
