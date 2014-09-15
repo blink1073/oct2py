@@ -261,26 +261,29 @@ class Oct2Py(object):
             close all;
             """
 
-        if plot_height is None:
-            plot_height = 460
-
-        if plot_width is None:
-            plot_width = 520
+        if plot_height is None and plot_width is None:
+            size_cmd = ''
+            plot_height = 420
+            plot_width = 560
+        else:
+            if plot_height is None:
+                plot_height = 420
+                size_cmd = ", '-S%s,420'" % plot_width
+            elif plot_width is None:
+                plot_width = 560
+                size_cmd = ", '-S560,%s'" % plot_height
 
         pre_call += """
             set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
+            global  __oct2py_figures = [];
             """ % locals()
 
         if not plot_dir is None:
 
             pre_call += """
-                global __oct2py_figures = [];
-                function fig_create(src, event)
-                  global __oct2py_figures
-                  set(src, 'visible', 'off');
-                  __oct2py_figures(size(__oct2py_figures) + 1) = src;
-                end
-                set(0, 'DefaultFigureCreateFcn', @fig_create);"""
+                close('all')
+                 global __oct2py_figure_visible = 'off';
+               """
 
             plot_dir = plot_dir.replace("\\", "/")
 
@@ -288,16 +291,20 @@ class Oct2Py(object):
         for f = __oct2py_figures
           outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f);
           try
-            print(f, outfile, '-d%(plot_format)s', '-tight', '-S%(plot_width)s,%(plot_height)s')
-            close(f);
+            if exist(outfile)
+                delete(outfile)
+            end
+            print(f, outfile, '-d%(plot_format)s', '-tight' %(size_cmd)s);
           end
         end
         ''' % locals()
         else:
             pre_call += """
-                function fig_create(src, event)
-                end
-                set(0, 'DefaultFigureCreateFcn', @fig_create)
+             global   __oct2py_figure_visible = 'on'
+            """
+
+            post_call += """
+            drawnow("expose")
             """
 
         try:
@@ -719,7 +726,6 @@ class _Session(object):
 
         end
 
-        drawnow("expose");
         clear("failed")
 
         %(post_call)s
@@ -727,6 +733,7 @@ class _Session(object):
         disp(char(3))
         """ % locals()
 
+        print(output)
         if len(cmds) == 5:
             main_line = cmds[2].strip()
         else:
@@ -788,6 +795,14 @@ class _Session(object):
         else:
             self.write("graphics_toolkit('gnuplot')\n")
         self.first_run = False
+        self.write("""
+                function fig_create(src, event);
+                  global __oct2py_figures;
+                  global __oct2py_figure_visible;
+                  set(src, 'visible', __oct2py_figure_visible);
+                  __oct2py_figures(end + 1) = src;
+                end;
+                set(0, 'DefaultFigureCreateFcn', @fig_create);\n""")
 
     def interrupt(self):
         if os.name == 'nt':

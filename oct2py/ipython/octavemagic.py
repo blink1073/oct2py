@@ -278,10 +278,6 @@ class OctaveMagics(Magics):
 
         # generate plots in a temporary directory
         plot_dir = tempfile.mkdtemp()
-        if args.size is not None:
-            size = args.size
-        else:
-            size = '690,540'
 
         if args.format is not None:
             plot_format = args.format
@@ -292,7 +288,10 @@ class OctaveMagics(Magics):
             plot_format = 'png'
 
         plot_name = '__ipy_oct_fig_'
-        plot_width, plot_height = [int(s) for s in size.split(',')]
+        if not args.size is None:
+            plot_width, plot_height = [int(s) for s in args.size.split(',')]
+        else:
+            plot_width, plot_height = None, None
 
         if args.gui:
             plot_dir = None
