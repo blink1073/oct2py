@@ -277,7 +277,10 @@ class OctaveMagics(Magics):
                 self._oct.push(input, val)
 
         # generate plots in a temporary directory
-        plot_dir = tempfile.mkdtemp()
+        if args.gui:
+            plot_dir = None
+        else:
+            plot_dir = tempfile.mkdtemp()
 
         if args.format is not None:
             plot_format = args.format
@@ -288,13 +291,11 @@ class OctaveMagics(Magics):
             plot_format = 'png'
 
         plot_name = '__ipy_oct_fig_'
+
         if not args.size is None:
             plot_width, plot_height = [int(s) for s in args.size.split(',')]
         else:
             plot_width, plot_height = None, None
-
-        if args.gui:
-            plot_dir = None
 
         cmds = [code]
 
@@ -311,6 +312,7 @@ class OctaveMagics(Magics):
             msg = re.sub('"""\s+', '"""\n', msg)
             msg = re.sub('\s+"""', '\n"""', msg)
             raise OctaveMagicError(msg)
+
         key = 'OctaveMagic.Octave'
         display_data = []
 
