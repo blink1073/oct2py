@@ -733,7 +733,6 @@ class _Session(object):
         disp(char(3))
         """ % locals()
 
-        print(output)
         if len(cmds) == 5:
             main_line = cmds[2].strip()
         else:
