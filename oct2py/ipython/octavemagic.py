@@ -110,13 +110,13 @@ class OctaveMagics(Magics):
         (svg,) = minidom.parseString(image).getElementsByTagName('svg')
         viewbox = svg.getAttribute('viewBox').split(' ')
 
-        if size is not None:
+        if size is not None and size[0] is not None:
             width, height = size
         else:
             width, height = viewbox[2:]
 
-        svg.setAttribute('width', '%dpx' % width)
-        svg.setAttribute('height', '%dpx' % height)
+        svg.setAttribute('width', '%dpx' % int(width))
+        svg.setAttribute('height', '%dpx' % int(height))
         return svg.toxml()
 
     @skip_doctest
