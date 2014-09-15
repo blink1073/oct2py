@@ -249,75 +249,16 @@ class Oct2Py(object):
                 cmds.append('ans = %s' % match.groups()[0])
                 break
 
-        pre_call = ''
-        post_call = ''
-
-        spec = '%(plot_dir)s/%(plot_name)s*.%(plot_format)s' % locals()
-        existing = glob.glob(spec)
-        plot_offset = len(existing)
-
-        if not plot_height is None or not plot_width is None:
-            pre_call += """
-            close all;
-            """
-
-        if plot_height is None and plot_width is None:
-            size_cmd = ''
-            plot_height = 420
-            plot_width = 560
-        else:
-            if plot_height is None:
-                plot_height = 420
-                size_cmd = ", '-S%s,420'" % plot_width
-            elif plot_width is None:
-                plot_width = 560
-                size_cmd = ", '-S560,%s'" % plot_height
-            else:
-                size_cmd = ''
-                plot_height =420
-                plot_width = 560
-
-        pre_call += """
-            set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
-            global  __oct2py_figures = [];
-            """ % locals()
-
-        if not plot_dir is None:
-
-            pre_call += """
-                close('all')
-                 global __oct2py_figure_visible = 'off';
-               """
-
-            plot_dir = plot_dir.replace("\\", "/")
-
-            post_call += '''
-        for f = __oct2py_figures
-          outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f);
-          try
-            if exist(outfile)
-                delete(outfile)
-            end
-            print(f, outfile, '-d%(plot_format)s', '-tight' %(size_cmd)s);
-          end
-        end
-        ''' % locals()
-        else:
-            pre_call += """
-             global   __oct2py_figure_visible = 'on'
-            """
-
-            post_call += """
-            drawnow("expose")
-            """
+        pre_call, post_call = self._get_plot_commands(plot_dir,
+            plot_format, plot_width, plot_height, plot_name)
 
         try:
             resp = self._session.evaluate(cmds, verbose=verbose,
                                           logger=self.logger,
                                           log=log,
                                           timeout=timeout,
-                                          pre_call=pre_call.strip(),
-                                          post_call=post_call.strip())
+                                          pre_call=pre_call,
+                                          post_call=post_call)
         except KeyboardInterrupt:
             self._session.interrupt()
             return 'Octave Session Interrupted'
@@ -338,6 +279,65 @@ class Oct2Py(object):
 
         if resp:
             return resp
+
+    def _get_plot_commands(self, plot_dir, plot_format, plot_width,
+            plot_height, plot_name):
+        pre_call = ''
+        post_call = ''
+
+        spec = '%(plot_dir)s/%(plot_name)s*.%(plot_format)s' % locals()
+        existing = glob.glob(spec)
+        plot_offset = len(existing)
+
+        if not plot_height is None or not plot_width is None:
+            pre_call += """
+            close all;
+            """
+
+        if plot_height is None and plot_width is None:
+            size_cmd = ''
+            plot_height = 420
+            plot_width = 560
+        else:
+            if plot_height is None:
+                plot_height = 420
+            elif plot_width is None:
+                plot_width = 560
+            size_cmd = ", '-S%s, %s" % (plot_width, plot_height)
+
+        pre_call += """
+            set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
+            global  __oct2py_figures = [];
+            """ % locals()
+
+        if not plot_dir is None:
+
+            pre_call += """
+                close all;
+                 global __oct2py_figure_visible = 'off';
+               """
+
+            plot_dir = plot_dir.replace("\\", "/")
+
+            post_call += '''
+        for f = __oct2py_figures
+          outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
+          try
+            print(f, outfile, '-d%(plot_format)s', '-tight' %(size_cmd)s);
+          end
+        end
+        close('all')
+        ''' % locals()
+        else:
+            pre_call += """
+             global   __oct2py_figure_visible = 'on'
+            """
+
+            post_call += """
+            drawnow("expose")
+            """
+
+        return pre_call.strip(), post_call.strip()
 
     def restart(self):
         """Restart an Octave session in a clean state
