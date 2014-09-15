@@ -306,7 +306,7 @@ class Oct2Py(object):
                 plot_height = 420
             elif plot_width is None:
                 plot_width = 560
-            size_cmd = ", '-S%s, %s" % (plot_width, plot_height)
+            size_cmd = ", '-S%s, %s'" % (plot_width, plot_height)
 
         pre_call += """
             set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
