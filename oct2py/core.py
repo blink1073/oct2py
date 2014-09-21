@@ -233,22 +233,6 @@ class Oct2Py(object):
         if timeout is None:
             timeout = self.timeout
 
-        # make sure we get an "ans"
-        for cmd in reversed(cmds):
-
-            if cmd.strip() == 'clear':
-                continue
-
-            match = re.match('([a-z][a-zA-Z0-9_]*) *=', cmd)
-            if match and not cmd.strip().endswith(';'):
-                cmds.append('ans = %s' % match.groups()[0])
-                break
-
-            match = re.match('([a-z][a-zA-Z0-9_]*)\Z', cmd.strip())
-            if match and not cmd.strip().endswith(';'):
-                cmds.append('ans = %s' % match.groups()[0])
-                break
-
         pre_call, post_call = self._get_plot_commands(plot_dir,
             plot_format, plot_width, plot_height, plot_name)
 
@@ -508,7 +492,7 @@ class Oct2Py(object):
             if 'syntax error' in str(e):
                 raise(e)
             try:
-                doc = self.eval('x = type("{0}")'.format(name), log=False,
+                doc = self.eval('ans = type("{0}")'.format(name), log=False,
                                 verbose=False)
                 if isinstance(doc, list):
                     doc = doc[0]

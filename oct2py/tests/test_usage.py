@@ -25,10 +25,10 @@ class BasicUsageTest(test.TestCase):
     def test_run(self):
         """Test the run command
         """
-        out = self.oc.eval('y=ones(3,3)')
+        out = self.oc.eval('ans=ones(3,3)')
         desired = np.ones((3, 3))
         test.assert_allclose(out, desired)
-        out = self.oc.eval('x = mean([[1, 2], [3, 4]])', verbose=True)
+        out = self.oc.eval('ans = mean([[1, 2], [3, 4]])', verbose=True)
         self.assertEqual(out, 2.5)
         self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
 
