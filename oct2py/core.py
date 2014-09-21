@@ -18,7 +18,6 @@ import threading
 import time
 from tempfile import gettempdir
 import warnings
-import ctypes
 try:
     import pty
 except ImportError:
@@ -294,14 +293,14 @@ class Oct2Py(object):
 
         pre_call += """
             set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
-            global  __oct2py_figures = [];
+            __oct2py_figures = [];
             """ % locals()
 
         if not plot_dir is None:
 
             pre_call += """
                 close all;
-                 global __oct2py_figure_visible = 'off';
+             __oct2py_figure_visible = 'off';
                """
 
             plot_dir = plot_dir.replace("\\", "/")
@@ -317,11 +316,11 @@ class Oct2Py(object):
         ''' % locals()
         else:
             pre_call += """
-             global   __oct2py_figure_visible = 'on'
+             __oct2py_figure_visible = 'on';
             """
 
             post_call += """
-            drawnow("expose")
+            drawnow("expose");
             """
 
         return pre_call.strip(), post_call.strip()
@@ -786,6 +785,8 @@ class _Session(object):
             self.write("graphics_toolkit('gnuplot')\n")
         self.first_run = False
         self.write("""
+             global __oct2py_figures = [];
+             global __oct2py_figure_visible = 'on';
                 function fig_create(src, event);
                   global __oct2py_figures;
                   global __oct2py_figure_visible;
