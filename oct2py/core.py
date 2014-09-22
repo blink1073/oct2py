@@ -548,7 +548,7 @@ class _Reader(object):
         debug_prompt = re.compile(r'\A[\w]+>>? ')
         while 1:
             try:
-                buf += os.read(self.fid, 1024).decode('utf8')
+                buf += os.read(self.fid, 1024).decode('utf8', 'replace')
             except:
                 self.queue.put(None)
                 return
