@@ -640,27 +640,6 @@ class _Session(object):
             self.reader = _Reader(self.rfid, self.read_queue)
             return proc
 
-    def parse_cmds(self, cmds):
-        exprs = []
-        for cmd in cmds:
-            cmd = cmd.strip().replace('\n', ';')
-            cmd = re.sub(';\s*;', ';', cmd)
-            cmd = cmd.replace('"', '""')
-            subcmds = cmd.split(';')
-            for sub in subcmds:
-                if sub.replace(';', '') and not sub.strip().startswith(('%', '#')):
-                    # find a '%' that is not in a string
-                    quotes = 0
-                    for (ind, c) in enumerate(sub):
-                        if c == '"':
-                            quotes += 1
-                        elif c == '%':
-                            if not quotes % 2:
-                                sub = sub[:ind]
-                                break
-                    exprs.append(sub)
-        return ';'.join(exprs)
-
     def set_timeout(self, timeout=None):
         if timeout is None:
             timeout = int(1e6)
@@ -683,7 +662,7 @@ class _Session(object):
             except OSError as e:
                 self.logger.debug(e)
 
-        expr = self.parse_cmds(cmds)
+        expr = '\n'.join(cmds)
 
         if self.first_run:
             self._handle_first_run()
@@ -699,25 +678,20 @@ class _Session(object):
         clear("a__");
         disp(char(2));
 
-        eval("%(expr)s", "failed = 1;")
-
-        disp(char(3))
-
-        if exist("failed") == 1 && failed
+        try
+            %(expr)s
+            disp(char(3))
+        catch
             disp(lasterr())
             disp(char(24))
-
-        else
-            if exist("ans") == 1
-                _ = ans;
-                if exist("a__") == 0
-                    save -v6 %(outfile)s _;
-                end
-            end
-
         end
 
-        clear("failed")
+        if exist("ans") == 1
+            _ = ans;
+            if exist("a__") == 0
+                save -v6 %(outfile)s _;
+            end
+        end
 
         %(post_call)s
 
