@@ -281,7 +281,6 @@ class Oct2Py(object):
             """
 
         if plot_height is None and plot_width is None:
-            size_cmd = ''
             plot_height = 420
             plot_width = 560
         else:
@@ -289,7 +288,6 @@ class Oct2Py(object):
                 plot_height = 420
             elif plot_width is None:
                 plot_width = 560
-            size_cmd = ", '-S%s, %s'" % (plot_width, plot_height)
 
         pre_call += """
             set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
@@ -308,8 +306,17 @@ class Oct2Py(object):
             post_call += '''
         for f = __oct2py_figures
           outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
+          p = get(f, 'position');
+
+          if p(3) > %(plot_width)s:
+                new_w = %(plot_width)s;
+                new_h = p(4) * %(plot_width)s / p(3);
+          if p(4) > %(plot_height)s:
+                new_h = %(plot_height)s;
+                new_w = p(3) * %(plot_height)s / p(4);
+          size_fmt = sprintf('-s%d,%d', new_width, new_height)
           try
-            print(f, outfile, '-d%(plot_format)s', '-tight' %(size_cmd)s);
+            print(f, outfile, '-d%(plot_format)s', '-tight', size_fmt);
           end
         end
         close('all')
