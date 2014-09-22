@@ -733,6 +733,11 @@ class _Session(object):
             if line.endswith('> '):
                 self.interact(line)
 
+            elif line.startswith(' ') and line.strip() == '^':
+                if sys.platform == 'win32':
+                    self.close()
+                raise Oct2PyError('Syntax Error:\n%s' % '\n'.join(resp))
+
             if verbose and logger:
                 logger.info(line)
 
