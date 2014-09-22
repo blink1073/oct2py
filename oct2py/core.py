@@ -307,19 +307,20 @@ class Oct2Py(object):
         for f = __oct2py_figures
           outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
           p = get(f, 'position');
-
-          if p(3) > %(plot_width)s:
-                new_w = %(plot_width)s;
-                new_h = p(4) * %(plot_width)s / p(3);
-          if p(4) > %(plot_height)s:
-                new_h = %(plot_height)s;
-                new_w = p(3) * %(plot_height)s / p(4);
-          size_fmt = sprintf('-s%d,%d', new_width, new_height)
+          w = %(plot_width)s
+          h = %(plot_width)s
+          if p(3) > %(plot_width)s
+                h = p(4) * w / p(3);
+          end
+          if p(4) > %(plot_height)s
+                w = p(3) * h / p(4);
+          end
+          size_fmt = sprintf('-s%%d,%%d', w, h);
           try
             print(f, outfile, '-d%(plot_format)s', '-tight', size_fmt);
           end
         end
-        close('all')
+        close('all');
         ''' % locals()
         else:
             pre_call += """
@@ -682,19 +683,23 @@ class _Session(object):
         %(pre_call)s
 
         clear("ans");
+        clear("_");
         clear("a__");
         disp(char(2));
 
         try
             %(expr)s
-            disp(char(3))
+            if exist("ans") == 1
+               _ = ans;
+            end
+            disp(char(3));
+
         catch
-            disp(lasterr())
-            disp(char(24))
+            disp(lasterr());
+            disp(char(24));
         end
 
-        if exist("ans") == 1
-            _ = ans;
+        if exist("_") == 1
             if exist("a__") == 0
                 save -v6 %(outfile)s _;
             end
