@@ -606,7 +606,8 @@ class _Session(object):
         Matlab compatibilty mode.
 
         """
-        errmsg = ('\n\nPlease install GNU Octave and put it in your path\n')
+        errmsg = ('\n\n`octave` not found.  Please see documentation at:\n'
+        'http://blink1073.github.io/oct2py/source/installation.html')
         ON_POSIX = 'posix' in sys.builtin_module_names
         if pty:
             master, slave = pty.openpty()
