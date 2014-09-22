@@ -499,7 +499,7 @@ class Oct2Py(object):
             if 'syntax error' in str(e):
                 raise(e)
             try:
-                doc = self.eval('ans = type("{0}")'.format(name), log=False,
+                doc = self.eval('type("{0}")'.format(name), log=False,
                                 verbose=False)
                 if isinstance(doc, list):
                     doc = doc[0]
@@ -692,7 +692,6 @@ class _Session(object):
             if exist("ans") == 1
                _ = ans;
             end
-            disp(char(3));
 
         catch
             disp(lasterr());
@@ -732,10 +731,17 @@ class _Session(object):
             if chr(3) in line:
                 break
 
-            if '\x1b[C' in line or line.strip() == '>>':
+            elif chr(24) in line:
+                msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
+                       'Octave returned:\n{1}'
+                       .format(main_line, '\n'.join(resp)))
+                self.expect(chr(3))
+                raise Oct2PyError(msg)
+
+            elif '\x1b[C' in line or line.strip() == '>>':
                 line = ''
 
-            if line.endswith('> '):
+            elif line.endswith('> '):
                 self.interact(line)
 
             elif line.startswith(' ') and line.strip() == '^':
@@ -751,18 +757,6 @@ class _Session(object):
 
             if resp or line:
                 resp.append(line)
-
-        while 1:
-            line = self.readline()
-
-            if chr(3) in line:
-                break
-
-            elif chr(24) in line:
-                msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
-                       'Octave returned:\n{1}'
-                       .format(main_line, '\n'.join(resp)))
-                raise Oct2PyError(msg)
 
         return '\n'.join(resp).rstrip()
 
