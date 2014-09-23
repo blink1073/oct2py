@@ -76,7 +76,7 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = get_log()
-        #self.logger.setLevel(logging.DEBUG)
+        # self.logger.setLevel(logging.DEBUG)
         self._session = None
         self.restart()
 
@@ -174,7 +174,8 @@ class Oct2Py(object):
         if isinstance(var, (str, unicode)):
             var = [var]
         argout_list, save_line = self._reader.setup(len(var), var)
-        data = self.eval(save_line, verbose=verbose, timeout=timeout, return_ans=True)
+        data = self.eval(
+            save_line, verbose=verbose, timeout=timeout, return_ans=True)
         if isinstance(data, dict) and not isinstance(data, Struct):
             return [data.get(v, None) for v in argout_list]
         else:
@@ -243,7 +244,7 @@ class Oct2Py(object):
             timeout = self.timeout
 
         pre_call, post_call = self._get_plot_commands(plot_dir,
-            plot_format, plot_width, plot_height, plot_name)
+                                                      plot_format, plot_width, plot_height, plot_name)
 
         try:
             resp = self._session.evaluate(cmds, verbose=verbose,
@@ -290,7 +291,7 @@ class Oct2Py(object):
             return resp
 
     def _get_plot_commands(self, plot_dir, plot_format, plot_width,
-            plot_height, plot_name):
+                           plot_height, plot_name):
         pre_call = ''
         post_call = ''
 
@@ -636,7 +637,7 @@ class _Session(object):
 
         """
         errmsg = ('\n\n`octave` not found.  Please see documentation at:\n'
-        'http://blink1073.github.io/oct2py/source/installation.html')
+                  'http://blink1073.github.io/oct2py/source/installation.html')
         ON_POSIX = 'posix' in sys.builtin_module_names
         if pty:
             master, slave = pty.openpty()
