@@ -12,6 +12,7 @@ import re
 import atexit
 import signal
 import glob
+import logging
 import subprocess
 import sys
 import threading
@@ -75,6 +76,7 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = get_log()
+        #self.logger.setLevel(logging.DEBUG)
         self._session = None
         self.restart()
 
@@ -179,8 +181,9 @@ class Oct2Py(object):
             return data
 
     def eval(self, cmds, verbose=False, timeout=None, log=True,
-             plot_dir=None, plot_name='plot', plot_format='png',
-             plot_width=None, plot_height=None, return_ans=False):
+             plot_dir=None, plot_name='plot', plot_format='svg',
+             plot_width=None, plot_height=None, return_ans=False,
+             return_both=False):
         """
         Evaluate an Octave command or commands.
 
@@ -211,6 +214,9 @@ class Oct2Py(object):
             If True, force return the result of "ans" instead of the printed output.
             If False, the result of "ans" will be returned if "ans =" appears in
             the output.
+        return_both : bool, optional
+            If True, return an (printed output, value) tuple. If "ans =" is in the printed output,
+            the printed output will have that portion removed.
 
         Returns
         -------
@@ -255,6 +261,9 @@ class Oct2Py(object):
 
         outfile = self._reader.out_file
         data_available = os.path.exists(outfile) and os.stat(outfile).st_size
+        if return_both:
+            return_ans = True
+        data = None
         if ('ans =' in resp or return_ans) and data_available:
             try:
                 data = self._reader.extract_file()
@@ -266,9 +275,18 @@ class Oct2Py(object):
                         self.logger.info(resp)
                     elif log:
                         self.logger.debug(resp)
-                return data
 
-        if resp:
+        if return_ans:
+            resp = [l for l in resp.splitlines() if not l.startswith('ans =')]
+            resp = '\n'.join(resp)
+
+        if return_both:
+            return resp, data
+
+        elif return_ans and not data is None:
+            return data
+
+        else:
             return resp
 
     def _get_plot_commands(self, plot_dir, plot_format, plot_width,
@@ -312,15 +330,15 @@ class Oct2Py(object):
         for f = __oct2py_figures
           outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
           p = get(f, 'position');
-          w = %(plot_width)s
-          h = %(plot_width)s
+          w = %(plot_width)s;
+          h = %(plot_height)s;
           if p(3) > %(plot_width)s
                 h = p(4) * w / p(3);
           end
           if p(4) > %(plot_height)s
                 w = p(3) * h / p(4);
           end
-          size_fmt = sprintf('-s%%d,%%d', w, h);
+          size_fmt = sprintf('-S%%d,%%d', w, h);
           try
             print(f, outfile, '-d%(plot_format)s', '-tight', size_fmt);
           end
