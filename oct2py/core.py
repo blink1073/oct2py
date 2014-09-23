@@ -416,11 +416,11 @@ class Oct2Py(object):
             end with "_%%.xxx' where %% is the plot number and
             xxx is the `plot_format`.
         plot_format: str, optional
-            The format in which to save the plot (PNG by default).
+            The format in which to save the plot.
         plot_width: int, optional
-            The plot with in pixels (default 400).
+            The plot with in pixels.
         plot_height: int, optional
-            The plot height in pixels (default 240)
+            The plot height in pixels.
         kwargs : dictionary, optional
             Key - value pairs to be passed as prop - value inputs to the
             function.  The values must be strings or numbers.
