@@ -46,7 +46,6 @@ from shutil import rmtree
 import sys
 import re
 
-import numpy as np
 import oct2py
 from xml.dom import minidom
 
@@ -72,8 +71,10 @@ _mimetypes = {'png': 'image/png',
 
 @magics_class
 class OctaveMagics(Magics):
+
     """A set of magics useful for interactive work with Octave via oct2py.
     """
+
     def __init__(self, shell):
         """
         Parameters
@@ -178,31 +179,30 @@ class OctaveMagics(Magics):
         '-i', '--input', action='append',
         help='Names of input variables to be pushed to Octave. Multiple names '
              'can be passed, separated by commas with no whitespace.'
-        )
+    )
     @argument(
         '-o', '--output', action='append',
         help='Names of variables to be pulled from Octave after executing cell '
              'body. Multiple names can be passed, separated by commas with no '
              'whitespace.'
-        )
+    )
     @argument(
         '-s', '--size', action='store',
         help='Pixel size of plots, "width,height". Default is "-s 400,250".'
-        )
+    )
     @argument(
         '-f', '--format', action='store',
         help='Plot format (png, svg or jpg).'
-        )
+    )
     @argument(
         '-g', '--gui', action='store_true', default=False,
         help='Show a gui for plots.  Default is False'
-        )
-
+    )
     @needs_local_scope
     @argument(
         'code',
         nargs='*',
-        )
+    )
     @line_cell_magic
     def octave(self, line, cell=None, local_ns=None):
         '''
@@ -300,11 +300,12 @@ class OctaveMagics(Magics):
         cmds = [code]
 
         try:
-            text_output, value = self._oct.eval(cmds, plot_dir=plot_dir, plot_format=plot_format,
-                                                              plot_width=plot_width,
-                                                              plot_height=plot_height,
-                                                              plot_name=plot_name,
-                                                              verbose=False, return_both=True)
+            text_output, value = self._oct.eval(cmds, plot_dir=plot_dir,
+                                                plot_format=plot_format,
+                                                plot_width=plot_width,
+                                                plot_height=plot_height,
+                                                plot_name=plot_name,
+                                                verbose=False, return_both=True)
         except oct2py.Oct2PyError as exception:
             msg = str(exception)
             if 'Octave Syntax Error' in msg:
@@ -333,7 +334,7 @@ class OctaveMagics(Magics):
         for image in images:
             if plot_format == 'svg':
                 image = self._fix_gnuplot_svg_size(image, size=(plot_width,
-                                                                                                plot_height))
+                                                                plot_height))
             display_data.append((key, {plot_mime_type: image}))
 
         if args.output:
@@ -354,7 +355,7 @@ __doc__ = __doc__.format(
     OCTAVE_DOC=dedent(OctaveMagics.octave.__doc__),
     OCTAVE_PUSH_DOC=dedent(OctaveMagics.octave_push.__doc__),
     OCTAVE_PULL_DOC=dedent(OctaveMagics.octave_pull.__doc__)
-    )
+)
 
 
 def load_ipython_extension(ip):
