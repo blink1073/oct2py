@@ -278,7 +278,14 @@ class Oct2Py(object):
                         self.logger.debug(resp)
 
         if return_ans:
-            resp = [l for l in resp.splitlines() if not l.startswith('ans =')]
+            lines = resp.splitlines()
+            resp = []
+            saw_ans = False
+            for line in reversed(lines):
+                if line.startswith('ans =') and not saw_ans:
+                    saw_ans = True
+                    continue
+                resp.append(line)
             resp = '\n'.join(resp)
 
         if return_both:
