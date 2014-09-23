@@ -293,7 +293,8 @@ class Oct2Py(object):
                 return resp, data
 
             else:
-                print(resp)
+                if resp:
+                    print(resp)
                 return data
 
         elif return_both:
