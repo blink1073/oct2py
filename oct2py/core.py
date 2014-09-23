@@ -244,7 +244,8 @@ class Oct2Py(object):
             timeout = self.timeout
 
         pre_call, post_call = self._get_plot_commands(plot_dir,
-                                                      plot_format, plot_width, plot_height, plot_name)
+            plot_format, plot_width, plot_height,
+            plot_name)
 
         try:
             resp = self._session.evaluate(cmds, verbose=verbose,
