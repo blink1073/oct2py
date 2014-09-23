@@ -327,7 +327,10 @@ class OctaveMagics(Magics):
             for imgfile in glob("%s/*" % plot_dir):
                 with open(imgfile, 'rb') as fid:
                     images.append(fid.read())
-            rmtree(plot_dir)
+            try:
+                rmtree(plot_dir)
+            except OSError:
+                pass
 
         plot_mime_type = _mimetypes.get(plot_format, 'image/png')
 
