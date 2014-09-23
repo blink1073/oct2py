@@ -172,7 +172,7 @@ class Oct2Py(object):
         if isinstance(var, (str, unicode)):
             var = [var]
         argout_list, save_line = self._reader.setup(len(var), var)
-        data = self.eval(save_line, verbose=verbose, timeout=timeout)
+        data = self.eval(save_line, verbose=verbose, timeout=timeout, return_ans=True)
         if isinstance(data, dict) and not isinstance(data, Struct):
             return [data.get(v, None) for v in argout_list]
         else:
@@ -180,7 +180,7 @@ class Oct2Py(object):
 
     def eval(self, cmds, verbose=False, timeout=None, log=True,
              plot_dir=None, plot_name='plot', plot_format='png',
-             plot_width=None, plot_height=None):
+             plot_width=None, plot_height=None, return_ans=False):
         """
         Evaluate an Octave command or commands.
 
@@ -207,6 +207,10 @@ class Oct2Py(object):
             The plot with in pixels.
         plot_height: int, optional
             The plot height in pixels.
+        return_ans : bool, optional
+            If True, force return the result of "ans" instead of the printed output.
+            If False, the result of "ans" will be returned if "ans =" appears in
+            the output.
 
         Returns
         -------
@@ -250,7 +254,8 @@ class Oct2Py(object):
             return 'Octave Session Interrupted'
 
         outfile = self._reader.out_file
-        if os.path.exists(outfile) and os.stat(outfile).st_size:
+        data_available = os.path.exists(outfile) and os.stat(outfile).st_size
+        if ('ans =' in resp or return_ans) and data_available:
             try:
                 data = self._reader.extract_file()
             except (TypeError, IOError) as e:
@@ -439,6 +444,7 @@ class Oct2Py(object):
             # use ascii char codes so we can increment
             argout_list, save_line = self._reader.setup(nout)
             call_line = '[{0}] = '.format(', '.join(argout_list))
+            eval_kwargs['return_ans'] = True
 
         call_line += func + '('
 
@@ -498,14 +504,11 @@ class Oct2Py(object):
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
-            try:
-                doc = self.eval('type("{0}")'.format(name), log=False,
-                                verbose=False)
-                if isinstance(doc, list):
-                    doc = doc[0]
-                doc = '\n'.join(doc.splitlines()[:3])
-            except Oct2PyError as e:
-                self.logger.debug(e)
+            doc = self.eval('type("{0}")'.format(name), log=False,
+                            verbose=False)
+            if isinstance(doc, list):
+                doc = doc[0]
+            doc = '\n'.join(doc.splitlines()[:3])
 
         default = self._call.__doc__
         doc += '\n' + '\n'.join([line[8:] for line in default.splitlines()])
@@ -717,7 +720,7 @@ class _Session(object):
         if 'keyboard' in expr:
             self.write('keyboard\n')
             self.interact()
-            return
+            return ''
 
         self.write(output + '\n')
 
