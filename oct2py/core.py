@@ -277,22 +277,27 @@ class Oct2Py(object):
                     elif log:
                         self.logger.debug(resp)
 
-        if return_ans:
-            lines = resp.splitlines()
-            resp = []
-            saw_ans = False
-            for line in reversed(lines):
-                if line.startswith('ans =') and not saw_ans:
-                    saw_ans = True
-                    continue
-                resp.append(line)
-            resp = '\n'.join(resp)
+        if not data is None:
+            if "ans =" in resp:
+                index = resp.rindex('ans =')
+                before = resp[:index]
+                after = resp[index:]
+                endstrip = False
+                for line in after.splitlines()[1:]:
+                    if endstrip or not line.startswith(' '):
+                        endstrip = True
+                        before += line + '\n'
+                resp = before
 
-        if return_both:
-            return resp, data
+            if return_both:
+                return resp, data
 
-        elif return_ans and not data is None:
-            return data
+            else:
+                print(resp)
+                return data
+
+        elif return_both:
+            return resp, None
 
         else:
             return resp
