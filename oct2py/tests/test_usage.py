@@ -25,7 +25,7 @@ class BasicUsageTest(test.TestCase):
     def test_run(self):
         """Test the run command
         """
-        out = self.oc.eval('ans=ones(3,3)')
+        out = self.oc.eval('ones(3,3)')
         desired = np.ones((3, 3))
         test.assert_allclose(out, desired)
         out = self.oc.eval('ans = mean([[1, 2], [3, 4]])', verbose=True)
@@ -109,7 +109,14 @@ class BasicUsageTest(test.TestCase):
         """Make sure a syntax error in Octave throws an Oct2PyError
         """
         self.assertRaises(Oct2PyError, self.oc.eval, "a='1")
+
+        if os.name == 'nt':
+            self.oc.restart()
+
         self.assertRaises(Oct2PyError, self.oc.eval, "a=1++3")
+
+        if os.name == 'nt':
+            self.oc.restart()
 
         self.oc.push('a', 1)
         a = self.oc.pull('a')
