@@ -300,11 +300,11 @@ class OctaveMagics(Magics):
         cmds = [code]
 
         try:
-            text_output = str(self._oct.eval(cmds, plot_dir=plot_dir, plot_format=plot_format,
+            text_output, value = self._oct.eval(cmds, plot_dir=plot_dir, plot_format=plot_format,
                                                               plot_width=plot_width,
                                                               plot_height=plot_height,
                                                               plot_name=plot_name,
-                                                              verbose=False))
+                                                              verbose=False, return_both=True)
         except oct2py.Oct2PyError as exception:
             msg = str(exception)
             if 'Octave Syntax Error' in msg:
@@ -347,17 +347,7 @@ class OctaveMagics(Magics):
             self._publish_display_data(source=source, data=data)
 
         if return_output:
-            try:
-                ans = self._oct.pull('_')
-            except oct2py.Oct2PyError:
-                return
-
-            # Unfortunately, Octave doesn't have a "None" object,
-            # so we can't return any NaN outputs
-            if np.isscalar(ans) and np.isnan(ans):
-                ans = None
-
-            return ans
+            return value
 
 
 __doc__ = __doc__.format(
