@@ -216,7 +216,7 @@ class MiscTests(test.TestCase):
         oc.exit()
 
     def test_interrupt(self):
-        return
+
         def action():
             time.sleep(1.0)
             thread.interrupt_main()
@@ -226,6 +226,10 @@ class MiscTests(test.TestCase):
 
         self.oc.push('a', 10)
         self.oc.eval("for i=1:30; pause(1); end; kladjflsd")
+
+        if os.name == 'nt':
+            self.oc.restart()
+            self.oc.push('a', 10)
 
         assert self.oc.pull('a') == 10
 
