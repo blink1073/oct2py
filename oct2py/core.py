@@ -271,12 +271,6 @@ class Oct2Py(object):
                 data = self._reader.extract_file()
             except (TypeError, IOError) as e:
                 self.logger.debug(e)
-            else:
-                if data is not None:
-                    if verbose:
-                        self.logger.info(resp)
-                    elif log:
-                        self.logger.debug(resp)
 
         if not data is None:
             if "ans =" in resp:
@@ -290,6 +284,14 @@ class Oct2Py(object):
                         before += line + '\n'
                 resp = before
 
+        resp = resp.strip()
+
+        if verbose:
+            self.logger.info(resp)
+        elif log:
+            self.logger.debug(resp)
+
+        if not data is None:
             if return_both:
                 return resp, data
 
