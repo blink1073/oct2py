@@ -236,3 +236,20 @@ class MiscTests(test.TestCase):
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""
         self.oc.clear()
+
+    def test_multiline_statement(self):
+        sobj = StringIO()
+        hdlr = logging.StreamHandler(sobj)
+        hdlr.setLevel(logging.DEBUG)
+        self.oc.logger.addHandler(hdlr)
+
+        self.oc.logger.setLevel(logging.DEBUG)
+
+        ans = self.oc.eval("""
+    a =1
+    a + 1
+    b = 3
+    b + 1""")
+        text = hdlr.stream.getvalue().strip()
+        assert ans == 4
+        assert text.endswith('\na =  1\nans =  2\nb =  3')
