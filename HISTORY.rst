@@ -3,6 +3,19 @@
 Release History
 ---------------
 
+2.4.0 (2014-09-27)
+++++++++++++++++++
+- Make `eval` output match Octave session output.
+  If verbose=True, print all Octave output.
+  Return the last "ans" from Octave, if available.
+  If you need the response, use `return_both` to get the
+  `(resp, ans)` pair back
+- As a result of the previous, Syntax Errors in Octave code
+  will now result in a closed session on Windows.
+- Fix sizing of plots when in inline mode.
+- Numerous corner case bug fixes.
+
+
 2.3.0 (2014-09-14)
 ++++++++++++++++++
 - Allow library to install without meeting explicit dependencies
