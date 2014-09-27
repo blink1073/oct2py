@@ -693,13 +693,15 @@ class _Session(object):
         clear("ans");
         clear("_");
         clear("a__");
-        disp(char(2));
+        disp(char(2))
 
         try
+            disp(char(2));
             %(expr)s
             if exist("ans") == 1
                _ = ans;
             end
+            disp(char(3))
 
         catch
             disp(lasterr());
@@ -731,7 +733,14 @@ class _Session(object):
 
         self.expect(chr(2))
 
-        resp = []
+        resp = self.expect('%s|error: |parse error:' % chr(2))
+
+        if 'parse error:' in resp:
+            resp = [resp[resp.index('parse error:'):]]
+        elif 'error:' in resp:
+            resp = [resp[resp.index('error:'):]]
+        else:
+            resp = []
 
         while 1:
             line = self.readline()
@@ -762,6 +771,8 @@ class _Session(object):
 
             if resp or line:
                 resp.append(line)
+
+        self.expect(chr(3))
 
         return '\n'.join(resp).rstrip()
 
