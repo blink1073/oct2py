@@ -303,7 +303,8 @@ class OctaveMagics(Magics):
                                                 plot_width=plot_width,
                                                 plot_height=plot_height,
                                                 plot_name=plot_name,
-                                                verbose=False, return_both=True)
+                                                verbose=False,
+                                                return_both=True)
         except oct2py.Oct2PyError as exception:
             msg = str(exception)
             if 'Octave Syntax Error' in msg:

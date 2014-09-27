@@ -175,16 +175,15 @@ class Oct2Py(object):
             var = [var]
         argout_list, save_line = self._reader.setup(len(var), var)
         data = self.eval(
-            save_line, verbose=verbose, timeout=timeout, return_ans=True)
+            save_line, verbose=verbose, timeout=timeout)
         if isinstance(data, dict) and not isinstance(data, Struct):
             return [data.get(v, None) for v in argout_list]
         else:
             return data
 
-    def eval(self, cmds, verbose=False, timeout=None, log=True,
+    def eval(self, cmds, verbose=True, timeout=None, log=True,
              plot_dir=None, plot_name='plot', plot_format='svg',
-             plot_width=None, plot_height=None, return_ans=False,
-             return_both=False):
+             plot_width=None, plot_height=None, return_both=False):
         """
         Evaluate an Octave command or commands.
 
@@ -211,18 +210,14 @@ class Oct2Py(object):
             The plot with in pixels.
         plot_height: int, optional
             The plot height in pixels.
-        return_ans : bool, optional
-            If True, force return the result of "ans" instead of the printed output.
-            If False, the result of "ans" will be returned if "ans =" appears in
-            the output.
-        return_both : bool, optional
-            If True, return an (printed output, value) tuple. If "ans =" is in the printed output,
-            the printed output will have that portion removed.
+        return_both: bool, optional
+            If True, return a (text, value) tuple with the response
+            and the return value.
 
         Returns
         -------
-        out : str
-            Results printed by Octave.
+        out : object
+            Octave "ans" variable, or None.
 
         Raises
         ------
@@ -235,9 +230,7 @@ class Oct2Py(object):
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
-        if verbose:
-            [self.logger.info(line) for line in cmds]
-        elif log:
+        if log:
             [self.logger.debug(line) for line in cmds]
 
         if timeout is None:
@@ -248,7 +241,7 @@ class Oct2Py(object):
             plot_name)
 
         try:
-            resp = self._session.evaluate(cmds, verbose=verbose,
+            resp = self._session.evaluate(cmds,
                                           logger=self.logger,
                                           log=log,
                                           timeout=timeout,
@@ -262,49 +255,25 @@ class Oct2Py(object):
             return 'Octave Session Interrupted'
 
         outfile = self._reader.out_file
-        data_available = os.path.exists(outfile) and os.stat(outfile).st_size
-        if return_both:
-            return_ans = True
+
         data = None
-        if ('ans =' in resp or return_ans) and data_available:
+        if os.path.exists(outfile) and os.stat(outfile).st_size:
             try:
                 data = self._reader.extract_file()
             except (TypeError, IOError) as e:
                 self.logger.debug(e)
 
-        if not data is None:
-            if "ans =" in resp:
-                index = resp.rindex('ans =')
-                before = resp[:index]
-                after = resp[index:]
-                endstrip = False
-                for line in after.splitlines()[1:]:
-                    if endstrip or not line.startswith(' '):
-                        endstrip = True
-                        before += line + '\n'
-                resp = before
-
         resp = resp.strip()
 
-        if verbose:
+        if resp:
+            if verbose:
+                print(resp)
             self.logger.info(resp)
-        elif log:
-            self.logger.debug(resp)
 
-        if not data is None:
-            if return_both:
-                return resp, data
-
-            else:
-                if resp:
-                    print(resp)
-                return data
-
-        elif return_both:
-            return resp, None
-
+        if return_both:
+            return resp, data
         else:
-            return resp
+            return data
 
     def _get_plot_commands(self, plot_dir, plot_format, plot_width,
                            plot_height, plot_name):
@@ -452,6 +421,7 @@ class Oct2Py(object):
             If the function call is unsucessful.
         """
         nout = kwargs.pop('nout', get_nout())
+
         argout_list = ['_']
 
         # these three lines will form the commands sent to Octave
@@ -479,7 +449,6 @@ class Oct2Py(object):
             # use ascii char codes so we can increment
             argout_list, save_line = self._reader.setup(nout)
             call_line = '[{0}] = '.format(', '.join(argout_list))
-            eval_kwargs['return_ans'] = True
 
         call_line += func + '('
 
@@ -533,14 +502,15 @@ class Oct2Py(object):
             msg = 'Name: "%s" does not exist on the Octave session path'
             raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
+
         try:
-            doc = self.eval('help {0}'.format(name), log=False,
-                            verbose=False)
+            doc, _ = self.eval('help {0}'.format(name), log=False,
+                            verbose=False, return_both=True)
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
-            doc = self.eval('type("{0}")'.format(name), log=False,
-                            verbose=False)
+            doc, _ = self.eval('type("{0}")'.format(name), log=False,
+                            verbose=False, return_both=True)
             if isinstance(doc, list):
                 doc = doc[0]
             doc = '\n'.join(doc.splitlines()[:3])
@@ -691,7 +661,7 @@ class _Session(object):
             timeout = int(1e6)
         self.timeout = timeout
 
-    def evaluate(self, cmds, verbose=True, logger=None, log=True,
+    def evaluate(self, cmds, logger=None, log=True,
                  timeout=None, pre_call='', post_call=''):
         """Perform the low-level interaction with an Octave Session
         """
@@ -786,9 +756,6 @@ class _Session(object):
                 if sys.platform == 'win32':
                     self.close()
                 raise Oct2PyError('Syntax Error:\n%s' % '\n'.join(resp))
-
-            if verbose and logger:
-                logger.info(line)
 
             elif logger and log:
                 logger.debug(line)

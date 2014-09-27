@@ -247,9 +247,9 @@ class MiscTests(test.TestCase):
 
         ans = self.oc.eval("""
     a =1
-    a + 1
+    a + 1;
     b = 3
     b + 1""")
         text = hdlr.stream.getvalue().strip()
         assert ans == 4
-        assert text.endswith('\na =  1\nans =  2\nb =  3')
+        assert text.endswith('\na =  1\nb =  3\nans =  4')
