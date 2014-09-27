@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 2.3.0 documentation</title>
+    <title>API Reference &mdash; Oct2Py 2.4.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2.3.0',
+        VERSION:     '2.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 2.3.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.4.0 documentation" href="../index.html" />
     <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>2.3.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.4.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -292,7 +292,7 @@ a shared memory (tmpfs) path.</p>
 
 <dl class="method">
 <dt id="oct2py.Oct2Py.eval">
-<tt class="descname">eval</tt><big>(</big><em>cmds</em>, <em>verbose=False</em>, <em>timeout=None</em>, <em>log=True</em>, <em>plot_dir=None</em>, <em>plot_name='plot'</em>, <em>plot_format='png'</em>, <em>plot_width=None</em>, <em>plot_height=None</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.eval" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">eval</tt><big>(</big><em>cmds</em>, <em>verbose=True</em>, <em>timeout=None</em>, <em>log=True</em>, <em>plot_dir=None</em>, <em>plot_name='plot'</em>, <em>plot_format='svg'</em>, <em>plot_width=None</em>, <em>plot_height=None</em>, <em>return_both=False</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.eval" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate an Octave command or commands.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -337,11 +337,16 @@ xxx is the <cite>plot_format</cite>.</p>
 <blockquote>
 <div><p>The plot height in pixels.</p>
 </div></blockquote>
+<p><strong>return_both: bool, optional</strong></p>
+<blockquote>
+<div><p>If True, return a (text, value) tuple with the response
+and the return value.</p>
+</div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : str</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>out</strong> : object</p>
 <blockquote>
-<div><p>Results printed by Octave.</p>
+<div><p>Octave &#8220;ans&#8221; variable, or None.</p>
 </div></blockquote>
 </td>
 </tr>

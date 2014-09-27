@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; Oct2Py 2.3.0 documentation</title>
+    <title>Installation &mdash; Oct2Py 2.4.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2.3.0',
+        VERSION:     '2.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 2.3.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.4.0 documentation" href="../index.html" />
     <link rel="next" title="Demo" href="demo.html" />
     <link rel="prev" title="Oct2Py: Python to GNU Octave Bridge" href="../index.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>2.3.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.4.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -176,9 +176,19 @@ gnuplot-x11, if available.</li>
 The MinGW version requires the <a class="reference external" href="http://portableapps.com/apps/utilities/7-zip_portable">7zip</a> program for installation.
 Make sure to install gnuplot if prompted.
 Finally, to add Octave to your path. You can do so from the Environmental Variables dialog for your version of Windows, or set from the command prompt:</p>
-<div class="highlight-python"><div class="highlight"><pre>setx PATH &quot;%PATH%;&lt;path-to-octave-bin-dir&gt;
+<div class="highlight-python"><div class="highlight"><pre>setx PATH &quot;%PATH%;&lt;path-to-octave-dir&gt;
 </pre></div>
 </div>
+<p>Where the folder &lt;path-to-octave-dir&gt; has the file &#8220;octave.exe&#8221;.
+If you see the message: &#8220;WARNINGS: The data being saved is truncated to 1024 characters&#8221;
+It means your PATH variable is too long.  You&#8217;ll have to manually trim in in the Windows
+Environmental Variables editor.</p>
+</li>
+<li><dl class="first docutils">
+<dt>To test, open a command window (or terminal) and type: <cite>octave</cite>.  If Octave starts, you should</dt>
+<dd><p class="first last">be good to go.</p>
+</dd>
+</dl>
 </li>
 </ul>
 </div>

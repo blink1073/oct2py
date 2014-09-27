@@ -30,7 +30,15 @@ GNU Octave Installation
   Make sure to install gnuplot if prompted.
   Finally, to add Octave to your path. You can do so from the Environmental Variables dialog for your version of Windows, or set from the command prompt::
 
-      setx PATH "%PATH%;<path-to-octave-bin-dir>
+      setx PATH "%PATH%;<path-to-octave-dir>
+
+  Where the folder <path-to-octave-dir> has the file "octave.exe".
+  If you see the message: "WARNINGS: The data being saved is truncated to 1024 characters"
+  It means your PATH variable is too long.  You'll have to manually trim in in the Windows
+  Environmental Variables editor.
+
+- To test, open a command window (or terminal) and type: `octave`.  If Octave starts, you should
+   be good to go.
 
 .. _version: http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
 .. _7zip: http://portableapps.com/apps/utilities/7-zip_portable
