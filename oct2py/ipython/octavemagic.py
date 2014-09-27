@@ -297,10 +297,8 @@ class OctaveMagics(Magics):
         else:
             plot_width, plot_height = None, None
 
-        cmds = [code]
-
         try:
-            text_output, value = self._oct.eval(cmds, plot_dir=plot_dir,
+            text_output, value = self._oct.eval(code, plot_dir=plot_dir,
                                                 plot_format=plot_format,
                                                 plot_width=plot_width,
                                                 plot_height=plot_height,
