@@ -218,7 +218,7 @@ class MiscTests(test.TestCase):
     def test_interrupt(self):
 
         def action():
-            time.sleep(1.0)
+            time.sleep(2.0)
             thread.interrupt_main()
 
         interrupter = threading.Thread(target=action)
