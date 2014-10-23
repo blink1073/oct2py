@@ -869,6 +869,8 @@ class _Session(object):
 
         try:
             self.proc.terminate()
+            time.sleep(0.1)
+            self.proc.kill()
         except Exception as e:  # pragma: no cover
             self.logger.debug(e)
 
