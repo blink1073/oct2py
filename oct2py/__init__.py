@@ -9,7 +9,7 @@ MAT files.  Usage is as simple as:
     >>> import oct2py
     >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
-    >>> print x, x.dtype
+    >>> print(x, x.dtype)
     [[ 0.  0.  0.]
      [ 0.  0.  0.]
      [ 0.  0.  0.]] float64

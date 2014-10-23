@@ -21,7 +21,7 @@ GNU Octave Installation
 -----------------------
 - On Linux platforms, try your package manager, or follow the
   instructions from Octave_.  You must also have gnuplot installed, and
-  gnuplot-x11, if available.
+  gnuplot-x11 or gnuplot-qt, if available.
 
 .. _Octave:  http://www.gnu.org/software/octave/doc/interpreter/Installation.html
 
