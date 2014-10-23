@@ -779,12 +779,19 @@ class _Session(object):
     def _handle_first_run(self):
         self.write('disp(available_graphics_toolkits());disp(char(3))\n')
         resp = self.expect(chr(3))
-        if not 'gnuplot' in resp:
-            warnings.warn('Oct2Py may not be able to display plots '
-                          'properly without gnuplot, please install it '
-                          '(gnuplot-x11 on Linux)')
-        else:
+        if not os.name == 'nt':
+            try:
+                subprocess.check_output('which gnuplot', shell=True)
+            except subprocess.CalledProcessError:
+                resp = None
+
+        if resp:
             self.write("graphics_toolkit('gnuplot')\n")
+        else:
+            warnings.warn('Oct2Py may not be able to display plots '
+               'properly without gnuplot, please install it '
+               '(gnuplot-x11 on Linux)')
+
         self.first_run = False
         self.write("""
              global __oct2py_figures = [];
