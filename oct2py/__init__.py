@@ -9,10 +9,10 @@ MAT files.  Usage is as simple as:
     >>> import oct2py
     >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
-    >>> print(x, x.dtype)
+    >>> print(x, x.dtype.str)
     [[ 0.  0.  0.]
      [ 0.  0.  0.]
-     [ 0.  0.  0.]] float64
+     [ 0.  0.  0.]] <f8
 
 If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
