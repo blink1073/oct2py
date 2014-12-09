@@ -45,15 +45,18 @@ if os.name == 'nt':
     http://stackoverflow.com/questions/15457786/ctrl-c-crashes-python-after-importing-scipy-stats
     """
     basepath = imp.find_module('numpy')[1]
-    lib1 = ctypes.CDLL(os.path.join(basepath, 'core', 'libmmd.dll'))
-    lib2 = ctypes.CDLL(os.path.join(basepath, 'core', 'libifcoremd.dll'))
+    try:
+        lib1 = ctypes.CDLL(os.path.join(basepath, 'core', 'libmmd.dll'))
+        lib2 = ctypes.CDLL(os.path.join(basepath, 'core', 'libifcoremd.dll'))
 
-    def handler(sig, hook=thread.interrupt_main):
-        hook()
-        return 1
+        def handler(sig, hook=thread.interrupt_main):
+            hook()
+            return 1
 
-    routine = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)(handler)
-    ctypes.windll.kernel32.SetConsoleCtrlHandler(routine, 1)
+        routine = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)(handler)
+        ctypes.windll.kernel32.SetConsoleCtrlHandler(routine, 1)
+    except Exception:
+        pass
 
 
 from .core import Oct2Py, Oct2PyError
