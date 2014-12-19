@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+2.4.2 (2014-12-19)
+++++++++++++++++++
+- Add support for Octave 3.8 on Windows
+
 2.4.1 (2014-10-22)
 ++++++++++++++++++
 - Prevent zombie octave processes.
