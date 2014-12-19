@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+2.4.1 (2014-10-22)
+++++++++++++++++++
+- Prevent zombie octave processes.
+
 2.4.0 (2014-09-27)
 ++++++++++++++++++
 - Make `eval` output match Octave session output.
