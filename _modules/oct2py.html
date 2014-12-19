@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py &mdash; Oct2Py 2.4.1 documentation</title>
+    <title>oct2py &mdash; Oct2Py 2.4.2 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2.4.1',
+        VERSION:     '2.4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 2.4.1 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.4.2 documentation" href="../index.html" />
     <link rel="up" title="Module code" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,12 +52,11 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>2.4.1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.4.2</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
           <ul class="nav navbar-nav">
-            <li class="divider-vertical"></li>
             
             
               <li class="dropdown globaltoc-container">
@@ -137,10 +136,10 @@
 <span class="sd">    &gt;&gt;&gt; import oct2py</span>
 <span class="sd">    &gt;&gt;&gt; oc = oct2py.Oct2Py()</span>
 <span class="sd">    &gt;&gt;&gt; x = oc.zeros(3,3)</span>
-<span class="sd">    &gt;&gt;&gt; print(x, x.dtype)</span>
+<span class="sd">    &gt;&gt;&gt; print(x, x.dtype.str)</span>
 <span class="sd">    [[ 0.  0.  0.]</span>
 <span class="sd">     [ 0.  0.  0.]</span>
-<span class="sd">     [ 0.  0.  0.]] float64</span>
+<span class="sd">     [ 0.  0.  0.]] &lt;f8</span>
 
 <span class="sd">If you want to run legacy m-files, do not have MATLAB(TM), and do not fully</span>
 <span class="sd">trust a code translator, this is your library.</span>
@@ -148,7 +147,7 @@
 
 
 <span class="n">__title__</span> <span class="o">=</span> <span class="s">&#39;oct2py&#39;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;2.4.1&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;2.4.2&#39;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Steven Silvester&#39;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&#39;MIT&#39;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&#39;Copyright 2014 Steven Silvester&#39;</span>
@@ -173,15 +172,18 @@
 <span class="sd">    http://stackoverflow.com/questions/15457786/ctrl-c-crashes-python-after-importing-scipy-stats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">basepath</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s">&#39;numpy&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">lib1</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;libmmd.dll&#39;</span><span class="p">))</span>
-    <span class="n">lib2</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;libifcoremd.dll&#39;</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">lib1</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;libmmd.dll&#39;</span><span class="p">))</span>
+        <span class="n">lib2</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;libifcoremd.dll&#39;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">hook</span><span class="o">=</span><span class="n">thread</span><span class="o">.</span><span class="n">interrupt_main</span><span class="p">):</span>
-        <span class="n">hook</span><span class="p">()</span>
-        <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">hook</span><span class="o">=</span><span class="n">thread</span><span class="o">.</span><span class="n">interrupt_main</span><span class="p">):</span>
+            <span class="n">hook</span><span class="p">()</span>
+            <span class="k">return</span> <span class="mi">1</span>
 
-    <span class="n">routine</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WINFUNCTYPE</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint</span><span class="p">)(</span><span class="n">handler</span><span class="p">)</span>
-    <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">kernel32</span><span class="o">.</span><span class="n">SetConsoleCtrlHandler</span><span class="p">(</span><span class="n">routine</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">routine</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">WINFUNCTYPE</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint</span><span class="p">)(</span><span class="n">handler</span><span class="p">)</span>
+        <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">kernel32</span><span class="o">.</span><span class="n">SetConsoleCtrlHandler</span><span class="p">(</span><span class="n">routine</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
 
 
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">Oct2Py</span><span class="p">,</span> <span class="n">Oct2PyError</span>

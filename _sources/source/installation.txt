@@ -25,7 +25,9 @@ GNU Octave Installation
 
 .. _Octave:  http://www.gnu.org/software/octave/doc/interpreter/Installation.html
 
-- On Windows, download the latest MinGW or .NET version_.
+- On Windows, download the latest MinGW or .NET version_.  Cygwin
+  is *NOT* supported.  Octave 3.8.2 is notionally supported, but it
+  is still an unofficial release.
   The MinGW version requires the 7zip_ program for installation.
   Make sure to install gnuplot if prompted.
   Finally, to add Octave to your path. You can do so from the Environmental Variables dialog for your version of Windows, or set from the command prompt::
