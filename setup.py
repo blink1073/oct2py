@@ -51,6 +51,6 @@ setup(
     platforms=["Any"],
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    classifiers=filter(None, CLASSIFIERS.split('\n')),
+    classifiers=list(filter(None, CLASSIFIERS.split('\n'))),
     requires=REQUIRES
  )
