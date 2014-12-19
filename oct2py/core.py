@@ -76,7 +76,7 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = get_log()
-        # self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG)
         self._session = None
         self.restart()
 
@@ -696,6 +696,10 @@ class _Session(object):
         disp(char(2))
 
         try
+           set(0, 'DefaultFigureCreateFcn', @fig_create)
+        end
+
+        try
             disp(char(2));
             %(expr)s
             if exist("ans") == 1
@@ -794,8 +798,7 @@ class _Session(object):
                   global __oct2py_figure_visible;
                   set(src, 'visible', __oct2py_figure_visible);
                   __oct2py_figures(end + 1) = src;
-                end;
-                set(0, 'DefaultFigureCreateFcn', @fig_create);\n""")
+                end;\n""")
 
     def interrupt(self):
         if os.name == 'nt':
