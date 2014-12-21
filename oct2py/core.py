@@ -76,7 +76,7 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = get_log()
-        self.logger.setLevel(logging.DEBUG)
+        #self.logger.setLevel(logging.DEBUG)
         self._session = None
         self.restart()
 
