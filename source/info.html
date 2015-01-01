@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Information &mdash; Oct2Py 2.4.2 documentation</title>
+    <title>Information &mdash; Oct2Py 2.4.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2.4.2',
+        VERSION:     '2.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 2.4.2 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.4.0 documentation" href="../index.html" />
     <link rel="prev" title="API Reference" href="api.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>2.4.2</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.4.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -185,6 +185,9 @@ functions.  For example:</p>
 <span class="go">   [ 1.,  1.,  1.]])</span>
 </pre></div>
 </div>
+<p>If you pass keyword arguments to the function, they will be treated as
+Octave keywords, for example, <cite>octave.plot(x, y, linewidth=3)</cite> becomes
+<cite>plot(x, y, &#8216;linewidth&#8217;, 3)</cite></p>
 <p>Additionally, you can look up the documentation for one of these methods using
 <cite>help()</cite></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">help</span><span class="p">(</span><span class="n">octave</span><span class="o">.</span><span class="n">ones</span><span class="p">)</span>
@@ -364,7 +367,7 @@ notebooks.  This requires IPython &gt;= 1.0.0.</p>
     </p>
     <p>
         &copy; Copyright 2011 - 2014, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
     </p>
   </div>
 </footer>
