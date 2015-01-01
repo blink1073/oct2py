@@ -83,7 +83,7 @@ class OctaveMagics(Magics):
 
         """
         super(OctaveMagics, self).__init__(shell)
-        self._oct = oct2py.Oct2Py()
+        self._oct = oct2py.octave
         if sys.platform == 'win32':
             # Use svg by default due to lack of Ghostscript on Windows Octave
             self._plot_format = 'svg'
