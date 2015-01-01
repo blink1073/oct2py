@@ -104,7 +104,7 @@ class Oct2Py(object):
 
     def push(self, name, var, verbose=False, timeout=None):
         """
-        Put a variable or variables into the Scilab session.
+        Put a variable or variables into the Octave session.
 
         Parameters
         ----------
@@ -113,7 +113,7 @@ class Oct2Py(object):
         var : object or list
             The value(s) to pass.
         timeout : float
-            Time to wait for response from Scilab (per character).
+            Time to wait for response from Octave (per character).
 
         Examples
         --------
@@ -142,14 +142,14 @@ class Oct2Py(object):
 
     def pull(self, var, verbose=False, timeout=None):
         """
-        Retrieve a value or values from the Scilab session.
+        Retrieve a value or values from the Octave session.
 
         Parameters
         ----------
         var : str or list
             Name of the variable(s) to retrieve.
         timeout : float
-            Time to wait for response from Scilab (per character).
+            Time to wait for response from Octave (per character).
 
         Returns
         -------
@@ -604,7 +604,7 @@ class _Session(object):
         Parameters
         ==========
         executable : str
-            Name or path to Scilab process.
+            Name or path to Octave process.
 
         Returns
         =======
