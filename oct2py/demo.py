@@ -31,7 +31,7 @@ def demo(delay=2, interactive=True):
     print(oc.abs(-1))
     print(oc.upper('xyz'))
     # plotting
-    oc.plot([1,2,3],'-o')
+    oc.plot([1,2,3],'-o', linewidth=2)
     raw_input('Press Enter to continue...')
     oc.close()
     xx = np.arange(-2*np.pi, 2*np.pi, 0.2)
