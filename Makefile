@@ -29,6 +29,7 @@ cover: clean
 
 release: test gh-pages
 	pip install wheel
+	cp oct2py/tests/*.m example
 	python setup.py register
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload

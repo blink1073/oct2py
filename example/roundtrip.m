@@ -7,9 +7,8 @@ function [x, class] = roundtrip(y)
 
   if nargout == 2
 
-     class = class(x);
+	 class = class(x);
 
   end
 
 end
-
