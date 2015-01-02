@@ -29,7 +29,6 @@ cover: clean
 
 release: test gh-pages
 	pip install wheel
-	cp oct2py/tests/*.m example
 	python setup.py register
 	python setup.py bdist_wheel upload
 	python setup.py sdist --formats=gztar,zip upload
@@ -41,5 +40,8 @@ gh-pages: clean
 	pip install sphinx-bootstrap-theme numpydoc sphinx ghp-import
 	git checkout master
 	git pull origin master
+	cp oct2py/tests/*.m example
+	git commit -a -m "Keep examples in sync"
+	git push origin
 	make -C docs html
 	ghp-import -n -p -m $(GHP_MSG) docs/_build/html
