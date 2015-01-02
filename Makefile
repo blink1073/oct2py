@@ -41,7 +41,7 @@ gh-pages: clean
 	git checkout master
 	git pull origin master
 	cp oct2py/tests/*.m example
-	git commit -a -m "Keep examples in sync"
-	git push origin
+	git commit -a -m "Keep examples in sync"; true
+	git push origin; true
 	make -C docs html
 	ghp-import -n -p -m $(GHP_MSG) docs/_build/html
