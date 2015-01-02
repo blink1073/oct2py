@@ -22,7 +22,7 @@ To run interactively:
     >>> print(oc.upper('xyz'))
     XYZ
     >>> # plotting
-    >>> oc.plot([1,2,3],'-o')
+    >>> oc.plot([1,2,3],'-o', linewidth=2)
     Press Enter to continue...
 
 .. image:: static/plot.png
