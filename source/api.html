@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 2.4.0 documentation</title>
+    <title>API Reference &mdash; Oct2Py 2.4.2 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2.4.0',
+        VERSION:     '2.4.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 2.4.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 2.4.2 documentation" href="../index.html" />
     <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>2.4.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>2.4.2</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -208,7 +208,7 @@ a shared memory (tmpfs) path.</p>
 <dl class="method">
 <dt id="oct2py.Oct2Py.push">
 <tt class="descname">push</tt><big>(</big><em>name</em>, <em>var</em>, <em>verbose=False</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.push" title="Permalink to this definition">¶</a></dt>
-<dd><p>Put a variable or variables into the Scilab session.</p>
+<dd><p>Put a variable or variables into the Octave session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -223,7 +223,7 @@ a shared memory (tmpfs) path.</p>
 </div></blockquote>
 <p><strong>timeout</strong> : float</p>
 <blockquote class="last">
-<div><p>Time to wait for response from Scilab (per character).</p>
+<div><p>Time to wait for response from Octave (per character).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -245,7 +245,7 @@ a shared memory (tmpfs) path.</p>
 <dl class="method">
 <dt id="oct2py.Oct2Py.pull">
 <tt class="descname">pull</tt><big>(</big><em>var</em>, <em>verbose=False</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py.pull" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve a value or values from the Scilab session.</p>
+<dd><p>Retrieve a value or values from the Octave session.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -256,7 +256,7 @@ a shared memory (tmpfs) path.</p>
 </div></blockquote>
 <p><strong>timeout</strong> : float</p>
 <blockquote>
-<div><p>Time to wait for response from Scilab (per character).</p>
+<div><p>Time to wait for response from Octave (per character).</p>
 </div></blockquote>
 </td>
 </tr>
@@ -264,7 +264,7 @@ a shared memory (tmpfs) path.</p>
 <blockquote>
 <div><p>Object returned by Octave.</p>
 </div></blockquote>
-<p><strong>Raises:</strong> :</p>
+<p>Raises:</p>
 <blockquote>
 <div><dl class="docutils">
 <dt>Oct2PyError</dt>
@@ -272,7 +272,7 @@ a shared memory (tmpfs) path.</p>
 </dd>
 </dl>
 </div></blockquote>
-<p><strong>Examples:</strong> :</p>
+<p>Examples:</p>
 <div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -313,7 +313,7 @@ a shared memory (tmpfs) path.</p>
 <blockquote>
 <div><p>Time to wait for response from Octave (per character).</p>
 </div></blockquote>
-<p><strong>plot_dir: str, optional</strong> :</p>
+<p><strong>plot_dir: str, optional</strong></p>
 <blockquote>
 <div><p>If specificed, save the session&#8217;s plot figures to the plot
 directory instead of displaying the plot window.</p>
@@ -324,19 +324,19 @@ directory instead of displaying the plot window.</p>
 end with &#8220;_%%.xxx&#8217; where %% is the plot number and
 xxx is the <cite>plot_format</cite>.</p>
 </div></blockquote>
-<p><strong>plot_format: str, optional</strong> :</p>
+<p><strong>plot_format: str, optional</strong></p>
 <blockquote>
 <div><p>The format in which to save the plot (PNG by default).</p>
 </div></blockquote>
-<p><strong>plot_width: int, optional</strong> :</p>
+<p><strong>plot_width: int, optional</strong></p>
 <blockquote>
 <div><p>The plot with in pixels.</p>
 </div></blockquote>
-<p><strong>plot_height: int, optional</strong> :</p>
+<p><strong>plot_height: int, optional</strong></p>
 <blockquote>
 <div><p>The plot height in pixels.</p>
 </div></blockquote>
-<p><strong>return_both: bool, optional</strong> :</p>
+<p><strong>return_both: bool, optional</strong></p>
 <blockquote>
 <div><p>If True, return a (text, value) tuple with the response
 and the return value.</p>
@@ -349,7 +349,7 @@ and the return value.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong> :</p>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>Oct2PyError</strong></p>
 <blockquote class="last">
 <div><p>If the command(s) fail.</p>
 </div></blockquote>
@@ -445,8 +445,8 @@ Any other Oct2Py objects, you must restart them.</p>
       
     </p>
     <p>
-        &copy; Copyright 2011 - 2014, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.2.<br/>
+        &copy; Copyright 2011 - 2015, Oct2Py contributors.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
     </p>
   </div>
 </footer>
