@@ -154,9 +154,14 @@ class RoundtripTest(test.TestCase):
         except Oct2PyError:
             func = 'isequalwithequalnans'
         for key in self.data.keys():
-            if key != 'struct_array':
+            if key not in ['struct_array', 'num']:
                 cmd = '{0}(x.{1},y.{1})'.format(func, key)
-                assert self.oc.eval(cmd)
+                assert self.oc.eval(cmd), key
+        self.oc.convert_to_float = False
+        self.oc.push('y', self.data)
+        cmd = '%s(x.num,y.num)' % func
+        assert self.oc.eval(cmd)
+        self.oc.convert_to_float = True
 
 
 class BuiltinsTest(test.TestCase):
@@ -288,7 +293,12 @@ class BuiltinsTest(test.TestCase):
         for t in tests:
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)
+            self.assertEqual(incoming.dtype, np.dtype('float64'))
+            self.oc.convert_to_float = False
+            incoming = self.oc.roundtrip(t)
+            self.assertEqual(incoming, t)
             self.assertEqual(incoming.dtype, np.dtype('int8'))
+            self.oc.convert_to_float = True
 
     def test_none(self):
         """Test sending None type

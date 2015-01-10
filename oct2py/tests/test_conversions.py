@@ -156,7 +156,8 @@ class ConversionTest(test.TestCase):
             elif octave_type == 'int64' and oct_type == 'int32':
                 pass
             else:
-                assert octave_type == oct_type
+                assert (octave_type == oct_type or
+                        (octave_type == 'double' and self.oc.convert_to_float))
             if type(incoming) != in_type:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
