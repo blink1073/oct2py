@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 2.4.2 documentation</title>
+    <title>API Reference &mdash; Oct2Py 3.0.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '2.4.2',
+        VERSION:     '3.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 2.4.2 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 3.0.0 documentation" href="../index.html" />
     <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>2.4.2</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.0.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -157,7 +157,7 @@
 <span id="oct2py"></span><h2>Oct2Py<a class="headerlink" href="#module-oct2py" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="oct2py.Oct2Py">
-<em class="property">class </em><tt class="descclassname">oct2py.</tt><tt class="descname">Oct2Py</tt><big>(</big><em>executable=None</em>, <em>logger=None</em>, <em>timeout=None</em>, <em>oned_as='row'</em>, <em>temp_dir=None</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">oct2py.</tt><tt class="descname">Oct2Py</tt><big>(</big><em>executable=None</em>, <em>logger=None</em>, <em>timeout=None</em>, <em>oned_as='row'</em>, <em>temp_dir=None</em>, <em>convert_to_float=True</em><big>)</big><a class="headerlink" href="#oct2py.Oct2Py" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages an Octave session.</p>
 <p>Uses MAT files to pass data between Octave and Numpy.
 The function must either exist as an m-file in this directory or
@@ -179,7 +179,7 @@ when calling a command, then they will be logged as info.</p>
 <blockquote>
 <div><p>Optional logger to use for Oct2Py session</p>
 </div></blockquote>
-<p><strong>timeout</strong> : float, opional</p>
+<p><strong>timeout</strong> : float, optional</p>
 <blockquote>
 <div><p>Timeout in seconds for commands</p>
 </div></blockquote>
@@ -189,10 +189,14 @@ when calling a command, then they will be logged as info.</p>
 If &#8216;row&#8217;, write 1-D numpy arrays as row vectors.}</p>
 </div></blockquote>
 <p><strong>temp_dir</strong> : str, optional</p>
-<blockquote class="last">
+<blockquote>
 <div><p>If specified, the session&#8217;s MAT files will be created in the
 directory, otherwise a default directory is used.  This can be
 a shared memory (tmpfs) path.</p>
+</div></blockquote>
+<p><strong>convert_to_float</strong> : bool, optional</p>
+<blockquote class="last">
+<div><p>If true, convert integer types to float when passing to Octave.</p>
 </div></blockquote>
 </td>
 </tr>
