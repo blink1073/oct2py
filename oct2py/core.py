@@ -51,7 +51,7 @@ class Oct2Py(object):
         Name of the Octave executable, can be a system path.
     logger : logging object, optional
         Optional logger to use for Oct2Py session
-    timeout : float, opional
+    timeout : float, optional
         Timeout in seconds for commands
     oned_as : {'row', 'column'}, optional
         If 'column', write 1-D numpy arrays as column vectors.
@@ -60,10 +60,12 @@ class Oct2Py(object):
         If specified, the session's MAT files will be created in the
         directory, otherwise a default directory is used.  This can be
         a shared memory (tmpfs) path.
+    convert_to_float : bool, optional
+        If true, convert integer types to float when passing to Octave.
     """
 
     def __init__(self, executable=None, logger=None, timeout=None,
-                 oned_as='row', temp_dir=None):
+                 oned_as='row', temp_dir=None, convert_to_float=True):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
@@ -78,7 +80,17 @@ class Oct2Py(object):
             self.logger = get_log()
         #self.logger.setLevel(logging.DEBUG)
         self._session = None
+        self._convert_to_float = convert_to_float
         self.restart()
+
+    @property
+    def convert_to_float(self):
+        return self._convert_to_float
+
+    @convert_to_float.setter
+    def convert_to_float(self, value):
+        self._writer.convert_to_float = value
+        self._convert_to_float = value
 
     def __enter__(self):
         """Return octave object, restart session if necessary"""
@@ -125,6 +137,11 @@ class Oct2Py(object):
         >>> octave.push(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.pull(['x', 'y'])  # doctest: +SKIP
         [u'spam', array([[1, 2, 3, 4]])]
+
+        Note
+        ----
+        Integer type arguments will be converted to floating point
+        unless `convert_to_float=False`.
 
         """
         if isinstance(name, (str, unicode)):
@@ -348,7 +365,8 @@ class Oct2Py(object):
         if self._session:
             self._session.close()
         self._reader = MatRead(self._temp_dir)
-        self._writer = MatWrite(self._temp_dir, self._oned_as)
+        self._writer = MatWrite(self._temp_dir, self._oned_as, 
+                                self._convert_to_float)
         self._session = _Session(self._executable,
                                  self._reader.out_file, self.logger)
 
@@ -419,6 +437,12 @@ class Oct2Py(object):
         ----------
         Oct2PyError
             If the function call is unsucessful.
+
+        Notes
+        -----
+        Integer type arguments will be converted to floating point
+        unless `convert_to_float=False`.
+
         """
         nout = kwargs.pop('nout', get_nout())
 
@@ -461,7 +485,7 @@ class Oct2Py(object):
                 call_line += ', '
             call_line += prop_vals
 
-        call_line += ')'
+        call_line += ');'
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]

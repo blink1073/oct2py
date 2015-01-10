@@ -20,9 +20,10 @@ class MatWrite(object):
 
     Strives to preserve both value and type in transit.
     """
-    def __init__(self, temp_dir=None, oned_as='row'):
+    def __init__(self, temp_dir=None, oned_as='row', convert_to_float=True):
         self.oned_as = oned_as
         self.temp_dir = temp_dir
+        self.convert_to_float = convert_to_float
         self.in_file = create_file(self.temp_dir)
 
     def create_file(self, inputs, names=None):
@@ -59,9 +60,9 @@ class MatWrite(object):
             # for structs - recursively add the elements
             try:
                 if isinstance(var, dict):
-                    data[argin_list[-1]] = putvals(var)
+                    data[argin_list[-1]] = putvals(var, self.convert_to_float)
                 else:
-                    data[argin_list[-1]] = putval(var)
+                    data[argin_list[-1]] = putval(var, self.convert_to_float)
             except Oct2PyError:
                 raise
             ascii_code += 1
@@ -83,7 +84,7 @@ class MatWrite(object):
             pass
 
 
-def putvals(dict_):
+def putvals(dict_, convert_to_float=True):
     """
     Put a nested dict into the MAT file as a struct
 
@@ -91,6 +92,8 @@ def putvals(dict_):
     ==========
     dict_ : dict
         Dictionary of object(s) to store
+    convert_to_float : bool
+        If true, convert integer types to float
 
     Returns
     =======
@@ -101,13 +104,13 @@ def putvals(dict_):
     data = dict()
     for key in dict_.keys():
         if isinstance(dict_[key], dict):
-            data[key] = putvals(dict_[key])
+            data[key] = putvals(dict_[key], convert_to_float)
         else:
-            data[key] = putval(dict_[key])
+            data[key] = putval(dict_[key], convert_to_float)
     return data
 
 
-def putval(data):
+def putval(data, convert_to_float=True):
     """
     Convert data into a state suitable for transfer.
 
@@ -115,6 +118,8 @@ def putval(data):
     ==========
     data : object
         Value to write to file.
+    convert_to_float : bool
+        If true, convert integer types to float.
 
     Returns
     =======
@@ -178,6 +183,8 @@ def putval(data):
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
     if data.dtype == 'object' and len(data.shape) > 1:
         data = data.T
+    if convert_to_float and data.dtype.kind in 'ui':
+        data = data.astype(float)
     return data
 
 
