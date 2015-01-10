@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+3.0.0 (2015-01-10)
+++++++++++++++++++
+- Add `convert_to_float` property that is True by default.
+- Suppress output in dynamic function calls (using ';')
+
+
 2.4.2 (2014-12-19)
 ++++++++++++++++++
 - Add support for Octave 3.8 on Windows
