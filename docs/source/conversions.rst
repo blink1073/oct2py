@@ -5,7 +5,8 @@ Conversions
 Python to Octave Types
 ----------------------
 
-Shows the round-trip data types.
+Shows the round-trip data types.  Note that when `convert_to_float` is 
+set (default), integer types are converted to floating point.
 
 =============   ===========    =============
 Python          Octave         Python
@@ -25,6 +26,8 @@ Numpy to Octave Types
 ---------------------
 
 Note that the errors are types that are not implemented.
+Note that when `convert_to_float` is 
+set (default), integer types are converted to floating point.
 
 =============   ===========    =============
 Numpy           Octave         Numpy
