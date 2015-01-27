@@ -664,12 +664,10 @@ class _Session(object):
             executable = 'octave'
 
         if os.name == 'nt':
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            kwargs['startupinfo'] = startupinfo
-            kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+            CREATE_NO_WINDOW = 0x08000000  # Windows-specific
+            flags = subprocess.CREATE_NEW_PROCESS_GROUP + CREATE_NO_WINDOW
+            kwargs['creationflags'] = flags
 
-        try:
             proc = subprocess.Popen([executable, '-q', '--braindead'],
                                     **kwargs)
 
