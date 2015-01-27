@@ -668,6 +668,7 @@ class _Session(object):
             flags = subprocess.CREATE_NEW_PROCESS_GROUP + CREATE_NO_WINDOW
             kwargs['creationflags'] = flags
 
+        try:
             proc = subprocess.Popen([executable, '-q', '--braindead'],
                                     **kwargs)
 
