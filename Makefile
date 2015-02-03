@@ -19,7 +19,7 @@ clean:
 
 test: clean
 	python setup.py build
-	export PYTHONWARNINGS="all"; cd build; nosetests $(TEST_ARGS)
+	export PYTHONWARNINGS="all"; cd build; nosetests $(TEST_ARGS) $(NAME)
 	make clean
 
 cover: clean
