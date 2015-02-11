@@ -52,6 +52,14 @@ class MatRead(object):
         return argout_list, save_line
 
     def create_file(self, temp_dir):
+        """
+        Create a reader file in a temp directory
+
+        Parameters
+        ----------
+        temp_dir : str
+            Path of the temporary directory
+        """
         self.out_file = os.path.join(temp_dir, 'reader.mat')
 
     def extract_file(self, variables=None):
