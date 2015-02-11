@@ -77,7 +77,7 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = get_log()
-        #self.logger.setLevel(logging.DEBUG)
+        # self.logger.setLevel(logging.DEBUG)
         self._session = None
         self._convert_to_float = convert_to_float
         self.restart()
@@ -260,8 +260,8 @@ class Oct2Py(object):
             timeout = self.timeout
 
         pre_call, post_call = self._get_plot_commands(plot_dir,
-            plot_format, plot_width, plot_height,
-            plot_name)
+                                                      plot_format, plot_width, plot_height,
+                                                      plot_name)
 
         try:
             tempdir = tempfile.mkdtemp()
@@ -490,7 +490,8 @@ class Oct2Py(object):
             call_line += func + '('
 
             if inputs:
-                argin_list, load_line = self._writer.create_file(temp_dir, inputs)
+                argin_list, load_line = self._writer.create_file(
+                    temp_dir, inputs)
                 call_line += ', '.join(argin_list)
 
             if prop_vals:
@@ -544,12 +545,12 @@ class Oct2Py(object):
 
         try:
             doc, _ = self.eval('help {0}'.format(name), log=False,
-                            verbose=False, return_both=True)
+                               verbose=False, return_both=True)
         except Oct2PyError as e:
             if 'syntax error' in str(e):
                 raise(e)
             doc, _ = self.eval('type("{0}")'.format(name), log=False,
-                            verbose=False, return_both=True)
+                               verbose=False, return_both=True)
             if isinstance(doc, list):
                 doc = doc[0]
             doc = '\n'.join(doc.splitlines()[:3])
@@ -822,8 +823,8 @@ class _Session(object):
             self.write("graphics_toolkit('gnuplot')\n")
         else:
             warnings.warn('Oct2Py may not be able to display plots '
-               'properly without gnuplot, please install it '
-               '(gnuplot-x11 on Linux)')
+                          'properly without gnuplot, please install it '
+                          '(gnuplot-x11 on Linux)')
 
         self.first_run = False
         self.write("""
