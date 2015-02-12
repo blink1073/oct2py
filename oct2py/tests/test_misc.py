@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 import glob
 import logging
 import os
+import shutil
 import sys
 import tempfile
 import threading
@@ -203,12 +204,13 @@ class MiscTests(test.TestCase):
         oc.exit()
 
     def test_temp_dir(self):
-        oc = Oct2Py(temp_dir='.')
-        thisdir = os.path.dirname(os.path.abspath('.')).replace('\\', '/')
-        oc._reader.create_file(thisdir)
-        oc._writer.create_file(thisdir, [])
-        assert oc._reader.out_file.startswith(thisdir)
-        assert oc._writer.in_file.startswith(thisdir)
+        temp_dir = tempfile.mkdtemp()
+        oc = Oct2Py(temp_dir=temp_dir)
+        oc._reader.create_file(oc.temp_dir)
+        oc._writer.create_file(oc.temp_dir, [])
+        assert oc._reader.out_file.startswith(temp_dir)
+        assert oc._writer.in_file.startswith(temp_dir)
+        shutil.rmtree(temp_dir)
         oc.exit()
 
     def test_interrupt(self):
