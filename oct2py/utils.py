@@ -5,25 +5,9 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
-import os
 import inspect
 import dis
-import tempfile
 from oct2py.compat import PY2
-
-
-def _remove_temp_files(dirname):
-    """
-    Remove the created mat files in the user's temp folder
-    """
-    import os
-    import glob
-
-    for fname in glob.glob(os.path.join(dirname, 'tmp*.mat')):
-        try:
-            os.remove(fname)
-        except OSError:  # pragma: no cover
-            pass
 
 
 def get_nout():
@@ -52,27 +36,6 @@ def get_nout():
     elif instruction in [dis.opmap['POP_TOP'], dis.opmap['PRINT_EXPR']]:
         return 0
     return 1
-
-
-def create_file(temp_dir=None):
-    """
-    Create a MAT file with a random name in the temp directory
-
-    Parameters
-    ==========
-    temp_dir : str, optional
-        If specified, the file will be created in that directory,
-    otherwise a default directory is used.
-
-    Returns
-    =======
-    out : str
-        Random file name with the desired extension
-    """
-    temp_file = tempfile.NamedTemporaryFile(suffix='.mat', delete=False,
-                                            dir=temp_dir)
-    temp_file.close()
-    return os.path.abspath(temp_file.name).replace('\\', '/')
 
 
 class Oct2PyError(Exception):

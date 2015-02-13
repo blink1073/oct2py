@@ -10,7 +10,7 @@ import os
 import numpy as np
 from scipy.io import loadmat
 import scipy
-from .utils import Struct, create_file, Oct2PyError
+from .utils import Struct, Oct2PyError
 
 
 class MatRead(object):
@@ -19,11 +19,10 @@ class MatRead(object):
     Strives to preserve both value and type in transit.
 
     """
-    def __init__(self, temp_dir=None):
-        """Initialize our output file
+    def __init__(self):
+        """Initialize.
         """
-        self.temp_dir = temp_dir
-        self.out_file = create_file(self.temp_dir)
+        pass
 
     def setup(self, nout, names=None):
         """
@@ -49,14 +48,19 @@ class MatRead(object):
             else:
                 argout_list.append("%s__" % chr(i + 97))
         save_line = 'save -v6 {0} {1}'.format(self.out_file,
-                                                  ' '.join(argout_list))
+                                              ' '.join(argout_list))
         return argout_list, save_line
 
-    def remove_file(self):
-        try:
-            os.remove(self.out_file)
-        except (OSError, AttributeError):  # pragma: no cover
-            pass
+    def create_file(self, temp_dir):
+        """
+        Create a reader file in a temp directory
+
+        Parameters
+        ----------
+        temp_dir : str
+            Path of the temporary directory
+        """
+        self.out_file = os.path.join(temp_dir, 'reader.mat')
 
     def extract_file(self, variables=None):
         """

@@ -88,4 +88,3 @@ def kill_octave():
 
 # clean up namespace
 del functools, imp, os, ctypes, thread
-del core, utils

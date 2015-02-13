@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 import glob
 import logging
 import os
+import shutil
 import sys
 import tempfile
 import threading
@@ -97,10 +98,6 @@ class MiscTests(test.TestCase):
             demo.demo(0.01, interactive=False)
         except AttributeError:
             demo(0.01, interactive=False)
-
-    def test_remove_files(self):
-        from oct2py.utils import _remove_temp_files
-        _remove_temp_files(self.oc._temp_dir)
 
     def test_threads(self):
         from oct2py import thread_check
@@ -207,10 +204,13 @@ class MiscTests(test.TestCase):
         oc.exit()
 
     def test_temp_dir(self):
-        oc = Oct2Py(temp_dir='.')
-        thisdir = os.path.dirname(os.path.abspath('.')).replace('\\', '/')
-        assert oc._reader.out_file.startswith(thisdir)
-        assert oc._writer.in_file.startswith(thisdir)
+        temp_dir = tempfile.mkdtemp()
+        oc = Oct2Py(temp_dir=temp_dir)
+        oc._reader.create_file(oc.temp_dir)
+        oc._writer.create_file(oc.temp_dir, [])
+        assert oc._reader.out_file.startswith(temp_dir)
+        assert oc._writer.in_file.startswith(temp_dir)
+        shutil.rmtree(temp_dir)
         oc.exit()
 
     def test_interrupt(self):

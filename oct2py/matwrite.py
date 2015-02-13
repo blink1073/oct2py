@@ -11,7 +11,7 @@ import os
 from scipy.io import savemat
 import numpy as np
 from scipy.sparse import csr_matrix, csc_matrix
-from .utils import Oct2PyError, create_file
+from .utils import Oct2PyError
 from .compat import unicode
 
 
@@ -20,13 +20,11 @@ class MatWrite(object):
 
     Strives to preserve both value and type in transit.
     """
-    def __init__(self, temp_dir=None, oned_as='row', convert_to_float=True):
+    def __init__(self, oned_as='row', convert_to_float=True):
         self.oned_as = oned_as
-        self.temp_dir = temp_dir
         self.convert_to_float = convert_to_float
-        self.in_file = create_file(self.temp_dir)
 
-    def create_file(self, inputs, names=None):
+    def create_file(self, temp_dir, inputs, names=None):
         """
         Create a MAT file, loading the input variables.
 
@@ -66,8 +64,7 @@ class MatWrite(object):
             except Oct2PyError:
                 raise
             ascii_code += 1
-        if not os.path.exists(self.in_file):
-            self.in_file = create_file(self.temp_dir)
+        self.in_file = os.path.join(temp_dir, 'writer.mat')
         try:
             savemat(self.in_file, data, appendmat=False,
                     oned_as=self.oned_as, long_field_names=True)
@@ -76,12 +73,6 @@ class MatWrite(object):
         load_line = 'load {0} "{1}"'.format(self.in_file,
                                           '" "'.join(argin_list))
         return argin_list, load_line
-
-    def remove_file(self):
-        try:
-            os.remove(self.in_file)
-        except (OSError, AttributeError):  # pragma: no cover
-            pass
 
 
 def putvals(dict_, convert_to_float=True):
