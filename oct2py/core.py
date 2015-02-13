@@ -349,7 +349,7 @@ class Oct2Py(object):
             post_call += '''
             figHandles_ = get(0, 'children');
         for fig_ = 1:length(figHandles_)
-          f_ = figHandles(fig_);
+          f_ = figHandles_(fig_);
           outfile_ = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f_ + %(plot_offset)s);
           p_ = get(f_, 'position');
           w_ = %(plot_width)s;
@@ -362,7 +362,7 @@ class Oct2Py(object):
           end
           size_fmt_ = sprintf('-S%%d,%%d', w_, h_);
           try
-            print(f_, out_file_, '-d%(plot_format)s', '-tight', size_fmt_);
+            print(f_, outfile_, '-d%(plot_format)s', '-tight', size_fmt_);
           end
         end
         close('all');
