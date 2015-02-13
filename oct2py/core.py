@@ -317,20 +317,21 @@ class Oct2Py(object):
 
         pre_call += """
             set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
-            __oct2py_figures = [];
             """ % locals()
 
         if not plot_dir is None:
 
             pre_call += """
                 close all;
-             __oct2py_figure_visible = 'off';
+               set(0, 'defaultfigurevisible', 'off');
                """
 
             plot_dir = plot_dir.replace("\\", "/")
 
             post_call += '''
-        for f = __oct2py_figures
+            figHandles = get(0, 'children');
+        for fig = 1:length(figHandles)
+          f = figHandles(fig);
           outfile = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
           p = get(f, 'position');
           w = %(plot_width)s;
@@ -350,7 +351,7 @@ class Oct2Py(object):
         ''' % locals()
         else:
             pre_call += """
-             __oct2py_figure_visible = 'on';
+            "set(0, 'defaultfigurevisible', 'on');"
             """
 
             post_call += """
@@ -365,7 +366,7 @@ class Oct2Py(object):
         if self._session:
             self._session.close()
         self._reader = MatRead(self._temp_dir)
-        self._writer = MatWrite(self._temp_dir, self._oned_as, 
+        self._writer = MatWrite(self._temp_dir, self._oned_as,
                                 self._convert_to_float)
         self._session = _Session(self._executable,
                                  self._reader.out_file, self.logger)
@@ -719,10 +720,6 @@ class _Session(object):
         disp(char(2))
 
         try
-           set(0, 'DefaultFigureCreateFcn', @fig_create)
-        end
-
-        try
             disp(char(2));
             %(expr)s
             if exist("ans") == 1
@@ -820,15 +817,6 @@ class _Session(object):
                '(gnuplot-x11 on Linux)')
 
         self.first_run = False
-        self.write("""
-             global __oct2py_figures = [];
-             global __oct2py_figure_visible = 'on';
-                function fig_create(src, event);
-                  global __oct2py_figures;
-                  global __oct2py_figure_visible;
-                  set(src, 'visible', __oct2py_figure_visible);
-                  __oct2py_figures(end + 1) = src;
-                end;\n""")
 
     def interrupt(self):
         if os.name == 'nt':
