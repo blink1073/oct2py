@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+3.1.0 (2015-02-13)
+++++++++++++++++++
+- Fix handling of temporary files for multiprocessing
+- Clean up handling of plot settings
+
+
 3.0.0 (2015-01-10)
 ++++++++++++++++++
 - Add `convert_to_float` property that is True by default.
