@@ -1,0 +1,32 @@
+package:
+  name: oct2py
+  version: "3.1.0"
+
+source:
+  fn: oct2py-3.1.0.tar.gz
+  url: https://pypi.python.org/packages/source/o/oct2py/oct2py-3.1.0.tar.gz
+  md5: 12fcdcdb95f3bf6d7ebd04a382ce9242
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+    - numpy >=1.7.1
+    - scipy >=0.12
+    - ipython
+
+test:
+  # Python imports
+  imports:
+    - oct2py
+    - oct2py.tests
+    - oct2py.ipython
+    - oct2py.ipython.tests
+
+about:
+  home: http://github.com/blink1073/oct2py
+  license: MIT License
+  summary: 'Python to GNU Octave bridge --> run m-files from python.'
