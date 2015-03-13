@@ -37,6 +37,8 @@ script:
     else
       nosetests --exe -v oct2py;
     fi
+  - export SPHINXOPTS=-W
+  - cd docs; make html
 
 after_success:
     - coveralls
