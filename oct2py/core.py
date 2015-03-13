@@ -133,8 +133,8 @@ class Oct2Py(object):
         >>> octave.pull(['x', 'y'])  # doctest: +SKIP
         [u'spam', array([[1, 2, 3, 4]])]
 
-        Note
-        ----
+        Notes
+        -----
         Integer type arguments will be converted to floating point
         unless `convert_to_float=False`.
 
