@@ -37,6 +37,7 @@ script:
     else
       nosetests --exe -v oct2py;
     fi
+  - pip install sphinx
   - export SPHINXOPTS=-W
   - cd docs; make html
 
