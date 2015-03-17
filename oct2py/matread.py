@@ -146,4 +146,10 @@ def get_data(val):
     elif val.size == 1:
         if hasattr(val, 'flatten'):
             val = val.flatten()[0]
+    if val.size == 0:
+        if val.dtype.kind in 'US':
+            val = ''
+        else:
+            val = []
+
     return val

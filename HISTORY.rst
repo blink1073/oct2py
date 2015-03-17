@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+3.2.0 ()
+++++++++++++++++++
+- Better handling of returned empty values
+
+
 3.1.0 (2015-02-13)
 ++++++++++++++++++
 - Fix handling of temporary files for multiprocessing
