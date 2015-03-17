@@ -251,3 +251,13 @@ class MiscTests(test.TestCase):
         text = hdlr.stream.getvalue().strip()
         assert ans == 4
         assert text.endswith('\na =  1\nb =  3\nans =  4')
+
+    def test_empty_values(self):
+        self.oc.push('a', '')
+        assert self.oc.pull('a') == ''
+
+        self.oc.push('a', [])
+        assert self.oc.pull('a') == []
+
+        self.oc.push('a', None)
+        assert np.isnan(self.oc.pull('a'))
