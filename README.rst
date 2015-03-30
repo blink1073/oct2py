@@ -52,7 +52,7 @@ Installation
 ------------
 You must have GNU Octave 3.6 or newer installed and in your PATH.
 On Windows, the easiest way to get Octave is to use an installer from SourceForge_.
-You must have the Numpy and Scipy libraries installed.
+You must have the Numpy and Scipy libraries installed. 
 On Linux, it should be available from your package manager.
 
 To install Oct2Py, simply:
