@@ -280,8 +280,18 @@ numpydoc_show_class_members = False
 # -----------------------------------------------------------------------------
 # intersphinx
 # -----------------------------------------------------------------------------
-_python_doc_base = 'http://docs.python.org/2.7'
+_python_doc_base = 'https://docs.python.org/2.7'
 intersphinx_mapping = {
     _python_doc_base: None,
 }
 
+
+# remove non-local uri warning
+import sphinx.environment
+from docutils.utils import get_source_line
+
+def _warn_node(self, msg, node):
+    if not msg.startswith('nonlocal image URI found:'):
+        self._warnfunc(msg, '%s:%s' % get_source_line(node))
+
+sphinx.environment.BuildEnvironment.warn_node = _warn_node

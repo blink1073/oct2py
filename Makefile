@@ -1,5 +1,5 @@
 # Note: This is meant for Oct2Py developer use only
-.PHONY: all clean test cover release gh-pages
+.PHONY: all clean test cover release gh-pages docs
 
 export TEST_ARGS=--exe -v --with-doctest
 export NAME=oct2py
@@ -36,12 +36,16 @@ release: test gh-pages
 	git push origin --all
 	git push origin --tags
 
-gh-pages: clean
+docs: clean
+	export SPHINXOPTS=-W
 	pip install sphinx-bootstrap-theme numpydoc sphinx ghp-import
+	make -C docs html
+
+gh-pages:
 	git checkout master
 	git pull origin master
 	cp oct2py/tests/*.m example
 	git commit -a -m "Keep examples in sync"; true
 	git push origin; true
-	make -C docs html
+	make docs
 	ghp-import -n -p -m $(GHP_MSG) docs/_build/html

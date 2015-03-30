@@ -37,6 +37,7 @@ script:
     else
       nosetests --exe -v oct2py;
     fi
+  - make docs
 
 after_success:
     - coveralls

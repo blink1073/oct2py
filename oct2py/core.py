@@ -133,8 +133,8 @@ class Oct2Py(object):
         >>> octave.pull(['x', 'y'])  # doctest: +SKIP
         [u'spam', array([[1, 2, 3, 4]])]
 
-        Note
-        ----
+        Notes
+        -----
         Integer type arguments will be converted to floating point
         unless `convert_to_float=False`.
 
@@ -335,40 +335,41 @@ class Oct2Py(object):
 
         pre_call += """
             set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
-            __oct2py_figures = [];
             """ % locals()
 
         if not plot_dir is None:
 
             pre_call += """
                 close all;
-             __oct2py_figure_visible = 'off';
+               set(0, 'defaultfigurevisible', 'off');
                """
 
             plot_dir = plot_dir.replace("\\", "/")
 
             post_call += '''
-        for f = __oct2py_figures
-          out_file = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f + %(plot_offset)s);
-          p = get(f, 'position');
-          w = %(plot_width)s;
-          h = %(plot_height)s;
-          if p(3) > %(plot_width)s
-                h = p(4) * w / p(3);
+            figHandles_ = get(0, 'children');
+        for fig_ = 1:length(figHandles_)
+          f_ = figHandles_(fig_);
+          outfile_ = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f_ + %(plot_offset)s);
+          p_ = get(f_, 'position');
+          w_ = %(plot_width)s;
+          h_ = %(plot_height)s;
+          if p_(3) > %(plot_width)s
+                h_ = p_(4) * w_ / p_(3);
           end
-          if p(4) > %(plot_height)s
-                w = p(3) * h / p(4);
+          if p_(4) > %(plot_height)s
+                w_ = p_(3) * h_ / p_(4);
           end
-          size_fmt = sprintf('-S%%d,%%d', w, h);
+          size_fmt_ = sprintf('-S%%d,%%d', w_, h_);
           try
-            print(f, out_file, '-d%(plot_format)s', '-tight', size_fmt);
+            print(f_, outfile_, '-d%(plot_format)s', '-tight', size_fmt_);
           end
         end
         close('all');
         ''' % locals()
         else:
             pre_call += """
-             __oct2py_figure_visible = 'on';
+            "set(0, 'defaultfigurevisible', 'on');"
             """
 
             post_call += """
@@ -736,10 +737,6 @@ class _Session(object):
         disp(char(2))
 
         try
-           set(0, 'DefaultFigureCreateFcn', @fig_create)
-        end
-
-        try
             disp(char(2));
             %(expr)s
             if exist("ans") == 1
@@ -837,15 +834,6 @@ class _Session(object):
                           '(gnuplot-x11 on Linux)')
 
         self.first_run = False
-        self.write("""
-             global __oct2py_figures = [];
-             global __oct2py_figure_visible = 'on';
-                function fig_create(src, event);
-                  global __oct2py_figures;
-                  global __oct2py_figure_visible;
-                  set(src, 'visible', __oct2py_figure_visible);
-                  __oct2py_figures(end + 1) = src;
-                end;\n""")
 
     def interrupt(self):
         if os.name == 'nt':
