@@ -696,7 +696,7 @@ class _Session(object):
 
         try:
             proc = subprocess.Popen([executable, '-q', '--braindead',
-                                     '--no-gui'], **kwargs)
+                                     ], **kwargs)
 
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
