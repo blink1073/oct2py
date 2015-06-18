@@ -695,8 +695,8 @@ class _Session(object):
             kwargs['creationflags'] = flags
 
         try:
-            proc = subprocess.Popen([executable, '-q', '--braindead'],
-                                    **kwargs)
+            proc = subprocess.Popen([executable, '-q', '--braindead',
+                                     '--no-gui'], **kwargs)
 
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
