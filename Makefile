@@ -27,7 +27,7 @@ cover: clean
 	nosetests $(TEST_ARGS) --with-cov --cov $(NAME) $(NAME)
 	coverage annotate
 
-release: test gh-pages
+release: clean gh-pages
 	pip install wheel
 	python setup.py register
 	python setup.py bdist_wheel upload
