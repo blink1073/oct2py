@@ -3,9 +3,10 @@
 Release History
 ---------------
 
-3.2.0 ()
+3.2.0 (2015-06-18)
 ++++++++++++++++++
 - Better handling of returned empty values
+- Allow OCTAVE environment variable
 
 
 3.1.0 (2015-02-13)

@@ -49,7 +49,9 @@ class Oct2Py(object):
     Parameters
     ----------
     executable : str, optional
-        Name of the Octave executable, can be a system path.
+        Name of the Octave executable, can be a system path.  If this is not
+        given, we look for an OCTAVE environmental variable.  The fallback is
+        to call "octave".
     logger : logging object, optional
         Optional logger to use for Oct2Py session
     timeout : float, optional
@@ -70,7 +72,7 @@ class Oct2Py(object):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
-        self._executable = executable
+        self._executable = executable or os.environ.get('OCTAVE', None)
 
         self.timeout = timeout
         if not logger is None:
