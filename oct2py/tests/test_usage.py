@@ -17,7 +17,7 @@ class BasicUsageTest(test.TestCase):
     """
     def setUp(self):
         self.oc = Oct2Py()
-        self.oc.addpath(os.path.dirname(__file__))
+        self.oc.addpath(self.oc.genpath(os.path.dirname(__file__)))
 
     def tearDown(self):
         self.oc.exit()
