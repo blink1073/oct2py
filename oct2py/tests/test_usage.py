@@ -128,7 +128,6 @@ class BasicUsageTest(test.TestCase):
     def test_keyword_arguments(self):
         self.oc.set(0, DefaultFigureColor='b')
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
-        self.oc.figure('visible', 'off')
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
         self.oc.close()
         assert glob.glob("%s/*" % plot_dir)
