@@ -696,9 +696,18 @@ class _Session(object):
             flags = subprocess.CREATE_NEW_PROCESS_GROUP + CREATE_NO_WINDOW
             kwargs['creationflags'] = flags
 
+        args = [executable, '-q', '--braindead']
+
         try:
-            proc = subprocess.Popen([executable, '-q', '--braindead',
-                                     ], **kwargs)
+            info = subprocess.check_output([executable, '--version'])
+        except OSError:  # pragma: no cover
+            raise Oct2PyError(errmsg)
+
+        if 'version 4' in info.lower():
+            args += ['--no-gui']
+
+        try:
+            proc = subprocess.Popen(args, **kwargs)
 
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
