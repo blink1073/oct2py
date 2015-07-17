@@ -703,7 +703,7 @@ class _Session(object):
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
 
-        if 'version 4' in info.lower():
+        if 'version 4' in info.decode('utf-8').lower():
             args += ['--no-gui']
 
         try:
