@@ -342,8 +342,8 @@ class Oct2Py(object):
         if not plot_dir is None:
 
             pre_call += """
-                close all;
                set(0, 'defaultfigurevisible', 'off');
+               close all;
                """
 
             plot_dir = plot_dir.replace("\\", "/")

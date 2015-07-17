@@ -284,7 +284,7 @@ class OctaveMagics(Magics):
 
         if args.format is not None:
             plot_format = args.format
-        elif sys.platform == 'win32':
+        elif sys.platform == 'win32' or sys.platform == 'darwin':
             # Use svg by default due to lack of Ghostscript on Windows Octave
             plot_format = 'svg'
         else:
@@ -312,6 +312,8 @@ class OctaveMagics(Magics):
             msg = re.sub('"""\s+', '"""\n', msg)
             msg = re.sub('\s+"""', '\n"""', msg)
             raise OctaveMagicError(msg)
+
+        
 
         key = 'OctaveMagic.Octave'
         display_data = []
