@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+3.3.0 (2015-07-16)
+++++++++++++++++++
+- Support for Octave 4.0
+- Fixes for corner cases on structs
+
+
 3.2.0 (2015-06-18)
 ++++++++++++++++++
 - Better handling of returned empty values
