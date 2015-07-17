@@ -261,3 +261,5 @@ class MiscTests(test.TestCase):
 
         self.oc.push('a', None)
         assert np.isnan(self.oc.pull('a'))
+
+        assert self.oc.struct() == [None]

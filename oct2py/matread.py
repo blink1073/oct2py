@@ -78,7 +78,7 @@ class MatRead(object):
 
         """
         try:
-            data = loadmat(self.out_file)
+            data = loadmat(self.out_file, struct_as_record=True)
         except UnicodeDecodeError as e:
             raise Oct2PyError(str(e))
         for key in list(data.keys()):
@@ -96,6 +96,8 @@ def get_data(val):
     '''Extract the data from the incoming value
     '''
     # check for objects
+    if val is None:
+        return
     if "'|O" in str(val.dtype) or "O'" in str(val.dtype):
         data = Struct()
         for key in val.dtype.fields.keys():
