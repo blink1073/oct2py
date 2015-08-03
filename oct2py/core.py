@@ -404,8 +404,6 @@ class Oct2Py(object):
             """ Octave command """
             kwargs['nout'] = kwargs.get('nout', get_nout())
             kwargs['verbose'] = kwargs.get('verbose', False)
-            if not 'Built-in Function' in doc:
-                self.eval('clear {0}'.format(name), log=False, verbose=False)
             return self._call(name, *args, **kwargs)
         # convert to ascii for pydoc
         try:
@@ -743,9 +741,10 @@ class _Session(object):
         %(pre_call)s
 
         clear("ans");
+        rehash;
         clear("_");
         clear("a__");
-        disp(char(2))
+        disp(char(2));
 
         try
             disp(char(2));
