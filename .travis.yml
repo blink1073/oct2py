@@ -9,8 +9,8 @@ sudo: false
 addons:
   apt:
     packages:
-      octave
-      liboctave-dev
+      - octave
+      - liboctave-dev
 env:
     - CONDA="python=2.7 numpy=1.7"
     - CONDA="python=3.3 numpy"
