@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.core &mdash; Oct2Py 3.3.0 documentation</title>
+    <title>oct2py.core &mdash; Oct2Py 3.3.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.3.0',
+        VERSION:     '3.3.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.3.0 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.3.1 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.3.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.3.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -285,7 +285,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">create_file</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">load_line</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tempdir</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tempdir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Oct2Py.pull"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.pull">[docs]</a>    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -531,8 +531,6 @@
             <span class="sd">&quot;&quot;&quot; Octave command &quot;&quot;&quot;</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;nout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;nout&#39;</span><span class="p">,</span> <span class="n">get_nout</span><span class="p">())</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;verbose&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;verbose&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="s">&#39;Built-in Function&#39;</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s">&#39;clear {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c"># convert to ascii for pydoc</span>
         <span class="k">try</span><span class="p">:</span>
@@ -870,9 +868,10 @@
 <span class="s">        </span><span class="si">%(pre_call)s</span><span class="s"></span>
 
 <span class="s">        clear(&quot;ans&quot;);</span>
+<span class="s">        rehash;</span>
 <span class="s">        clear(&quot;_&quot;);</span>
 <span class="s">        clear(&quot;a__&quot;);</span>
-<span class="s">        disp(char(2))</span>
+<span class="s">        disp(char(2));</span>
 
 <span class="s">        try</span>
 <span class="s">            disp(char(2));</span>
