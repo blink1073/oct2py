@@ -210,7 +210,7 @@ class MiscTests(test.TestCase):
         oc._writer.create_file(oc.temp_dir, [])
         assert oc._reader.out_file.startswith(temp_dir)
         assert oc._writer.in_file.startswith(temp_dir)
-        shutil.rmtree(temp_dir)
+        shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
 
     def test_interrupt(self):

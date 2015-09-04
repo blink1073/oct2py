@@ -329,7 +329,7 @@ class OctaveMagics(Magics):
                 with open(imgfile, 'rb') as fid:
                     images.append(fid.read())
             try:
-                rmtree(plot_dir)
+                rmtree(plot_dir, ignore_errors=True)
             except OSError:
                 pass
 

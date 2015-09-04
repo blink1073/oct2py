@@ -158,7 +158,7 @@ class Oct2Py(object):
             self._reader.create_file(tempdir)
             self.eval(load_line, verbose=verbose, timeout=timeout)
         finally:
-            shutil.rmtree(tempdir)
+            shutil.rmtree(tempdir, ignore_errors=True)
 
     def pull(self, var, verbose=False, timeout=None):
         """
