@@ -702,7 +702,7 @@ class _Session(object):
             raise Oct2PyError(errmsg)
 
         if 'version 4' in info.decode('utf-8').lower():
-            args += ['--no-gui']
+            args += ['--no-gui', '-W']
 
         try:
             proc = subprocess.Popen(args, **kwargs)
