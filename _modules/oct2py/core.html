@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.core &mdash; Oct2Py 3.3.3 documentation</title>
+    <title>oct2py.core &mdash; Oct2Py 3.4.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.3.3',
+        VERSION:     '3.4.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.3.3 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.4.0 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.3.3</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.4.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -155,11 +155,11 @@
 <span class="kn">from</span> <span class="nn">oct2py.matwrite</span> <span class="kn">import</span> <span class="n">MatWrite</span>
 <span class="kn">from</span> <span class="nn">oct2py.matread</span> <span class="kn">import</span> <span class="n">MatRead</span>
 <span class="kn">from</span> <span class="nn">oct2py.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_nout</span><span class="p">,</span> <span class="n">Oct2PyError</span><span class="p">,</span> <span class="n">get_log</span><span class="p">,</span> <span class="n">Struct</span><span class="p">)</span>
+    <span class="n">get_nout</span><span class="p">,</span> <span class="n">Oct2PyError</span><span class="p">,</span> <span class="n">get_log</span><span class="p">,</span> <span class="n">Struct</span><span class="p">,</span> <span class="n">which</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">oct2py.compat</span> <span class="kn">import</span> <span class="nb">unicode</span><span class="p">,</span> <span class="n">PY2</span><span class="p">,</span> <span class="n">queue</span>
 
 
-<div class="viewcode-block" id="Oct2Py"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py">[docs]</a><span class="k">class</span> <span class="nc">Oct2Py</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Oct2Py"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py">[docs]</a><span class="k">class</span> <span class="nc">Oct2Py</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span></div>
 
     <span class="sd">&quot;&quot;&quot;Manages an Octave session.</span>
 
@@ -199,10 +199,10 @@
         <span class="sd">&quot;&quot;&quot;Start Octave and set up the session.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_oned_as</span> <span class="o">=</span> <span class="n">oned_as</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_executable</span> <span class="o">=</span> <span class="n">executable</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;OCTAVE&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_executable</span> <span class="o">=</span> <span class="n">executable</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">logger</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">get_log</span><span class="p">()</span>
@@ -231,14 +231,14 @@
         <span class="sd">&quot;&quot;&quot;Close session&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Oct2Py.exit"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Quits this octave session and removes temp files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="bp">None</span>
-</div>
-<div class="viewcode-block" id="Oct2Py.push"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Put a variable or variables into the Octave session.</span>
 
@@ -286,8 +286,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">load_line</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tempdir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Oct2Py.pull"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.pull">[docs]</a>    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">pull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve a value or values from the Octave session.</span>
 
@@ -336,8 +336,8 @@
             <span class="k">return</span> <span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">argout_list</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">data</span>
-</div>
-<div class="viewcode-block" id="Oct2Py.eval"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+
+    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
              <span class="n">temp_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
              <span class="n">plot_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s">&#39;plot&#39;</span><span class="p">,</span> <span class="n">plot_format</span><span class="o">=</span><span class="s">&#39;svg&#39;</span><span class="p">,</span>
              <span class="n">plot_width</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">plot_height</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">return_both</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -438,7 +438,7 @@
             <span class="k">return</span> <span class="n">resp</span><span class="p">,</span> <span class="n">data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">data</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_get_plot_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_dir</span><span class="p">,</span> <span class="n">plot_format</span><span class="p">,</span> <span class="n">plot_width</span><span class="p">,</span>
                            <span class="n">plot_height</span><span class="p">,</span> <span class="n">plot_name</span><span class="p">):</span>
         <span class="n">pre_call</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
@@ -507,7 +507,7 @@
 
         <span class="k">return</span> <span class="n">pre_call</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">post_call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Oct2Py.restart"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Restart an Octave session in a clean state</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">:</span>
@@ -520,7 +520,7 @@
     <span class="c"># --------------------------------------------------------------</span>
     <span class="c"># Private API</span>
     <span class="c"># --------------------------------------------------------------</span>
-</div>
+
     <span class="k">def</span> <span class="nf">_make_octave_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a wrapper to an Octave procedure or object</span>
 
@@ -720,7 +720,7 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">octave_command</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">octave_command</span>
 
-</div>
+
 <span class="k">class</span> <span class="nc">_Reader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;Read characters from an Octave session in a thread.</span>
@@ -813,8 +813,18 @@
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">close_fds</span><span class="o">=</span><span class="n">ON_POSIX</span><span class="p">,</span> <span class="n">bufsize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">rpipe</span><span class="p">,</span>
                       <span class="n">stderr</span><span class="o">=</span><span class="n">wpipe</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">wpipe</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">executable</span><span class="p">:</span>
-            <span class="n">executable</span> <span class="o">=</span> <span class="s">&#39;octave&#39;</span>
+        <span class="n">executable</span> <span class="o">=</span> <span class="n">executable</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;OCTAVE&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">executable</span> <span class="o">=</span> <span class="n">executable</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;OCTAVE_EXECUTABLE&#39;</span><span class="p">,</span>
+                                                  <span class="bp">None</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Octave Executable not found, please add to path or set&#39;</span>
+               <span class="s">&#39;&quot;OCTAVE_EXECUTABLE&quot; environment variable&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">executable</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">which</span><span class="p">(</span><span class="n">executable</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">which</span><span class="p">(</span><span class="s">&#39;octave-cli&#39;</span><span class="p">):</span>
+                <span class="n">executable</span> <span class="o">=</span> <span class="s">&#39;octave-cli&#39;</span>
+            <span class="k">elif</span> <span class="n">which</span><span class="p">(</span><span class="s">&#39;octave&#39;</span><span class="p">):</span>
+                <span class="n">executable</span> <span class="o">=</span> <span class="s">&#39;octave&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
             <span class="n">CREATE_NO_WINDOW</span> <span class="o">=</span> <span class="mh">0x08000000</span>  <span class="c"># Windows-specific</span>
@@ -1069,8 +1079,8 @@
       
     </p>
     <p>
-        &copy; Copyright 2011 - 2015, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.<br/>
+        &copy; Copyright 2011 - 2016, Oct2Py contributors.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.<br/>
     </p>
   </div>
 </footer>
