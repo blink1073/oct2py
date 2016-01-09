@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+3.4.0 (2016-01-09)
+++++++++++++++++++
+- Improved handling of Octave executable
+
 3.3.0 (2015-07-16)
 ++++++++++++++++++
 - Support for Octave 4.0

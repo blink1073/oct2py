@@ -28,7 +28,7 @@ except ImportError:
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
 from oct2py.utils import (
-    get_nout, Oct2PyError, get_log, Struct)
+    get_nout, Oct2PyError, get_log, Struct, which)
 from oct2py.compat import unicode, PY2, queue
 
 
@@ -72,10 +72,10 @@ class Oct2Py(object):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
-        self._executable = executable or os.environ.get('OCTAVE', None)
+        self._executable = executable
 
         self.timeout = timeout
-        if not logger is None:
+        if logger is not None:
             self.logger = logger
         else:
             self.logger = get_log()
@@ -686,8 +686,18 @@ class _Session(object):
         kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
                       stderr=wpipe, stdout=wpipe)
 
-        if not executable:
-            executable = 'octave'
+        executable = executable or os.environ.get('OCTAVE', None)
+        executable = executable or os.environ.get('OCTAVE_EXECUTABLE',
+                                                  None)
+        msg = ('Octave Executable not found, please add to path or set'
+               '"OCTAVE_EXECUTABLE" environment variable')
+        if not executable or not which(executable):
+            if which('octave-cli'):
+                executable = 'octave-cli'
+            elif which('octave'):
+                executable = 'octave'
+            else:
+                raise OSError(msg)
 
         if os.name == 'nt':
             CREATE_NO_WINDOW = 0x08000000  # Windows-specific

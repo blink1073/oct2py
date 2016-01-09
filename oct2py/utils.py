@@ -7,6 +7,12 @@
 """
 import inspect
 import dis
+import os
+import stat
+try:
+    import pty
+except ImportError:
+    pty = None
 from oct2py.compat import PY2
 
 
@@ -130,6 +136,75 @@ def get_log(name=None):
     log = logging.getLogger(name)
     log.setLevel(logging.WARN)
     return log
+
+
+def is_executable_file(path):
+    """Checks that path is an executable regular file (or a symlink to a file).
+    This is roughly ``os.path isfile(path) and os.access(path, os.X_OK)``, but
+    on some platforms :func:`os.access` gives us the wrong answer, so this
+    checks permission bits directly.
+    """
+    # follow symlinks,
+    fpath = os.path.realpath(path)
+
+    # return False for non-files (directories, fifo, etc.)
+    if not os.path.isfile(fpath):
+        return False
+
+    # On Solaris, etc., "If the process has appropriate privileges, an
+    # implementation may indicate success for X_OK even if none of the
+    # execute file permission bits are set."
+    #
+    # For this reason, it is necessary to explicitly check st_mode
+
+    # get file mode using os.stat, and check if `other',
+    # that is anybody, may read and execute.
+    mode = os.stat(fpath).st_mode
+    if mode & stat.S_IROTH and mode & stat.S_IXOTH:
+        return True
+
+    # get current user's group ids, and check if `group',
+    # when matching ours, may read and execute.
+    user_gids = os.getgroups() + [os.getgid()]
+    if (os.stat(fpath).st_gid in user_gids and
+            mode & stat.S_IRGRP and mode & stat.S_IXGRP):
+        return True
+
+    # finally, if file owner matches our effective userid,
+    # check if `user', may read and execute.
+    user_gids = os.getgroups() + [os.getgid()]
+    if (os.stat(fpath).st_uid == os.geteuid() and
+            mode & stat.S_IRUSR and mode & stat.S_IXUSR):
+        return True
+
+    return False
+
+
+def which(filename):
+    '''This takes a given filename; tries to find it in the environment path;
+    then checks if it is executable. This returns the full path to the filename
+    if found and executable. Otherwise this returns None.'''
+
+    # Special case where filename contains an explicit path.
+    if os.path.dirname(filename) != '' and is_executable_file(filename):
+        return filename
+    if 'PATH' not in os.environ or os.environ['PATH'] == '':
+        p = os.defpath
+    else:
+        p = os.environ['PATH']
+    pathlist = p.split(os.pathsep)
+    for path in pathlist:
+        ff = os.path.join(path, filename)
+        if pty:
+            if is_executable_file(ff):
+                return ff
+        else:
+            pathext = os.environ.get('Pathext', '.exe;.com;.bat;.cmd')
+            pathext = pathext.split(os.pathsep) + ['']
+            for ext in pathext:
+                if os.access(ff + ext, os.X_OK):
+                    return ff + ext
+    return None
 
 
 def _setup_log():

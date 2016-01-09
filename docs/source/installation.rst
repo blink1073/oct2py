@@ -42,5 +42,7 @@ GNU Octave Installation
 - To test, open a command window (or terminal) and type: `octave`.  If Octave starts, you should
    be good to go.
 
+- Alternatively, you can specify the path to your Octave executable by creating an `OCTAVE_EXECUTABLE` environmental variable.
+
 .. _version: http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
 .. _7zip: http://portableapps.com/apps/utilities/7-zip_portable
