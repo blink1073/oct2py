@@ -47,7 +47,7 @@ class MatRead(object):
                 argout_list.append(names.pop(0))
             else:
                 argout_list.append("%s__" % chr(i + 97))
-        save_line = 'save -v6 {0} {1}'.format(self.out_file,
+        save_line = 'save -v6 -mat-binary {0} {1}'.format(self.out_file,
                                               ' '.join(argout_list))
         return argout_list, save_line
 

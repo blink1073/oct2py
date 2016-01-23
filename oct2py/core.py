@@ -668,8 +668,7 @@ class _Session(object):
 
         Notes
         =====
-        Options sent to Octave: -q is quiet startup, --braindead is
-        Matlab compatibilty mode.
+        Options sent to Octave: -q is quiet startup.
 
         """
         errmsg = ('\n\n`octave` not found.  Please see documentation at:\n'
@@ -704,7 +703,7 @@ class _Session(object):
             flags = subprocess.CREATE_NEW_PROCESS_GROUP + CREATE_NO_WINDOW
             kwargs['creationflags'] = flags
 
-        args = [executable, '-q', '--braindead']
+        args = [executable, '-q']
 
         try:
             info = subprocess.check_output([executable, '--version'])
@@ -771,7 +770,7 @@ class _Session(object):
 
         if exist("_") == 1
             if exist("a__") == 0
-                save -v6 %(out_file)s _;
+                save -v6 -mat-binary %(out_file)s _;
             end
         end
 
@@ -838,7 +837,7 @@ class _Session(object):
         return '\n'.join(resp).rstrip()
 
     def _handle_first_run(self):
-        self.write('disp(available_graphics_toolkits());disp(char(3))\n')
+        self.write('disp(available_graphics_toolkits());more off;disp(char(3))\n')
         resp = self.expect(chr(3))
         if not os.name == 'nt':
             try:
