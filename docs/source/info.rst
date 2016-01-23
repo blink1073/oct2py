@@ -18,7 +18,7 @@ functions.  For example:
 
 
 If you pass keyword arguments to the function, they will be treated as
-Octave keywords, for example, `octave.plot(x, y, linewidth=3)` becomes 
+Octave keywords, for example, `octave.plot(x, y, linewidth=3)` becomes
 `plot(x, y, 'linewidth', 3)`.  Arguments that are integer type will be converted to floats unless you set `convert_to_float=False`.
 
 Additionally, you can look up the documentation for one of these methods using
@@ -197,7 +197,7 @@ machine, run:
 .. code-block:: python
 
     >>> import oct2py
-    >>> oct2py.speed_test()
+    >>> oct2py.speed_check()
 
 
 Threading

@@ -23,8 +23,8 @@ __version__ = '3.4.0'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2014-2015 Steven Silvester'
-__all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_test',
-           'thread_test', '__version__', 'get_log']
+__all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_check',
+           'thread_check', '__version__', 'get_log']
 
 
 import imp
