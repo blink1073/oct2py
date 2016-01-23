@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+3.5.0 (2016-01-23)
+++++++++++++++++++
+- Disable --braindead Octave argument.
+
+
 3.4.0 (2016-01-09)
 ++++++++++++++++++
 - Improved handling of Octave executable
