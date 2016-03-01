@@ -144,6 +144,9 @@ def is_executable_file(path):
     on some platforms :func:`os.access` gives us the wrong answer, so this
     checks permission bits directly.
     """
+    if not pty:
+        return False
+
     # follow symlinks,
     fpath = os.path.realpath(path)
 
