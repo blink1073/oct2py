@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.utils &mdash; Oct2Py 3.5.0 documentation</title>
+    <title>oct2py.utils &mdash; Oct2Py 3.5.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.5.0',
+        VERSION:     '3.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.5.0 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.5.1 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.5.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.5.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -125,7 +125,7 @@
     <div class="col-md-9">
       
   <h1>Source code for oct2py.utils</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: utils</span>
 <span class="sd">   :synopsis: Miscellaneous helper constructs</span>
 
@@ -156,17 +156,17 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
-    <span class="c"># step into the function that called us</span>
-    <span class="c"># nout is two frames back</span>
+    <span class="c1"># step into the function that called us</span>
+    <span class="c1"># nout is two frames back</span>
     <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span>
     <span class="n">bytecode</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_code</span>
     <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
     <span class="n">instruction</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">instruction</span>
-    <span class="k">if</span> <span class="n">instruction</span> <span class="o">==</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s">&#39;UNPACK_SEQUENCE&#39;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">instruction</span> <span class="o">==</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;UNPACK_SEQUENCE&#39;</span><span class="p">]:</span>
         <span class="n">howmany</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
         <span class="n">howmany</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">howmany</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">howmany</span>
         <span class="k">return</span> <span class="n">howmany</span>
-    <span class="k">elif</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s">&#39;POP_TOP&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s">&#39;PRINT_EXPR&#39;</span><span class="p">]]:</span>
+    <span class="k">elif</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;POP_TOP&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;PRINT_EXPR&#39;</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="mi">1</span>
 
@@ -199,7 +199,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;&#39;Struct&#39; object has no attribute </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">attr</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&#39;Struct&#39; object has no attribute </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">attr</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
@@ -208,10 +208,10 @@
 
 <span class="sd">        Do not create a key if the attribute starts with an underscore.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
         <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
-        <span class="c"># step into the function that called us</span>
+        <span class="c1"># step into the function that called us</span>
         <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_allowed</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span><span class="p">):</span>
             <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">Struct</span><span class="p">())</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_allowed</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="p">):</span>
@@ -220,8 +220,8 @@
 
     <span class="k">def</span> <span class="nf">_is_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check for allowed op code in the calling frame&quot;&quot;&quot;</span>
-        <span class="n">allowed</span> <span class="o">=</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s">&#39;STORE_ATTR&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s">&#39;LOAD_CONST&#39;</span><span class="p">],</span>
-                   <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;STOP_CODE&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+        <span class="n">allowed</span> <span class="o">=</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;STORE_ATTR&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;LOAD_CONST&#39;</span><span class="p">],</span>
+                   <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;STOP_CODE&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
         <span class="n">bytecode</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_code</span>
         <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
         <span class="n">instruction</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">instruction</span>
@@ -256,9 +256,9 @@
     <span class="kn">import</span> <span class="nn">logging</span>
 
     <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;oct2py&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;oct2py&#39;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;oct2py.&#39;</span> <span class="o">+</span> <span class="n">name</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;oct2py.&#39;</span> <span class="o">+</span> <span class="n">name</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
     <span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">)</span>
@@ -271,34 +271,37 @@
 <span class="sd">    on some platforms :func:`os.access` gives us the wrong answer, so this</span>
 <span class="sd">    checks permission bits directly.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># follow symlinks,</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="c1"># follow symlinks,</span>
     <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-    <span class="c"># return False for non-files (directories, fifo, etc.)</span>
+    <span class="c1"># return False for non-files (directories, fifo, etc.)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">False</span>
 
-    <span class="c"># On Solaris, etc., &quot;If the process has appropriate privileges, an</span>
-    <span class="c"># implementation may indicate success for X_OK even if none of the</span>
-    <span class="c"># execute file permission bits are set.&quot;</span>
-    <span class="c">#</span>
-    <span class="c"># For this reason, it is necessary to explicitly check st_mode</span>
+    <span class="c1"># On Solaris, etc., &quot;If the process has appropriate privileges, an</span>
+    <span class="c1"># implementation may indicate success for X_OK even if none of the</span>
+    <span class="c1"># execute file permission bits are set.&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1"># For this reason, it is necessary to explicitly check st_mode</span>
 
-    <span class="c"># get file mode using os.stat, and check if `other&#39;,</span>
-    <span class="c"># that is anybody, may read and execute.</span>
+    <span class="c1"># get file mode using os.stat, and check if `other&#39;,</span>
+    <span class="c1"># that is anybody, may read and execute.</span>
     <span class="n">mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span><span class="o">.</span><span class="n">st_mode</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IROTH</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXOTH</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">True</span>
 
-    <span class="c"># get current user&#39;s group ids, and check if `group&#39;,</span>
-    <span class="c"># when matching ours, may read and execute.</span>
+    <span class="c1"># get current user&#39;s group ids, and check if `group&#39;,</span>
+    <span class="c1"># when matching ours, may read and execute.</span>
     <span class="n">user_gids</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getgroups</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">getgid</span><span class="p">()]</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span><span class="o">.</span><span class="n">st_gid</span> <span class="ow">in</span> <span class="n">user_gids</span> <span class="ow">and</span>
             <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRGRP</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXGRP</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">True</span>
 
-    <span class="c"># finally, if file owner matches our effective userid,</span>
-    <span class="c"># check if `user&#39;, may read and execute.</span>
+    <span class="c1"># finally, if file owner matches our effective userid,</span>
+    <span class="c1"># check if `user&#39;, may read and execute.</span>
     <span class="n">user_gids</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getgroups</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">getgid</span><span class="p">()]</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span><span class="o">.</span><span class="n">st_uid</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">geteuid</span><span class="p">()</span> <span class="ow">and</span>
             <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IRUSR</span> <span class="ow">and</span> <span class="n">mode</span> <span class="o">&amp;</span> <span class="n">stat</span><span class="o">.</span><span class="n">S_IXUSR</span><span class="p">):</span>
@@ -312,13 +315,13 @@
 <span class="sd">    then checks if it is executable. This returns the full path to the filename</span>
 <span class="sd">    if found and executable. Otherwise this returns None.&#39;&#39;&#39;</span>
 
-    <span class="c"># Special case where filename contains an explicit path.</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span> <span class="ow">and</span> <span class="n">is_executable_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="c1"># Special case where filename contains an explicit path.</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">is_executable_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">filename</span>
-    <span class="k">if</span> <span class="s">&#39;PATH&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;PATH&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">&#39;PATH&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">defpath</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;PATH&#39;</span><span class="p">]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span>
     <span class="n">pathlist</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">pathlist</span><span class="p">:</span>
         <span class="n">ff</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -326,8 +329,8 @@
             <span class="k">if</span> <span class="n">is_executable_file</span><span class="p">(</span><span class="n">ff</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">ff</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">pathext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Pathext&#39;</span><span class="p">,</span> <span class="s">&#39;.exe;.com;.bat;.cmd&#39;</span><span class="p">)</span>
-            <span class="n">pathext</span> <span class="o">=</span> <span class="n">pathext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s">&#39;&#39;</span><span class="p">]</span>
+            <span class="n">pathext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Pathext&#39;</span><span class="p">,</span> <span class="s1">&#39;.exe;.com;.bat;.cmd&#39;</span><span class="p">)</span>
+            <span class="n">pathext</span> <span class="o">=</span> <span class="n">pathext</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">pathext</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">ff</span> <span class="o">+</span> <span class="n">ext</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">):</span>
                     <span class="k">return</span> <span class="n">ff</span> <span class="o">+</span> <span class="n">ext</span>
@@ -343,7 +346,7 @@
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
         <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">strm</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">get_log</span><span class="p">()</span>

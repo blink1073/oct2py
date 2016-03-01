@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Examples &mdash; Oct2Py 3.5.0 documentation</title>
+    <title>Examples &mdash; Oct2Py 3.5.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '3.5.0',
+        VERSION:     '3.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.5.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 3.5.1 documentation" href="../index.html" />
     <link rel="next" title="Conversions" href="conversions.html" />
     <link rel="prev" title="Demo" href="demo.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.5.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.5.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -187,8 +187,8 @@ IPython <a class="reference external" href="http://nbviewer.ipython.org/github/b
 <p>M-files in the directory where oct2py was initialized, or those in the
 Octave path, can be called like any other Octave function.
 To explicitly add to the path, use:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">addpath</span><span class="p">(</span><span class="s">&#39;/path/to/directory&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">addpath</span><span class="p">(</span><span class="s1">&#39;/path/to/directory&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>to add the directory in which your m-file is located to Octave&#8217;s path.</p>
@@ -196,7 +196,7 @@ To explicitly add to the path, use:</p>
 <h3>Roundtrip<a class="headerlink" href="#roundtrip" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="roundtrip-m">
 <h4>roundtrip.m<a class="headerlink" href="#roundtrip-m" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-python"><div class="highlight"><pre>function [x, class] = roundtrip(y)
+<div class="highlight-python"><div class="highlight"><pre><span></span>function [x, class] = roundtrip(y)
    % returns the input variable and its class
    x = y
    class = class(x)
@@ -205,7 +205,7 @@ To explicitly add to the path, use:</p>
 </div>
 <div class="section" id="python-session">
 <h4>Python Session<a class="headerlink" href="#python-session" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="p">,</span> <span class="n">oclass</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">roundtrip</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -226,7 +226,7 @@ To explicitly add to the path, use:</p>
 <h3>Test Datatypes<a class="headerlink" href="#test-datatypes" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="test-datatypes-m">
 <h4>test_datatypes.m<a class="headerlink" href="#test-datatypes-m" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-python"><div class="highlight"><pre>function test = test_datatypes()
+<div class="highlight-python"><div class="highlight"><pre><span></span>function test = test_datatypes()
   % Test of returning a structure with multiple
   % nesting and multiple return types
 
@@ -283,7 +283,7 @@ To explicitly add to the path, use:</p>
 </div>
 <div class="section" id="id1">
 <h4>Python Session<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">test_dataypes</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>

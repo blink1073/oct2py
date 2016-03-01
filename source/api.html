@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &mdash; Oct2Py 3.5.0 documentation</title>
+    <title>API Reference &mdash; Oct2Py 3.5.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '3.5.0',
+        VERSION:     '3.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.5.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 3.5.1 documentation" href="../index.html" />
     <link rel="next" title="Information" href="info.html" />
     <link rel="prev" title="Conversions" href="conversions.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.5.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.5.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -239,13 +239,13 @@ a shared memory (tmpfs) path.</p>
 <p>Integer type arguments will be converted to floating point
 unless <cite>convert_to_float=False</cite>.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
 <span class="go">array([[1, 2]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">])</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])</span>  
 <span class="go">[u&#39;spam&#39;, array([[1, 2, 3, 4]])]</span>
 </pre></div>
 </div>
@@ -282,13 +282,13 @@ unless <cite>convert_to_float=False</cite>.</p>
 </dl>
 </div></blockquote>
 <p>Examples:</p>
-<div class="last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="last highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
 <span class="go">array([[1, 2]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">([</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">])</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;spam&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">([</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])</span>  
 <span class="go">[u&#39;spam&#39;, array([[1, 2, 3, 4]])]</span>
 </pre></div>
 </div>
@@ -420,11 +420,11 @@ and the return value.</p>
 <p>Supports dictionary and attribute style access.  Can be pickled,
 and supports code completion in a REPL.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Struct</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s">&#39;spam&#39;</span>  <span class="c"># a[&quot;b&quot;] == &#39;spam&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="s">&quot;d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;eggs&#39;</span>  <span class="c"># a.c.d == &#39;eggs&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="s1">&#39;spam&#39;</span>  <span class="c1"># a[&quot;b&quot;] == &#39;spam&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;eggs&#39;</span>  <span class="c1"># a.c.d == &#39;eggs&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="go">{&#39;b&#39;: &#39;spam&#39;, &#39;c&#39;: {&#39;d&#39;: &#39;eggs&#39;}}</span>
 </pre></div>

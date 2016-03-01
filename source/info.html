@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Information &mdash; Oct2Py 3.5.0 documentation</title>
+    <title>Information &mdash; Oct2Py 3.5.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '3.5.0',
+        VERSION:     '3.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.5.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 3.5.1 documentation" href="../index.html" />
     <link rel="prev" title="API Reference" href="api.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.5.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.5.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -178,7 +178,7 @@
 <h2>Dynamic Functions<a class="headerlink" href="#dynamic-functions" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py will create methods for you on the fly, which correspond to Octave
 functions.  For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <span class="go">array([[ 1.,  1.,  1.],</span>
 <span class="go">   [ 1.,  1.,  1.],</span>
@@ -190,7 +190,7 @@ Octave keywords, for example, <cite>octave.plot(x, y, linewidth=3)</cite> become
 <cite>plot(x, y, &#8216;linewidth&#8217;, 3)</cite>.  Arguments that are integer type will be converted to floats unless you set <cite>convert_to_float=False</cite>.</p>
 <p>Additionally, you can look up the documentation for one of these methods using
 <cite>help()</cite></p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">help</span><span class="p">(</span><span class="n">octave</span><span class="o">.</span><span class="n">ones</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">help</span><span class="p">(</span><span class="n">octave</span><span class="o">.</span><span class="n">ones</span><span class="p">)</span>
 <span class="go">&#39;ones&#39; is a built-in function</span>
 <span class="gp">...</span>
 </pre></div>
@@ -205,9 +205,9 @@ Structs (mentioned below) also support code completion for attributes.</p>
 <cite>pull</cite> methods.  When using other Oct2Py methods, the variable names in Octave
 start with underscores because they are temporary (you would only see this if
 you were using logging).</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
 <span class="go">1</span>
 </pre></div>
 </div>
@@ -217,11 +217,11 @@ you were using logging).</p>
 <p>In order to use an m-file in Oct2Py you must first call <cite>addpath</cite>
 for the directory containing the script.  You can then use it as
 a dynamic function or use the <cite>eval</cite> function to call it.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">addpath</span><span class="p">(</span><span class="s">&#39;/path/to/&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">addpath</span><span class="p">(</span><span class="s1">&#39;/path/to/&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">myscript</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># or</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s">&quot;myscript(1, 2)&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># or</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;myscript(1, 2)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -235,10 +235,10 @@ This also works in the IPython Notebook.  Note: If you use the <cite>keyboard</c
 <h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py supports logging of session interaction.  You can provide a logger
 to the constructor or set one at any time.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Oct2Py</span><span class="p">,</span> <span class="n">get_log</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span> <span class="o">=</span> <span class="n">Oct2Py</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="n">get_log</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">get_log</span><span class="p">(</span><span class="s">&#39;new_log&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">get_log</span><span class="p">(</span><span class="s1">&#39;new_log&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -249,8 +249,8 @@ logged at the INFO level, otherwise they are logged at the DEBUG level.</p>
 <h2>Shadowed Function Names<a class="headerlink" href="#shadowed-function-names" title="Permalink to this headline">¶</a></h2>
 <p>If you&#8217;d like to call an Octave function that is also an Oct2Py method,
 you must add a trailing underscore. For example:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval_</span><span class="p">(</span><span class="s">&#39;a=1&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval_</span><span class="p">(</span><span class="s1">&#39;a=1&#39;</span><span class="p">)</span>
 <span class="go">&#39;a =  1&#39;</span>
 </pre></div>
 </div>
@@ -263,7 +263,7 @@ for a command to complete.  The default is 1e6 seconds (indefinite).
 You may either set the timeout for the session, or as a keyword
 argument to an individual command.  The session is closed in the event of a
 timeout.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -277,10 +277,10 @@ timeout.</p>
 <h2>Graphics Toolkit<a class="headerlink" href="#graphics-toolkit" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py uses the <cite>gnuplot</cite> graphics toolkit by default.  Fltk has been known
 not to work on some systems.  To change toolkits:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">available_graphics_toolkits</span><span class="p">()</span>
 <span class="go">[u&#39;fltk&#39;, u&#39;gnuplot&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">graphics_toolkit</span><span class="p">(</span><span class="s">&#39;fltk&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">graphics_toolkit</span><span class="p">(</span><span class="s1">&#39;fltk&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -288,7 +288,7 @@ not to work on some systems.  To change toolkits:</p>
 <h2>Context Manager<a class="headerlink" href="#context-manager" title="Permalink to this headline">¶</a></h2>
 <p>Oct2Py can be used as a Context Manager.  The session will be closed and the
 temporary m-files will be deleted when the Context Manager exits.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Oct2Py</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Oct2Py</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">Oct2Py</span><span class="p">()</span> <span class="k">as</span> <span class="n">oc</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">oc</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
@@ -300,7 +300,7 @@ temporary m-files will be deleted when the Context Manager exits.</p>
 normally works in Python).  The number return variables affects the
 behavior of the Octave function.  For example, the following two calls to SVD
 return different results:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]])))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">svd</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span>
 </pre></div>
@@ -312,10 +312,10 @@ return different results:</p>
 It is a dictionary with attribute lookup, and it creates sub-structures on the
 fly of arbitrary nesting depth.  It can be pickled. You can also use tab
 completion for attributes when in IPython.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Struct</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">Struct</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">test</span><span class="p">[</span><span class="s">&#39;foo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">test</span><span class="o">.</span><span class="n">bizz</span><span class="p">[</span><span class="s">&#39;buzz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;bar&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">test</span><span class="o">.</span><span class="n">bizz</span><span class="p">[</span><span class="s1">&#39;buzz&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">test</span>
 <span class="go">{&#39;foo&#39;: 1, &#39;bizz&#39;: {&#39;buzz&#39;: &#39;bar&#39;}}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pickle</span>
@@ -335,7 +335,7 @@ If you have a lot of calculations, it is probably better to make an m-file
 that does the looping and data aggregation, and pass that back to Python
 for further processing.  To see an example of the speed penalty on your
 machine, run:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">oct2py</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">oct2py</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">oct2py</span><span class="o">.</span><span class="n">speed_check</span><span class="p">()</span>
 </pre></div>
 </div>

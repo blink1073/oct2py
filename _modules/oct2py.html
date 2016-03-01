@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py &mdash; Oct2Py 3.5.0 documentation</title>
+    <title>oct2py &mdash; Oct2Py 3.5.1 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '3.5.0',
+        VERSION:     '3.5.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.5.0 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 3.5.1 documentation" href="../index.html" />
     <link rel="up" title="Module code" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.5.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.5.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -125,7 +125,7 @@
     <div class="col-md-9">
       
   <h1>Source code for oct2py</h1><div class="highlight"><pre>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Oct2Py is a means to seamlessly call M-files and GNU Octave functions from Python.</span>
 <span class="sd">It manages the Octave session for you, sharing data behind the scenes using</span>
@@ -145,13 +145,13 @@
 <span class="sd">trust a code translator, this is your library.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__title__</span> <span class="o">=</span> <span class="s">&#39;oct2py&#39;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;3.5.0&#39;</span>
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Steven Silvester&#39;</span>
-<span class="n">__license__</span> <span class="o">=</span> <span class="s">&#39;MIT&#39;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&#39;Copyright 2014-2016 Steven Silvester&#39;</span>
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Oct2Py&#39;</span><span class="p">,</span> <span class="s">&#39;Oct2PyError&#39;</span><span class="p">,</span> <span class="s">&#39;octave&#39;</span><span class="p">,</span> <span class="s">&#39;Struct&#39;</span><span class="p">,</span> <span class="s">&#39;demo&#39;</span><span class="p">,</span> <span class="s">&#39;speed_check&#39;</span><span class="p">,</span>
-           <span class="s">&#39;thread_check&#39;</span><span class="p">,</span> <span class="s">&#39;__version__&#39;</span><span class="p">,</span> <span class="s">&#39;get_log&#39;</span><span class="p">]</span>
+<span class="n">__title__</span> <span class="o">=</span> <span class="s1">&#39;oct2py&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;3.5.1&#39;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Steven Silvester&#39;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s1">&#39;MIT&#39;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s1">&#39;Copyright 2014-2016 Steven Silvester&#39;</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Oct2Py&#39;</span><span class="p">,</span> <span class="s1">&#39;Oct2PyError&#39;</span><span class="p">,</span> <span class="s1">&#39;octave&#39;</span><span class="p">,</span> <span class="s1">&#39;Struct&#39;</span><span class="p">,</span> <span class="s1">&#39;demo&#39;</span><span class="p">,</span> <span class="s1">&#39;speed_check&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;thread_check&#39;</span><span class="p">,</span> <span class="s1">&#39;__version__&#39;</span><span class="p">,</span> <span class="s1">&#39;get_log&#39;</span><span class="p">]</span>
 
 
 <span class="kn">import</span> <span class="nn">imp</span>
@@ -165,15 +165,15 @@
     <span class="kn">import</span> <span class="nn">_thread</span> <span class="kn">as</span> <span class="nn">thread</span>
 
 
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Allow Windows to intecept KeyboardInterrupt</span>
 <span class="sd">    http://stackoverflow.com/questions/15457786/ctrl-c-crashes-python-after-importing-scipy-stats</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">basepath</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s">&#39;numpy&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">basepath</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s1">&#39;numpy&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">lib1</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;libmmd.dll&#39;</span><span class="p">))</span>
-        <span class="n">lib2</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s">&#39;core&#39;</span><span class="p">,</span> <span class="s">&#39;libifcoremd.dll&#39;</span><span class="p">))</span>
+        <span class="n">lib1</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s1">&#39;core&#39;</span><span class="p">,</span> <span class="s1">&#39;libmmd.dll&#39;</span><span class="p">))</span>
+        <span class="n">lib2</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">basepath</span><span class="p">,</span> <span class="s1">&#39;core&#39;</span><span class="p">,</span> <span class="s1">&#39;libifcoremd.dll&#39;</span><span class="p">))</span>
 
         <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">hook</span><span class="o">=</span><span class="n">thread</span><span class="o">.</span><span class="n">interrupt_main</span><span class="p">):</span>
             <span class="n">hook</span><span class="p">()</span>
@@ -205,15 +205,15 @@
 <span class="sd">    Any other Oct2Py objects, you must restart them.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span> <span class="nn">os</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;taskkill /im octave /f&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;taskkill /im octave /f&#39;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;killall -9 octave&#39;</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s">&#39;killall -9 octave-cli&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;killall -9 octave&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;killall -9 octave-cli&#39;</span><span class="p">)</span>
     <span class="n">octave</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span></div>
 
 
-<span class="c"># clean up namespace</span>
+<span class="c1"># clean up namespace</span>
 <span class="k">del</span> <span class="n">functools</span><span class="p">,</span> <span class="n">imp</span><span class="p">,</span> <span class="n">os</span><span class="p">,</span> <span class="n">ctypes</span><span class="p">,</span> <span class="n">thread</span>
 </pre></div>
 
