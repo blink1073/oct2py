@@ -705,13 +705,14 @@ class _Session(object):
 
         args = [executable, '-q']
 
-        try:
-            info = subprocess.check_output([executable, '--version'])
-        except OSError:  # pragma: no cover
-            raise Oct2PyError(errmsg)
+        if 'octave-cli' not in executable:
+            try:
+                info = subprocess.check_output([executable, '--version'])
+            except OSError:  # pragma: no cover
+                raise Oct2PyError(errmsg)
 
-        if 'version 4' in info.decode('utf-8').lower():
-            args += ['--no-gui']
+            if 'version 4' in info.decode('utf-8').lower():
+                args += ['--no-gui']
 
         try:
             proc = subprocess.Popen(args, **kwargs)
