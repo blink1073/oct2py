@@ -82,7 +82,7 @@ class Oct2Py(object):
             self.logger = get_log()
         # self.logger.setLevel(logging.DEBUG)
         self._session = None
-        self._tempdir = temp_dir or tempfile.mkdtemp(temp_dir)
+        self._tempdir = temp_dir or tempfile.mkdtemp()
         self._convert_to_float = convert_to_float
         self.restart()
 
