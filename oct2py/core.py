@@ -928,7 +928,7 @@ class _Session(object):
         except Exception as e:  # pragma: no cover
             self.logger.debug(e)
 
-
+        self.reader.wants_abort = True
         self.proc = None
 
     def __del__(self):
