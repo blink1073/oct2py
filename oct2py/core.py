@@ -81,7 +81,7 @@ class Oct2Py(object):
             self.logger = get_log()
         # self.logger.setLevel(logging.DEBUG)
         self._session = None
-        self.temp_dir = temp_dir
+        self.temp_dir = tempfile.mkdtemp(self.temp_dir)
         self._convert_to_float = convert_to_float
         self.restart()
 
@@ -109,6 +109,7 @@ class Oct2Py(object):
         """
         if self._session:
             self._session.close()
+        shutil.rmtree(self.tempdir, ignore_errors=True)
         self._session = None
 
     def push(self, name, var, verbose=False, timeout=None):
@@ -152,13 +153,9 @@ class Oct2Py(object):
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
 
-        try:
-            tempdir = tempfile.mkdtemp(dir=self.temp_dir)
-            _, load_line = self._writer.create_file(tempdir, vars_, names)
-            self._reader.create_file(tempdir)
-            self.eval(load_line, verbose=verbose, timeout=timeout)
-        finally:
-            shutil.rmtree(tempdir, ignore_errors=True)
+        _, load_line = self._writer.create_file(self.tempdir, vars_, names)
+        self._reader.create_file(self.tempdir)
+        self.eval(load_line, verbose=verbose, timeout=timeout)
 
     def pull(self, var, verbose=False, timeout=None):
         """
@@ -193,17 +190,11 @@ class Oct2Py(object):
         """
         if isinstance(var, (str, unicode)):
             var = [var]
-        try:
-            temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
-            self._reader.create_file(temp_dir)
-            argout_list, save_line = self._reader.setup(len(var), var)
-            data = self.eval(
-                save_line, temp_dir=temp_dir, verbose=verbose, timeout=timeout)
-        finally:
-            try:
-                shutil.rmtree(temp_dir)
-            except OSError:
-                pass
+
+        self._reader.create_file(self.temp_dir)
+        argout_list, save_line = self._reader.setup(len(var), var)
+        data = self.eval(
+            save_line, temp_dir=self.temp_dir, verbose=verbose, timeout=timeout)
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             return [data.get(v, None) for v in argout_list]
@@ -487,7 +478,6 @@ class Oct2Py(object):
         prop_vals = ', '.join(prop_vals)
 
         try:
-            temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
             self._reader.create_file(temp_dir)
             if nout:
                 # create a dummy list of var names ("a", "b", "c", ...)
