@@ -82,7 +82,7 @@ class Oct2Py(object):
             self.logger = get_log()
         # self.logger.setLevel(logging.DEBUG)
         self._session = None
-        self._tempdir = temp_dir or tempfile.mkdtemp()
+        self.temp_dir = temp_dir
         self._convert_to_float = convert_to_float
         self.restart()
 
@@ -105,18 +105,11 @@ class Oct2Py(object):
         """Close session"""
         self.exit()
 
-    def __del__(self):
-        try:
-            self.exit()
-        except:
-            pass
-
     def exit(self):
         """Quits this octave session and removes temp files
         """
         if self._session:
             self._session.close()
-        shutil.rmtree(self._tempdir, ignore_errors=True)
         self._session = None
 
     def push(self, name, var, verbose=False, timeout=None):
@@ -160,9 +153,13 @@ class Oct2Py(object):
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
 
-        _, load_line = self._writer.create_file(self._tempdir, vars_, names)
-        self._reader.create_file(self._tempdir)
-        self.eval(load_line, verbose=verbose, timeout=timeout)
+        try:
+            tempdir = tempfile.mkdtemp(dir=self.temp_dir)
+            _, load_line = self._writer.create_file(tempdir, vars_, names)
+            self._reader.create_file(tempdir)
+            self.eval(load_line, verbose=verbose, timeout=timeout)
+        finally:
+            shutil.rmtree(tempdir, ignore_errors=True)
 
     def pull(self, var, verbose=False, timeout=None):
         """
@@ -197,11 +194,17 @@ class Oct2Py(object):
         """
         if isinstance(var, (str, unicode)):
             var = [var]
-
-        self._reader.create_file(self._tempdir)
-        argout_list, save_line = self._reader.setup(len(var), var)
-        data = self.eval(
-            save_line, temp_dir=self._tempdir, verbose=verbose, timeout=timeout)
+        try:
+            temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
+            self._reader.create_file(temp_dir)
+            argout_list, save_line = self._reader.setup(len(var), var)
+            data = self.eval(
+                save_line, temp_dir=temp_dir, verbose=verbose, timeout=timeout)
+        finally:
+            try:
+                shutil.rmtree(temp_dir)
+            except OSError:
+                pass
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             return [data.get(v, None) for v in argout_list]
@@ -268,32 +271,35 @@ class Oct2Py(object):
                                                       plot_format, plot_width, plot_height,
                                                       plot_name)
 
-        if not temp_dir:
-            temp_dir = tempfile.mkdtemp(dir=self._tempdir)
-            self._reader.create_file(temp_dir)
         try:
-            resp = self._session.evaluate(cmds,
-                                          logger=self.logger,
-                                          log=log,
-                                          timeout=timeout,
-                                          out_file=self._reader.out_file,
-                                          pre_call=pre_call,
-                                          post_call=post_call)
-        except KeyboardInterrupt:
-            self._session.interrupt()
-            if os.name == 'nt':
-                self.restart()
-                return 'Octave Session Interrupted, Restarting Session'
-            return 'Octave Session Interrupted'
-
-        out_file = self._reader.out_file
-
-        data = None
-        if os.path.exists(out_file) and os.stat(out_file).st_size:
+            if not temp_dir:
+                temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
+                self._reader.create_file(temp_dir)
             try:
-                data = self._reader.extract_file()
-            except (TypeError, IOError) as e:
-                self.logger.debug(e)
+                resp = self._session.evaluate(cmds,
+                                              logger=self.logger,
+                                              log=log,
+                                              timeout=timeout,
+                                              out_file=self._reader.out_file,
+                                              pre_call=pre_call,
+                                              post_call=post_call)
+            except KeyboardInterrupt:
+                self._session.interrupt()
+                if os.name == 'nt':
+                    self.restart()
+                    return 'Octave Session Interrupted, Restarting Session'
+                return 'Octave Session Interrupted'
+
+            out_file = self._reader.out_file
+
+            data = None
+            if os.path.exists(out_file) and os.stat(out_file).st_size:
+                try:
+                    data = self._reader.extract_file()
+                except (TypeError, IOError) as e:
+                    self.logger.debug(e)
+        finally:
+            shutil.rmtree(temp_dir)
 
         resp = resp.strip()
 
@@ -481,30 +487,37 @@ class Oct2Py(object):
                 raise Oct2PyError(msg)
         prop_vals = ', '.join(prop_vals)
 
-        self._reader.create_file(self._tempdir)
-        if nout:
-            # create a dummy list of var names ("a", "b", "c", ...)
-            # use ascii char codes so we can increment
-            argout_list, save_line = self._reader.setup(nout)
-            call_line = '[{0}] = '.format(', '.join(argout_list))
+        try:
+            temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
+            self._reader.create_file(temp_dir)
+            if nout:
+                # create a dummy list of var names ("a", "b", "c", ...)
+                # use ascii char codes so we can increment
+                argout_list, save_line = self._reader.setup(nout)
+                call_line = '[{0}] = '.format(', '.join(argout_list))
 
-        call_line += func + '('
+            call_line += func + '('
 
-        if inputs:
-            argin_list, load_line = self._writer.create_file(
-                self._tempdir, inputs)
-            call_line += ', '.join(argin_list)
-
-        if prop_vals:
             if inputs:
-                call_line += ', '
-            call_line += prop_vals
+                argin_list, load_line = self._writer.create_file(
+                    temp_dir, inputs)
+                call_line += ', '.join(argin_list)
 
-        call_line += ');'
+            if prop_vals:
+                if inputs:
+                    call_line += ', '
+                call_line += prop_vals
 
-        # create the command and execute in octave
-        cmd = [load_line, call_line, save_line]
-        data = self.eval(cmd, temp_dir=self._tempdir, **eval_kwargs)
+            call_line += ');'
+
+            # create the command and execute in octave
+            cmd = [load_line, call_line, save_line]
+            data = self.eval(cmd, temp_dir=temp_dir, **eval_kwargs)
+        finally:
+            try:
+                shutil.rmtree(temp_dir)
+            except OSError:
+                pass
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             data = [data.get(v, None) for v in argout_list]
@@ -565,8 +578,6 @@ class Oct2Py(object):
         Adapted from the mlabwrap project.
 
         """
-        if attr in self.__dict__:
-            return super(Oct2Py, self).__getatt__(attr)
         # needed for help(Oct2Py())
         if attr == '__name__':
             return super(Oct2Py, self).__getattr__(attr)
@@ -717,8 +728,9 @@ class _Session(object):
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
 
-        self.reader = _Reader(self.rfid, self.read_queue)
-        return proc
+        else:
+            self.reader = _Reader(self.rfid, self.read_queue)
+            return proc
 
     def set_timeout(self, timeout=None):
         if timeout is None:
