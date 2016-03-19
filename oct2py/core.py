@@ -81,7 +81,7 @@ class Oct2Py(object):
             self.logger = get_log()
         # self.logger.setLevel(logging.DEBUG)
         self._session = None
-        self.temp_dir = tempfile.mkdtemp(temp_dir or '')
+        self._tempdir = tempfile.mkdtemp(temp_dir or '')
         self._convert_to_float = convert_to_float
         self.restart()
 
@@ -115,7 +115,7 @@ class Oct2Py(object):
         """
         if self._session:
             self._session.close()
-        shutil.rmtree(self.tempdir, ignore_errors=True)
+        shutil.rmtree(self._tempdir, ignore_errors=True)
         self._session = None
 
     def push(self, name, var, verbose=False, timeout=None):
@@ -159,8 +159,8 @@ class Oct2Py(object):
             if name.startswith('_'):
                 raise Oct2PyError('Invalid name {0}'.format(name))
 
-        _, load_line = self._writer.create_file(self.tempdir, vars_, names)
-        self._reader.create_file(self.tempdir)
+        _, load_line = self._writer.create_file(self._tempdir, vars_, names)
+        self._reader.create_file(self._tempdir)
         self.eval(load_line, verbose=verbose, timeout=timeout)
 
     def pull(self, var, verbose=False, timeout=None):
@@ -197,10 +197,10 @@ class Oct2Py(object):
         if isinstance(var, (str, unicode)):
             var = [var]
 
-        self._reader.create_file(self.temp_dir)
+        self._reader.create_file(self._tempdir)
         argout_list, save_line = self._reader.setup(len(var), var)
         data = self.eval(
-            save_line, temp_dir=self.temp_dir, verbose=verbose, timeout=timeout)
+            save_line, temp_dir=self._tempdir, verbose=verbose, timeout=timeout)
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             return [data.get(v, None) for v in argout_list]
@@ -268,7 +268,7 @@ class Oct2Py(object):
                                                       plot_name)
 
         if not temp_dir:
-            temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
+            temp_dir = tempfile.mkdtemp(dir=self._tempdir)
             self._reader.create_file(temp_dir)
         try:
             resp = self._session.evaluate(cmds,
@@ -480,7 +480,7 @@ class Oct2Py(object):
                 raise Oct2PyError(msg)
         prop_vals = ', '.join(prop_vals)
 
-        self._reader.create_file(self.temp_dir)
+        self._reader.create_file(self._tempdir)
         if nout:
             # create a dummy list of var names ("a", "b", "c", ...)
             # use ascii char codes so we can increment
@@ -491,7 +491,7 @@ class Oct2Py(object):
 
         if inputs:
             argin_list, load_line = self._writer.create_file(
-                self.temp_dir, inputs)
+                self._tempdir, inputs)
             call_line += ', '.join(argin_list)
 
         if prop_vals:
@@ -503,7 +503,7 @@ class Oct2Py(object):
 
         # create the command and execute in octave
         cmd = [load_line, call_line, save_line]
-        data = self.eval(cmd, temp_dir=self.temp_dir, **eval_kwargs)
+        data = self.eval(cmd, temp_dir=self._tempdir, **eval_kwargs)
 
         if isinstance(data, dict) and not isinstance(data, Struct):
             data = [data.get(v, None) for v in argout_list]
@@ -564,6 +564,8 @@ class Oct2Py(object):
         Adapted from the mlabwrap project.
 
         """
+        if attr in self.__dict__:
+            return super(Oct2Py, self).__getatt__(attr)
         # needed for help(Oct2Py())
         if attr == '__name__':
             return super(Oct2Py, self).__getattr__(attr)
