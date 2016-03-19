@@ -13,6 +13,7 @@ import atexit
 import signal
 import glob
 import logging
+import select
 import shutil
 import subprocess
 import sys
@@ -591,6 +592,7 @@ class _Reader(object):
     def __init__(self, fid, queue):
         self.fid = fid
         self.queue = queue
+        self.wants_abort = False
         self.thread = threading.Thread(target=self.read_incoming)
         self.thread.setDaemon(True)
         self.thread.start()
@@ -603,6 +605,12 @@ class _Reader(object):
         buf = ''
         debug_prompt = re.compile(r'\A[\w]+>>? ')
         while 1:
+            if self.wants_abort:
+                return
+            if pty:
+                value = select.select([self.fid], [], [], 1e-3)
+                if not value:
+                    continue
             try:
                 buf += os.read(self.fid, 1024).decode('utf8', 'replace')
             except:
@@ -709,9 +717,8 @@ class _Session(object):
         except OSError:  # pragma: no cover
             raise Oct2PyError(errmsg)
 
-        else:
-            self.reader = _Reader(self.rfid, self.read_queue)
-            return proc
+        self.reader = _Reader(self.rfid, self.read_queue)
+        return proc
 
     def set_timeout(self, timeout=None):
         if timeout is None:
@@ -920,6 +927,7 @@ class _Session(object):
             self.proc.kill()
         except Exception as e:  # pragma: no cover
             self.logger.debug(e)
+
 
         self.proc = None
 
