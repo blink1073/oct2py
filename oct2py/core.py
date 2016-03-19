@@ -608,8 +608,8 @@ class _Reader(object):
             if self.wants_abort:
                 return
             if pty:
-                value = select.select([self.fid], [], [], 1e-3)
-                if not value:
+                r, w, e = select.select([self.fid], [], [], 1e-3)
+                if not r:
                     continue
             try:
                 buf += os.read(self.fid, 1024).decode('utf8', 'replace')
