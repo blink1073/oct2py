@@ -108,7 +108,10 @@ class OctaveMagics(Magics):
             Image width, height.
 
         """
-        (svg,) = minidom.parseString(image).getElementsByTagName('svg')
+        # Minidom does not support parseUnicode, so it must be decoded
+        # to accept unicode characters
+        parsed = minidom.parseString(image.encode('utf-8'))
+        (svg,) = parsed.getElementsByTagName('svg')
         viewbox = svg.getAttribute('viewBox').split(' ')
 
         if size is not None and size[0] is not None:
