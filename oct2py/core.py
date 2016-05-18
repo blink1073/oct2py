@@ -618,13 +618,10 @@ class _Reader(object):
         while 1:
             if self.wants_abort:
                 return
-            if pty:
-                r, w, e = select.select([self.fid], [], [], 1e-3)
-                if not r:
-                    continue
             try:
                 buf += os.read(self.fid, 1024).decode('utf8', 'replace')
-            except:
+            except Exception as e:
+                print(e)
                 self.queue.put(None)
                 return
             lines = buf.splitlines()
@@ -638,6 +635,40 @@ class _Reader(object):
                 buf = ''
             else:
                 buf = lines[-1]
+
+
+class _PtyReader(object):
+
+    """Read characters from an Octave session over pty.
+    """
+
+    def __init__(self, fid, queue):
+        self.fid = fid
+        self.queue = queue
+        self.buf = ''
+
+    def spin(self):
+        r, w, e = select.select([self.fid], [], [], 1e-3)
+        if not r:
+            return
+        debug_prompt = re.compile(r'\A[\w]+>>? ')
+        try:
+            self.buf += os.read(self.fid, 1024).decode('utf8', 'replace')
+        except Exception as e:
+            print(e)
+            self.queue.put(None)
+            return
+        lines = self.buf.splitlines()
+        for line in lines[:-1]:
+            self.queue.put(line)
+        if self.buf.endswith('\n'):
+            self.queue.put(lines[-1])
+            self.buf = ''
+        elif re.match(debug_prompt, lines[-1]):
+            self.queue.put(lines[-1])
+            self.buf = ''
+        else:
+            self.buf = lines[-1]
 
 
 class _Session(object):
@@ -729,7 +760,10 @@ class _Session(object):
             raise Oct2PyError(errmsg)
 
         else:
-            self.reader = _Reader(self.rfid, self.read_queue)
+            if not pty:
+                self.reader = _Reader(self.rfid, self.read_queue)
+            else:
+                self.reader = _PtyReader(self.rfid, self.read_queue)
             return proc
 
     def set_timeout(self, timeout=None):
@@ -853,7 +887,6 @@ class _Session(object):
                 subprocess.check_output('which gnuplot', shell=True)
             except subprocess.CalledProcessError:
                 resp = None
-
         if resp:
             self.write("graphics_toolkit('gnuplot')\n")
         else:
@@ -885,6 +918,8 @@ class _Session(object):
     def readline(self):
         t0 = time.time()
         while 1:
+            if pty:
+                self.reader.spin()
             try:
                 val = self.read_queue.get_nowait()
             except queue.Empty:
