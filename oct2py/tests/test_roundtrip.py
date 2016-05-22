@@ -146,7 +146,8 @@ class RoundtripTest(test.TestCase):
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
         '''
-        self.oc.eval('x = test_datatypes()')
+        self.oc.eval('x = test_datatypes();')
+        assert self.oc.pull('x') is not None
         self.oc.push('y', self.data)
         try:
             self.oc.isequaln
@@ -154,13 +155,13 @@ class RoundtripTest(test.TestCase):
         except Oct2PyError:
             func = 'isequalwithequalnans'
         for key in self.data.keys():
-            if key not in ['struct_array', 'num']:
+            if key not in ['struct_array', 'num', 'mixed']:
                 cmd = '{0}(x.{1},y.{1})'.format(func, key)
                 assert self.oc.eval(cmd), key
         self.oc.convert_to_float = False
         self.oc.push('y', self.data)
         cmd = '%s(x.num,y.num)' % func
-        assert self.oc.eval(cmd)
+        assert self.oc.eval(cmd), cmd
         self.oc.convert_to_float = True
 
 
