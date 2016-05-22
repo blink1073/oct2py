@@ -123,7 +123,7 @@ def get_data(val):
                 val = val.T
             try:
                 return val.astype(val[0][0].dtype)
-            except ValueError:
+            except (ValueError, TypeError):
                 # dig into the cell type
                 for row in range(val.shape[0]):
                     for i in range(val[row].size):
