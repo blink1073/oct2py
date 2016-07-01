@@ -861,7 +861,7 @@ class _Session(object):
             elif '\x1b[C' in line or line.strip() == '>>':
                 line = ''
 
-            elif line.endswith('> '):
+            elif line.endswith('> ') and not line.endswith('>>> '):
                 self.interact(line)
 
             elif line.startswith(' ') and line.strip() == '^':
