@@ -62,6 +62,13 @@ To install Oct2Py, simply:
 
     $ pip install oct2py
 
+If using conda, it is available on conda forge:
+
+.. code-block:: bash
+   
+   $ conda config --add channels conda-forge  # if not already added
+   $ conda install oct2py
+
 
 Documentation
 -------------
