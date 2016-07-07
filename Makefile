@@ -36,7 +36,7 @@ release: clean gh-pages
 	git push origin --all
 	git push origin --tags
 	printf '\nUpgrade oct2py-feedstock with release and sha256 sum:'
-	shasum -a 256 dist/*.zip
+	shasum -a 256 dist/*.tar.gz
 
 docs: clean
 	export SPHINXOPTS=-W
