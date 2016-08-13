@@ -172,7 +172,7 @@ def putval(data, convert_to_float=True):
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
     if data.dtype == 'object' and len(data.shape) > 1:
         data = data.T
-    if convert_to_float and data.dtype.kind in 'uib':
+    if convert_to_float and data.dtype.kind in 'ui':
         data = data.astype(float)
     return data
 

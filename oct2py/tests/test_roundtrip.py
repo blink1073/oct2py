@@ -298,7 +298,7 @@ class BuiltinsTest(test.TestCase):
             self.oc.convert_to_float = False
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('bool'))
+            self.assertEqual(incoming.dtype, np.dtype('uint8'))
             self.oc.convert_to_float = True
 
     def test_none(self):

@@ -17,7 +17,7 @@ float           double         np.float64
 complex         double         np.complex128
 str             char           unicode
 unicode         cell           unicode
-bool            bool           bool
+bool            bool           np.uint8
 None            double         np.float64
 dict            struct         Struct
 =============   ===========    =============
@@ -82,7 +82,7 @@ cell array       list of lists
 struct           Struct
 struct (nested)  Struct (nested)
 struct array*    Struct (of lists)*
-logical          ndarray
+logical          ndarray (of uint8)
 ===============  =================
 
 ::
