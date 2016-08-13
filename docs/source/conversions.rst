@@ -17,7 +17,7 @@ float           double         np.float64
 complex         double         np.complex128
 str             char           unicode
 unicode         cell           unicode
-bool            int32          np.int32
+bool            bool           bool
 None            double         np.float64
 dict            struct         Struct
 =============   ===========    =============
@@ -50,6 +50,7 @@ np.complex64    double         *np.complex128*
 np.complex128   double         np.complex128
 np.complex192   ERROR          ERROR
 np.object       cell           list
+np.bool         bool           bool
 =============   ===========    =============
 
 Python to Octave Compound Types
