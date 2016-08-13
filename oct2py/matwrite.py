@@ -162,8 +162,6 @@ def putval(data, convert_to_float=True):
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
     elif 'V' in dstr:
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-    elif dstr == '|b1':
-        data = data.astype(np.int8)
     elif dstr == '<m8[us]' or dstr == '<M8[us]':
         data = data.astype(np.uint64)
     elif '|S' in dstr or '<U' in dstr:
