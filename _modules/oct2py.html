@@ -5,17 +5,17 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py &mdash; Oct2Py 3.5.9 documentation</title>
+    <title>oct2py &#8212; Oct2Py 3.5.10 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/bootswatch-3.3.4/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.3.6/cosmo/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '3.5.9',
+        VERSION:     '3.5.10',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,9 +26,9 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../_static/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.5.9 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 3.5.10 documentation" href="../index.html" />
     <link rel="up" title="Module code" href="index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.5.9</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.5.10</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -122,7 +122,7 @@
         <div id="sidebar" class="bs-sidenav" role="complementary">
         </div>
       </div>
-    <div class="col-md-9">
+    <div class="col-md-9 content">
       
   <h1>Source code for oct2py</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
@@ -146,7 +146,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__title__</span> <span class="o">=</span> <span class="s1">&#39;oct2py&#39;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;3.5.9&#39;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s1">&#39;3.5.10&#39;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Steven Silvester&#39;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s1">&#39;MIT&#39;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s1">&#39;Copyright 2014-2016 Steven Silvester&#39;</span>
@@ -162,7 +162,7 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">thread</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">_thread</span> <span class="kn">as</span> <span class="nn">thread</span>
+    <span class="kn">import</span> <span class="nn">_thread</span> <span class="k">as</span> <span class="nn">thread</span>
 
 
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
@@ -185,17 +185,17 @@
         <span class="k">pass</span>
 
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">Oct2Py</span><span class="p">,</span> <span class="n">Oct2PyError</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Struct</span><span class="p">,</span> <span class="n">get_log</span>
-<span class="kn">from</span> <span class="nn">.demo</span> <span class="kn">import</span> <span class="n">demo</span>
-<span class="kn">from</span> <span class="nn">.speed_check</span> <span class="kn">import</span> <span class="n">speed_check</span>
-<span class="kn">from</span> <span class="nn">.thread_check</span> <span class="kn">import</span> <span class="n">thread_check</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">Oct2Py</span><span class="p">,</span> <span class="n">Oct2PyError</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">Struct</span><span class="p">,</span> <span class="n">get_log</span>
+<span class="kn">from</span> <span class="nn">.demo</span> <span class="k">import</span> <span class="n">demo</span>
+<span class="kn">from</span> <span class="nn">.speed_check</span> <span class="k">import</span> <span class="n">speed_check</span>
+<span class="kn">from</span> <span class="nn">.thread_check</span> <span class="k">import</span> <span class="n">thread_check</span>
 
 
 <span class="k">try</span><span class="p">:</span>
     <span class="n">octave</span> <span class="o">=</span> <span class="n">Oct2Py</span><span class="p">()</span>
 <span class="k">except</span> <span class="n">Oct2PyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="kill_octave"><a class="viewcode-back" href="../source/api.html#oct2py.kill_octave">[docs]</a><span class="k">def</span> <span class="nf">kill_octave</span><span class="p">():</span>
@@ -229,7 +229,7 @@
     </p>
     <p>
         &copy; Copyright 2011 - 2016, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.<br/>
     </p>
   </div>
 </footer>
