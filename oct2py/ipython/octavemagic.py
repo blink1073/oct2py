@@ -313,8 +313,6 @@ class OctaveMagics(Magics):
             msg = re.sub('\s+"""', '\n"""', msg)
             raise OctaveMagicError(msg)
 
-        
-
         key = 'OctaveMagic.Octave'
         display_data = []
 

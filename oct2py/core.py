@@ -332,7 +332,6 @@ class Oct2Py(object):
                 plot_width = 560
 
         if plot_dir is not None:
-
             res = 150
             pre_call += """
                set(0, 'defaultfigurevisible', 'off');
@@ -344,8 +343,8 @@ class Oct2Py(object):
         _figHandles = get(0, 'children');
         for _fig=1:length(_figHandles),
             _handle = _figHandles(_fig);
-            _filename = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', _handle + %(plot_offset)s);
-            print(_handle, _filename, '-r%(res)s', '-s%(plot_width)s,%(plot_height)s');
+            _filename = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', _fig + %(plot_offset)s);
+            print(_handle, _filename, '-r%(res)s', '-S%(plot_width)s,%(plot_height)s');
             close(_handle);
         end;
         ''' % locals()
