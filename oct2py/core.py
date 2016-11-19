@@ -322,11 +322,6 @@ class Oct2Py(object):
         existing = glob.glob(spec)
         plot_offset = len(existing)
 
-        if not plot_height is None or not plot_width is None:
-            pre_call += """
-            close all;
-            """
-
         if plot_height is None and plot_width is None:
             plot_height = 420
             plot_width = 560
@@ -336,43 +331,26 @@ class Oct2Py(object):
             elif plot_width is None:
                 plot_width = 560
 
-        pre_call += """
-            set(0, 'DefaultFigurePosition', [300, 200, %(plot_width)s, %(plot_height)s]);
-            """ % locals()
-
-        if not plot_dir is None:
-
+        if plot_dir is not None:
+            res = 150
             pre_call += """
                set(0, 'defaultfigurevisible', 'off');
-               close all;
+               graphics_toolkit('gnuplot');
                """
-
             plot_dir = plot_dir.replace("\\", "/")
 
             post_call += '''
-            figHandles_ = get(0, 'children');
-        for fig_ = 1:length(figHandles_)
-          f_ = figHandles_(fig_);
-          outfile_ = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', f_ + %(plot_offset)s);
-          p_ = get(f_, 'position');
-          w_ = %(plot_width)s;
-          h_ = %(plot_height)s;
-          if p_(3) > %(plot_width)s
-                h_ = p_(4) * w_ / p_(3);
-          end
-          if p_(4) > %(plot_height)s
-                w_ = p_(3) * h_ / p_(4);
-          end
-          size_fmt_ = sprintf('-S%%d,%%d', w_, h_);
-          try
-            print(f_, outfile_, '-d%(plot_format)s', '-tight', size_fmt_);
-          end
-        end
-        close('all');
+        _figHandles = get(0, 'children');
+        for _fig=1:length(_figHandles),
+            _handle = _figHandles(_fig);
+            _filename = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', _fig + %(plot_offset)s);
+            print(_handle, _filename, '-r%(res)s', '-S%(plot_width)s,%(plot_height)s');
+            close(_handle);
+        end;
         ''' % locals()
         else:
             pre_call += """
-            "set(0, 'defaultfigurevisible', 'on');"
+            set(0, 'defaultfigurevisible', 'on');
             """
 
             post_call += """

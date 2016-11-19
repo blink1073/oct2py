@@ -65,26 +65,6 @@ class OctaveMagicTest(unittest.TestCase):
 
             self.svgs_generated += 1
 
-    def test_octavemagic_localscope(self):
-        ip = self.ip
-        ip.push({'x': 0})
-        ip.run_line_magic('octave', '-i x -o result result = x+1')
-        result = ip.user_ns['result']
-        npt.assert_equal(result, 1)
-
-        ip.run_cell('''def octavemagic_addone(u):
-        %octave -i u -o result result = u+1
-        return result''')
-        ip.run_cell('result = octavemagic_addone(1)')
-        result = ip.user_ns['result']
-        npt.assert_equal(result, 2)
-
-        npt.assert_raises(
-            KeyError,
-            ip.run_line_magic,
-            "octave",
-            "-i var_not_defined 1+1")
-
     def test_octave_syntax_error(self):
         try:
             self.ip.run_cell_magic('octave', '', "a='1")
