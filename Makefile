@@ -30,12 +30,14 @@ cover: clean
 release: clean gh-pages
 	pip install wheel
 	python setup.py register
-	python setup.py bdist_wheel upload
-	python setup.py sdist --formats=gztar,zip upload
+	rm -rf dist
+	python setup.py bdist_wheel --universal
+	python setup.py sdist
 	git tag v$(VERSION)
 	git push origin --all
 	git push origin --tags
 	printf '\nUpgrade oct2py-feedstock with release and sha256 sum:'
+	twine upload dist/*
 	shasum -a 256 dist/*.tar.gz
 
 docs: clean
