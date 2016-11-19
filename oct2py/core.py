@@ -344,7 +344,7 @@ class Oct2Py(object):
         _figHandles = get(0, 'children');
         for _fig=1:length(_figHandles),
             _handle = _figHandles(_fig);
-            _filename = fullfile('%(plot_dir)s', ['OctaveFig', sprintf('%%03d.%(plot_format)s', _fig + %(plot_offset)s)]);
+            _filename = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', _handle + %(plot_offset)s);
             print(_handle, _filename, '-r%(res)s', '-s%(plot_width)s,%(plot_height)s');
             close(_handle);
         end;
