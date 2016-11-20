@@ -809,10 +809,9 @@ class _Session(object):
         self.write(output + '\n')
 
         # Run the pre-call
-        pre = self.expect('%s|error: |parse error:' % chr(2))
-        if (chr(2)) not in pre:
-            raise Oct2PyError('Error in pre_call: %s' % pre)
+        self.expect(chr(2))
 
+        # Try and start the eval
         resp = self.expect('%s|error: |parse error:' % chr(2))
 
         if 'parse error:' in resp:
