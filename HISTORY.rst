@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+3.6.0 (2016-11-20)
+++++++++++++++++++
+- Cleanup of plot creation - separate _make_figs.m file
+
+
 3.5.0 (2016-01-23)
 ++++++++++++++++++
 - Disable --braindead Octave argument.

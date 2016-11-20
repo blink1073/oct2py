@@ -10,7 +10,7 @@ LICENSE = 'MIT'
 REQUIRES = ["numpy (>= 1.7.1)", "scipy (>= 0.12)"]
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,
             '%s/ipython/tests' % DISTNAME]
-PACKAGE_DATA = {DISTNAME: ['tests/*.m']}
+PACKAGE_DATA = {DISTNAME: ['tests/*.m', '*.m']}
 CLASSIFIERS = """\
 Development Status :: 5 - Production/Stable
 Intended Audience :: Developers

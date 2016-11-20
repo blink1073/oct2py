@@ -331,8 +331,10 @@ class Oct2Py(object):
             elif plot_width is None:
                 plot_width = 560
 
+        pre_call = "set(0, 'defaultfigureposition', [0 0 %(plot_width)s %(plot_height)s]);" % locals()
+
         if plot_dir is not None:
-            res = 150
+            plot_res = 150
             pre_call += """
                set(0, 'defaultfigurevisible', 'off');
                graphics_toolkit('gnuplot');
@@ -340,13 +342,7 @@ class Oct2Py(object):
             plot_dir = plot_dir.replace("\\", "/")
 
             post_call += '''
-        _figHandles = get(0, 'children');
-        for _fig=1:length(_figHandles),
-            _handle = _figHandles(_fig);
-            _filename = sprintf('%(plot_dir)s/%(plot_name)s%%03d.%(plot_format)s', _fig + %(plot_offset)s);
-            print(_handle, _filename, '-r%(res)s', '-S%(plot_width)s,%(plot_height)s');
-            close(_handle);
-        end;
+            _make_figs("%(plot_dir)s", "%(plot_name)s", "%(plot_format)s", %(plot_offset)s, %(plot_res)s);
         ''' % locals()
         else:
             pre_call += """
@@ -812,7 +808,10 @@ class _Session(object):
 
         self.write(output + '\n')
 
-        self.expect(chr(2))
+        # Run the pre-call
+        pre = self.expect('%s|error: |parse error:' % chr(2))
+        if (chr(2)) not in pre:
+            raise Oct2PyError('Error in pre_call: %s' % pre)
 
         resp = self.expect('%s|error: |parse error:' % chr(2))
 
@@ -853,12 +852,17 @@ class _Session(object):
             if resp or line:
                 resp.append(line)
 
-        self.expect(chr(3))
+        # Run the post-call
+        post = self.expect('%s|error: |parse error:' % chr(3))
+        if (chr(3)) not in post:
+            raise Oct2PyError('Error in post_call: %s' % post)
 
         return '\n'.join(resp).rstrip()
 
     def _handle_first_run(self):
-        self.write('disp(available_graphics_toolkits());more off;disp(char(3))\n')
+        here = os.path.realpath(os.path.dirname(__file__))
+        here = here.replace(os.path.sep, '/')
+        self.write('disp(available_graphics_toolkits());more off;addpath(genpath("%s"));disp(char(3))\n' % here)
         resp = self.expect(chr(3))
         if not os.name == 'nt':
             try:
