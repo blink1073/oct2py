@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.core &#8212; Oct2Py 3.5.10 documentation</title>
+    <title>oct2py.core &#8212; Oct2Py 3.6.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.5.10',
+        VERSION:     '3.6.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.5.10 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.6.0 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.5.10</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.6.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -458,8 +458,10 @@
             <span class="k">elif</span> <span class="n">plot_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">plot_width</span> <span class="o">=</span> <span class="mi">560</span>
 
+        <span class="n">pre_call</span> <span class="o">=</span> <span class="s2">&quot;set(0, &#39;defaultfigureposition&#39;, [0 0 </span><span class="si">%(plot_width)s</span><span class="s2"> </span><span class="si">%(plot_height)s</span><span class="s2">]);&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">plot_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="mi">150</span>
+            <span class="n">plot_res</span> <span class="o">=</span> <span class="mi">150</span>
             <span class="n">pre_call</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">               set(0, &#39;defaultfigurevisible&#39;, &#39;off&#39;);</span>
 <span class="s2">               graphics_toolkit(&#39;gnuplot&#39;);</span>
@@ -467,13 +469,7 @@
             <span class="n">plot_dir</span> <span class="o">=</span> <span class="n">plot_dir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
 
             <span class="n">post_call</span> <span class="o">+=</span> <span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">        _figHandles = get(0, &#39;children&#39;);</span>
-<span class="s1">        for _fig=1:length(_figHandles),</span>
-<span class="s1">            _handle = _figHandles(_fig);</span>
-<span class="s1">            _filename = sprintf(&#39;</span><span class="si">%(plot_dir)s</span><span class="s1">/</span><span class="si">%(plot_name)s%%</span><span class="s1">03d.</span><span class="si">%(plot_format)s</span><span class="s1">&#39;, _fig + </span><span class="si">%(plot_offset)s</span><span class="s1">);</span>
-<span class="s1">            print(_handle, _filename, &#39;-r</span><span class="si">%(res)s</span><span class="s1">&#39;, &#39;-S</span><span class="si">%(plot_width)s</span><span class="s1">,</span><span class="si">%(plot_height)s</span><span class="s1">&#39;);</span>
-<span class="s1">            close(_handle);</span>
-<span class="s1">        end;</span>
+<span class="s1">            _make_figs(&quot;</span><span class="si">%(plot_dir)s</span><span class="s1">&quot;, &quot;</span><span class="si">%(plot_name)s</span><span class="s1">&quot;, &quot;</span><span class="si">%(plot_format)s</span><span class="s1">&quot;, </span><span class="si">%(plot_offset)s</span><span class="s1">, </span><span class="si">%(plot_res)s</span><span class="s1">);</span>
 <span class="s1">        &#39;&#39;&#39;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pre_call</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
@@ -939,8 +935,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
+        <span class="c1"># Run the pre-call</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 
+        <span class="c1"># Try and start the eval</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">|error: |parse error:&#39;</span> <span class="o">%</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="s1">&#39;parse error:&#39;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">:</span>
@@ -980,12 +978,17 @@
             <span class="k">if</span> <span class="n">resp</span> <span class="ow">or</span> <span class="n">line</span><span class="p">:</span>
                 <span class="n">resp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="c1"># Run the post-call</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">|error: |parse error:&#39;</span> <span class="o">%</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">post</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Error in post_call: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">post</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_handle_first_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;disp(available_graphics_toolkits());more off;disp(char(3))</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+        <span class="n">here</span> <span class="o">=</span> <span class="n">here</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;disp(available_graphics_toolkits());more off;addpath(genpath(&quot;</span><span class="si">%s</span><span class="s1">&quot;));disp(char(3))</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">here</span><span class="p">)</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
