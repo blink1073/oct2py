@@ -334,9 +334,6 @@ class Oct2Py(object):
         pre_call = "set(0, 'defaultfigureposition', [0 0 %(plot_width)s %(plot_height)s]);" % locals()
 
         if plot_dir is not None:
-            plot_res = 150
-            if plot_format == 'svg':
-                plot_res = 0
             pre_call += """
                set(0, 'defaultfigurevisible', 'off');
                graphics_toolkit('gnuplot');
@@ -344,7 +341,7 @@ class Oct2Py(object):
             plot_dir = plot_dir.replace("\\", "/")
 
             post_call += '''
-            _make_figs("%(plot_dir)s", "%(plot_name)s", "%(plot_format)s", %(plot_offset)s, %(plot_res)s);
+            _make_figs("%(plot_dir)s", "%(plot_name)s", "%(plot_format)s", %(plot_offset)s);
         ''' % locals()
         else:
             pre_call += """
