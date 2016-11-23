@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+3.6.1 (2016-11-20)
+++++++++++++++++++
+- More plot creation cleanup - fault tolerance for svg files.
+
+
 3.6.0 (2016-11-20)
 ++++++++++++++++++
 - Cleanup of plot creation - separate _make_figs.m file
