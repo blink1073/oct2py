@@ -34,8 +34,10 @@ script:
     # run coverage on py2.7, regular on others
   - if [[ $CONDA == python=2.7* ]]; then
       nosetests --exe -v --with-doctest --with-cov --cover-package oct2py;
+      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null
     else
       nosetests --exe -v oct2py;
+      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null
     fi
   - make docs
 
