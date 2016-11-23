@@ -335,8 +335,11 @@ class OctaveMagics(Magics):
 
         for image in images:
             if plot_format == 'svg':
-                image = self._fix_gnuplot_svg_size(image, size=(plot_width,
-                                                                plot_height))
+                try:
+                    size = (plot_width, plot_height)
+                    image = self._fix_gnuplot_svg_size(image, size=size)
+                except Exception:
+                    pass
             display_data.append((key, {plot_mime_type: image}))
 
         if args.output:

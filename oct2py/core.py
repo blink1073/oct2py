@@ -335,6 +335,8 @@ class Oct2Py(object):
 
         if plot_dir is not None:
             plot_res = 150
+            if plot_format == 'svg':
+                plot_res = 0
             pre_call += """
                set(0, 'defaultfigurevisible', 'off');
                graphics_toolkit('gnuplot');
