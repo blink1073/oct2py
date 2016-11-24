@@ -8,3 +8,4 @@ build/*
 dist/*
 docs/_build/*
 example/.ipynb_checkpoints/
+.ipynb_checkpoints/
