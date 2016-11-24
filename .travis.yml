@@ -8,7 +8,6 @@ language: python
 
 env:
     - CONDA="python=2.7 numpy=1.7"
-    - CONDA="python=3.3 numpy"
     - CONDA="python=3.4 numpy"
 
 before_install:
@@ -37,7 +36,7 @@ script:
       jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
     else
       nosetests --exe -v oct2py;
-      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
+      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
     fi
   - make docs
 
