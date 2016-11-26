@@ -4,9 +4,6 @@ Oct2Py: Python to GNU Octave Bridge
 .. image:: https://badge.fury.io/py/oct2py.png/
     :target: http://badge.fury.io/py/oct2py
 
-.. image:: https://pypip.in/d/oct2py/badge.png
-        :target: https://crate.io/packages/oct2py/
-
 .. image:: https://coveralls.io/repos/blink1073/oct2py/badge.png?branch=master
   :target: https://coveralls.io/r/blink1073/oct2py
 
