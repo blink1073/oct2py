@@ -40,6 +40,7 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #-----------------------------------------------------------------------------
 
 import tempfile
+import codecs
 from glob import glob
 import os
 from shutil import rmtree
@@ -325,7 +326,7 @@ class OctaveMagics(Magics):
         if not args.gui:
             for imgfile in glob("%s/*" % plot_dir):
                 if plot_format == 'svg':
-                    with open(imgfile, 'r', errors='replace') as fid:
+                    with codecs.open(imgfile, 'r', encoding='utf-8', errors='replace') as fid:
                         images.append(fid.read())
                 else:
                     with open(imgfile, 'rb') as fid:
