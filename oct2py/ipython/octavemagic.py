@@ -293,10 +293,10 @@ class OctaveMagics(Magics):
 
         plot_name = '__ipy_oct_fig_'
 
-        if not args.size is None:
+        if args.size is not None:
             plot_width, plot_height = [int(s) for s in args.size.split(',')]
         else:
-            plot_width, plot_height = None, None
+            plot_width, plot_height = 560, 420
 
         try:
             text_output, value = self._oct.eval(code, plot_dir=plot_dir,
