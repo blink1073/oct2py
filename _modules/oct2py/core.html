@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.core &#8212; Oct2Py 3.6.1 documentation</title>
+    <title>oct2py.core &#8212; Oct2Py 3.6.2 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.6.1',
+        VERSION:     '3.6.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.6.1 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.6.2 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.6.1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.6.2</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -458,7 +458,9 @@
             <span class="k">elif</span> <span class="n">plot_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">plot_width</span> <span class="o">=</span> <span class="mi">560</span>
 
-        <span class="n">pre_call</span> <span class="o">=</span> <span class="s2">&quot;set(0, &#39;defaultfigureposition&#39;, [0 0 </span><span class="si">%(plot_width)s</span><span class="s2"> </span><span class="si">%(plot_height)s</span><span class="s2">]);&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+        <span class="n">pre_call</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            set(0, &#39;defaultfigurepaperposition&#39;, [0 0 </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">]);</span>
+<span class="s2">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">plot_width</span><span class="p">)</span> <span class="o">/</span> <span class="mf">150.</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">plot_height</span><span class="p">)</span> <span class="o">/</span> <span class="mf">150.</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">plot_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">pre_call</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
