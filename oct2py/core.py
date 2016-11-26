@@ -331,7 +331,9 @@ class Oct2Py(object):
             elif plot_width is None:
                 plot_width = 560
 
-        pre_call = "set(0, 'defaultfigureposition', [0 0 %(plot_width)s %(plot_height)s]);" % locals()
+        pre_call = """
+            set(0, 'defaultfigurepaperposition', [0 0 %s %s]);
+            """ % (int(plot_width) / 150., int(plot_height) / 150.)
 
         if plot_dir is not None:
             pre_call += """

@@ -108,7 +108,7 @@ class OctaveMagics(Magics):
             Image width, height.
 
         """
-        (svg,) = minidom.parseString(image).getElementsByTagName('svg')
+        (svg,) = minidom.parseString(image.encode('utf-8')).getElementsByTagName('svg')
         viewbox = svg.getAttribute('viewBox').split(' ')
 
         if size is not None and size[0] is not None:
@@ -324,8 +324,12 @@ class OctaveMagics(Magics):
         images = []
         if not args.gui:
             for imgfile in glob("%s/*" % plot_dir):
-                with open(imgfile, 'rb') as fid:
-                    images.append(fid.read())
+                if plot_format == 'svg':
+                    with open(imgfile, 'r', errors='replace') as fid:
+                        images.append(fid.read())
+                else:
+                    with open(imgfile, 'rb') as fid:
+                        images.append(fid.read())
             try:
                 rmtree(plot_dir, ignore_errors=True)
             except OSError:
