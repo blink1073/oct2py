@@ -213,24 +213,6 @@ class MiscTests(test.TestCase):
         shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
 
-    def test_interrupt(self):
-
-        def action():
-            time.sleep(2.0)
-            thread.interrupt_main()
-
-        interrupter = threading.Thread(target=action)
-        interrupter.start()
-
-        self.oc.push('a', 10)
-        self.oc.eval("for i=1:30; pause(1); end; kladjflsd")
-
-        if os.name == 'nt':
-            self.oc.restart()
-            self.oc.push('a', 10)
-
-        assert self.oc.pull('a') == 10
-
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""
         self.oc.clear()

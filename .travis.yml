@@ -23,7 +23,7 @@ before_install:
   - conda info -a
   - travis_retry conda create -n test $CONDA jupyter nose scipy
   - source activate test
-  - travis_retry pip install coveralls
+  - travis_retry pip install coveralls octave_kernel
 
 install:
   - export PYTHONWARNINGS=all
