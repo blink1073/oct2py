@@ -717,7 +717,7 @@ class _Session(object):
             flags = subprocess.CREATE_NEW_PROCESS_GROUP + CREATE_NO_WINDOW
             kwargs['creationflags'] = flags
 
-        args = [executable, '-q']
+        args = [executable, '-q', '-i', '--no-init-file']
 
         if 'octave-cli' not in executable:
             try:
@@ -862,7 +862,7 @@ class _Session(object):
     def _handle_first_run(self):
         here = os.path.realpath(os.path.dirname(__file__))
         here = here.replace(os.path.sep, '/')
-        self.write('disp(available_graphics_toolkits());more off;addpath(genpath("%s"));disp(char(3))\n' % here)
+        self.write('disp(available_graphics_toolkits());more off;addpath(genpath("%s"));source ~/.octaverc;disp(char(3))\n' % here)
         resp = self.expect(chr(3))
         if not os.name == 'nt':
             try:
