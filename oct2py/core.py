@@ -717,7 +717,7 @@ class _Session(object):
             flags = subprocess.CREATE_NEW_PROCESS_GROUP + CREATE_NO_WINDOW
             kwargs['creationflags'] = flags
 
-        args = [executable, '-q', '-i', '--no-init-file']
+        args = [executable, '-q', '--no-init-file']
 
         if 'octave-cli' not in executable:
             try:
