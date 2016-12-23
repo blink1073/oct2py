@@ -615,7 +615,7 @@ class _Session(object):
         if plot_name is not None:
             settings['plot_name'] = plot_name
         if plot_width is not None:
-            settings['width'] = plot_height
+            settings['width'] = plot_width
         if plot_height is not None:
             settings['height'] = plot_height
         if plot_res is not None:
