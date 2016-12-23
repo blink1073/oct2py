@@ -611,15 +611,12 @@ class _Session(object):
     def handle_plot_settings(self, plot_dir=None, plot_name='plot',
             plot_format='svg', plot_width=None, plot_height=None,
             plot_res=None):
-        settings = dict(backend='inline' if plot_dir else 'gnuplot')
-        if plot_name is not None:
-            settings['plot_name'] = plot_name
-        if plot_width is not None:
-            settings['width'] = plot_width
-        if plot_height is not None:
-            settings['height'] = plot_height
-        if plot_res is not None:
-            settings['resolution'] = plot_res
+        settings = dict(backend='inline' if plot_dir else 'gnuplot',
+                        format=plot_format,
+                        name=plot_name,
+                        width=plot_width,
+                        height=plot_height,
+                        resolution=plot_res)
         self.engine.plot_settings = settings
 
     def extract_figures(self, plot_dir):
