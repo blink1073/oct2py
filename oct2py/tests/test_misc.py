@@ -116,8 +116,7 @@ class MiscTests(test.TestCase):
     def test_plot(self):
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
-        self.oc.close()
-        assert glob.glob("%s/*" % plot_dir)
+        assert self.oc.extract_figures(plot_dir)
 
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
@@ -141,10 +140,8 @@ class MiscTests(test.TestCase):
         self.oc.eval('a=1')
 
         stdin = sys.stdin
-        stdout = sys.stdout
-        output = StringIO()
-        sys.stdin = StringIO('a\nexit')
-        self.oc._session.stdout = output
+        sys.stdin = StringIO('a\ndbquit\n')
+
         try:
             self.oc.keyboard(timeout=3)
         except Oct2PyError as e:  # pragma: no cover
@@ -156,11 +153,8 @@ class MiscTests(test.TestCase):
                 raise(e)
         sys.stdin.flush()
         sys.stdin = stdin
-        self.oc._session.stdout = stdout
 
-        out = output.getvalue()
-        assert 'Entering Octave Debug Prompt...' in out
-        assert 'a =  1' in out
+        self.oc.pull('a') == 1
 
     def test_func_without_docstring(self):
         out = self.oc.test_nodocstring(5)
@@ -232,7 +226,10 @@ class MiscTests(test.TestCase):
     b + 1""")
         text = hdlr.stream.getvalue().strip()
         assert ans == 4
-        assert text.endswith('\na =  1\nb =  3\nans =  4')
+        lines = text.splitlines()
+        assert lines[-1] == 'ans =  4'
+        assert lines[-2] == 'b =  3'
+        assert lines[-3] == 'a =  1'
 
     def test_empty_values(self):
         self.oc.push('a', '')

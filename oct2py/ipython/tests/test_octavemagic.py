@@ -2,6 +2,7 @@
 import codecs
 import unittest
 import sys
+from IPython.display import SVG
 from IPython.testing.globalipapp import get_ipython
 
 try:
@@ -58,8 +59,8 @@ class OctaveMagicTest(unittest.TestCase):
         npt.assert_equal(self.svgs_generated, 2)
 
     def verify_publish_data(self, source, data):
-        if 'image/svg+xml' in data:
-            svg = data['image/svg+xml']
+        if isinstance(data, SVG):
+            svg = data.data
             assert 'height="500px"' in svg
             assert 'width="400px"' in svg
 

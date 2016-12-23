@@ -10,7 +10,9 @@ if PY2:
     long = long
     from StringIO import StringIO
     import Queue as queue
+    input = raw_input
 else:  # pragma : no cover
+    input = input
     unicode = str
     long = int
     from io import StringIO

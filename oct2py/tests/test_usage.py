@@ -129,5 +129,4 @@ class BasicUsageTest(test.TestCase):
         self.oc.set(0, DefaultFigureColor='b')
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
-        self.oc.close()
-        assert glob.glob("%s/*" % plot_dir)
+        assert self.oc.extract_figures(plot_dir)
