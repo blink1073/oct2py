@@ -40,8 +40,6 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #-----------------------------------------------------------------------------
 
 import tempfile
-import codecs
-from glob import glob
 import os
 from shutil import rmtree
 import re
@@ -292,6 +290,7 @@ class OctaveMagics(Magics):
         if plot_dir:
             for img in self._oct.extract_figures(plot_dir):
                 display_data.append((key, img))
+            rmtree(plot_dir, True)
 
         if args.output:
             for output in ','.join(args.output).split(','):

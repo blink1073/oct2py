@@ -61,8 +61,8 @@ class OctaveMagicTest(unittest.TestCase):
     def verify_publish_data(self, source, data):
         if isinstance(data, SVG):
             svg = data.data
-            assert 'height="500px"' in svg
-            assert 'width="400px"' in svg
+            assert 'height="500px"' in svg, svg
+            assert 'width="400px"' in svg, svg
 
             self.svgs_generated += 1
 
