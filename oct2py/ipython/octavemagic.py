@@ -46,7 +46,7 @@ import re
 
 import oct2py
 
-from IPython.core.displaypub import publish_display_data
+from IPython.core.display import publish_display_data, display
 from IPython.core.magic import (Magics, magics_class, line_magic,
                                 line_cell_magic, needs_local_scope)
 from IPython.testing.skipdoctest import skip_doctest
@@ -77,9 +77,9 @@ class OctaveMagics(Magics):
         super(OctaveMagics, self).__init__(shell)
         self._oct = oct2py.octave
 
-        # Allow publish_display_data to be overridden for
+        # Allow display to be overridden for
         # testing purposes.
-        self._publish_display_data = publish_display_data
+        self._display = display
 
     @skip_doctest
     @line_magic
@@ -286,12 +286,6 @@ class OctaveMagics(Magics):
         if text_output != "None":
             display_data.append((key, {'text/plain': text_output}))
 
-        # Publish images
-        if plot_dir:
-            for img in self._oct.extract_figures(plot_dir):
-                display_data.append((key, img))
-            rmtree(plot_dir, True)
-
         if args.output:
             for output in ','.join(args.output).split(','):
                 output = unicode_to_str(output)
@@ -300,7 +294,13 @@ class OctaveMagics(Magics):
         for source, data in display_data:
             # source is deprecated in IPython 3.0.
             # specify with kwarg for backward compatibility.
-            self._publish_display_data(source=source, data=data)
+            publish_display_data(source=source, data=data)
+
+        # Publish images
+        if plot_dir:
+            for img in self._oct.extract_figures(plot_dir):
+                self._display(img)
+            rmtree(plot_dir, True)
 
         if return_output:
             return value

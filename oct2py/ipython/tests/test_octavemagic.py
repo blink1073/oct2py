@@ -53,14 +53,14 @@ class OctaveMagicTest(unittest.TestCase):
 
     def test_octave_plot(self):
         magic = self.ip.find_cell_magic('octave').__self__
-        magic._publish_display_data = self.verify_publish_data
+        magic._display = self._verify_display
         self.ip.run_cell_magic('octave', '-f svg -s 400,500',
             'plot([1, 2, 3]); figure; plot([4, 5, 6]);')
         npt.assert_equal(self.svgs_generated, 2)
 
-    def verify_publish_data(self, source, data):
-        if isinstance(data, SVG):
-            svg = data.data
+    def _verify_display(self, obj):
+        if isinstance(obj, SVG):
+            svg = obj.data
             assert 'height="500px"' in svg, svg
             assert 'width="400px"' in svg, svg
 
