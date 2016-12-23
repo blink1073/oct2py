@@ -8,6 +8,7 @@ MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
 REQUIRES = ["numpy (>= 1.7.1)", "scipy (>= 0.12)", "octave_kernel (>= 0.19)"]
+INSTALL_REQUIRES = ["octave_kernel >= 0.19"]
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,
             '%s/ipython/tests' % DISTNAME]
 PACKAGE_DATA = {DISTNAME: ['tests/*.m', '*.m']}
@@ -52,5 +53,6 @@ setup(
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     classifiers=list(filter(None, CLASSIFIERS.split('\n'))),
-    requires=REQUIRES
+    requires=REQUIRES,
+    install_requires=INSTALL_REQUIRES
  )
