@@ -11,7 +11,6 @@ import os
 import atexit
 import signal
 import shutil
-import sys
 import time
 import tempfile
 
@@ -303,9 +302,7 @@ class Oct2Py(object):
                 self._session.interrupt()
                 raise Oct2PyError('Timed out, interrupting')
 
-            if not plot_dir:
-                # Handle case of no plot directory.
-                self._session.extract_figures(None)
+            self._session.make_figures(plot_dir)
 
             out_file = self._reader.out_file
 
@@ -596,17 +593,18 @@ class _Session(object):
                    .format(cmds[0], resp))
             raise Oct2PyError(msg)
 
-        save_ans = """
-        if exist("ans") == 1,
-            _ = ans;
-        end,
-        if exist("ans") == 1,
-            if exist("a__") == 0,
-                save -v6 -mat-binary %(out_file)s _;
+        if out_file:
+            save_ans = """
+            if exist("ans") == 1,
+                _ = ans;
             end,
-        end;""" % locals()
-        engine.eval(save_ans.strip().replace('\n', ''),
-                    timeout=timeout)
+            if exist("ans") == 1,
+                if exist("a__") == 0,
+                    save -v6 -mat-binary %(out_file)s _;
+                end,
+            end;""" % locals()
+            engine.eval(save_ans.strip().replace('\n', ''),
+                        timeout=timeout)
 
         return resp
 
@@ -623,6 +621,9 @@ class _Session(object):
 
     def extract_figures(self, plot_dir):
         return self.engine.extract_figures(plot_dir)
+
+    def make_figures(self, plot_dir=None):
+        return self.engine.make_figures(plot_dir)
 
     def interrupt(self):
         if os.name == 'nt':

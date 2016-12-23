@@ -116,6 +116,7 @@ class MiscTests(test.TestCase):
     def test_plot(self):
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
+        assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
     def test_narg_out(self):
