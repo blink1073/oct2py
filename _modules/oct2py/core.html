@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.core &#8212; Oct2Py 3.6.5 documentation</title>
+    <title>oct2py.core &#8212; Oct2Py 3.7.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.6.5',
+        VERSION:     '3.7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.6.5 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.7.0 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.6.5</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.7.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -135,29 +135,20 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">atexit</span>
 <span class="kn">import</span> <span class="nn">signal</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">select</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">pty</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">pty</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="kn">from</span> <span class="nn">metakernel.pexpect</span> <span class="k">import</span> <span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">EOF</span>
+<span class="kn">from</span> <span class="nn">octave_kernel.kernel</span> <span class="k">import</span> <span class="n">OctaveEngine</span>
 
 <span class="kn">from</span> <span class="nn">oct2py.matwrite</span> <span class="k">import</span> <span class="n">MatWrite</span>
 <span class="kn">from</span> <span class="nn">oct2py.matread</span> <span class="k">import</span> <span class="n">MatRead</span>
 <span class="kn">from</span> <span class="nn">oct2py.utils</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">get_nout</span><span class="p">,</span> <span class="n">Oct2PyError</span><span class="p">,</span> <span class="n">get_log</span><span class="p">,</span> <span class="n">Struct</span><span class="p">,</span> <span class="n">which</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">oct2py.compat</span> <span class="k">import</span> <span class="n">unicode</span><span class="p">,</span> <span class="n">PY2</span><span class="p">,</span> <span class="n">queue</span>
+    <span class="n">get_nout</span><span class="p">,</span> <span class="n">Oct2PyError</span><span class="p">,</span> <span class="n">get_log</span><span class="p">,</span> <span class="n">Struct</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">oct2py.compat</span> <span class="k">import</span> <span class="n">unicode</span><span class="p">,</span> <span class="nb">input</span>
 
 
 <div class="viewcode-block" id="Oct2Py"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py">[docs]</a><span class="k">class</span> <span class="nc">Oct2Py</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -178,8 +169,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    executable : str, optional</span>
 <span class="sd">        Name of the Octave executable, can be a system path.  If this is not</span>
-<span class="sd">        given, we look for an OCTAVE environmental variable.  The fallback is</span>
-<span class="sd">        to call &quot;octave&quot;.</span>
+<span class="sd">        given, we look for an OCTAVE_EXECUTABLE environmental variable.</span>
+<span class="sd">        The fallback is to call &quot;octave-cli&quot; or &quot;octave&quot;.</span>
 <span class="sd">    logger : logging object, optional</span>
 <span class="sd">        Optional logger to use for Oct2Py session</span>
 <span class="sd">    timeout : float, optional</span>
@@ -338,10 +329,34 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">data</span></div>
 
+<div class="viewcode-block" id="Oct2Py.extract_figures"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.extract_figures">[docs]</a>    <span class="k">def</span> <span class="nf">extract_figures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Extract the figures that were created in the given plot dir.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plot_dir: str</span>
+<span class="sd">            The plot directory that was used in the call to &quot;eval()&quot;.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This assumes that the figures were created with the specified</span>
+<span class="sd">        `plot_dir`, e.g. `oc.plot([1,2,3], plot_dir=&#39;/tmp/foo&#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        out: list</span>
+<span class="sd">            The IPython Image or SVG objects for the figures.</span>
+<span class="sd">            These objects have a `.data` attribute with the raw image data,</span>
+<span class="sd">            and can be used with the `display` function from `IPython` for</span>
+<span class="sd">            rich display.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">extract_figures</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Oct2Py.eval"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
              <span class="n">temp_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">plot_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="n">plot_format</span><span class="o">=</span><span class="s1">&#39;svg&#39;</span><span class="p">,</span>
-             <span class="n">plot_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_both</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+             <span class="n">plot_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">plot_res</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_both</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate an Octave command or commands.</span>
 
@@ -368,6 +383,8 @@
 <span class="sd">            The plot with in pixels.</span>
 <span class="sd">        plot_height: int, optional</span>
 <span class="sd">            The plot height in pixels.</span>
+<span class="sd">        plot_res: int, optional</span>
+<span class="sd">            The plot resolution in pixels per inch.</span>
 <span class="sd">        return_both: bool, optional</span>
 <span class="sd">            If True, return a (text, value) tuple with the response</span>
 <span class="sd">            and the return value.</span>
@@ -394,9 +411,11 @@
         <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span>
 
-        <span class="n">pre_call</span><span class="p">,</span> <span class="n">post_call</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_plot_commands</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">,</span>
-                                                      <span class="n">plot_format</span><span class="p">,</span> <span class="n">plot_width</span><span class="p">,</span> <span class="n">plot_height</span><span class="p">,</span>
-                                                      <span class="n">plot_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">handle_plot_settings</span><span class="p">(</span>
+            <span class="n">plot_dir</span><span class="o">=</span><span class="n">plot_dir</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="n">plot_name</span><span class="p">,</span>
+            <span class="n">plot_format</span><span class="o">=</span><span class="n">plot_format</span><span class="p">,</span> <span class="n">plot_width</span><span class="o">=</span><span class="n">plot_width</span><span class="p">,</span>
+            <span class="n">plot_height</span><span class="o">=</span><span class="n">plot_height</span><span class="p">,</span> <span class="n">plot_res</span><span class="o">=</span><span class="n">plot_res</span>
+        <span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">temp_dir</span><span class="p">:</span>
@@ -407,15 +426,15 @@
                                               <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
                                               <span class="n">log</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
                                               <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-                                              <span class="n">out_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">out_file</span><span class="p">,</span>
-                                              <span class="n">pre_call</span><span class="o">=</span><span class="n">pre_call</span><span class="p">,</span>
-                                              <span class="n">post_call</span><span class="o">=</span><span class="n">post_call</span><span class="p">)</span>
+                                              <span class="n">out_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">out_file</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
-                    <span class="k">return</span> <span class="s1">&#39;Octave Session Interrupted, Restarting Session&#39;</span>
-                <span class="k">return</span> <span class="s1">&#39;Octave Session Interrupted&#39;</span>
+                <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Octave Session Interrupted&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">TIMEOUT</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Timed out, interrupting&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="o">.</span><span class="n">make_figures</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">)</span>
 
             <span class="n">out_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">out_file</span>
 
@@ -439,49 +458,6 @@
             <span class="k">return</span> <span class="n">resp</span><span class="p">,</span> <span class="n">data</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">data</span></div>
-
-    <span class="k">def</span> <span class="nf">_get_plot_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_dir</span><span class="p">,</span> <span class="n">plot_format</span><span class="p">,</span> <span class="n">plot_width</span><span class="p">,</span>
-                           <span class="n">plot_height</span><span class="p">,</span> <span class="n">plot_name</span><span class="p">):</span>
-        <span class="n">pre_call</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">post_call</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-
-        <span class="n">spec</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(plot_dir)s</span><span class="s1">/</span><span class="si">%(plot_name)s</span><span class="s1">*.</span><span class="si">%(plot_format)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
-        <span class="n">existing</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-        <span class="n">plot_offset</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">plot_height</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">plot_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">plot_height</span> <span class="o">=</span> <span class="mi">420</span>
-            <span class="n">plot_width</span> <span class="o">=</span> <span class="mi">560</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">plot_height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">plot_height</span> <span class="o">=</span> <span class="mi">420</span>
-            <span class="k">elif</span> <span class="n">plot_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">plot_width</span> <span class="o">=</span> <span class="mi">560</span>
-
-        <span class="n">pre_call</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            set(0, &#39;defaultfigurepaperposition&#39;, [0 0 </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">]);</span>
-<span class="s2">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">plot_width</span><span class="p">)</span> <span class="o">/</span> <span class="mf">150.</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">plot_height</span><span class="p">)</span> <span class="o">/</span> <span class="mf">150.</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">plot_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">pre_call</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">               set(0, &#39;defaultfigurevisible&#39;, &#39;off&#39;);</span>
-<span class="s2">               graphics_toolkit(&#39;gnuplot&#39;);</span>
-<span class="s2">               &quot;&quot;&quot;</span>
-            <span class="n">plot_dir</span> <span class="o">=</span> <span class="n">plot_dir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
-
-            <span class="n">post_call</span> <span class="o">+=</span> <span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">            _make_figs(&quot;</span><span class="si">%(plot_dir)s</span><span class="s1">&quot;, &quot;</span><span class="si">%(plot_name)s</span><span class="s1">&quot;, &quot;</span><span class="si">%(plot_format)s</span><span class="s1">&quot;, </span><span class="si">%(plot_offset)s</span><span class="s1">);</span>
-<span class="s1">        &#39;&#39;&#39;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">pre_call</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            set(0, &#39;defaultfigurevisible&#39;, &#39;on&#39;);</span>
-<span class="s2">            &quot;&quot;&quot;</span>
-
-            <span class="n">post_call</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            drawnow(&quot;expose&quot;);</span>
-<span class="s2">            &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="n">pre_call</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">post_call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Oct2Py.restart"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2Py.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Restart an Octave session in a clean state</span>
@@ -697,401 +673,129 @@
         <span class="k">return</span> <span class="n">octave_command</span></div>
 
 
-<span class="k">class</span> <span class="nc">_Reader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;Read characters from an Octave session in a thread.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">queue</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fid</span> <span class="o">=</span> <span class="n">fid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wants_abort</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">read_incoming</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">setDaemon</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">read_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;&quot;Read text a chunk at a time, parsing into lines</span>
-<span class="sd">        and putting them in the queue.</span>
-<span class="sd">        If there is a line with only a &quot;&gt;&quot; char, put that on the queue</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">buf</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">debug_prompt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;\A[\w]+&gt;&gt;? &#39;</span><span class="p">)</span>
-        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wants_abort</span><span class="p">:</span>
-                <span class="k">return</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">buf</span> <span class="o">+=</span> <span class="n">os</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fid</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">,</span> <span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">buf</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">buf</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">debug_prompt</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">buf</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">buf</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-
-<span class="k">class</span> <span class="nc">_PtyReader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;Read characters from an Octave session over pty.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">queue</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fid</span> <span class="o">=</span> <span class="n">fid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">spin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">r</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">fid</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="n">debug_prompt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;\A[\w]+&gt;&gt;? &#39;</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">+=</span> <span class="n">os</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fid</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">,</span> <span class="s1">&#39;replace&#39;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">buf</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">debug_prompt</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">buf</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-
 <span class="k">class</span> <span class="nc">_Session</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;Low-level session Octave session interaction.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span><span class="n">e6</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">executable</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">first_run</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_timeout</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">executable</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;OCTAVE_EXECUTABLE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">executable</span>
+        <span class="k">if</span> <span class="s1">&#39;OCTAVE_EXECUTABLE&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="s1">&#39;OCTAVE&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;OCTAVE_EXECUTABLE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;OCTAVE&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">OctaveEngine</span><span class="p">(</span><span class="n">stdin_handler</span><span class="o">=</span><span class="nb">input</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">repl</span><span class="o">.</span><span class="n">child</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">get_log</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executable</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Start an Octave session in a subprocess.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ==========</span>
-<span class="sd">        executable : str</span>
-<span class="sd">            Name or path to Octave process.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        =======</span>
-<span class="sd">        out : fid</span>
-<span class="sd">            File descriptor for the Octave subprocess</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ======</span>
-<span class="sd">        Oct2PyError</span>
-<span class="sd">            If the session is not opened sucessfully.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        =====</span>
-<span class="sd">        Options sent to Octave: -q is quiet startup.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">errmsg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">`octave` not found.  Please see documentation at:</span><span class="se">\n</span><span class="s1">&#39;</span>
-                  <span class="s1">&#39;http://blink1073.github.io/oct2py/source/installation.html&#39;</span><span class="p">)</span>
-        <span class="n">ON_POSIX</span> <span class="o">=</span> <span class="s1">&#39;posix&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">builtin_module_names</span>
-        <span class="k">if</span> <span class="n">pty</span><span class="p">:</span>
-            <span class="n">master</span><span class="p">,</span> <span class="n">slave</span> <span class="o">=</span> <span class="n">pty</span><span class="o">.</span><span class="n">openpty</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">wfid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rfid</span> <span class="o">=</span> <span class="n">master</span><span class="p">,</span> <span class="n">master</span>
-            <span class="n">rpipe</span><span class="p">,</span> <span class="n">wpipe</span> <span class="o">=</span> <span class="n">slave</span><span class="p">,</span> <span class="n">slave</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">rfid</span><span class="p">,</span> <span class="n">wpipe</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pipe</span><span class="p">()</span>
-            <span class="n">rpipe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wfid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pipe</span><span class="p">()</span>
-
-        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">close_fds</span><span class="o">=</span><span class="n">ON_POSIX</span><span class="p">,</span> <span class="n">bufsize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">rpipe</span><span class="p">,</span>
-                      <span class="n">stderr</span><span class="o">=</span><span class="n">wpipe</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">wpipe</span><span class="p">)</span>
-
-        <span class="n">executable</span> <span class="o">=</span> <span class="n">executable</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OCTAVE&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">executable</span> <span class="o">=</span> <span class="n">executable</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;OCTAVE_EXECUTABLE&#39;</span><span class="p">,</span>
-                                                  <span class="kc">None</span><span class="p">)</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Octave Executable not found, please add to path or set&#39;</span>
-               <span class="s1">&#39;&quot;OCTAVE_EXECUTABLE&quot; environment variable&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">executable</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">which</span><span class="p">(</span><span class="n">executable</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;octave-cli&#39;</span><span class="p">):</span>
-                <span class="n">executable</span> <span class="o">=</span> <span class="s1">&#39;octave-cli&#39;</span>
-            <span class="k">elif</span> <span class="n">which</span><span class="p">(</span><span class="s1">&#39;octave&#39;</span><span class="p">):</span>
-                <span class="n">executable</span> <span class="o">=</span> <span class="s1">&#39;octave&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
-            <span class="n">CREATE_NO_WINDOW</span> <span class="o">=</span> <span class="mh">0x08000000</span>  <span class="c1"># Windows-specific</span>
-            <span class="n">flags</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CREATE_NEW_PROCESS_GROUP</span> <span class="o">+</span> <span class="n">CREATE_NO_WINDOW</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;creationflags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flags</span>
-
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">executable</span><span class="p">,</span> <span class="s1">&#39;-q&#39;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="s1">&#39;octave-cli&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">executable</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">info</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">([</span><span class="n">executable</span><span class="p">,</span> <span class="s1">&#39;--version&#39;</span><span class="p">])</span>
-            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-                <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="s1">&#39;version 4&#39;</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
-                <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;--no-gui&#39;</span><span class="p">]</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-            <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">pty</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">_Reader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rfid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_queue</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">_PtyReader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rfid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_queue</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">proc</span>
-
-    <span class="k">def</span> <span class="nf">set_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span><span class="n">e6</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
-
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmds</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">out_file</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pre_call</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">post_call</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform the low-level interaction with an Octave Session</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_timeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">engine</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Session Closed, try a restart()&#39;</span><span class="p">)</span>
 
-        <span class="n">expr</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_run</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_first_run</span><span class="p">()</span>
-
-        <span class="c1"># use ascii code 2 for start of text, 3 for end of text, and</span>
-        <span class="c1"># 24 to signal an error</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        </span><span class="si">%(pre_call)s</span><span class="s2"></span>
-
-<span class="s2">        clear(&quot;ans&quot;);</span>
-<span class="s2">        rehash;</span>
-<span class="s2">        clear(&quot;_&quot;);</span>
-<span class="s2">        clear(&quot;a__&quot;);</span>
-<span class="s2">        disp(char(2));</span>
-
-<span class="s2">        try</span>
-<span class="s2">            disp(char(2));</span>
-<span class="s2">            </span><span class="si">%(expr)s</span><span class="s2"></span>
-<span class="s2">            if exist(&quot;ans&quot;) == 1</span>
-<span class="s2">               _ = ans;</span>
-<span class="s2">            end</span>
-<span class="s2">            disp(char(3))</span>
-
-<span class="s2">        catch</span>
-<span class="s2">            disp(lasterr());</span>
-<span class="s2">            disp(char(24));</span>
-<span class="s2">        end</span>
-
-<span class="s2">        if exist(&quot;_&quot;) == 1</span>
-<span class="s2">            if exist(&quot;a__&quot;) == 0</span>
-<span class="s2">                save -v6 -mat-binary </span><span class="si">%(out_file)s</span><span class="s2"> _;</span>
-<span class="s2">            end</span>
-<span class="s2">        end</span>
-
-<span class="s2">        </span><span class="si">%(post_call)s</span><span class="s2"></span>
-
-<span class="s2">        disp(char(3))</span>
-<span class="s2">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="n">main_line</span> <span class="o">=</span> <span class="n">cmds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">logger</span> <span class="ow">and</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">engine</span><span class="o">.</span><span class="n">stream_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_line</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">main_line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
+            <span class="n">engine</span><span class="o">.</span><span class="n">stream_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">append</span>
 
-        <span class="k">if</span> <span class="s1">&#39;keyboard&#39;</span> <span class="ow">in</span> <span class="n">expr</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;keyboard</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">interact</span><span class="p">()</span>
-            <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">engine</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;clear(&quot;ans&quot;, &quot;_&quot;, &quot;a__&quot;);&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Run the pre-call</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-
-        <span class="c1"># Try and start the eval</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">|error: |parse error:&#39;</span> <span class="o">%</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">cmds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cmd</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">engine</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">EOF</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Session is closed&#39;</span><span class="p">)</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="s1">&#39;parse error:&#39;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">:</span>
-            <span class="n">resp</span> <span class="o">=</span> <span class="p">[</span><span class="n">resp</span><span class="p">[</span><span class="n">resp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;parse error:&#39;</span><span class="p">):]]</span>
-        <span class="k">elif</span> <span class="s1">&#39;error:&#39;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">:</span>
-            <span class="n">resp</span> <span class="o">=</span> <span class="p">[</span><span class="n">resp</span><span class="p">[</span><span class="n">resp</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;error:&#39;</span><span class="p">):]]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">resp</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Syntax Error:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">resp</span><span class="p">)</span>
 
-        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;error:&#39;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">main_line</span> <span class="o">=</span> <span class="n">cmds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">main_line</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmds</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Oct2Py tried to run:</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                   <span class="s1">&#39;Octave returned:</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span>
+                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">resp</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">out_file</span><span class="p">:</span>
+            <span class="n">save_ans</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            if exist(&quot;ans&quot;) == 1,</span>
+<span class="s2">                _ = ans;</span>
+<span class="s2">            end,</span>
+<span class="s2">            if exist(&quot;ans&quot;) == 1,</span>
+<span class="s2">                if exist(&quot;a__&quot;) == 0,</span>
+<span class="s2">                    save -v6 -mat-binary </span><span class="si">%(out_file)s</span><span class="s2"> _;</span>
+<span class="s2">                end,</span>
+<span class="s2">            end;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+            <span class="n">engine</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">save_ans</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+                        <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
-            <span class="k">elif</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Oct2Py tried to run:</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{0}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
-                       <span class="s1">&#39;Octave returned:</span><span class="se">\n</span><span class="si">{1}</span><span class="s1">&#39;</span>
-                       <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">main_line</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp</span><span class="p">)))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-                <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
 
-            <span class="k">elif</span> <span class="s1">&#39;</span><span class="se">\x1b</span><span class="s1">[C&#39;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&gt;&gt;&#39;</span><span class="p">:</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">handle_plot_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span>
+            <span class="n">plot_format</span><span class="o">=</span><span class="s1">&#39;svg&#39;</span><span class="p">,</span> <span class="n">plot_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">plot_res</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;inline&#39;</span> <span class="k">if</span> <span class="n">plot_dir</span> <span class="k">else</span> <span class="s1">&#39;gnuplot&#39;</span><span class="p">,</span>
+                        <span class="nb">format</span><span class="o">=</span><span class="n">plot_format</span><span class="p">,</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">plot_name</span><span class="p">,</span>
+                        <span class="n">width</span><span class="o">=</span><span class="n">plot_width</span><span class="p">,</span>
+                        <span class="n">height</span><span class="o">=</span><span class="n">plot_height</span><span class="p">,</span>
+                        <span class="n">resolution</span><span class="o">=</span><span class="n">plot_res</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">plot_settings</span> <span class="o">=</span> <span class="n">settings</span>
 
-            <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;&gt; &#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;&gt; &#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">interact</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">extract_figures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_dir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">extract_figures</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">)</span>
 
-            <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;^&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;win32&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Syntax Error:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp</span><span class="p">))</span>
-
-            <span class="k">elif</span> <span class="n">logger</span> <span class="ow">and</span> <span class="n">log</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">resp</span> <span class="ow">or</span> <span class="n">line</span><span class="p">:</span>
-                <span class="n">resp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-
-        <span class="c1"># Run the post-call</span>
-        <span class="n">post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">|error: |parse error:&#39;</span> <span class="o">%</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">post</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Error in post_call: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">post</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_handle_first_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">here</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="n">here</span> <span class="o">=</span> <span class="n">here</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;disp(available_graphics_toolkits());more off;addpath(genpath(&quot;</span><span class="si">%s</span><span class="s1">&quot;));disp(char(3))</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">here</span><span class="p">)</span>
-        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="s1">&#39;which gnuplot&#39;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
-                <span class="n">resp</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">resp</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;graphics_toolkit(&#39;gnuplot&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Oct2Py may not be able to display plots &#39;</span>
-                          <span class="s1">&#39;properly without gnuplot, please install it &#39;</span>
-                          <span class="s1">&#39;(gnuplot-x11 on Linux)&#39;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">first_run</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">make_figures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">make_figures</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">interrupt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">send_signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">expect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strings</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Look for a string or strings in the incoming data&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">strings</span> <span class="o">=</span> <span class="p">[</span><span class="n">strings</span><span class="p">]</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-                        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">readline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">pty</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">spin</span><span class="p">()</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
-            <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
-                <span class="k">pass</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                    <span class="k">return</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">val</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span>
-                <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Timed out, interrupting&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Write a message to the process using utf-8 encoding&quot;&quot;&quot;</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wfid</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">interact</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="s1">&#39;debug&gt; &#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Manage an Octave Debug Prompt interaction&quot;&quot;&quot;</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Entering Octave Debug Prompt...</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">prompt</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">inp_func</span> <span class="o">=</span> <span class="nb">input</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">raw_input</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">inp</span> <span class="o">=</span> <span class="n">inp_func</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
-                <span class="k">return</span>
-            <span class="k">if</span> <span class="n">inp</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;exit</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;quit</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;dbcont</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;dbquit</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;exit()</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;quit()</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]:</span>
-                <span class="n">inp</span> <span class="o">=</span> <span class="s1">&#39;return</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;disp(char(3));&#39;</span> <span class="o">+</span> <span class="n">inp</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">inp</span> <span class="o">==</span> <span class="s1">&#39;return</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;return</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;clear _</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\x03</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="n">prompt</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Cleanly close an Octave session</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">exit</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">sendline</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">exit&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">)</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGKILL</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
-        <span class="c1">#Clean open pty terminals to avoid leaving to much of them opened</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wfid</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">wants_abort</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_log_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>

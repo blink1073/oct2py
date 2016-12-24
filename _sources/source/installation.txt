@@ -5,16 +5,21 @@ Library Installation
 --------------------
 You must have GNU Octave 3.6 or newer installed and in your PATH
 (see instructions below).
-Additionally, you must have the Numpy and Scipy libraries installed.  On Windows, you can get the install files here_.
+Additionally, you must have the Numpy and Scipy libraries for Python 
+installed.  
+The simplest way to get them is to use the Anaconda_ distribution.
 
-The best way to install this library is by using pip_::
+Once the dependencies have been installed, run:
 
-   pip install oct2py
+.. code-block:: bash
 
+    $ pip install oct2py
 
+If using conda, it is available on conda-forge:
 
-.. _here: http://scipy.org/Download
-.. _pip: http://www.pip-installer.org/en/latest/installing.html
+.. code-block:: bash
+   
+   $ conda install -c conda-forge oct2py
 
 
 GNU Octave Installation
@@ -23,7 +28,7 @@ GNU Octave Installation
   instructions from Octave_.  You must also have gnuplot installed, and
   gnuplot-x11 or gnuplot-qt, if available.
 
-.. _Octave:  http://www.gnu.org/software/octave/doc/interpreter/Installation.html
+- On OSX, the recommended methods are listed on this wiki_.
 
 - On Windows, download the latest MinGW or .NET version_.  Cygwin
   is *NOT* supported.  Octave 3.8.2 is notionally supported, but it
@@ -44,5 +49,10 @@ GNU Octave Installation
 
 - Alternatively, you can specify the path to your Octave executable by creating an `OCTAVE_EXECUTABLE` environmental variable.
 
+
+.. _Anaconda: https://www.continuum.io/downloads
+.. _pip: http://www.pip-installer.org/en/latest/installing.html
+.. _Octave:  http://www.gnu.org/software/octave/doc/interpreter/Installation.html
+.. _wiki: http://wiki.octave.org/Octave_for_MacOS_X
 .. _version: http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
 .. _7zip: http://portableapps.com/apps/utilities/7-zip_portable

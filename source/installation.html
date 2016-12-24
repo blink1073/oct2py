@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &#8212; Oct2Py 3.6.5 documentation</title>
+    <title>Installation &#8212; Oct2Py 3.7.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '3.6.5',
+        VERSION:     '3.7.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.6.5 documentation" href="../index.html" />
+    <link rel="top" title="Oct2Py 3.7.0 documentation" href="../index.html" />
     <link rel="next" title="Demo" href="demo.html" />
     <link rel="prev" title="Oct2Py: Python to GNU Octave Bridge" href="../index.html" />
 <meta charset='utf-8'>
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.6.5</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.7.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -157,20 +157,27 @@
 <h2>Library Installation<a class="headerlink" href="#library-installation" title="Permalink to this headline">¶</a></h2>
 <p>You must have GNU Octave 3.6 or newer installed and in your PATH
 (see instructions below).
-Additionally, you must have the Numpy and Scipy libraries installed.  On Windows, you can get the install files <a class="reference external" href="http://scipy.org/Download">here</a>.</p>
-<p>The best way to install this library is by using <a class="reference external" href="http://www.pip-installer.org/en/latest/installing.html">pip</a>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">oct2py</span>
+Additionally, you must have the Numpy and Scipy libraries for Python
+installed.
+The simplest way to get them is to use the <a class="reference external" href="https://www.continuum.io/downloads">Anaconda</a> distribution.</p>
+<p>Once the dependencies have been installed, run:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ pip install oct2py
+</pre></div>
+</div>
+<p>If using conda, it is available on conda-forge:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ conda install -c conda-forge oct2py
 </pre></div>
 </div>
 </div>
 <div class="section" id="gnu-octave-installation">
 <h2>GNU Octave Installation<a class="headerlink" href="#gnu-octave-installation" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>On Linux platforms, try your package manager, or follow the
-instructions from <a class="reference external" href="http://www.gnu.org/software/octave/doc/interpreter/Installation.html">Octave</a>.  You must also have gnuplot installed, and
-gnuplot-x11 or gnuplot-qt, if available.</li>
-</ul>
 <ul>
+<li><p class="first">On Linux platforms, try your package manager, or follow the
+instructions from <a class="reference external" href="http://www.gnu.org/software/octave/doc/interpreter/Installation.html">Octave</a>.  You must also have gnuplot installed, and
+gnuplot-x11 or gnuplot-qt, if available.</p>
+</li>
+<li><p class="first">On OSX, the recommended methods are listed on this <a class="reference external" href="http://wiki.octave.org/Octave_for_MacOS_X">wiki</a>.</p>
+</li>
 <li><p class="first">On Windows, download the latest MinGW or .NET <a class="reference external" href="http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/">version</a>.  Cygwin
 is <em>NOT</em> supported.  Octave 3.8.2 is notionally supported, but it
 is still an unofficial release.
