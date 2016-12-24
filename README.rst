@@ -22,7 +22,7 @@ MAT files.  Usage is as simple as:
      [ 0.  0.  0.]] float64
     ...
 
-If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
+If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
 
 
@@ -44,7 +44,7 @@ Features
 
 Installation
 ------------
-You must have GNU Octave 3.6 or newer installed and in your PATH.
+You must have GNU Octave 3.6 or newer installed and in your ``PATH``.
 You must have the Numpy and Scipy libraries for Python installed.
 See the installation instructions_ for more details.
 
