@@ -261,6 +261,8 @@ class OctaveMagics(Magics):
         if args.size is not None:
             plot_width, plot_height = [int(s) for s in args.size.split(',')]
 
+        import sys
+        print(args, file=sys.__stderr__)
         try:
             text_output, value = self._oct.eval(code,
                                                 plot_dir=plot_dir,
