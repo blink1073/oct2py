@@ -273,6 +273,8 @@ class OctaveMagics(Magics):
                                                 return_both=True)
         except oct2py.Oct2PyError as exception:
             msg = str(exception)
+            if 'Octave Session Interrupted' in msg:
+                return
             if 'Octave Syntax Error' in msg:
                 raise OctaveMagicError(msg)
             msg = re.sub('"""\s+', '"""\n', msg)
