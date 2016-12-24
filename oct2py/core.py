@@ -14,7 +14,7 @@ import shutil
 import time
 import tempfile
 
-from metakernel.pexpect import TIMEOUT
+from metakernel.pexpect import TIMEOUT, EOF
 from octave_kernel.kernel import OctaveEngine
 
 from oct2py.matwrite import MatWrite
@@ -565,19 +565,23 @@ class _Session(object):
         engine = self.engine
         self._lines = []
 
+        if not engine:
+            raise Oct2PyError('Session Closed, try a restart()')
+
         if logger and log:
             engine.stream_handler = self._log_line
         else:
             engine.stream_handler = self._lines.append
 
-        if not self.engine:
-            raise Oct2PyError('Session Closed, try a restart()')
-
         engine.eval('clear("ans", "_", "a__");', timeout=timeout)
 
         for cmd in cmds:
             if cmd:
-                engine.eval(cmd, timeout=timeout)
+                try:
+                    engine.eval(cmd, timeout=timeout)
+                except EOF:
+                    self.close()
+                    raise Oct2PyError('Session is closed')
         resp = '\n'.join(self._lines).rstrip()
 
         if 'parse error:' in resp:
@@ -611,6 +615,8 @@ class _Session(object):
     def handle_plot_settings(self, plot_dir=None, plot_name='plot',
             plot_format='svg', plot_width=None, plot_height=None,
             plot_res=None):
+        if not self.engine:
+            return
         settings = dict(backend='inline' if plot_dir else 'gnuplot',
                         format=plot_format,
                         name=plot_name,
@@ -620,12 +626,18 @@ class _Session(object):
         self.engine.plot_settings = settings
 
     def extract_figures(self, plot_dir):
+        if not self.engine:
+            return
         return self.engine.extract_figures(plot_dir)
 
     def make_figures(self, plot_dir=None):
+        if not self.engine:
+            return
         return self.engine.make_figures(plot_dir)
 
     def interrupt(self):
+        if not self.engine:
+            return
         if os.name == 'nt':
             self.close()
         else:
@@ -634,6 +646,8 @@ class _Session(object):
     def close(self):
         """Cleanly close an Octave session
         """
+        if not self.engine:
+            return
         proc = self.proc
         try:
             proc.sendline('\nexit')
