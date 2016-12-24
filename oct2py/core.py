@@ -210,10 +210,18 @@ class Oct2Py(object):
         plot_dir: str
             The plot directory that was used in the call to "eval()".
 
+        Notes
+        -----
+        This assumes that the figures were created with the specified
+        `plot_dir`, e.g. `oc.plot([1,2,3], plot_dir='/tmp/foo').
+
         Returns
         -------
         out: list
             The IPython Image or SVG objects for the figures.
+            These objects have a `.data` attribute with the raw image data,
+            and can be used with the `display` function from `IPython` for
+            rich display.
         """
         return self._session.extract_figures(plot_dir)
 
