@@ -8,29 +8,20 @@
 """
 from __future__ import print_function
 import os
-import re
 import atexit
 import signal
-import glob
-import logging
-import select
 import shutil
-import subprocess
-import sys
-import threading
 import time
 import tempfile
-import warnings
-try:
-    import pty
-except ImportError:
-    pty = None
+
+from metakernel.pexpect import TIMEOUT, EOF
+from octave_kernel.kernel import OctaveEngine
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
 from oct2py.utils import (
-    get_nout, Oct2PyError, get_log, Struct, which)
-from oct2py.compat import unicode, PY2, queue
+    get_nout, Oct2PyError, get_log, Struct)
+from oct2py.compat import unicode, input
 
 
 class Oct2Py(object):
@@ -51,8 +42,8 @@ class Oct2Py(object):
     ----------
     executable : str, optional
         Name of the Octave executable, can be a system path.  If this is not
-        given, we look for an OCTAVE environmental variable.  The fallback is
-        to call "octave".
+        given, we look for an OCTAVE_EXECUTABLE environmental variable.
+        The fallback is to call "octave-cli" or "octave".
     logger : logging object, optional
         Optional logger to use for Oct2Py session
     timeout : float, optional
@@ -211,10 +202,34 @@ class Oct2Py(object):
         else:
             return data
 
+    def extract_figures(self, plot_dir):
+        """Extract the figures that were created in the given plot dir.
+
+        Parameters
+        ----------
+        plot_dir: str
+            The plot directory that was used in the call to "eval()".
+
+        Notes
+        -----
+        This assumes that the figures were created with the specified
+        `plot_dir`, e.g. `oc.plot([1,2,3], plot_dir='/tmp/foo').
+
+        Returns
+        -------
+        out: list
+            The IPython Image or SVG objects for the figures.
+            These objects have a `.data` attribute with the raw image data,
+            and can be used with the `display` function from `IPython` for
+            rich display.
+        """
+        return self._session.extract_figures(plot_dir)
+
     def eval(self, cmds, verbose=True, timeout=None, log=True,
              temp_dir=None,
              plot_dir=None, plot_name='plot', plot_format='svg',
-             plot_width=None, plot_height=None, return_both=False):
+             plot_width=None, plot_height=None,
+             plot_res=None, return_both=False):
         """
         Evaluate an Octave command or commands.
 
@@ -241,6 +256,8 @@ class Oct2Py(object):
             The plot with in pixels.
         plot_height: int, optional
             The plot height in pixels.
+        plot_res: int, optional
+            The plot resolution in pixels per inch.
         return_both: bool, optional
             If True, return a (text, value) tuple with the response
             and the return value.
@@ -267,9 +284,11 @@ class Oct2Py(object):
         if timeout is None:
             timeout = self.timeout
 
-        pre_call, post_call = self._get_plot_commands(plot_dir,
-                                                      plot_format, plot_width, plot_height,
-                                                      plot_name)
+        self._session.handle_plot_settings(
+            plot_dir=plot_dir, plot_name=plot_name,
+            plot_format=plot_format, plot_width=plot_width,
+            plot_height=plot_height, plot_res=plot_res
+        )
 
         try:
             if not temp_dir:
@@ -280,15 +299,15 @@ class Oct2Py(object):
                                               logger=self.logger,
                                               log=log,
                                               timeout=timeout,
-                                              out_file=self._reader.out_file,
-                                              pre_call=pre_call,
-                                              post_call=post_call)
+                                              out_file=self._reader.out_file)
             except KeyboardInterrupt:
                 self._session.interrupt()
-                if os.name == 'nt':
-                    self.restart()
-                    return 'Octave Session Interrupted, Restarting Session'
-                return 'Octave Session Interrupted'
+                raise Oct2PyError('Octave Session Interrupted')
+            except TIMEOUT:
+                self._session.interrupt()
+                raise Oct2PyError('Timed out, interrupting')
+
+            self._session.make_figures(plot_dir)
 
             out_file = self._reader.out_file
 
@@ -312,49 +331,6 @@ class Oct2Py(object):
             return resp, data
         else:
             return data
-
-    def _get_plot_commands(self, plot_dir, plot_format, plot_width,
-                           plot_height, plot_name):
-        pre_call = ''
-        post_call = ''
-
-        spec = '%(plot_dir)s/%(plot_name)s*.%(plot_format)s' % locals()
-        existing = glob.glob(spec)
-        plot_offset = len(existing)
-
-        if plot_height is None and plot_width is None:
-            plot_height = 420
-            plot_width = 560
-        else:
-            if plot_height is None:
-                plot_height = 420
-            elif plot_width is None:
-                plot_width = 560
-
-        pre_call = """
-            set(0, 'defaultfigurepaperposition', [0 0 %s %s]);
-            """ % (int(plot_width) / 150., int(plot_height) / 150.)
-
-        if plot_dir is not None:
-            pre_call += """
-               set(0, 'defaultfigurevisible', 'off');
-               graphics_toolkit('gnuplot');
-               """
-            plot_dir = plot_dir.replace("\\", "/")
-
-            post_call += '''
-            _make_figs("%(plot_dir)s", "%(plot_name)s", "%(plot_format)s", %(plot_offset)s);
-        ''' % locals()
-        else:
-            pre_call += """
-            set(0, 'defaultfigurevisible', 'on');
-            """
-
-            post_call += """
-            drawnow("expose");
-            """
-
-        return pre_call.strip(), post_call.strip()
 
     def restart(self):
         """Restart an Octave session in a clean state
@@ -570,401 +546,129 @@ class Oct2Py(object):
         return octave_command
 
 
-class _Reader(object):
-
-    """Read characters from an Octave session in a thread.
-    """
-
-    def __init__(self, fid, queue):
-        self.fid = fid
-        self.queue = queue
-        self.wants_abort = False
-        self.thread = threading.Thread(target=self.read_incoming)
-        self.thread.setDaemon(True)
-        self.thread.start()
-
-    def read_incoming(self):
-        """"Read text a chunk at a time, parsing into lines
-        and putting them in the queue.
-        If there is a line with only a ">" char, put that on the queue
-        """
-        buf = ''
-        debug_prompt = re.compile(r'\A[\w]+>>? ')
-        while 1:
-            if self.wants_abort:
-                return
-            try:
-                buf += os.read(self.fid, 1024).decode('utf8', 'replace')
-            except Exception as e:
-                print(e)
-                self.queue.put(None)
-                return
-            lines = buf.splitlines()
-            for line in lines[:-1]:
-                self.queue.put(line)
-            if buf.endswith('\n'):
-                self.queue.put(lines[-1])
-                buf = ''
-            elif re.match(debug_prompt, lines[-1]):
-                self.queue.put(lines[-1])
-                buf = ''
-            else:
-                buf = lines[-1]
-
-
-class _PtyReader(object):
-
-    """Read characters from an Octave session over pty.
-    """
-
-    def __init__(self, fid, queue):
-        self.fid = fid
-        self.queue = queue
-        self.buf = ''
-
-    def spin(self):
-        r, w, e = select.select([self.fid], [], [], 1e-3)
-        if not r:
-            return
-        debug_prompt = re.compile(r'\A[\w]+>>? ')
-        try:
-            self.buf += os.read(self.fid, 1024).decode('utf8', 'replace')
-        except Exception as e:
-            print(e)
-            self.queue.put(None)
-            return
-        lines = self.buf.splitlines()
-        for line in lines[:-1]:
-            self.queue.put(line)
-        if self.buf.endswith('\n'):
-            self.queue.put(lines[-1])
-            self.buf = ''
-        elif re.match(debug_prompt, lines[-1]):
-            self.queue.put(lines[-1])
-            self.buf = ''
-        else:
-            self.buf = lines[-1]
-
-
 class _Session(object):
 
     """Low-level session Octave session interaction.
     """
 
-    def __init__(self, executable, logger):
-        self.timeout = int(1e6)
-        self.read_queue = queue.Queue()
-        self.proc = self.start(executable)
-        self.stdout = sys.stdout
-        self.logger = logger
-        self.first_run = True
-        self.set_timeout()
+    def __init__(self, executable, logger=None):
+        if executable:
+            os.environ['OCTAVE_EXECUTABLE'] = executable
+        if 'OCTAVE_EXECUTABLE' not in os.environ and 'OCTAVE' in os.environ:
+            os.environ['OCTAVE_EXECUTABLE'] = os.environ['OCTAVE']
+        self.engine = OctaveEngine(stdin_handler=input)
+        self.proc = self.engine.repl.child
+        self.logger = logger or get_log()
+        self._lines = []
         atexit.register(self.close)
 
-    def start(self, executable):
-        """
-        Start an Octave session in a subprocess.
-
-        Parameters
-        ==========
-        executable : str
-            Name or path to Octave process.
-
-        Returns
-        =======
-        out : fid
-            File descriptor for the Octave subprocess
-
-        Raises
-        ======
-        Oct2PyError
-            If the session is not opened sucessfully.
-
-        Notes
-        =====
-        Options sent to Octave: -q is quiet startup.
-
-        """
-        errmsg = ('\n\n`octave` not found.  Please see documentation at:\n'
-                  'http://blink1073.github.io/oct2py/source/installation.html')
-        ON_POSIX = 'posix' in sys.builtin_module_names
-        if pty:
-            master, slave = pty.openpty()
-            self.wfid, self.rfid = master, master
-            rpipe, wpipe = slave, slave
-        else:
-            self.rfid, wpipe = os.pipe()
-            rpipe, self.wfid = os.pipe()
-
-        kwargs = dict(close_fds=ON_POSIX, bufsize=0, stdin=rpipe,
-                      stderr=wpipe, stdout=wpipe)
-
-        executable = executable or os.environ.get('OCTAVE', None)
-        executable = executable or os.environ.get('OCTAVE_EXECUTABLE',
-                                                  None)
-        msg = ('Octave Executable not found, please add to path or set'
-               '"OCTAVE_EXECUTABLE" environment variable')
-        if not executable or not which(executable):
-            if which('octave-cli'):
-                executable = 'octave-cli'
-            elif which('octave'):
-                executable = 'octave'
-            else:
-                raise OSError(msg)
-
-        if os.name == 'nt':
-            CREATE_NO_WINDOW = 0x08000000  # Windows-specific
-            flags = subprocess.CREATE_NEW_PROCESS_GROUP + CREATE_NO_WINDOW
-            kwargs['creationflags'] = flags
-
-        args = [executable, '-q', '--no-init-file']
-
-        if 'octave-cli' not in executable:
-            try:
-                info = subprocess.check_output([executable, '--version'])
-            except OSError:  # pragma: no cover
-                raise Oct2PyError(errmsg)
-
-            if 'version 4' in info.decode('utf-8').lower():
-                args += ['--no-gui']
-
-        try:
-            proc = subprocess.Popen(args, **kwargs)
-
-        except OSError:  # pragma: no cover
-            raise Oct2PyError(errmsg)
-
-        else:
-            if not pty:
-                self.reader = _Reader(self.rfid, self.read_queue)
-            else:
-                self.reader = _PtyReader(self.rfid, self.read_queue)
-            return proc
-
-    def set_timeout(self, timeout=None):
-        if timeout is None:
-            timeout = int(1e6)
-        self.timeout = timeout
-
     def evaluate(self, cmds, logger=None, out_file='', log=True,
-                 timeout=None, pre_call='', post_call=''):
+                 timeout=None):
         """Perform the low-level interaction with an Octave Session
         """
-        self.logger = logger
+        self.logger = logger or self.logger
+        engine = self.engine
+        self._lines = []
 
-        self.set_timeout(timeout)
-
-        if not self.proc:
+        if not engine:
             raise Oct2PyError('Session Closed, try a restart()')
 
-        expr = '\n'.join(cmds)
-
-        if self.first_run:
-            self._handle_first_run()
-
-        # use ascii code 2 for start of text, 3 for end of text, and
-        # 24 to signal an error
-        output = """
-        %(pre_call)s
-
-        clear("ans");
-        rehash;
-        clear("_");
-        clear("a__");
-        disp(char(2));
-
-        try
-            disp(char(2));
-            %(expr)s
-            if exist("ans") == 1
-               _ = ans;
-            end
-            disp(char(3))
-
-        catch
-            disp(lasterr());
-            disp(char(24));
-        end
-
-        if exist("_") == 1
-            if exist("a__") == 0
-                save -v6 -mat-binary %(out_file)s _;
-            end
-        end
-
-        %(post_call)s
-
-        disp(char(3))
-        """ % locals()
-
-        if len(cmds) == 5:
-            main_line = cmds[2].strip()
+        if logger and log:
+            engine.stream_handler = self._log_line
         else:
-            main_line = '\n'.join(cmds)
+            engine.stream_handler = self._lines.append
 
-        if 'keyboard' in expr:
-            self.write('keyboard\n')
-            self.interact()
-            return ''
+        engine.eval('clear("ans", "_", "a__");', timeout=timeout)
 
-        self.write(output + '\n')
-
-        # Run the pre-call
-        self.expect(chr(2))
-
-        # Try and start the eval
-        resp = self.expect('%s|error: |parse error:' % chr(2))
+        for cmd in cmds:
+            if cmd:
+                try:
+                    engine.eval(cmd, timeout=timeout)
+                except EOF:
+                    self.close()
+                    raise Oct2PyError('Session is closed')
+        resp = '\n'.join(self._lines).rstrip()
 
         if 'parse error:' in resp:
-            resp = [resp[resp.index('parse error:'):]]
-        elif 'error:' in resp:
-            resp = [resp[resp.index('error:'):]]
-        else:
-            resp = []
+            raise Oct2PyError('Syntax Error:\n%s' % resp)
 
-        while 1:
-            line = self.readline()
+        if 'error:' in resp:
+            if len(cmds) == 5:
+                main_line = cmds[2].strip()
+            else:
+                main_line = '\n'.join(cmds)
+            msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
+                   'Octave returned:\n{1}'
+                   .format(cmds[0], resp))
+            raise Oct2PyError(msg)
 
-            if chr(3) in line:
-                break
+        if out_file:
+            save_ans = """
+            if exist("ans") == 1,
+                _ = ans;
+            end,
+            if exist("ans") == 1,
+                if exist("a__") == 0,
+                    save -v6 -mat-binary %(out_file)s _;
+                end,
+            end;""" % locals()
+            engine.eval(save_ans.strip().replace('\n', ''),
+                        timeout=timeout)
 
-            elif chr(24) in line:
-                msg = ('Oct2Py tried to run:\n"""\n{0}\n"""\n'
-                       'Octave returned:\n{1}'
-                       .format(main_line, '\n'.join(resp)))
-                self.expect(chr(3))
-                raise Oct2PyError(msg)
+        return resp
 
-            elif '\x1b[C' in line or line.strip() == '>>':
-                line = ''
+    def handle_plot_settings(self, plot_dir=None, plot_name='plot',
+            plot_format='svg', plot_width=None, plot_height=None,
+            plot_res=None):
+        if not self.engine:
+            return
+        settings = dict(backend='inline' if plot_dir else 'gnuplot',
+                        format=plot_format,
+                        name=plot_name,
+                        width=plot_width,
+                        height=plot_height,
+                        resolution=plot_res)
+        self.engine.plot_settings = settings
 
-            elif line.endswith('> ') and not line.endswith('>>> '):
-                self.interact(line)
+    def extract_figures(self, plot_dir):
+        if not self.engine:
+            return
+        return self.engine.extract_figures(plot_dir)
 
-            elif line.startswith(' ') and line.strip() == '^':
-                if sys.platform == 'win32':
-                    self.close()
-                raise Oct2PyError('Syntax Error:\n%s' % '\n'.join(resp))
-
-            elif logger and log:
-                logger.debug(line)
-
-            if resp or line:
-                resp.append(line)
-
-        # Run the post-call
-        post = self.expect('%s|error: |parse error:' % chr(3))
-        if (chr(3)) not in post:
-            raise Oct2PyError('Error in post_call: %s' % post)
-
-        return '\n'.join(resp).rstrip()
-
-    def _handle_first_run(self):
-        here = os.path.realpath(os.path.dirname(__file__))
-        here = here.replace(os.path.sep, '/')
-        self.write('disp(available_graphics_toolkits());more off;addpath(genpath("%s"));source ~/.octaverc;disp(char(3))\n' % here)
-        resp = self.expect(chr(3))
-        if not os.name == 'nt':
-            try:
-                subprocess.check_output('which gnuplot', shell=True)
-            except subprocess.CalledProcessError:
-                resp = None
-        if resp:
-            self.write("graphics_toolkit('gnuplot')\n")
-        else:
-            warnings.warn('Oct2Py may not be able to display plots '
-                          'properly without gnuplot, please install it '
-                          '(gnuplot-x11 on Linux)')
-
-        self.first_run = False
+    def make_figures(self, plot_dir=None):
+        if not self.engine:
+            return
+        return self.engine.make_figures(plot_dir)
 
     def interrupt(self):
-        if os.name == 'nt':
-            self.close()
-        else:
-            self.proc.send_signal(signal.SIGINT)
-
-    def expect(self, strings):
-        """Look for a string or strings in the incoming data"""
-        if not isinstance(strings, list):
-            strings = [strings]
-        lines = []
-        while 1:
-            line = self.readline()
-            lines.append(line)
-            if line:
-                for string in strings:
-                    if re.search(string, line):
-                        return '\n'.join(lines)
-
-    def readline(self):
-        t0 = time.time()
-        while 1:
-            if pty:
-                self.reader.spin()
-            try:
-                val = self.read_queue.get_nowait()
-            except queue.Empty:
-                pass
-            else:
-                if val is None:
-                    self.close()
-                    return
-                else:
-                    return val
-            time.sleep(1e-6)
-            if (time.time() - t0) > self.timeout:
-                self.interrupt()
-                raise Oct2PyError('Timed out, interrupting')
-
-    def write(self, message):
-        """Write a message to the process using utf-8 encoding"""
-        os.write(self.wfid, message.encode('utf-8'))
-
-    def interact(self, prompt='debug> '):
-        """Manage an Octave Debug Prompt interaction"""
-        msg = 'Entering Octave Debug Prompt...\n%s' % prompt
-        self.stdout.write(msg)
-        while 1:
-            inp_func = input if not PY2 else raw_input
-            try:
-                inp = inp_func() + '\n'
-            except EOFError:
-                return
-            if inp in ['exit\n', 'quit\n', 'dbcont\n', 'dbquit\n',
-                       'exit()\n', 'quit()\n']:
-                inp = 'return\n'
-            self.write('disp(char(3));' + inp)
-            if inp == 'return\n':
-                self.write('return\n')
-                self.write('clear _\n')
-                return
-            self.expect('\x03')
-            self.stdout.write(self.expect(prompt))
+        if not self.engine:
+            return
+        self.proc.kill(signal.SIGINT)
 
     def close(self):
         """Cleanly close an Octave session
         """
+        if not self.engine:
+            return
+        proc = self.proc
         try:
-            self.write('\nexit\n')
+            proc.sendline('\nexit')
         except Exception as e:  # pragma: no cover
             self.logger.debug(e)
 
         try:
-            self.proc.terminate()
+            proc.kill(signal.SIGTERM)
             time.sleep(0.1)
-            self.proc.kill()
+            proc.kill(signal.SIGKILL)
         except Exception as e:  # pragma: no cover
             self.logger.debug(e)
 
-        #Clean open pty terminals to avoid leaving to much of them opened
-        try:
-            os.close(self.wfid)
-        except Exception as e:  # pragma: no cover
-            self.logger.debug(e)
-
-        self.reader.wants_abort = True
         self.proc = None
+        self.engine = None
+
+    def _log_line(self, line):
+        self._lines.append(line)
+        self.logger.debug(line)
 
     def __del__(self):
         try:

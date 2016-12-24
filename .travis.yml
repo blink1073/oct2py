@@ -21,7 +21,7 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - travis_retry conda create -n test $CONDA jupyter nose scipy
+  - travis_retry conda create -n test $CONDA jupyter nose scipy pip
   - source activate test
   - travis_retry pip install coveralls
 
@@ -31,6 +31,9 @@ install:
 
 script:
     # run coverage on py2.7, regular on others
+  - which nosetests
+  - which python
+  - python -c "import octave_kernel"
   - if [[ $CONDA == python=2.7* ]]; then
       nosetests --exe -v --with-doctest --with-cov --cover-package oct2py;
       jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;

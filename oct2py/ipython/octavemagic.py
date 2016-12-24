@@ -40,17 +40,13 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #-----------------------------------------------------------------------------
 
 import tempfile
-import codecs
-from glob import glob
 import os
 from shutil import rmtree
-import sys
 import re
 
 import oct2py
-from xml.dom import minidom
 
-from IPython.core.displaypub import publish_display_data
+from IPython.core.display import publish_display_data, display
 from IPython.core.magic import (Magics, magics_class, line_magic,
                                 line_cell_magic, needs_local_scope)
 from IPython.testing.skipdoctest import skip_doctest
@@ -63,11 +59,6 @@ from IPython.utils.text import dedent
 
 class OctaveMagicError(oct2py.Oct2PyError):
     pass
-
-_mimetypes = {'png': 'image/png',
-              'svg': 'image/svg+xml',
-              'jpg': 'image/jpeg',
-              'jpeg': 'image/jpeg'}
 
 
 @magics_class
@@ -85,41 +76,10 @@ class OctaveMagics(Magics):
         """
         super(OctaveMagics, self).__init__(shell)
         self._oct = oct2py.octave
-        if sys.platform == 'win32':
-            # Use svg by default due to lack of Ghostscript on Windows Octave
-            self._plot_format = 'svg'
-        else:
-            self._plot_format = 'png'
 
-        # Allow publish_display_data to be overridden for
+        # Allow display to be overridden for
         # testing purposes.
-        self._publish_display_data = publish_display_data
-
-    def _fix_gnuplot_svg_size(self, image, size=None):
-        """
-        GnuPlot SVGs do not have height/width attributes.  Set
-        these to be the same as the viewBox, so that the browser
-        scales the image correctly.
-
-        Parameters
-        ----------
-        image : str
-            SVG data.
-        size : tuple of int
-            Image width, height.
-
-        """
-        (svg,) = minidom.parseString(image.encode('utf-8')).getElementsByTagName('svg')
-        viewbox = svg.getAttribute('viewBox').split(' ')
-
-        if size is not None and size[0] is not None:
-            width, height = size
-        else:
-            width, height = viewbox[2:]
-
-        svg.setAttribute('width', '%dpx' % int(width))
-        svg.setAttribute('height', '%dpx' % int(height))
-        return svg.toxml()
+        self._display = display
 
     @skip_doctest
     @line_magic
@@ -189,7 +149,7 @@ class OctaveMagics(Magics):
     )
     @argument(
         '-s', '--size', action='store',
-        help='Pixel size of plots, "width,height". Default is "-s 400,250".'
+        help='Pixel size of plots, "width,height".'
     )
     @argument(
         '-f', '--format', action='store',
@@ -198,6 +158,18 @@ class OctaveMagics(Magics):
     @argument(
         '-g', '--gui', action='store_true', default=False,
         help='Show a gui for plots.  Default is False'
+    )
+    @argument(
+        '-w', '--width', type=int, action='store',
+        help='The width of the plot in pixels'
+    )
+    @argument(
+        '-h', '--height', type=int, action='store',
+        help='The height of the plot in pixels'
+    )
+    @argument(
+        '-r', '--resolution', type=int, action='store',
+        help='The resolution of the plot in pixels per inch'
     )
     @needs_local_scope
     @argument(
@@ -283,31 +255,26 @@ class OctaveMagics(Magics):
         else:
             plot_dir = tempfile.mkdtemp()
 
-        if args.format is not None:
-            plot_format = args.format
-        elif sys.platform == 'win32' or sys.platform == 'darwin':
-            # Use svg by default due to lack of Ghostscript on Windows Octave
-            plot_format = 'svg'
-        else:
-            plot_format = 'png'
-
-        plot_name = '__ipy_oct_fig_'
+        plot_width = args.width
+        plot_height = args.height
 
         if args.size is not None:
             plot_width, plot_height = [int(s) for s in args.size.split(',')]
-        else:
-            plot_width, plot_height = 560, 420
 
         try:
-            text_output, value = self._oct.eval(code, plot_dir=plot_dir,
-                                                plot_format=plot_format,
+            text_output, value = self._oct.eval(code,
+                                                plot_dir=plot_dir,
+                                                plot_format=args.format,
                                                 plot_width=plot_width,
                                                 plot_height=plot_height,
-                                                plot_name=plot_name,
+                                                plot_name='__ipy_oct_fig_',
+                                                plot_res=args.resolution,
                                                 verbose=False,
                                                 return_both=True)
         except oct2py.Oct2PyError as exception:
             msg = str(exception)
+            if 'Octave Session Interrupted' in msg:
+                return
             if 'Octave Syntax Error' in msg:
                 raise OctaveMagicError(msg)
             msg = re.sub('"""\s+', '"""\n', msg)
@@ -321,32 +288,6 @@ class OctaveMagics(Magics):
         if text_output != "None":
             display_data.append((key, {'text/plain': text_output}))
 
-        # Publish images
-        images = []
-        if not args.gui:
-            for imgfile in glob("%s/*" % plot_dir):
-                if plot_format == 'svg':
-                    with codecs.open(imgfile, 'r', encoding='utf-8', errors='replace') as fid:
-                        images.append(fid.read())
-                else:
-                    with open(imgfile, 'rb') as fid:
-                        images.append(fid.read())
-            try:
-                rmtree(plot_dir, ignore_errors=True)
-            except OSError:
-                pass
-
-        plot_mime_type = _mimetypes.get(plot_format, 'image/png')
-
-        for image in images:
-            if plot_format == 'svg':
-                try:
-                    size = (plot_width, plot_height)
-                    image = self._fix_gnuplot_svg_size(image, size=size)
-                except Exception:
-                    pass
-            display_data.append((key, {plot_mime_type: image}))
-
         if args.output:
             for output in ','.join(args.output).split(','):
                 output = unicode_to_str(output)
@@ -355,7 +296,13 @@ class OctaveMagics(Magics):
         for source, data in display_data:
             # source is deprecated in IPython 3.0.
             # specify with kwarg for backward compatibility.
-            self._publish_display_data(source=source, data=data)
+            publish_display_data(source=source, data=data)
+
+        # Publish images
+        if plot_dir:
+            for img in self._oct.extract_figures(plot_dir):
+                self._display(img)
+            rmtree(plot_dir, True)
 
         if return_output:
             return value

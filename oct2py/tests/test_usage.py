@@ -1,9 +1,9 @@
 from __future__ import absolute_import, print_function
-import glob
 import os
 import pickle
 import tempfile
 
+from IPython.display import Image, SVG
 import numpy as np
 import numpy.testing as test
 
@@ -122,6 +122,24 @@ class BasicUsageTest(test.TestCase):
         a = self.oc.pull('a')
         self.assertEqual(a, 1)
 
+    def test_extract_figures(self):
+        plot_dir = tempfile.mkdtemp().replace('\\', '/')
+        code = """
+        plot([1,2,3])
+        figure
+        temp=rand(100,100);
+        imshow(temp)
+        """
+        self.oc.eval(code, plot_dir=plot_dir)
+        files = self.oc.extract_figures(plot_dir)
+        assert len(files) == 2
+        assert isinstance(files[0], SVG)
+        assert isinstance(files[1], Image)
+
+    def test_quit(self):
+        self.assertRaises(Oct2PyError, self.oc.eval, 'quit')
+        self.assertRaises(Oct2PyError, self.oc.eval, 'a=1')
+
     def test_octave_error(self):
         self.assertRaises(Oct2PyError, self.oc.eval, 'a = ones2(1)')
 
@@ -129,5 +147,4 @@ class BasicUsageTest(test.TestCase):
         self.oc.set(0, DefaultFigureColor='b')
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
-        self.oc.close()
-        assert glob.glob("%s/*" % plot_dir)
+        assert self.oc.extract_figures(plot_dir)

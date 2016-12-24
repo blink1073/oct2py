@@ -42,18 +42,13 @@ Features
 - Optional timeout command parameter to prevent runaway Octave sessions.
 
 
-.. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
-
-
 Installation
 ------------
 You must have GNU Octave 3.6 or newer installed and in your PATH.
-On Windows, the easiest way to get Octave is to use an installer from SourceForge_.
-You must have the Numpy and Scipy libraries installed.
-On Linux, it should be available from your package manager.
-You can specify the path to your Octave executable by creating an `OCTAVE_EXECUTABLE` environmental variable.
+You must have the Numpy and Scipy libraries for Python installed.
+See the installation instructions_ for more details.
 
-To install Oct2Py, simply:
+Once the dependencies have been installed, run:
 
 .. code-block:: bash
 
@@ -63,8 +58,7 @@ If using conda, it is available on conda-forge:
 
 .. code-block:: bash
    
-   $ conda config --add channels conda-forge  # if not already added
-   $ conda install oct2py
+   $ conda install -c conda-forge oct2py
 
 
 Documentation
@@ -75,7 +69,9 @@ Documentation is available online_.
 For version information, see the Revision History_.
 
 
-.. _SourceForge: http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
+.. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+
+.. _instructions: http://blink1073.github.io/oct2py/source/installation.html
 
 .. _online: http://blink1073.github.io/oct2py/
 
