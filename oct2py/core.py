@@ -294,10 +294,7 @@ class Oct2Py(object):
                                               out_file=self._reader.out_file)
             except KeyboardInterrupt:
                 self._session.interrupt()
-                if os.name == 'nt':
-                    self.restart()
-                    return 'Octave Session Interrupted, Restarting Session'
-                return 'Octave Session Interrupted'
+                raise Oct2PyError('Octave Session Interrupted')
             except TIMEOUT:
                 self._session.interrupt()
                 raise Oct2PyError('Timed out, interrupting')
@@ -638,10 +635,7 @@ class _Session(object):
     def interrupt(self):
         if not self.engine:
             return
-        if os.name == 'nt':
-            self.close()
-        else:
-            self.proc.kill(signal.SIGINT)
+        self.proc.kill(signal.SIGINT)
 
     def close(self):
         """Cleanly close an Octave session
