@@ -557,12 +557,11 @@ class Oct2Py(object):
             obj = _make_octave_class(self, name)
         else:
             obj = _make_octave_command(self, name)
-            # bind to the instance with a weakref (to avoid circular
-            # references
+            # bind to the instance.
             if PY2:
-                obj = types.MethodType(obj, weakref.ref(self), Oct2Py)
+                obj = types.MethodType(obj, self, Oct2Py)
             else:
-                obj = types.MethodType(obj, weakref.ref(self))
+                obj = types.MethodType(obj, self)
 
         # !!! attr, *not* name, because we might have python keyword name!
         setattr(self, attr, obj)

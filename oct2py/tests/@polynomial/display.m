@@ -1,4 +1,6 @@
 function display (p)
+  %% Display a polynomial object
+
   a = p.poly;
   first = true;
   fprintf ("%s =", inputname (1));
