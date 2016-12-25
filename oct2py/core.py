@@ -13,6 +13,7 @@ import signal
 import shutil
 import time
 import tempfile
+import types
 
 from metakernel.pexpect import TIMEOUT, EOF
 from octave_kernel.kernel import OctaveEngine
@@ -346,26 +347,6 @@ class Oct2Py(object):
     # Private API
     # --------------------------------------------------------------
 
-    def _make_octave_command(self, name, doc=None):
-        """Create a wrapper to an Octave procedure or object
-
-        Adapted from the mlabwrap project
-
-        """
-        def octave_command(*args, **kwargs):
-            """ Octave command """
-            kwargs['nout'] = kwargs.get('nout', get_nout())
-            kwargs['verbose'] = kwargs.get('verbose', False)
-            return self._call(name, *args, **kwargs)
-        # convert to ascii for pydoc
-        try:
-            doc = doc.encode('ascii', 'replace').decode('ascii')
-        except UnicodeDecodeError as e:
-            self.logger.debug(e)
-        octave_command.__doc__ = "\n" + doc
-        octave_command.__name__ = name
-        return octave_command
-
     def _call(self, func, *inputs, **kwargs):
         """
         Oct2Py Parameters
@@ -415,6 +396,9 @@ class Oct2Py(object):
 
         """
         nout = kwargs.pop('nout', get_nout())
+        is_class = kwargs.pop('_is_class', False)
+        is_class_lookup = kwargs.pop('_is_class_lookup', False)
+        class_var = kwargs.pop('_class_var', '')
 
         argout_list = ['_']
 
@@ -449,6 +433,11 @@ class Oct2Py(object):
 
             call_line += func + '('
 
+            if is_class_lookup:
+                call_line += '%s' % class_var
+                if inputs or prop_vals:
+                    call_line += ', '
+
             if inputs:
                 argin_list, load_line = self._writer.create_file(
                     temp_dir, inputs)
@@ -463,6 +452,9 @@ class Oct2Py(object):
 
             # create the command and execute in octave
             cmd = [load_line, call_line, save_line]
+
+            if is_class:
+                cmd.append('%s = %s;' % (class_var, argout_list[0]))
             data = self.eval(cmd, temp_dir=temp_dir, **eval_kwargs)
         finally:
             try:
@@ -510,7 +502,7 @@ class Oct2Py(object):
             doc, _ = self.eval('help {0}'.format(name), log=False,
                                verbose=False, return_both=True)
         except Oct2PyError as e:
-            if 'syntax error' in str(e):
+            if 'syntax error' in str(e).lower():
                 raise(e)
             doc, _ = self.eval('type("{0}")'.format(name), log=False,
                                verbose=False, return_both=True)
@@ -520,8 +512,61 @@ class Oct2Py(object):
 
         default = self._call.__doc__
         doc += '\n' + '\n'.join([line[8:] for line in default.splitlines()])
+        doc = '\n' + doc
+
+        # convert to ascii for pydoc
+        try:
+            doc = doc.encode('ascii', 'replace').decode('ascii')
+        except UnicodeDecodeError as e:
+            self.logger.debug(e)
 
         return doc
+
+    def _make_octave_command(self, name):
+        """Create a wrapper to an Octave procedure or object
+
+        Adapted from the mlabwrap project
+        """
+        def octave_command(*args, **kwargs):
+            """ Octave command """
+            kwargs['nout'] = kwargs.get('nout', get_nout())
+            kwargs['verbose'] = kwargs.get('verbose', False)
+            return self._call(name, *args, **kwargs)
+
+        octave_command.__name__ = name
+        octave_command.__qualname__ = name
+        octave_command.__doc__ = self._get_doc(name)
+        return octave_command
+
+    def _make_octave_class(self, name):
+        """Make an Octave class for a given class name"""
+        attrs = self.eval('ans = fieldnames(%s);' % name)
+        methods = self.eval('ans = methods(%s);' % name)
+        values = dict(__doc__=self._get_doc(name))
+        for method in methods:
+            values[method] = self._make_class_method(method)
+        for attr in attrs:
+            values[attr] = None
+        values['_parent'] = self
+        values['_attrs'] = attrs
+        values['_name'] = name
+        return type(name, (OctaveClass,), values)
+
+    def _make_class_method(self, name):
+        """Make an Octave class method for a given attribute name"""
+
+        def octave_method(self, *args, **kwargs):
+            """ Octave method """
+            kwargs['nout'] = kwargs.get('nout', get_nout())
+            kwargs['verbose'] = kwargs.get('verbose', False)
+            kwargs['_is_class_lookup'] = True
+            kwargs['_class_var'] = self._var
+            return self._parent._call(name, *args, **kwargs)
+
+        octave_method.__name__ = name
+        octave_method.__qualname__ = name
+        octave_method.__doc__ = self._get_doc(name)
+        return octave_method
 
     def __getattr__(self, attr):
         """Automatically creates a wapper to an Octave function or object.
@@ -530,20 +575,32 @@ class Oct2Py(object):
 
         """
         # needed for help(Oct2Py())
-        if attr == '__name__':
-            return super(Oct2Py, self).__getattr__(attr)
-        elif attr == '__file__':
+        if attr == '__file__':
             return __file__
+        elif attr.startswith('__'):
+            return super(Oct2Py, self).__getattr__(attr)
+
         # close_ -> close
         if attr[-1] == "_":
             name = attr[:-1]
         else:
             name = attr
-        doc = self._get_doc(name)
-        octave_command = self._make_octave_command(name, doc)
-        #!!! attr, *not* name, because we might have python keyword name!
-        setattr(self, attr, octave_command)
-        return octave_command
+
+        # Check for user defined class.
+        try:
+            isobj = self.eval('isobject(%s);' % name) == 1
+        except Exception:
+            isobj = False
+
+        if isobj:
+            obj = self._make_octave_class(name)
+            setattr(self, attr, obj)
+        else:
+            obj = self._make_octave_command(name)
+            # !!! attr, *not* name, because we might have python keyword name!
+            setattr(self, attr, types.MethodType(obj, self))
+
+        return obj
 
 
 class _Session(object):
@@ -675,3 +732,25 @@ class _Session(object):
             self.close()
         except:
             pass
+
+
+class OctaveClass(object):
+    """A wrapper for an Octave Class
+    """
+
+    def __init__(self, *args, **kwargs):
+        name = self._name
+        self._var = '%s_%s' % (name, id(self))
+        kwargs['nout'] = 1
+        kwargs['verbose'] = kwargs.get('verbose', False)
+        kwargs['_is_class'] = True
+        kwargs['_class_var'] = self._var
+        self._parent._call(name, *args, **kwargs)
+
+    def __getattribute__(self, name):
+        if name == '_attrs':
+            return object.__getattribute__(self, name)
+        if name in self._attrs:
+            lookup = 'ans = get(%s, "%s");' % (self._var, name)
+            return self._parent.eval(lookup)
+        return object.__getattribute__(self, name)

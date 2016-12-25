@@ -226,6 +226,7 @@ class MiscTests(test.TestCase):
     b = 3
     b + 1""")
         text = hdlr.stream.getvalue().strip()
+        self.oc.logger.removeHandler(hdlr)
         assert ans == 4
         lines = text.splitlines()
         assert lines[-1] == 'ans =  4'
