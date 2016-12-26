@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+3.8.0 (2016-12-25)
+++++++++++++++++++
+- Add support for Octave class objects and clean up repr() and help()
+  for dynamic Octave methods, (PR #104)
+
+
 3.7.0 (2016-12-24)
 ++++++++++++++++++
 - Fixed error that caused the session to crash on Windows when Octave

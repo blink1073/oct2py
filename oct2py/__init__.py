@@ -19,7 +19,7 @@ trust a code translator, this is your library.
 """
 
 __title__ = 'oct2py'
-__version__ = '3.7.0'
+__version__ = '3.8.0'
 __author__ = 'Steven Silvester'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2014-2016 Steven Silvester'
@@ -36,27 +36,6 @@ try:
     import thread
 except ImportError:
     import _thread as thread
-
-
-if os.name == 'nt':
-    """
-    Allow Windows to intecept KeyboardInterrupt
-    http://stackoverflow.com/questions/15457786/ctrl-c-crashes-python-after-importing-scipy-stats
-    """
-    basepath = imp.find_module('numpy')[1]
-    try:
-        lib1 = ctypes.CDLL(os.path.join(basepath, 'core', 'libmmd.dll'))
-        lib2 = ctypes.CDLL(os.path.join(basepath, 'core', 'libifcoremd.dll'))
-
-        def handler(sig, hook=thread.interrupt_main):
-            hook()
-            return 1
-
-        routine = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)(handler)
-        ctypes.windll.kernel32.SetConsoleCtrlHandler(routine, 1)
-    except Exception:
-        pass
-
 
 from .core import Oct2Py, Oct2PyError
 from .utils import Struct, get_log
