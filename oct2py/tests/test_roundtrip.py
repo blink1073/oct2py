@@ -294,7 +294,7 @@ class BuiltinsTest(test.TestCase):
         for t in tests:
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('float64'))
+            self.assertEqual(incoming.dtype, np.dtype('uint8'))
             self.oc.convert_to_float = False
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)

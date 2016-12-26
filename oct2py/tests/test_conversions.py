@@ -17,7 +17,7 @@ TYPE_CONVERSIONS = [
     (complex, 'double', np.complex128),
     (str, 'char', unicode),
     (unicode, 'cell', unicode),
-    (bool, 'bool', np.bool),
+    (bool, 'logical', np.bool),
     (None, 'double', np.float64),
     (dict, 'struct', Struct),
     (np.int8, 'int8', np.int8),
@@ -157,7 +157,7 @@ class ConversionTest(test.TestCase):
                 pass
             else:
                 assert (octave_type == oct_type or
-                        (octave_type == 'double' and self.oc.convert_to_float))
+                        (octave_type == 'double' and self.oc.convert_to_float)), (octave_type, oct_type)
             if type(incoming) != in_type:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
