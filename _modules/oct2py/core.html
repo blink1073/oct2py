@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.core &#8212; Oct2Py 3.8.0 documentation</title>
+    <title>oct2py.core &#8212; Oct2Py 3.8.1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.8.0',
+        VERSION:     '3.8.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.8.0 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.8.1 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.8.0</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.8.1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -599,8 +599,6 @@
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span> <span class="nf">_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;keyboard&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
         <span class="n">exist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;exist </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                           <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">exist</span> <span class="o">!=</span> <span class="mi">0</span>
@@ -625,8 +623,6 @@
 <span class="sd">           If the procedure or object does not exist.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;keyboard&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;Built-in Function: keyboard ()&#39;</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="s1">&#39;No documentation for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -676,7 +672,11 @@
 
         <span class="c1"># Check for user defined class.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">isobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;isobject(</span><span class="si">%s</span><span class="s1">);&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="c1"># Prevent the debug prompt from coming up.</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;keyboard&#39;</span><span class="p">:</span>
+                <span class="n">isobj</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">isobj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;isobject(</span><span class="si">%s</span><span class="s1">);&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">isobj</span> <span class="o">=</span> <span class="kc">False</span>
 
