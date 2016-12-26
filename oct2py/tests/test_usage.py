@@ -73,9 +73,9 @@ class BasicUsageTest(test.TestCase):
         tests = [self.oc.zeros, self.oc.ones, self.oc.plot]
         for item in tests:
             try:
-                self.assertEqual(repr(type(item)), "<type 'function'>")
+                self.assertEqual(repr(type(item)), "<type 'method'>")
             except AssertionError:
-                self.assertEqual(repr(type(item)), "<class 'function'>")
+                self.assertEqual(repr(type(item)), "<class 'method'>")
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'aaldkfasd')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, '_foo')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'foo\W')

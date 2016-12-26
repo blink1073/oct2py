@@ -472,8 +472,6 @@ class Oct2Py(object):
         return data
 
     def _exists(self, name):
-        if name == 'keyboard':
-            return True
         exist = self.eval('exist {0}'.format(name), log=False,
                           verbose=False)
         return exist != 0
@@ -498,8 +496,6 @@ class Oct2Py(object):
            If the procedure or object does not exist.
 
         """
-        if name == 'keyboard':
-            return 'Built-in Function: keyboard ()'
         doc = 'No documentation for %s' % name
 
         try:
@@ -549,7 +545,11 @@ class Oct2Py(object):
 
         # Check for user defined class.
         try:
-            isobj = self.eval('isobject(%s);' % name) == 1
+            # Prevent the debug prompt from coming up.
+            if name == 'keyboard':
+                isobj = False
+            else:
+                isobj = self.eval('isobject(%s);' % name) == 1
         except Exception:
             isobj = False
 
