@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 import os
+import logging
 import pickle
 import tempfile
 
@@ -10,6 +11,7 @@ import numpy.testing as test
 
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
+from oct2py.compat import StringIO
 
 
 class BasicUsageTest(test.TestCase):
@@ -148,3 +150,20 @@ class BasicUsageTest(test.TestCase):
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
         assert self.oc.extract_figures(plot_dir)
+
+    def test_octave_class(self):
+        polynomial = self.oc.polynomial
+        p0 = polynomial([1, 2, 3])
+        test.assert_equal(p0.poly, [[1, 2, 3]])
+
+        p1 = polynomial([0, 1, 2])
+        sobj = StringIO()
+        hdlr = logging.StreamHandler(sobj)
+        hdlr.setLevel(logging.DEBUG)
+        self.oc.logger.addHandler(hdlr)
+        self.oc.logger.setLevel(logging.DEBUG)
+        p1.display(verbose=True)
+        text = hdlr.stream.getvalue().strip()
+        self.oc.logger.removeHandler(hdlr)
+        assert str(id(p1)) in text
+        assert 'X + 2 * X ^ 2' in text

@@ -13,6 +13,8 @@ import signal
 import shutil
 import time
 import tempfile
+import types
+import weakref
 
 from metakernel.pexpect import TIMEOUT, EOF
 from octave_kernel.kernel import OctaveEngine
@@ -21,7 +23,8 @@ from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
 from oct2py.utils import (
     get_nout, Oct2PyError, get_log, Struct)
-from oct2py.compat import unicode, input
+from oct2py.dynamic import _make_octave_class, _make_octave_command
+from oct2py.compat import unicode, input, PY2
 
 
 class Oct2Py(object):
@@ -346,26 +349,6 @@ class Oct2Py(object):
     # Private API
     # --------------------------------------------------------------
 
-    def _make_octave_command(self, name, doc=None):
-        """Create a wrapper to an Octave procedure or object
-
-        Adapted from the mlabwrap project
-
-        """
-        def octave_command(*args, **kwargs):
-            """ Octave command """
-            kwargs['nout'] = kwargs.get('nout', get_nout())
-            kwargs['verbose'] = kwargs.get('verbose', False)
-            return self._call(name, *args, **kwargs)
-        # convert to ascii for pydoc
-        try:
-            doc = doc.encode('ascii', 'replace').decode('ascii')
-        except UnicodeDecodeError as e:
-            self.logger.debug(e)
-        octave_command.__doc__ = "\n" + doc
-        octave_command.__name__ = name
-        return octave_command
-
     def _call(self, func, *inputs, **kwargs):
         """
         Oct2Py Parameters
@@ -415,6 +398,9 @@ class Oct2Py(object):
 
         """
         nout = kwargs.pop('nout', get_nout())
+        is_class = kwargs.pop('_is_class', False)
+        is_class_lookup = kwargs.pop('_is_class_lookup', False)
+        class_var = kwargs.pop('_class_var', '')
 
         argout_list = ['_']
 
@@ -449,6 +435,11 @@ class Oct2Py(object):
 
             call_line += func + '('
 
+            if is_class_lookup:
+                call_line += '%s' % class_var
+                if inputs or prop_vals:
+                    call_line += ', '
+
             if inputs:
                 argin_list, load_line = self._writer.create_file(
                     temp_dir, inputs)
@@ -463,6 +454,9 @@ class Oct2Py(object):
 
             # create the command and execute in octave
             cmd = [load_line, call_line, save_line]
+
+            if is_class:
+                cmd.append('%s = %s;' % (class_var, argout_list[0]))
             data = self.eval(cmd, temp_dir=temp_dir, **eval_kwargs)
         finally:
             try:
@@ -476,6 +470,13 @@ class Oct2Py(object):
                 data = None
 
         return data
+
+    def _exists(self, name):
+        if name == 'keyboard':
+            return True
+        exist = self.eval('exist {0}'.format(name), log=False,
+                          verbose=False)
+        return exist != 0
 
     def _get_doc(self, name):
         """
@@ -499,18 +500,13 @@ class Oct2Py(object):
         """
         if name == 'keyboard':
             return 'Built-in Function: keyboard ()'
-        exist = self.eval('exist {0}'.format(name), log=False,
-                          verbose=False)
-        if exist == 0:
-            msg = 'Name: "%s" does not exist on the Octave session path'
-            raise Oct2PyError(msg % name)
         doc = 'No documentation for %s' % name
 
         try:
             doc, _ = self.eval('help {0}'.format(name), log=False,
                                verbose=False, return_both=True)
         except Oct2PyError as e:
-            if 'syntax error' in str(e):
+            if 'syntax error' in str(e).lower():
                 raise(e)
             doc, _ = self.eval('type("{0}")'.format(name), log=False,
                                verbose=False, return_both=True)
@@ -520,6 +516,13 @@ class Oct2Py(object):
 
         default = self._call.__doc__
         doc += '\n' + '\n'.join([line[8:] for line in default.splitlines()])
+        doc = '\n' + doc
+
+        # convert to ascii for pydoc
+        try:
+            doc = doc.encode('ascii', 'replace').decode('ascii')
+        except UnicodeDecodeError as e:
+            self.logger.debug(e)
 
         return doc
 
@@ -530,20 +533,40 @@ class Oct2Py(object):
 
         """
         # needed for help(Oct2Py())
-        if attr == '__name__':
+        if attr.startswith('__'):
             return super(Oct2Py, self).__getattr__(attr)
-        elif attr == '__file__':
-            return __file__
+
         # close_ -> close
         if attr[-1] == "_":
             name = attr[:-1]
         else:
             name = attr
-        doc = self._get_doc(name)
-        octave_command = self._make_octave_command(name, doc)
-        #!!! attr, *not* name, because we might have python keyword name!
-        setattr(self, attr, octave_command)
-        return octave_command
+
+        # Make sure the name exists.
+        if not self._exists(name):
+            msg = 'Name: "%s" does not exist on the Octave session path'
+            raise Oct2PyError(msg % name)
+
+        # Check for user defined class.
+        try:
+            isobj = self.eval('isobject(%s);' % name) == 1
+        except Exception:
+            isobj = False
+
+        if isobj:
+            obj = _make_octave_class(self, name)
+        else:
+            obj = _make_octave_command(self, name)
+            # bind to the instance.
+            if PY2:
+                obj = types.MethodType(obj, self, Oct2Py)
+            else:
+                obj = types.MethodType(obj, self)
+
+        # !!! attr, *not* name, because we might have python keyword name!
+        setattr(self, attr, obj)
+
+        return obj
 
 
 class _Session(object):
