@@ -7,7 +7,7 @@
 language: python
 
 env:
-    - CONDA="python=2.7 numpy=1.7"
+    - CONDA="python=2.7 numpy=1.10.4 scipy=0.16.0"
     - CONDA="python=3.4 numpy"
 
 before_install:
