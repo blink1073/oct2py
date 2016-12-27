@@ -92,6 +92,14 @@ class MatRead(object):
             return data
 
 
+def read_file(path):
+    """Read a file on the given path and return its data.
+    """
+    temp = MatRead()
+    temp.out_file = path
+    return temp.extract_file()
+
+
 def get_data(val):
     '''Extract the data from the incoming value
     '''

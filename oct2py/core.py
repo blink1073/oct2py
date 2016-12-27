@@ -18,8 +18,8 @@ import types
 from metakernel.pexpect import TIMEOUT, EOF
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
-from oct2py.matwrite import MatWrite, saveobj
-from oct2py.matread import MatRead
+from oct2py.matwrite import MatWrite, write_file
+from oct2py.matread import MatRead, read_file
 from oct2py.utils import (
     get_nout, Oct2PyError, get_log, Struct)
 from oct2py.dynamic import _make_octave_class, _make_octave_command
@@ -75,7 +75,7 @@ class Oct2Py(object):
             self.logger = get_log()
         # self.logger.setLevel(logging.DEBUG)
         self._session = None
-        self.temp_dir = temp_dir
+        self.temp_dir = temp_dir or tempfile.mkdtemp()
         self._convert_to_float = convert_to_float
         self.restart()
 
@@ -274,12 +274,12 @@ class Oct2Py(object):
         func_path: str
             Name of function to run or a path to an m-file.
         func_args: object, optional
-            Function args to send to the function.
-        nout: int, optional
+            Args to send to the function.
+        nargout: int, optional
             Desired number of return arguments.  If not given, the number
-            of arguments will be inferred by the return value.
+            of arguments will be inferred from the return value(s).
         silent: int, optional
-            If True, log outputs at the DEBUG level instead of INFO.
+            If True, logs outputs at the DEBUG level instead of INFO.
         timeout: float, optional
             The timeout in seconds for the call.
         kwargs:
@@ -291,8 +291,11 @@ class Oct2Py(object):
         -------
         The Python value(s) returned by the Octave function call.
         """
-        nout = kwargs.pop('nout', get_nout())
+        nout = kwargs.pop('nargout', None)
+        if nout is None:
+            nout = get_nout() or 1
         timeout = kwargs.pop('timeout', None)
+        silent = kwargs.pop('silent', False)
         func_args += tuple(item for pair in zip(kwargs.keys(), kwargs.values())
                            for item in pair)
         dname = os.path.dirname(func_path)
@@ -300,11 +303,11 @@ class Oct2Py(object):
         func_name, ext = os.path.splitext(fname)
         if ext and not ext == '.m':
             raise TypeError('Need to give path to .m file')
-        return self._eval(func_name, func_args, dname=dname, nout=nout,
-                          timeout=timeout)
+        return self._eval(func_name, func_args, dname=dname, nargout=nout,
+                          timeout=timeout, silent=silent)
 
     def run_code(self, code, **kwargs):
-        """Run some code in Octave command line provided by a string.
+        """Run some raw code in Octave command line.
 
         Parameters
         ----------
@@ -315,23 +318,38 @@ class Oct2Py(object):
         timeout: float, optional
             The timeout in seconds for the call.
         """
-        kwargs.setdefault('nout', 0)
+        kwargs['nargout'] = 0
         self.run_func('evalin', 'base', code, **kwargs)
 
-    def _eval(self, func_name, func_args, dname='', nout=0,
-              timeout=None):
+    def _eval(self, func_name, func_args, dname='', nargout=0,
+              timeout=None, silent=False):
         """Run the given function with the given args.
         """
+
+        # Set up our mat file paths.
+        out_file = os.path.join(self.temp_dir, 'writer.mat')
+        out_file = out_file.replace(os.path.sep, '/')
+        in_file = os.path.join(self.temp_dir, 'reader.mat')
+        in_file = in_file.replace(os.path.sep, '/')
+
+        # Save the request data to the output file.
         req = dict(func_name=func_name, func_args=func_args,
-                   dname=dname, nout=nout)
-        # we save the request to a file
-        # we run our eval script with the path to the request file
-        # and the path to the response file
-        # use our logger and the timeout.
-        # we end up with the same thing as pymatbridge, but
-        # we have stream handling and use file i/o instead of
-        # the json message passing.
-        vals = None
+                   dname=dname, nargout=nargout)
+        write_file(req, out_file, oned_as=self._oned_as,
+                   convert_to_float=self.convert_to_float)
+
+        # Set up the engine and evaluate the `_peval()` function.
+        engine = self._session.engine
+        if silent:
+            engine.stream_handler = self.logger.debug
+        else:
+            engine.stream_handler = self.logger.info
+        engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
+                    timeout=timeout)
+
+        # Read in the output.
+        resp = read_file(in_file)
+        print(resp)
 
     def eval(self, cmds,
              verbose=True, timeout=None, log=True,
@@ -691,17 +709,21 @@ class _Session(object):
         self._lines = []
         atexit.register(self.close)
 
-    def evaluate(self, cmds, stream_handler=None, out_file='',
+    def evaluate(self, cmds, logger=None, out_file='', log=True,
                  timeout=None):
         """Perform the low-level interaction with an Octave Session
         """
+        self.logger = logger or self.logger
         engine = self.engine
         self._lines = []
 
         if not engine:
             raise Oct2PyError('Session Closed, try a restart()')
 
-        engine.stream_handler = stream_handler or self._log_line
+        if logger and log:
+            engine.stream_handler = self._log_line
+        else:
+            engine.stream_handler = self._lines.append
 
         engine.eval('clear("ans", "_", "a__");', timeout=timeout)
 
@@ -793,8 +815,7 @@ class _Session(object):
 
     def _log_line(self, line):
         self._lines.append(line)
-        if self.logger:
-            self.logger.debug(line)
+        self.logger.debug(line)
 
     def _handle_stdin(self, line):
         """Handle a stdin request from the session."""
