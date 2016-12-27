@@ -18,7 +18,7 @@ import types
 from metakernel.pexpect import TIMEOUT, EOF
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
-from oct2py.matwrite import MatWrite
+from oct2py.matwrite import MatWrite, saveobj
 from oct2py.matread import MatRead
 from oct2py.utils import (
     get_nout, Oct2PyError, get_log, Struct)
@@ -227,7 +227,114 @@ class Oct2Py(object):
         """
         return self._session.extract_figures(plot_dir)
 
-    def eval(self, cmds, verbose=True, timeout=None, log=True,
+    def set_plot_settings(self, width=None, height=None, format=None,
+                          resolution=None, name=None, directory=None,
+                          inline=True):
+        pass
+
+    def get_variable(self, varname, default=None, timeout=None):
+        """Get a variable in the session workspace.
+
+        Parameters
+        ----------
+        varname: str
+            The name of the variable.
+        default: object, optional
+            The default value of the variable.
+        timeout: float, optional
+            The timeout in seconds for the call.
+
+        Returns
+        -------
+        The value of the object or the default value if not found.
+        """
+        resp = self.run_func('evalin', 'base', varname, timeout=timeout)
+        return resp['result'] if resp['success'] else default
+
+    def set_variable(self, varname, value, timeout=None):
+        """Set a variable in the session workspace.
+
+        Parameters
+        ----------
+        varname: str
+            The name of the variable.
+        value: object
+            The value of the variable to assign.
+        timeout: float, optional
+            The timeout in seconds for the call.
+        """
+        self.run_func('assignin', 'base', varname, value, nout=0,
+                      timeout=timeout)
+
+    def run_func(self, func_path, *func_args, **kwargs):
+        """Run a function in Matlab and return the result.
+
+        Parameters
+        ----------
+        func_path: str
+            Name of function to run or a path to an m-file.
+        func_args: object, optional
+            Function args to send to the function.
+        nout: int, optional
+            Desired number of return arguments.  If not given, the number
+            of arguments will be inferred by the return value.
+        silent: int, optional
+            If True, log outputs at the DEBUG level instead of INFO.
+        timeout: float, optional
+            The timeout in seconds for the call.
+        kwargs:
+            Keyword arguments are passed to Matlab in the form [key, val] so
+            that matlab.plot(x, y, '--', LineWidth=2) would be translated into
+            plot(x, y, '--', 'LineWidth', 2)
+
+        Returns
+        -------
+        The Python value(s) returned by the Octave function call.
+        """
+        nout = kwargs.pop('nout', get_nout())
+        timeout = kwargs.pop('timeout', None)
+        func_args += tuple(item for pair in zip(kwargs.keys(), kwargs.values())
+                           for item in pair)
+        dname = os.path.dirname(func_path)
+        fname = os.path.basename(func_path)
+        func_name, ext = os.path.splitext(fname)
+        if ext and not ext == '.m':
+            raise TypeError('Need to give path to .m file')
+        return self._eval(func_name, func_args, dname=dname, nout=nout,
+                          timeout=timeout)
+
+    def run_code(self, code, **kwargs):
+        """Run some code in Octave command line provided by a string.
+
+        Parameters
+        ----------
+        code : str
+            Code to send for evaluation.
+        silent: int, optional
+            If True, log outputs at the DEBUG level instead of INFO.
+        timeout: float, optional
+            The timeout in seconds for the call.
+        """
+        kwargs.setdefault('nout', 0)
+        self.run_func('evalin', 'base', code, **kwargs)
+
+    def _eval(self, func_name, func_args, dname='', nout=0,
+              timeout=None):
+        """Run the given function with the given args.
+        """
+        req = dict(func_name=func_name, func_args=func_args,
+                   dname=dname, nout=nout)
+        # we save the request to a file
+        # we run our eval script with the path to the request file
+        # and the path to the response file
+        # use our logger and the timeout.
+        # we end up with the same thing as pymatbridge, but
+        # we have stream handling and use file i/o instead of
+        # the json message passing.
+        vals = None
+
+    def eval(self, cmds,
+             verbose=True, timeout=None, log=True,
              temp_dir=None,
              plot_dir=None, plot_name='plot', plot_format='svg',
              plot_width=None, plot_height=None,
@@ -584,21 +691,17 @@ class _Session(object):
         self._lines = []
         atexit.register(self.close)
 
-    def evaluate(self, cmds, logger=None, out_file='', log=True,
+    def evaluate(self, cmds, stream_handler=None, out_file='',
                  timeout=None):
         """Perform the low-level interaction with an Octave Session
         """
-        self.logger = logger or self.logger
         engine = self.engine
         self._lines = []
 
         if not engine:
             raise Oct2PyError('Session Closed, try a restart()')
 
-        if logger and log:
-            engine.stream_handler = self._log_line
-        else:
-            engine.stream_handler = self._lines.append
+        engine.stream_handler = stream_handler or self._log_line
 
         engine.eval('clear("ans", "_", "a__");', timeout=timeout)
 
@@ -690,7 +793,8 @@ class _Session(object):
 
     def _log_line(self, line):
         self._lines.append(line)
-        self.logger.debug(line)
+        if self.logger:
+            self.logger.debug(line)
 
     def _handle_stdin(self, line):
         """Handle a stdin request from the session."""

@@ -75,6 +75,17 @@ class MatWrite(object):
         return argin_list, load_line
 
 
+def saveobj(obj, path, oned_as='row', convert_to_float=True):
+    """Save a Python object to an Octave file on the given path.
+    """
+    data = putvals(obj, convert_to_float=convert_to_float)
+    try:
+        savemat(path, data, appendmat=False, oned_as=oned_as,
+                long_field_names=True)
+    except KeyError:  # pragma: no cover
+        raise Exception('could not save mat file')
+
+
 def putvals(dict_, convert_to_float=True):
     """
     Put a nested dict into the MAT file as a struct
