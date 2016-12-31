@@ -9,12 +9,14 @@
 from __future__ import print_function
 import os
 import atexit
+import logging
 import signal
 import shutil
 import time
 import tempfile
 import types
 
+import numpy as np
 from metakernel.pexpect import TIMEOUT, EOF
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
@@ -23,7 +25,7 @@ from oct2py.matread import MatRead, read_file
 from oct2py.utils import (
     get_nout, Oct2PyError, get_log, Struct)
 from oct2py.dynamic import _make_octave_class, _make_octave_command
-from oct2py.compat import unicode, input, PY2
+from oct2py.compat import unicode, input, PY2, StringIO
 
 
 class Oct2Py(object):
@@ -105,7 +107,7 @@ class Oct2Py(object):
             self._session.close()
         self._session = None
 
-    def push(self, name, var, verbose=False, timeout=None):
+    def push(self, name, var, verbose=True, timeout=None):
         """
         Put a variable or variables into the Octave session.
 
@@ -136,25 +138,14 @@ class Oct2Py(object):
 
         """
         if isinstance(name, (str, unicode)):
-            vars_ = [var]
-            names = [name]
-        else:
-            vars_ = var
-            names = name
+            name = [name]
+            var = [var]
 
-        for name in names:
-            if name.startswith('_'):
-                raise Oct2PyError('Invalid name {0}'.format(name))
+        for (n, v) in zip(name, var):
+            self.feval('assignin', 'base', n, v, nout=0, verbose=verbose,
+                       timeout=timeout)
 
-        try:
-            tempdir = tempfile.mkdtemp(dir=self.temp_dir)
-            _, load_line = self._writer.create_file(tempdir, vars_, names)
-            self._reader.create_file(tempdir)
-            self.eval(load_line, verbose=verbose, timeout=timeout)
-        finally:
-            shutil.rmtree(tempdir, ignore_errors=True)
-
-    def pull(self, var, verbose=False, timeout=None):
+    def pull(self, var, verbose=True, timeout=None):
         """
         Retrieve a value or values from the Octave session.
 
@@ -187,22 +178,11 @@ class Oct2Py(object):
         """
         if isinstance(var, (str, unicode)):
             var = [var]
-        try:
-            temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
-            self._reader.create_file(temp_dir)
-            argout_list, save_line = self._reader.setup(len(var), var)
-            data = self.eval(
-                save_line, temp_dir=temp_dir, verbose=verbose, timeout=timeout)
-        finally:
-            try:
-                shutil.rmtree(temp_dir)
-            except OSError:
-                pass
-
-        if isinstance(data, dict) and not isinstance(data, Struct):
-            return [data.get(v, None) for v in argout_list]
-        else:
-            return data
+        vals = [self.feval('evalin', 'base', v, nout=1, verbose=verbose,
+                           timeout=timeout) for v in var]
+        if len(var) == 1:
+            return vals[0]
+        return vals
 
     def extract_figures(self, plot_dir):
         """Extract the figures that were created in the given plot dir.
@@ -228,63 +208,9 @@ class Oct2Py(object):
         return self._session.extract_figures(plot_dir)
 
     def set_plot_settings(self, width=None, height=None, format=None,
-                          resolution=None, name=None, directory=None,
+                          res=None, name=None, dir=None,
                           inline=True):
         pass
-
-    def get_variable(self, varname, default=None, timeout=None):
-        """Get a variable in the session workspace.
-
-        Parameters
-        ----------
-        varname: str
-            The name of the variable.
-        default: object, optional
-            The default value of the variable.
-        timeout: float, optional
-            The timeout in seconds for the call.
-
-        Returns
-        -------
-        The value of the object or the default value if not found.
-        """
-        resp = self.run_func('evalin', 'base', varname, timeout=timeout)
-        return resp['result'] if resp['success'] else default
-
-    def set_variable(self, varname, value, timeout=None):
-        """Set a variable in the session workspace.
-
-        Parameters
-        ----------
-        varname: str
-            The name of the variable.
-        value: object
-            The value of the variable to assign.
-        timeout: float, optional
-            The timeout in seconds for the call.
-        """
-        self.run_func('assignin', 'base', varname, value, nout=0,
-                      timeout=timeout)
-
-    def new_eval(self, cmds, verbose=True, timeout=None, **kwargs):
-        """
-        cmds : str or list
-            Commands(s) to pass to Octave.
-        verbose : bool, optional
-             Log Octave output at INFO level.  If False, log at DEBUG level.
-        timeout : float, optional
-            Time to wait for response from Octave (per line).
-        **kwargs Provided for backward compatibility.  Use
-            `handle_plot_settings` for deprecated `plot_` kwargs.
-        """
-        if not self._session:
-            raise Oct2PyError('No Octave Session')
-        if isinstance(cmds, (str, unicode)):
-            cmds = [cmds]
-        for cmd in cmds:
-            ans = self.feval('evalin', 'base', cmd, verbose=verbose,
-                             timeout=timeout, nout=0)
-        return ans
 
     def feval(self, func_path, *func_args, nout=None, verbose=True,
               var_name='', timeout=None, **kwargs):
@@ -339,12 +265,13 @@ class Oct2Py(object):
         in_file = in_file.replace(os.path.sep, '/')
 
         # Save the request data to the output file.
+        func_args = np.array(func_args, dtype=object)
         req = dict(func_name=func_name, func_args=func_args,
                    dname=dname, nout=nout, var_name=var_name)
         write_file(req, out_file, oned_as=self._oned_as,
                    convert_to_float=self.convert_to_float)
 
-        # Set up the engine and evaluate the `_peval()` function.
+        # Set up the engine and evaluate the `_pyeval()` function.
         engine = self._session.engine
         if not verbose:
             engine.stream_handler = self.logger.debug
@@ -355,14 +282,14 @@ class Oct2Py(object):
 
         # Read in the output.
         resp = read_file(in_file)
-        print(resp)
+        if resp['error']:
+            raise Oct2PyError(resp['error']['message'])
+        result = resp['result']
+        if not str(result):
+            result = None
+        return result
 
-    def eval(self, cmds,
-             verbose=True, timeout=None, log=True,
-             temp_dir=None,
-             plot_dir=None, plot_name='plot', plot_format='svg',
-             plot_width=None, plot_height=None,
-             plot_res=None, return_both=False):
+    def eval(self, cmds, verbose=True, timeout=None, **kwargs):
         """
         Evaluate an Octave command or commands.
 
@@ -372,28 +299,9 @@ class Oct2Py(object):
             Commands(s) to pass to Octave.
         verbose : bool, optional
              Log Octave output at INFO level.  If False, log at DEBUG level.
-        log : bool, optional
-            Whether to log at all.
         timeout : float, optional
             Time to wait for response from Octave (per character).
-        plot_dir: str, optional
-            If specificed, save the session's plot figures to the plot
-            directory instead of displaying the plot window.
-        plot_name : str, optional
-            Saved plots will start with `plot_name` and
-            end with "_%%.xxx' where %% is the plot number and
-            xxx is the `plot_format`.
-        plot_format: str, optional
-            The format in which to save the plot (PNG by default).
-        plot_width: int, optional
-            The plot with in pixels.
-        plot_height: int, optional
-            The plot height in pixels.
-        plot_res: int, optional
-            The plot resolution in pixels per inch.
-        return_both: bool, optional
-            If True, return a (text, value) tuple with the response
-            and the return value.
+        **kwargs Deprecated keyword arguments.  Use `set_plot_settings`.
 
         Returns
         -------
@@ -406,64 +314,25 @@ class Oct2Py(object):
             If the command(s) fail.
 
         """
-        if not self._session:
-            raise Oct2PyError('No Octave Session')
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
-        if log:
-            [self.logger.debug(line) for line in cmds]
+        # Handle deprecated `temp_dir` kwarg.
+        prev_temp_dir = self.temp_dir
+        self.temp_dir = kwargs.get('temp_dir', prev_temp_dir)
 
-        if timeout is None:
-            timeout = self.timeout
+        ans = None
+        for cmd in cmds:
+            ans = self.feval('evalin', 'base', cmd, verbose=verbose,
+                             nout=0, timeout=timeout)
 
-        self._session.handle_plot_settings(
-            plot_dir=plot_dir, plot_name=plot_name,
-            plot_format=plot_format, plot_width=plot_width,
-            plot_height=plot_height, plot_res=plot_res
-        )
+        self.temp_dir = prev_temp_dir
 
-        try:
-            if not temp_dir:
-                temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
-                self._reader.create_file(temp_dir)
-            try:
-                resp = self._session.evaluate(cmds,
-                                              logger=self.logger,
-                                              log=log,
-                                              timeout=timeout,
-                                              out_file=self._reader.out_file)
-            except KeyboardInterrupt:
-                self._session.interrupt()
-                raise Oct2PyError('Octave Session Interrupted')
-            except TIMEOUT:
-                self._session.interrupt()
-                raise Oct2PyError('Timed out, interrupting')
+        # Handle deprecated `return_both` kwarg.
+        if kwargs.get('return_both', False):
+            return '', ans
 
-            self._session.make_figures(plot_dir)
-
-            out_file = self._reader.out_file
-
-            data = None
-            if os.path.exists(out_file) and os.stat(out_file).st_size:
-                try:
-                    data = self._reader.extract_file()
-                except (TypeError, IOError) as e:
-                    self.logger.debug(e)
-        finally:
-            shutil.rmtree(temp_dir)
-
-        resp = resp.strip()
-
-        if resp:
-            if verbose:
-                print(resp)
-            self.logger.info(resp)
-
-        if return_both:
-            return resp, data
-        else:
-            return data
+        return ans
 
     def restart(self):
         """Restart an Octave session in a clean state

@@ -40,6 +40,9 @@ try
         [resp{1:req.nout}] = feval(req.func_name, req.func_args);
     end
 
+    %disp('hi')
+    %disp(class(resp{1}));
+
     if req.nout == 1
         response.result = resp{1};
     else

@@ -95,9 +95,11 @@ class MatRead(object):
 def read_file(path):
     """Read a file on the given path and return its data.
     """
-    temp = MatRead()
-    temp.out_file = path
-    return temp.extract_file()
+    try:
+        data = loadmat(path, struct_as_record=True)
+    except UnicodeDecodeError as e:
+        raise Oct2PyError(str(e))
+    return get_data(data['response'])
 
 
 def get_data(val):
