@@ -13,50 +13,57 @@ function _pyeval(input_file, output_file)
 %
 % Based on Max Jaderberg's web_feval
 
-% Remove the existing file before doing anything.
-[err, msg] = unlink(output_file)
-
-load(input_file, 'req')
-
-response.success = true;
-response.content = '';
 response.result = '';
 response.error = '';
-response.ans = '';
-
-close all hidden;
 
 try
+    close all hidden; 
+
+    % Remove the existing file before doing anything.
+    [err, msg] = unlink(output_file);
+
+    load(input_file, 'req');
 
     % Add function path to current path
     if req.dname
         addpath(req.dname);
     end
 
-    clear ans;
+    assignin('base', 'ans', '');
 
-    if iscell(req.func_args)
-        [resp{1:req.nargout}] = feval(req.func_name, req.func_args{:});
+    if req.nout == 0
+        feval(req.func_name, req.func_args{:});
+        resp = evalin('base', 'ans');
+    elseif iscell(req.func_args)
+        [resp{1:req.nout}] = feval(req.func_name, req.func_args{:});
     else
-        [resp{1:req.nargout}] = feval(req.func_name, req.func_args);
+        [resp{1:req.nout}] = feval(req.func_name, req.func_args);
     end
 
-    if exist('ans') == 1
-      response.ans = ans;
-    end;
-
-    if req.nargout == 1
+    if req.nout == 1
         response.result = resp{1};
     else
         response.result = resp;
     end
 
-catch ME
-    response.success = false;
+    if req.var_name
+      assignin('base', req.var_name, response.result);
+      response.result = '';
+    end
+
+catch ME;
     response.error = ME;
 end
 
-% save the response to the output file
-save('-v6', '-mat-binary', output_file, 'response')
 
-end %function
+% Save the output to a file.
+warning('error', 'all', 'local');
+try
+  save('-v6', '-mat-binary', output_file, 'response');
+catch ME;
+  response.result = '';
+  response.error = ME;
+  save('-v6', '-mat-binary', output_file, 'response');
+end 
+
+end  % function

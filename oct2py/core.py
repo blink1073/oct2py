@@ -266,7 +266,28 @@ class Oct2Py(object):
         self.run_func('assignin', 'base', varname, value, nout=0,
                       timeout=timeout)
 
-    def run_func(self, func_path, *func_args, **kwargs):
+    def new_eval(self, cmds, verbose=True, timeout=None, **kwargs):
+        """
+        cmds : str or list
+            Commands(s) to pass to Octave.
+        verbose : bool, optional
+             Log Octave output at INFO level.  If False, log at DEBUG level.
+        timeout : float, optional
+            Time to wait for response from Octave (per line).
+        **kwargs Provided for backward compatibility.  Use
+            `handle_plot_settings` for deprecated `plot_` kwargs.
+        """
+        if not self._session:
+            raise Oct2PyError('No Octave Session')
+        if isinstance(cmds, (str, unicode)):
+            cmds = [cmds]
+        for cmd in cmds:
+            ans = self.feval('evalin', 'base', cmd, verbose=verbose,
+                             timeout=timeout, nout=0)
+        return ans
+
+    def feval(self, func_path, *func_args, nout=None, verbose=True,
+              var_name='', timeout=None, **kwargs):
         """Run a function in Matlab and return the result.
 
         Parameters
@@ -275,15 +296,18 @@ class Oct2Py(object):
             Name of function to run or a path to an m-file.
         func_args: object, optional
             Args to send to the function.
-        nargout: int, optional
+        nout: int, optional
             Desired number of return arguments.  If not given, the number
             of arguments will be inferred from the return value(s).
-        silent: int, optional
-            If True, logs outputs at the DEBUG level instead of INFO.
+        verbose: int, optional
+            If False, logs outputs at the DEBUG level instead of INFO.
+        var_name: str, optional
+            If given, saves the result to the given Octave variable name
+            instead of returning it.
         timeout: float, optional
             The timeout in seconds for the call.
         kwargs:
-            Keyword arguments are passed to Matlab in the form [key, val] so
+            Keyword arguments are passed to Octave in the form [key, val] so
             that matlab.plot(x, y, '--', LineWidth=2) would be translated into
             plot(x, y, '--', 'LineWidth', 2)
 
@@ -291,11 +315,8 @@ class Oct2Py(object):
         -------
         The Python value(s) returned by the Octave function call.
         """
-        nout = kwargs.pop('nargout', None)
         if nout is None:
             nout = get_nout() or 1
-        timeout = kwargs.pop('timeout', None)
-        silent = kwargs.pop('silent', False)
         func_args += tuple(item for pair in zip(kwargs.keys(), kwargs.values())
                            for item in pair)
         dname = os.path.dirname(func_path)
@@ -303,26 +324,11 @@ class Oct2Py(object):
         func_name, ext = os.path.splitext(fname)
         if ext and not ext == '.m':
             raise TypeError('Need to give path to .m file')
-        return self._eval(func_name, func_args, dname=dname, nargout=nout,
-                          timeout=timeout, silent=silent)
+        return self._eval(func_name, func_args, dname=dname, nout=nout,
+                          timeout=timeout, verbose=verbose, var_name=var_name)
 
-    def run_code(self, code, **kwargs):
-        """Run some raw code in Octave command line.
-
-        Parameters
-        ----------
-        code : str
-            Code to send for evaluation.
-        silent: int, optional
-            If True, log outputs at the DEBUG level instead of INFO.
-        timeout: float, optional
-            The timeout in seconds for the call.
-        """
-        kwargs['nargout'] = 0
-        self.run_func('evalin', 'base', code, **kwargs)
-
-    def _eval(self, func_name, func_args, dname='', nargout=0,
-              timeout=None, silent=False):
+    def _eval(self, func_name, func_args, dname='', nout=0,
+              timeout=None, verbose=True, var_name=''):
         """Run the given function with the given args.
         """
 
@@ -334,13 +340,13 @@ class Oct2Py(object):
 
         # Save the request data to the output file.
         req = dict(func_name=func_name, func_args=func_args,
-                   dname=dname, nargout=nargout)
+                   dname=dname, nout=nout, var_name=var_name)
         write_file(req, out_file, oned_as=self._oned_as,
                    convert_to_float=self.convert_to_float)
 
         # Set up the engine and evaluate the `_peval()` function.
         engine = self._session.engine
-        if silent:
+        if not verbose:
             engine.stream_handler = self.logger.debug
         else:
             engine.stream_handler = self.logger.info
