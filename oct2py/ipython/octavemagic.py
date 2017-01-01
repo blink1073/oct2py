@@ -39,12 +39,12 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #  the file COPYING, distributed as part of this software.
 #-----------------------------------------------------------------------------
 
-import tempfile
+import logging
 import os
 from shutil import rmtree
-import re
 
 import oct2py
+from oct2py.compat import StringIO
 
 from IPython.core.display import publish_display_data, display
 from IPython.core.magic import (Magics, magics_class, line_magic,
@@ -76,6 +76,11 @@ class OctaveMagics(Magics):
         """
         super(OctaveMagics, self).__init__(shell)
         self._oct = oct2py.octave
+        sobj = StringIO()
+        hdlr = logging.StreamHandler(sobj)
+        hdlr.setLevel(logging.DEBUG)
+        self._sobj = sobj
+        self._oc.logger.addHandler(hdlr)
 
         # Allow display to be overridden for
         # testing purposes.
@@ -249,37 +254,29 @@ class OctaveMagics(Magics):
                     val = self.shell.user_ns[input]
                 self._oct.push(input, val)
 
-        # generate plots in a temporary directory
-        if args.gui:
-            plot_dir = None
-        else:
-            plot_dir = tempfile.mkdtemp()
-
-        plot_width = args.width
-        plot_height = args.height
+        width = args.width
+        height = args.height
 
         if args.size is not None:
-            plot_width, plot_height = [int(s) for s in args.size.split(',')]
+            width, height = [int(s) for s in args.size.split(',')]
+
+        backend = 'gnuplot' if args.gui else 'inline'
+
+        self._oct.set_plot_settings(width=width, heigh=height,
+            format=args.format, name='__ipy_oct_fig_',
+            resolution=args.resolution, backend=backend)
+
+        # Reset the stdout handler.
+        self._sobj.truncate(0)
+        self._sobj.seek(0)
 
         try:
-            text_output, value = self._oct.eval(code,
-                                                plot_dir=plot_dir,
-                                                plot_format=args.format,
-                                                plot_width=plot_width,
-                                                plot_height=plot_height,
-                                                plot_name='__ipy_oct_fig_',
-                                                plot_res=args.resolution,
-                                                verbose=False,
-                                                return_both=True)
+            value = self._oct.eval(code)
         except oct2py.Oct2PyError as exception:
-            msg = str(exception)
-            if 'Octave Session Interrupted' in msg:
-                return
-            if 'Octave Syntax Error' in msg:
-                raise OctaveMagicError(msg)
-            msg = re.sub('"""\s+', '"""\n', msg)
-            msg = re.sub('\s+"""', '\n"""', msg)
-            raise OctaveMagicError(msg)
+            # TODO
+            raise OctaveMagicError(str(exception))
+
+        text_output = self._sobj.getvalue()
 
         key = 'OctaveMagic.Octave'
         display_data = []
@@ -299,7 +296,8 @@ class OctaveMagics(Magics):
             publish_display_data(source=source, data=data)
 
         # Publish images
-        if plot_dir:
+        if not args.gui:
+            plot_dir = self._oct.make_figures()
             for img in self._oct.extract_figures(plot_dir):
                 self._display(img)
             rmtree(plot_dir, True)

@@ -184,14 +184,14 @@ def _make_user_class(session, name):
     return type(name, (OctaveUserClass,), values)
 
 
-def _make_function_pointer_instance(session, name):
+def _make_function_ptr_instance(session, name):
     ref = weakref.ref(session)
     doc = _DocDescriptor(ref, name)
     custom = type(name, (OctaveFunctionPtr,), dict(__doc__=doc))
     return custom(ref, name)
 
 
-def _make_pointer_instance(session, name):
+def _make_variable_ptr_instance(session, name):
     """Make a pointer instance for a given variable by name.
     """
     doc = '%s is a variable' % name

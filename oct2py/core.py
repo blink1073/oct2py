@@ -8,14 +8,12 @@
 """
 from __future__ import print_function
 import os
-import atexit
-import signal
 import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import TIMEOUT, EOF
-from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
+from metakernel.pexpect import EOF
+from octave_kernel.kernel import OctaveEngine
 
 from oct2py.matwrite import write_file
 from oct2py.matread import read_file
@@ -28,8 +26,8 @@ from oct2py.dynamic import (
 
 
 # TODO: handling of timeout and interrupt
-#       implement plot settings
-#       update the magic
+#       update the magic error handling
+#       add a better traceback
 #       get tests to pass
 #       add tests for:
 #            get_pointer - variable, function, class, object instance
@@ -191,7 +189,7 @@ class Oct2Py(object):
         outputs = []
         for name in var:
             exist = self._exist(name)
-            isobject = self._isobject(name)
+            isobject = self._isobject(name, exist)
             if exist == 1 and not isobject:
                 outputs.append(self.feval('evalin', 'base', name,
                                           timeout=timeout, verbose=verbose))
@@ -204,13 +202,14 @@ class Oct2Py(object):
 
     def get_pointer(self, name, timeout=None):
         exist = self._exist(name)
-        isobject = self._isobject(name)
+        isobject = self._isobject(name, exist)
 
-        if exist == 1:
-            if isobject:
-                class_name = self.eval('class(%s);' % name)
-                cls = self._get_user_class(class_name)
-                return cls.from_name(name)
+        if exist == 1 and isobject:
+            class_name = self.eval('class(%s);' % name)
+            cls = self._get_user_class(class_name)
+            return cls.from_name(name)
+
+        elif exist == 1:
             return _make_variable_ptr_instance(self, name)
 
         elif isobject:
@@ -221,12 +220,12 @@ class Oct2Py(object):
 
         raise ValueError('Unknown type for object "%s"' % name)
 
-    def extract_figures(self, plot_dir):
-        """Extract the figures that were created in the given plot dir.
+    def extract_figures(self, plot_dir=None):
+        """Save the figures to disk and extract the image objects.
 
         Parameters
         ----------
-        plot_dir: str
+        plot_dir: str, optional
             The plot directory that was used in the call to "eval()".
 
         Notes
@@ -242,12 +241,14 @@ class Oct2Py(object):
             and can be used with the `display` function from `IPython` for
             rich display.
         """
+        plot_dir = self._engine.make_figures(plot_dir)
         return self._engine.extract_figures(plot_dir)
 
     def set_plot_settings(self, width=None, height=None, format=None,
-                          res=None, name=None, dir=None,
-                          inline=True):
-        pass
+                          resolution=None, name=None, backend='inline'):
+        """Handle plot settings for the session."""
+        self.engine.plot_settings = dict(width=width, height=height,
+            format=format, resolution=resolution, name=name, backend=backend)
 
     def feval(self, func_path, *func_args, nout=None, verbose=True,
               store_as='', timeout=None, **kwargs):
@@ -361,14 +362,18 @@ class Oct2Py(object):
         """
         if self._engine:
             self._engine.close()
+
         executable = self._executable
         if executable:
             os.environ['OCTAVE_EXECUTABLE'] = executable
         if 'OCTAVE_EXECUTABLE' not in os.environ and 'OCTAVE' in os.environ:
             os.environ['OCTAVE_EXECUTABLE'] = os.environ['OCTAVE']
+
         self._engine = OctaveEngine(stdin_handler=input)
+
+        # Add local Octave scripts.
         here = os.path.realpath(os.path.dirname(__file__))
-        self._engine.eval('addpath("%s")' % here.replace(os.path.sep, '/'))
+        self._engine.eval('addpath("%s");' % here.replace(os.path.sep, '/'))
 
     def _feval(self, func_name, func_args, dname='', nout=0,
               timeout=None, verbose=True, store_as=''):
@@ -387,7 +392,6 @@ class Oct2Py(object):
             if isinstance(value, OctavePtr):
                 replacements.append(i + 1)
                 func_args[i] = value._address
-        replacements = np.array(replacements)
 
         # Save the request data to the output file.
         req = dict(func_name=func_name, func_args=func_args,
@@ -409,15 +413,13 @@ class Oct2Py(object):
         # Read in the output.
         resp = read_file(in_file, self)
         if resp['error']:
+            self.logger.debug(resp['error'])
             raise Oct2PyError(resp['error']['message'])
+
         result = resp['result']
         if not str(result):
             result = None
         return result
-
-    def _eval(self, code):
-        resp = self._engine.eval(code, silent=True)
-        return resp and resp.strip()
 
     def _get_doc(self, name):
         """
@@ -470,22 +472,20 @@ class Oct2Py(object):
 
         Raises an error when the name does not exist.
         """
-        exist = self._eval('exist("%s")' % name)
-        exist = int(exist.split()[-1])
-        if exist != 0:
-            return exist
-        exist = self._eval('exist(%s)' % name)
-        exist = int(exist.split()[-1])
+        cmd = 'exist("%s")' % name
+        resp = self._engine.eval(cmd, silent=True).strip()
+        exist = int(resp.split()[-1])
         if exist == 0:
             raise ValueError('Value "%s" does not exist' % name)
         return exist
 
-    def _isobject(self, name):
+    def _isobject(self, name, exist):
         """Test whether the name is an object."""
-        if name == 'keyboard':
-            return True
-        return (self._eval('isobject("%s")' % name) == 'ans =  1' or
-                self._eval('isobject(%s)' % name) == 'ans =  1')
+        if exist in [2, 5]:
+            return False
+        cmd = 'isobject(%s)' % name
+        resp = self._engine.eval(cmd, silent=True).strip()
+        return resp == 'ans =  1'
 
     def _get_user_class(self, name):
         """Get or create a user class of the given type."""
@@ -516,7 +516,7 @@ class Oct2Py(object):
             raise Oct2PyError(msg % name)
 
         # Check for user defined class.
-        if self._isobject(name):
+        if self._isobject(name, exist):
             obj = self._get_user_class(name)
         else:
             obj = _make_function_ptr_instance(self, name)
