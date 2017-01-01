@@ -6,73 +6,14 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
-import sys
-import os
+from __future__ import absolute_import, print_function, division
+
 from scipy.io import savemat
 import numpy as np
 from scipy.sparse import csr_matrix, csc_matrix
+
 from .utils import Oct2PyError
 from .compat import unicode
-
-
-class MatWrite(object):
-    """Write Python values into a MAT file for Octave.
-
-    Strives to preserve both value and type in transit.
-    """
-    def __init__(self, oned_as='row', convert_to_float=True):
-        self.oned_as = oned_as
-        self.convert_to_float = convert_to_float
-
-    def create_file(self, temp_dir, inputs, names=None):
-        """
-        Create a MAT file, loading the input variables.
-
-        If names are given, use those, otherwise use dummies.
-
-        Parameters
-        ==========
-        inputs : array-like
-            List of variables to write to a file.
-        names : array-like
-            Optional list of names to assign to the variables.
-
-        Returns
-        =======
-        argin_list : str or array
-            Name or list of variable names to be sent.
-        load_line : str
-            Octave "load" command.
-
-        """
-        # create a dummy list of var names ("A", "B", "C" ...)
-        # use ascii char codes so we can increment
-        argin_list = []
-        ascii_code = 65
-        data = {}
-        for var in inputs:
-            if names:
-                argin_list.append(names.pop(0))
-            else:
-                argin_list.append("%s__" % chr(ascii_code))
-            # for structs - recursively add the elements
-            try:
-                if isinstance(var, dict):
-                    data[argin_list[-1]] = putvals(var, self.convert_to_float)
-                else:
-                    data[argin_list[-1]] = putval(var, self.convert_to_float)
-            except Oct2PyError:
-                raise
-            ascii_code += 1
-        self.in_file = os.path.join(temp_dir, 'writer.mat')
-        try:
-            savemat(self.in_file, data, appendmat=False,
-                    oned_as=self.oned_as, long_field_names=True)
-        except KeyError:  # pragma: no cover
-            raise Exception('could not save mat file')
-        load_line = 'load {0} "{1}"'.format(self.in_file,
-                                          '" "'.join(argin_list))
-        return argin_list, load_line
 
 
 def write_file(obj, path, oned_as='row', convert_to_float=True):
@@ -139,7 +80,7 @@ def putval(data, convert_to_float=True):
         data = np.NaN
     if isinstance(data, set):
         data = list(data)
-    if isinstance(data, list):
+    if isinstance(data, (list, tuple)):
         # hack to get a viable cell object
         if str_in_list(data):
             try:
@@ -149,7 +90,7 @@ def putval(data, convert_to_float=True):
         else:
             out = []
             for el in data:
-                if isinstance(el, np.ndarray):
+                if isinstance(el, np.ndarray) or len(data) == 1:
                     cell = np.zeros((1,), dtype=np.object)
                     cell[0] = el
                     out.append(cell)
@@ -196,6 +137,6 @@ def str_in_list(list_):
     for item in list_:
         if isinstance(item, (str, unicode)):
             return True
-        elif isinstance(item, list):
+        elif isinstance(item, (list, tuple)):
             if str_in_list(item):
                 return True

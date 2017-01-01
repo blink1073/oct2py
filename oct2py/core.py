@@ -9,24 +9,34 @@
 from __future__ import print_function
 import os
 import atexit
-import logging
 import signal
-import shutil
-import time
 import tempfile
-import types
+import warnings
 
 import numpy as np
 from metakernel.pexpect import TIMEOUT, EOF
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
-from oct2py.matwrite import MatWrite, write_file
-from oct2py.matread import MatRead, read_file
+from oct2py.matwrite import write_file
+from oct2py.matread import read_file
 from oct2py.utils import (
-    get_nout, Oct2PyError, get_log, Struct)
-from oct2py.dynamic import _make_octave_class, _make_octave_command
-from oct2py.compat import unicode, input, PY2, StringIO
+    get_nout, Oct2PyError, get_log)
+from oct2py.compat import unicode, input
+from oct2py.dynamic import (
+    _make_function_ptr_instance, _make_variable_ptr_instance,
+    _make_user_class, OctavePtr)
 
+
+# TODO: handling of timeout and interrupt
+#       implement plot settings
+#       update the magic
+#       get tests to pass
+#       add tests for:
+#            get_pointer - variable, function, class, object instance
+#            set_plot_settings
+#            pull - object
+#            feval - store_as, variable ptr, function ptr, class ptr,
+#                    object instance ptr
 
 class Oct2Py(object):
 
@@ -75,10 +85,10 @@ class Oct2Py(object):
             self.logger = logger
         else:
             self.logger = get_log()
-        # self.logger.setLevel(logging.DEBUG)
-        self._session = None
+        self._engine = None
         self.temp_dir = temp_dir or tempfile.mkdtemp()
         self._convert_to_float = convert_to_float
+        self._user_classes = dict()
         self.restart()
 
     @property
@@ -92,7 +102,7 @@ class Oct2Py(object):
 
     def __enter__(self):
         """Return octave object, restart session if necessary"""
-        if not self._session:
+        if not self._engine:
             self.restart()
         return self
 
@@ -103,9 +113,9 @@ class Oct2Py(object):
     def exit(self):
         """Quits this octave session and removes temp files
         """
-        if self._session:
-            self._session.close()
-        self._session = None
+        if self._engine:
+            self._engine.close()
+        self._engine = None
 
     def push(self, name, var, verbose=True, timeout=None):
         """
@@ -178,11 +188,38 @@ class Oct2Py(object):
         """
         if isinstance(var, (str, unicode)):
             var = [var]
-        vals = [self.feval('evalin', 'base', v, nout=1, verbose=verbose,
-                           timeout=timeout) for v in var]
-        if len(var) == 1:
-            return vals[0]
-        return vals
+        outputs = []
+        for name in var:
+            exist = self._exist(name)
+            isobject = self._isobject(name)
+            if exist == 1 and not isobject:
+                outputs.append(self.feval('evalin', 'base', name,
+                                          timeout=timeout, verbose=verbose))
+            else:
+                outputs.append(self.get_pointer(name, timeout=timeout))
+
+        if len(outputs) == 1:
+            return outputs[0]
+        return outputs
+
+    def get_pointer(self, name, timeout=None):
+        exist = self._exist(name)
+        isobject = self._isobject(name)
+
+        if exist == 1:
+            if isobject:
+                class_name = self.eval('class(%s);' % name)
+                cls = self._get_user_class(class_name)
+                return cls.from_name(name)
+            return _make_variable_ptr_instance(self, name)
+
+        elif isobject:
+            return self._get_user_class(name)
+
+        elif exist in [2, 3, 5]:
+            return _make_function_ptr_instance(self, name)
+
+        raise ValueError('Unknown type for object "%s"' % name)
 
     def extract_figures(self, plot_dir):
         """Extract the figures that were created in the given plot dir.
@@ -205,7 +242,7 @@ class Oct2Py(object):
             and can be used with the `display` function from `IPython` for
             rich display.
         """
-        return self._session.extract_figures(plot_dir)
+        return self._engine.extract_figures(plot_dir)
 
     def set_plot_settings(self, width=None, height=None, format=None,
                           res=None, name=None, dir=None,
@@ -213,7 +250,7 @@ class Oct2Py(object):
         pass
 
     def feval(self, func_path, *func_args, nout=None, verbose=True,
-              var_name='', timeout=None, **kwargs):
+              store_as='', timeout=None, **kwargs):
         """Run a function in Matlab and return the result.
 
         Parameters
@@ -227,7 +264,7 @@ class Oct2Py(object):
             of arguments will be inferred from the return value(s).
         verbose: int, optional
             If False, logs outputs at the DEBUG level instead of INFO.
-        var_name: str, optional
+        store_as: str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
         timeout: float, optional
@@ -235,7 +272,7 @@ class Oct2Py(object):
         kwargs:
             Keyword arguments are passed to Octave in the form [key, val] so
             that matlab.plot(x, y, '--', LineWidth=2) would be translated into
-            plot(x, y, '--', 'LineWidth', 2)
+            plot(x, y, '--', 'LineWidth', 2).
 
         Returns
         -------
@@ -243,6 +280,13 @@ class Oct2Py(object):
         """
         if nout is None:
             nout = get_nout() or 1
+
+        msg = 'Ignoring deprecated `plot_*` kwargs, use `set_plot_settings`'
+        for key in list(kwargs.keys()):
+            if key.startswith('plot_'):
+                warnings.warn(msg)
+            del kwargs[key]
+
         func_args += tuple(item for pair in zip(kwargs.keys(), kwargs.values())
                            for item in pair)
         dname = os.path.dirname(func_path)
@@ -250,44 +294,8 @@ class Oct2Py(object):
         func_name, ext = os.path.splitext(fname)
         if ext and not ext == '.m':
             raise TypeError('Need to give path to .m file')
-        return self._eval(func_name, func_args, dname=dname, nout=nout,
-                          timeout=timeout, verbose=verbose, var_name=var_name)
-
-    def _eval(self, func_name, func_args, dname='', nout=0,
-              timeout=None, verbose=True, var_name=''):
-        """Run the given function with the given args.
-        """
-
-        # Set up our mat file paths.
-        out_file = os.path.join(self.temp_dir, 'writer.mat')
-        out_file = out_file.replace(os.path.sep, '/')
-        in_file = os.path.join(self.temp_dir, 'reader.mat')
-        in_file = in_file.replace(os.path.sep, '/')
-
-        # Save the request data to the output file.
-        func_args = np.array(func_args, dtype=object)
-        req = dict(func_name=func_name, func_args=func_args,
-                   dname=dname, nout=nout, var_name=var_name)
-        write_file(req, out_file, oned_as=self._oned_as,
-                   convert_to_float=self.convert_to_float)
-
-        # Set up the engine and evaluate the `_pyeval()` function.
-        engine = self._session.engine
-        if not verbose:
-            engine.stream_handler = self.logger.debug
-        else:
-            engine.stream_handler = self.logger.info
-        engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
-                    timeout=timeout)
-
-        # Read in the output.
-        resp = read_file(in_file)
-        if resp['error']:
-            raise Oct2PyError(resp['error']['message'])
-        result = resp['result']
-        if not str(result):
-            result = None
-        return result
+        return self._feval(func_name, func_args, dname=dname, nout=nout,
+                          timeout=timeout, verbose=verbose, store_as=store_as)
 
     def eval(self, cmds, verbose=True, timeout=None, **kwargs):
         """
@@ -300,8 +308,9 @@ class Oct2Py(object):
         verbose : bool, optional
              Log Octave output at INFO level.  If False, log at DEBUG level.
         timeout : float, optional
-            Time to wait for response from Octave (per character).
-        **kwargs Deprecated keyword arguments.  Use `set_plot_settings`.
+            Time to wait for response from Octave (per line).
+        **kwargs Deprecated keyword arguments.  Use `set_plot_settings` for
+                 deprecated `plot_*` kwargs.
 
         Returns
         -------
@@ -317,19 +326,32 @@ class Oct2Py(object):
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
+        msg = 'Ignoring deprecated `plot_*` kwargs, use `set_plot_settings`'
+        for key in kwargs:
+            if key.startswith('plot_'):
+                warnings.warn(msg)
+
         # Handle deprecated `temp_dir` kwarg.
         prev_temp_dir = self.temp_dir
         self.temp_dir = kwargs.get('temp_dir', prev_temp_dir)
 
+        if 'log' in kwargs:
+            msg = 'Ignoring deprecated `log` kwarg, use logging config'
+            warnings.warn(msg)
+
         ans = None
         for cmd in cmds:
-            ans = self.feval('evalin', 'base', cmd, verbose=verbose,
-                             nout=0, timeout=timeout)
+            resp = self.feval('evalin', 'base', cmd, verbose=verbose,
+                              nout=0, timeout=timeout)
+            if resp:
+                ans = resp
 
         self.temp_dir = prev_temp_dir
 
         # Handle deprecated `return_both` kwarg.
+        msg = '`return_both` kwarg is deprecated, use logging config'
         if kwargs.get('return_both', False):
+            warnings.warn(msg)
             return '', ans
 
         return ans
@@ -337,143 +359,65 @@ class Oct2Py(object):
     def restart(self):
         """Restart an Octave session in a clean state
         """
-        if self._session:
-            self._session.close()
-        self._reader = MatRead()
-        self._writer = MatWrite(self._oned_as,
-                                self._convert_to_float)
-        self._session = _Session(self._executable, self.logger)
+        if self._engine:
+            self._engine.close()
+        executable = self._executable
+        if executable:
+            os.environ['OCTAVE_EXECUTABLE'] = executable
+        if 'OCTAVE_EXECUTABLE' not in os.environ and 'OCTAVE' in os.environ:
+            os.environ['OCTAVE_EXECUTABLE'] = os.environ['OCTAVE']
+        self._engine = OctaveEngine(stdin_handler=input)
+        here = os.path.realpath(os.path.dirname(__file__))
+        self._engine.eval('addpath("%s")' % here.replace(os.path.sep, '/'))
 
-    # --------------------------------------------------------------
-    # Private API
-    # --------------------------------------------------------------
-
-    def _call(self, func, *inputs, **kwargs):
+    def _feval(self, func_name, func_args, dname='', nout=0,
+              timeout=None, verbose=True, store_as=''):
+        """Run the given function with the given args.
         """
-        Oct2Py Parameters
-        --------------------------
-        inputs : array_like
-            Variables to pass to the function.
-        verbose : bool, optional
-             Log Octave output at INFO level.  If False, log at DEBUG level.
-        nout : int, optional
-            Number of output arguments.
-            This is set automatically based on the number of return values
-            requested.
-            You can override this behavior by passing a different value.
-        timeout : float, optional
-            Time to wait for response from Octave (per character).
-        plot_dir: str, optional
-            If specificed, save the session's plot figures to the plot
-            directory instead of displaying the plot window.
-        plot_name : str, optional
-            Saved plots will start with `plot_name` and
-            end with "_%%.xxx' where %% is the plot number and
-            xxx is the `plot_format`.
-        plot_format: str, optional
-            The format in which to save the plot.
-        plot_width: int, optional
-            The plot with in pixels.
-        plot_height: int, optional
-            The plot height in pixels.
-        kwargs : dictionary, optional
-            Key - value pairs to be passed as prop - value inputs to the
-            function.  The values must be strings or numbers.
 
-        Returns
-        -----------
-        out : value
-            Value returned by the function.
+        # Set up our mat file paths.
+        out_file = os.path.join(self.temp_dir, 'writer.mat')
+        out_file = out_file.replace(os.path.sep, '/')
+        in_file = os.path.join(self.temp_dir, 'reader.mat')
+        in_file = in_file.replace(os.path.sep, '/')
 
-        Raises
-        ----------
-        Oct2PyError
-            If the function call is unsucessful.
+        replacements = []
+        func_args = list(func_args)
+        for (i, value) in enumerate(func_args):
+            if isinstance(value, OctavePtr):
+                replacements.append(i + 1)
+                func_args[i] = value._address
+        replacements = np.array(replacements)
 
-        Notes
-        -----
-        Integer type arguments will be converted to floating point
-        unless `convert_to_float=False`.
+        # Save the request data to the output file.
+        req = dict(func_name=func_name, func_args=func_args,
+                   dname=dname, nout=nout, store_as=store_as,
+                   replacement_indices=replacements)
 
-        """
-        nout = kwargs.pop('nout', get_nout())
-        is_class = kwargs.pop('_is_class', False)
-        is_class_lookup = kwargs.pop('_is_class_lookup', False)
-        class_var = kwargs.pop('_class_var', '')
+        write_file(req, out_file, oned_as=self._oned_as,
+                   convert_to_float=self.convert_to_float)
 
-        argout_list = ['_']
+        # Set up the engine and evaluate the `_pyeval()` function.
+        engine = self._engine
+        if not verbose:
+            engine.stream_handler = self.logger.debug
+        else:
+            engine.stream_handler = self.logger.info
+        engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
+                    timeout=timeout)
 
-        # these three lines will form the commands sent to Octave
-        # load("-v6", "infile", "invar1", ...)
-        # [a, b, c] = foo(A, B, C)
-        # save("-v6", "out_file", "outvar1", ...)
-        load_line = call_line = save_line = ''
+        # Read in the output.
+        resp = read_file(in_file, self)
+        if resp['error']:
+            raise Oct2PyError(resp['error']['message'])
+        result = resp['result']
+        if not str(result):
+            result = None
+        return result
 
-        prop_vals = []
-        eval_kwargs = {}
-        for (key, value) in kwargs.items():
-            if key in ['verbose', 'timeout'] or key.startswith('plot_'):
-                eval_kwargs[key] = value
-                continue
-            if isinstance(value, (str, unicode, int, float)):
-                prop_vals.append('"%s", %s' % (key, repr(value)))
-            else:
-                msg = 'Keyword arguments must be a string or number: '
-                msg += '%s = %s' % (key, value)
-                raise Oct2PyError(msg)
-        prop_vals = ', '.join(prop_vals)
-
-        try:
-            temp_dir = tempfile.mkdtemp(dir=self.temp_dir)
-            self._reader.create_file(temp_dir)
-            if nout:
-                # create a dummy list of var names ("a", "b", "c", ...)
-                # use ascii char codes so we can increment
-                argout_list, save_line = self._reader.setup(nout)
-                call_line = '[{0}] = '.format(', '.join(argout_list))
-
-            call_line += func + '('
-
-            if is_class_lookup:
-                call_line += '%s' % class_var
-                if inputs or prop_vals:
-                    call_line += ', '
-
-            if inputs:
-                argin_list, load_line = self._writer.create_file(
-                    temp_dir, inputs)
-                call_line += ', '.join(argin_list)
-
-            if prop_vals:
-                if inputs:
-                    call_line += ', '
-                call_line += prop_vals
-
-            call_line += ');'
-
-            # create the command and execute in octave
-            cmd = [load_line, call_line, save_line]
-
-            if is_class:
-                cmd.append('%s = %s;' % (class_var, argout_list[0]))
-            data = self.eval(cmd, temp_dir=temp_dir, **eval_kwargs)
-        finally:
-            try:
-                shutil.rmtree(temp_dir)
-            except OSError:
-                pass
-
-        if isinstance(data, dict) and not isinstance(data, Struct):
-            data = [data.get(v, None) for v in argout_list]
-            if len(data) == 1 and data.values()[0] is None:
-                data = None
-
-        return data
-
-    def _exists(self, name):
-        exist = self.eval('exist {0}'.format(name), log=False,
-                          verbose=False)
-        return exist != 0
+    def _eval(self, code):
+        resp = self._engine.eval(code, silent=True)
+        return resp and resp.strip()
 
     def _get_doc(self, name):
         """
@@ -492,26 +436,26 @@ class Oct2Py(object):
         Raises
         ------
         Oct2PyError
-           If the procedure or object does not exist.
+           If the procedure or object function has a syntax error.
 
         """
         doc = 'No documentation for %s' % name
 
         try:
-            doc, _ = self.eval('help {0}'.format(name), log=False,
-                               verbose=False, return_both=True)
+            doc = self.feval('help', name)
         except Oct2PyError as e:
             if 'syntax error' in str(e).lower():
                 raise(e)
-            doc, _ = self.eval('type("{0}")'.format(name), log=False,
-                               verbose=False, return_both=True)
+            doc = self.feval('type', name)
             if isinstance(doc, list):
                 doc = doc[0]
             doc = '\n'.join(doc.splitlines()[:3])
 
-        default = self._call.__doc__
-        doc += '\n' + '\n'.join([line[8:] for line in default.splitlines()])
-        doc = '\n' + doc
+        default = self.feval.__doc__
+        default = '        ' + default[default.find('func_args:'):]
+        default = '\n'.join([line[8:] for line in default.splitlines()])
+
+        doc = '\n' + doc + '\n\nParameters\n----------\n' + default
 
         # convert to ascii for pydoc
         try:
@@ -521,11 +465,38 @@ class Oct2Py(object):
 
         return doc
 
+    def _exist(self, name):
+        """Test whether a name exists and return the name code.
+
+        Raises an error when the name does not exist.
+        """
+        exist = self._eval('exist("%s")' % name)
+        exist = int(exist.split()[-1])
+        if exist != 0:
+            return exist
+        exist = self._eval('exist(%s)' % name)
+        exist = int(exist.split()[-1])
+        if exist == 0:
+            raise ValueError('Value "%s" does not exist' % name)
+        return exist
+
+    def _isobject(self, name):
+        """Test whether the name is an object."""
+        if name == 'keyboard':
+            return True
+        return (self._eval('isobject("%s")' % name) == 'ans =  1' or
+                self._eval('isobject(%s)' % name) == 'ans =  1')
+
+    def _get_user_class(self, name):
+        """Get or create a user class of the given type."""
+        if name in self._user_classes:
+            return self._user_classes[name]
+        self._user_classes[name] = _make_user_class(self, name)
+
     def __getattr__(self, attr):
         """Automatically creates a wapper to an Octave function or object.
 
         Adapted from the mlabwrap project.
-
         """
         # needed for help(Oct2Py())
         if attr.startswith('__'):
@@ -538,34 +509,23 @@ class Oct2Py(object):
             name = attr
 
         # Make sure the name exists.
-        if not self._exists(name):
-            msg = 'Name: "%s" does not exist on the Octave session path'
+        exist = self._exist(name)
+
+        if exist not in [2, 3, 5, 103]:
+            msg = 'Name "%s" is not a valid callable, use `pull` for variables'
             raise Oct2PyError(msg % name)
 
         # Check for user defined class.
-        try:
-            # Prevent the debug prompt from coming up.
-            if name == 'keyboard':
-                isobj = False
-            else:
-                isobj = self.eval('isobject(%s);' % name) == 1
-        except Exception:
-            isobj = False
-
-        if isobj:
-            obj = _make_octave_class(self, name)
+        if self._isobject(name):
+            obj = self._get_user_class(name)
         else:
-            obj = _make_octave_command(self, name)
-            # bind to the instance.
-            if PY2:
-                obj = types.MethodType(obj, self, Oct2Py)
-            else:
-                obj = types.MethodType(obj, self)
+            obj = _make_function_ptr_instance(self, name)
 
         # !!! attr, *not* name, because we might have python keyword name!
         setattr(self, attr, obj)
 
         return obj
+<<<<<<< HEAD
 
 
 class _Session(object):

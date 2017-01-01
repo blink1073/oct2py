@@ -31,6 +31,13 @@ try
 
     assignin('base', 'ans', '');
 
+    % Replace the names at the specified indices with their values.
+    for index=1:length(req.replacement_indices)
+      repl_index = req.replacement_indices(index);
+      var_name = req.func_args{repl_index};
+      req.func_args{repl_index} = evalin('base', var_name);
+    end
+
     if req.nout == 0
         feval(req.func_name, req.func_args{:});
         resp = evalin('base', 'ans');
@@ -40,17 +47,14 @@ try
         [resp{1:req.nout}] = feval(req.func_name, req.func_args);
     end
 
-    %disp('hi')
-    %disp(class(resp{1}));
-
     if req.nout == 1
         response.result = resp{1};
     else
         response.result = resp;
     end
 
-    if req.var_name
-      assignin('base', req.var_name, response.result);
+    if req.store_as
+      assignin('base', req.store_as, response.result);
       response.result = '';
     end
 
@@ -60,7 +64,6 @@ end
 
 
 % Save the output to a file.
-warning('error', 'all', 'local');
 try
   save('-v6', '-mat-binary', output_file, 'response');
 catch ME;
