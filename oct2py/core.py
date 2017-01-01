@@ -13,6 +13,7 @@ import shutil
 import tempfile
 import warnings
 
+import numpy as np
 from metakernel.pexpect import EOF
 from octave_kernel.kernel import OctaveEngine
 
@@ -386,6 +387,7 @@ class Oct2Py(object):
             if isinstance(value, OctavePtr):
                 replacements.append(i + 1)
                 func_args[i] = value._address
+        replacements = np.array(replacements)
 
         # Save the request data to the output file.
         req = dict(func_name=func_name, func_args=func_args,

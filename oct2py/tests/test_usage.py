@@ -2,7 +2,6 @@ from __future__ import absolute_import, print_function
 import os
 import logging
 import pickle
-import tempfile
 
 from IPython.display import Image, SVG
 import numpy as np
@@ -151,15 +150,14 @@ class BasicUsageTest(test.TestCase):
     def test_octave_class(self):
         polynomial = self.oc.polynomial
         p0 = polynomial([1, 2, 3])
+        print('hi')
         test.assert_equal(p0.poly, [[1, 2, 3]])
 
         p1 = polynomial([0, 1, 2])
         sobj = StringIO()
         hdlr = logging.StreamHandler(sobj)
-        hdlr.setLevel(logging.DEBUG)
         self.oc.logger.addHandler(hdlr)
-        self.oc.logger.setLevel(logging.DEBUG)
-        p1.display(verbose=True)
+        p1.display()
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
         assert str(id(p1)) in text
