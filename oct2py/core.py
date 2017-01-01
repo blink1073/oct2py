@@ -211,7 +211,7 @@ class Oct2Py(object):
         elif exist in [2, 3, 5]:
             return self._get_function_ptr(name)
 
-        raise ValueError('Unknown type for object "%s"' % name)
+        raise Oct2PyError('Unknown type for object "%s"' % name)
 
     def make_figures(self):
         """Save the figures to disk and extract the image objects.
@@ -478,7 +478,7 @@ class Oct2Py(object):
         resp = self._engine.eval(cmd, silent=True).strip()
         exist = int(resp.split()[-1])
         if exist == 0:
-            raise ValueError('Value "%s" does not exist' % name)
+            raise Oct2PyError('Value "%s" does not exist' % name)
         return exist
 
     def _isobject(self, name, exist):
