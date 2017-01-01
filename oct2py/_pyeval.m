@@ -40,16 +40,26 @@ try
 
         if iscell(req.func_args)
           feval(req.func_name, req.func_args{:});
-        else
+        elseif length(req.func_args)
           feval(req.func_name, req.func_args);
+        else
+          feval(req.func_name)
         end
-        resp = evalin('base', 'ans');
+
+        try
+          resp = evalin('base', 'ans');
+        catch
+          resp = '';
+        end
 
     elseif iscell(req.func_args)
         [resp{1:req.nout}] = feval(req.func_name, req.func_args{:});
 
-    else
+    elseif length(req.func_args)
         [resp{1:req.nout}] = feval(req.func_name, req.func_args);
+
+    else
+        [resp{1:req.nout}] = feval(req.func_name);
     end
 
     if req.nout == 1

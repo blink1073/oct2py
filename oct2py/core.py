@@ -6,7 +6,8 @@
 .. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
 
 """
-from __future__ import print_function
+from __future__ import print_function, absolute_import, division
+
 import os
 import shutil
 import tempfile
@@ -15,12 +16,11 @@ import warnings
 from metakernel.pexpect import EOF
 from octave_kernel.kernel import OctaveEngine
 
-from oct2py.matwrite import write_file
-from oct2py.matread import read_file
-from oct2py.utils import (
-    get_nout, Oct2PyError, get_log)
-from oct2py.compat import unicode, input
-from oct2py.dynamic import (
+from .matwrite import write_file
+from .matread import read_file
+from .utils import get_nout, Oct2PyError, get_log
+from .compat import unicode, input
+from .dynamic import (
     _make_function_ptr_instance, _make_variable_ptr_instance,
     _make_user_class, OctavePtr)
 
@@ -281,6 +281,11 @@ class Oct2Py(object):
         func_name, ext = os.path.splitext(fname)
         if ext and not ext == '.m':
             raise TypeError('Need to give path to .m file')
+
+        if func_name == 'clear':
+            raise Oct2PyError('Cannot use `clear` command directly, use' +
+                              ' eval("clear(var1, var2)")')
+
         return self._feval(func_name, func_args, dname=dname, nout=nout,
                           timeout=timeout, verbose=verbose, store_as=store_as)
 
@@ -519,6 +524,10 @@ class Oct2Py(object):
         if exist not in [2, 3, 5, 103]:
             msg = 'Name "%s" is not a valid callable, use `pull` for variables'
             raise Oct2PyError(msg % name)
+
+        if name == 'clear':
+            raise Oct2PyError('Cannot use `clear` command directly, use' +
+                              ' `eval("clear(var1, var2)")`')
 
         # Check for user defined class.
         if self._isobject(name, exist):

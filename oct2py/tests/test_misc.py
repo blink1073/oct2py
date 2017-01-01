@@ -209,8 +209,10 @@ class MiscTests(test.TestCase):
         oc.exit()
 
     def test_clear(self):
-        """Make sure clearing variables does not mess anything up."""
-        self.oc.clear()
+        """Test handling of clear"""
+        test.assert_raises(Oct2PyError, self.oc.__getattr__, 'clear')
+        test.assert_raises(Oct2PyError, self.oc.feval, 'clear')
+        self.oc.eval('clear')
 
     def test_multiline_statement(self):
         sobj = StringIO()
