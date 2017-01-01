@@ -8,10 +8,10 @@
 """
 from __future__ import print_function
 import os
+import shutil
 import tempfile
 import warnings
 
-import numpy as np
 from metakernel.pexpect import EOF
 from octave_kernel.kernel import OctaveEngine
 
@@ -25,9 +25,9 @@ from oct2py.dynamic import (
     _make_user_class, OctavePtr)
 
 
-# TODO: handling of timeout and interrupt
+# TODO:
+#       fix interrupt handling and release metakernel and octave kernel
 #       update the magic error handling
-#       add a better traceback
 #       get tests to pass
 #       add tests for:
 #            get_pointer - variable, function, class, object instance
@@ -35,6 +35,7 @@ from oct2py.dynamic import (
 #            pull - object
 #            feval - store_as, variable ptr, function ptr, class ptr,
 #                    object instance ptr
+
 
 class Oct2Py(object):
 
@@ -85,18 +86,10 @@ class Oct2Py(object):
             self.logger = get_log()
         self._engine = None
         self.temp_dir = temp_dir or tempfile.mkdtemp()
-        self._convert_to_float = convert_to_float
+        self.convert_to_float = convert_to_float
         self._user_classes = dict()
+        self._function_ptrs = dict()
         self.restart()
-
-    @property
-    def convert_to_float(self):
-        return self._convert_to_float
-
-    @convert_to_float.setter
-    def convert_to_float(self, value):
-        self._writer.convert_to_float = value
-        self._convert_to_float = value
 
     def __enter__(self):
         """Return octave object, restart session if necessary"""
@@ -112,7 +105,7 @@ class Oct2Py(object):
         """Quits this octave session and removes temp files
         """
         if self._engine:
-            self._engine.close()
+            self._engine.repl.terminate()
         self._engine = None
 
     def push(self, name, var, verbose=True, timeout=None):
@@ -216,22 +209,12 @@ class Oct2Py(object):
             return self._get_user_class(name)
 
         elif exist in [2, 3, 5]:
-            return _make_function_ptr_instance(self, name)
+            return self._get_function_ptr(name)
 
         raise ValueError('Unknown type for object "%s"' % name)
 
-    def extract_figures(self, plot_dir=None):
+    def make_figures(self):
         """Save the figures to disk and extract the image objects.
-
-        Parameters
-        ----------
-        plot_dir: str, optional
-            The plot directory that was used in the call to "eval()".
-
-        Notes
-        -----
-        This assumes that the figures were created with the specified
-        `plot_dir`, e.g. `oc.plot([1,2,3], plot_dir='/tmp/foo').
 
         Returns
         -------
@@ -241,13 +224,16 @@ class Oct2Py(object):
             and can be used with the `display` function from `IPython` for
             rich display.
         """
-        plot_dir = self._engine.make_figures(plot_dir)
-        return self._engine.extract_figures(plot_dir)
+        plot_dir = tempfile.mkdtemp(dir=self.temp_dir)
+        self._engine.make_figures(plot_dir)
+        figures = self._engine.extract_figures(plot_dir)
+        shutil.rmtree(plot_dir, True)
+        return figures
 
     def set_plot_settings(self, width=None, height=None, format=None,
                           resolution=None, name=None, backend='inline'):
         """Handle plot settings for the session."""
-        self.engine.plot_settings = dict(width=width, height=height,
+        self._engine.plot_settings = dict(width=width, height=height,
             format=format, resolution=resolution, name=name, backend=backend)
 
     def feval(self, func_path, *func_args, nout=None, verbose=True,
@@ -344,7 +330,7 @@ class Oct2Py(object):
         for cmd in cmds:
             resp = self.feval('evalin', 'base', cmd, verbose=verbose,
                               nout=0, timeout=timeout)
-            if resp:
+            if str(resp):
                 ans = resp
 
         self.temp_dir = prev_temp_dir
@@ -361,7 +347,7 @@ class Oct2Py(object):
         """Restart an Octave session in a clean state
         """
         if self._engine:
-            self._engine.close()
+            self._engine.repl.terminate()
 
         executable = self._executable
         if executable:
@@ -379,6 +365,9 @@ class Oct2Py(object):
               timeout=None, verbose=True, store_as=''):
         """Run the given function with the given args.
         """
+        engine = self._engine
+        if engine is None:
+            raise Oct2PyError('Session is closed')
 
         # Set up our mat file paths.
         out_file = os.path.join(self.temp_dir, 'writer.mat')
@@ -402,13 +391,21 @@ class Oct2Py(object):
                    convert_to_float=self.convert_to_float)
 
         # Set up the engine and evaluate the `_pyeval()` function.
-        engine = self._engine
         if not verbose:
             engine.stream_handler = self.logger.debug
         else:
             engine.stream_handler = self.logger.info
-        engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
-                    timeout=timeout)
+
+        try:
+            engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
+                        timeout=timeout)
+        except KeyboardInterrupt as e:
+            self.logger.info(engine.repl.interrupt())
+            raise
+        except EOF:
+            self.logger.info(engine.repl.child.before)
+            self.restart()
+            raise Oct2PyError('Session died, restarting')
 
         # Read in the output.
         resp = read_file(in_file, self)
@@ -487,11 +484,16 @@ class Oct2Py(object):
         resp = self._engine.eval(cmd, silent=True).strip()
         return resp == 'ans =  1'
 
+    def _get_function_ptr(self, name):
+        """Get or create a function pointer of the given name."""
+        func = _make_function_ptr_instance
+        self._function_ptrs.setdefault(name, func(self, name))
+        return self._function_ptrs[name]
+
     def _get_user_class(self, name):
         """Get or create a user class of the given type."""
-        if name in self._user_classes:
-            return self._user_classes[name]
-        self._user_classes[name] = _make_user_class(self, name)
+        self._user_classes.setdefault(name, _make_user_class(self, name))
+        return self._user_classes[name]
 
     def __getattr__(self, attr):
         """Automatically creates a wapper to an Octave function or object.
@@ -508,6 +510,9 @@ class Oct2Py(object):
         else:
             name = attr
 
+        if self._engine is None:
+            raise Oct2PyError('Session is closed')
+
         # Make sure the name exists.
         exist = self._exist(name)
 
@@ -519,7 +524,7 @@ class Oct2Py(object):
         if self._isobject(name, exist):
             obj = self._get_user_class(name)
         else:
-            obj = _make_function_ptr_instance(self, name)
+            obj = self._get_function_ptr(name)
 
         # !!! attr, *not* name, because we might have python keyword name!
         setattr(self, attr, obj)

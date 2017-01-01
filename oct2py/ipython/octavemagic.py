@@ -41,7 +41,6 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 
 import logging
 import os
-from shutil import rmtree
 
 import oct2py
 from oct2py.compat import StringIO
@@ -80,7 +79,7 @@ class OctaveMagics(Magics):
         hdlr = logging.StreamHandler(sobj)
         hdlr.setLevel(logging.DEBUG)
         self._sobj = sobj
-        self._oc.logger.addHandler(hdlr)
+        self._oct.logger.addHandler(hdlr)
 
         # Allow display to be overridden for
         # testing purposes.
@@ -262,7 +261,7 @@ class OctaveMagics(Magics):
 
         backend = 'gnuplot' if args.gui else 'inline'
 
-        self._oct.set_plot_settings(width=width, heigh=height,
+        self._oct.set_plot_settings(width=width, height=height,
             format=args.format, name='__ipy_oct_fig_',
             resolution=args.resolution, backend=backend)
 
@@ -297,10 +296,8 @@ class OctaveMagics(Magics):
 
         # Publish images
         if not args.gui:
-            plot_dir = self._oct.make_figures()
-            for img in self._oct.extract_figures(plot_dir):
+            for img in self._oct.make_figures():
                 self._display(img)
-            rmtree(plot_dir, True)
 
         if return_output:
             return value
