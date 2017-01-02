@@ -85,6 +85,6 @@ def get_data(val, session):
 
     # Compress scalar types.
     if val.shape == (1, 1):
-        val = val.squeeze()
+        val = np.asscalar(val)
 
     return val

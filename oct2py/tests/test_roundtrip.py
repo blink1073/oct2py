@@ -215,7 +215,7 @@ class BuiltinsTest(test.TestCase):
         """
         test = dict(x='spam', y=[1, 2, 3])
         incoming = self.oc.roundtrip(test)
-        #incoming = dict(incoming)
+        incoming['x'] = incoming['x'][0]
         for key in incoming:
             self.helper(test[key], incoming[key])
 
@@ -224,7 +224,7 @@ class BuiltinsTest(test.TestCase):
         """
         test = dict(x=dict(y=1e3, z=[1, 2]), y='spam')
         incoming = self.oc.roundtrip(test)
-        incoming = dict(incoming)
+        incoming['y'] = incoming['y'][0]
         for key in test:
             if isinstance(test[key], dict):
                 for subkey in test[key]:
