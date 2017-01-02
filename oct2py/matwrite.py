@@ -47,7 +47,7 @@ def putval(data, convert_to_float=False):
                 return putval(test, convert_to_float)
         except Exception:
             pass
-        return putval(tuple(test))
+        return putval(tuple(data))
 
     # Make a cell array.
     if isinstance(data, (tuple, set)):
@@ -72,7 +72,7 @@ def clean_array(data, convert_to_float=False):
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
     elif 'f' in dstr and dstr[-2:] == '12':
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-    elif 'V' in dstr:
+    elif 'V' in dstr and not hasattr(data, 'classname'):
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
     elif dstr == '|b1':
         data = data.astype(np.int8)

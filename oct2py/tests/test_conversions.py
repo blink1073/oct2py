@@ -72,6 +72,9 @@ class ConversionTest(test.TestCase):
         """
         for key, type_ in zip(keys, types):
             if not type(base[key]) == type_:
+                if key == 'NaN':
+                    assert np.isnan(type_(base[key]))
+                    return
                 try:
                     assert type_(base[key]) == base[key]
                 except ValueError:
@@ -113,7 +116,7 @@ class ConversionTest(test.TestCase):
         """Test incoming string types
         """
         keys = ['basic', 'char_array', 'cell_array']
-        types = [unicode, list, list]
+        types = [list, list, list]
         self.helper(self.data.string, keys, types)
 
     def test_struct_array(self):

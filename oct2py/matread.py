@@ -11,6 +11,7 @@ from __future__ import absolute_import, print_function, division
 import numpy as np
 from scipy.io import loadmat
 
+from .compat import unicode
 from .utils import Struct, Oct2PyError
 
 
@@ -29,10 +30,10 @@ def get_data(val, session):
     """Parse the data from a MAT file into Pythonic objects.
     """
 
-    # Parse each item of a list and collapse if it is a single item.
+    # Parse each item of a list and collapse if it is redundantly nested.
     if isinstance(val, list):
         val = [get_data(v, session) for v in val]
-        if len(val) == 1 and isinstance(val[0], list):
+        if len(val) == 1 and not isinstance(val[0], (str, unicode)):
             val = val[0]
         return val
 
@@ -81,5 +82,9 @@ def get_data(val, session):
         if len(val) == 1:
             val = val[0]
         return val
+
+    # Compress scalar types.
+    if val.shape == (1, 1):
+        val = val.squeeze()
 
     return val
