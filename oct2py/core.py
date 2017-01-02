@@ -14,7 +14,7 @@ import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import EOF
+from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import OctaveEngine
 
 from .matwrite import write_file
@@ -375,6 +375,9 @@ class Oct2Py(object):
         if engine is None:
             raise Oct2PyError('Session is closed')
 
+        if timeout is None:
+            timeout = self.timeout
+
         # Set up our mat file paths.
         out_file = os.path.join(self.temp_dir, 'writer.mat')
         out_file = out_file.replace(os.path.sep, '/')
@@ -409,6 +412,9 @@ class Oct2Py(object):
         except KeyboardInterrupt as e:
             self.logger.info(engine.repl.interrupt())
             raise
+        except TIMEOUT:
+            self.logger.info(engine.repl.interrupt())
+            raise Oct2PyError('Timed out, interrupting')
         except EOF:
             self.logger.info(engine.repl.child.before)
             self.restart()
@@ -447,27 +453,23 @@ class Oct2Py(object):
         """
         doc = 'No documentation for %s' % name
 
-        try:
-            doc = self.feval('help', name)
-        except Oct2PyError as e:
-            if 'syntax error' in str(e).lower():
-                raise(e)
-            doc = self.feval('type', name)
-            if isinstance(doc, list):
-                doc = doc[0]
+        engine = self._engine
+
+        doc = engine.eval('help("%s")' % name, silent=True)
+
+        if 'syntax error:' in doc.lower():
+            raise Oct2PyError(doc)
+
+        if 'error:' in doc.lower():
+            doc = engine.eval('type("%s")' % name, silent=True)
             doc = '\n'.join(doc.splitlines()[:3])
 
         default = self.feval.__doc__
         default = '        ' + default[default.find('func_args:'):]
         default = '\n'.join([line[8:] for line in default.splitlines()])
 
+        doc = '\n'.join(doc.splitlines())
         doc = '\n' + doc + '\n\nParameters\n----------\n' + default
-
-        # convert to ascii for pydoc
-        try:
-            doc = doc.encode('ascii', 'replace').decode('ascii')
-        except UnicodeDecodeError as e:
-            self.logger.debug(e)
 
         return doc
 

@@ -48,6 +48,9 @@ def putvals(dict_, convert_to_float=True):
     for (key, value) in dict_.items():
         if isinstance(value, dict):
             data[key] = putvals(value, convert_to_float)
+        elif key == 'func_args':
+            values = [putval(i, convert_to_float) for i in value]
+            data[key] = putval(values, convert_to_float)
         else:
             data[key] = putval(value, convert_to_float)
     return data
@@ -80,6 +83,9 @@ def putval(data, convert_to_float=True):
         data = np.NaN
     if isinstance(data, set):
         data = list(data)
+    if isinstance(data, (str, unicode)):
+        return data
+
     if isinstance(data, list):
         # hack to get a viable cell object
         if str_in_list(data):
@@ -90,7 +96,7 @@ def putval(data, convert_to_float=True):
         else:
             out = []
             for el in data:
-                if isinstance(el, np.ndarray) or len(data) == 1:
+                if isinstance(el, np.ndarray):
                     cell = np.zeros((1,), dtype=np.object)
                     cell[0] = el
                     out.append(cell)
@@ -98,16 +104,15 @@ def putval(data, convert_to_float=True):
                     out.append(el.astype(np.float64))
                 else:
                     out.append(el)
+            try:
+                out = np.array(out)
+            except ValueError:
+                out = np.array(out, dtype=object)
             return out
 
-    if isinstance(data, tuple):
-        data = [putval(i, convert_to_float) for i in data]
-        return putval(data, convert_to_float)
-
-    if isinstance(data, (str, unicode)):
-        return data
     if isinstance(data, (csr_matrix, csc_matrix)):
         return data.astype(np.float64)
+
     try:
         data = np.array(data)
     except ValueError as err:  # pragma: no cover

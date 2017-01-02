@@ -14,12 +14,12 @@ function _pyeval(input_file, output_file)
 % Based on Max Jaderberg's web_feval
 
 sentinel = '__no_value__';
-response.result = sentinel;
-response.error = '';
+result = sentinel;
+err = '';
 
 try
-    % Remove the existing file before doing anything.
-    [err, msg] = unlink(output_file);
+    % Store the simple response in case we don't make it through the script.
+    save('-v6', '-mat-binary', output_file, 'result', 'err');
 
     req = load(input_file);
 
@@ -64,14 +64,14 @@ try
     end
 
     if req.nout == 1
-        response.result = resp{1};
+        result = resp{1};
     else
-        response.result = resp;
+        result = resp;
     end
 
     if req.store_as
       assignin('base', req.store_as, response.result);
-      response.result = sentinel;
+      result = sentinel;
     end
 
     if ((strcmp(get(0, 'defaultfigurevisible'), 'on') == 1) &&
@@ -80,17 +80,17 @@ try
     end
 
 catch ME;
-    response.error = ME;
+    err = ME;
 end
 
 
 % Save the output to a file.
 try
-  save('-v6', '-mat-binary', output_file, 'response');
+  save('-v6', '-mat-binary', output_file, 'result', 'err');
 catch ME;
-  response.result = '';
-  response.error = ME;
-  save('-v6', '-mat-binary', output_file, 'response');
+  result = '';
+  err = ME;
+  save('-v6', '-mat-binary', output_file, 'result', 'err');
 end 
 
 end  % function

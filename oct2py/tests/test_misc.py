@@ -61,17 +61,16 @@ class MiscTests(test.TestCase):
         self.oc.logger.addHandler(hdlr)
 
         # generate some messages (logged and not logged)
-        self.oc.ones(1, verbose=True)
+        self.oc.disp('hi', verbose=False)
 
         self.oc.logger.setLevel(logging.DEBUG)
-        self.oc.zeros(1)
+        self.oc.disp('ho', verbose=False)
 
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'zeros(A__)' in resp
-        print(resp)
-        assert 'load ' in resp
+        assert 'ho' in resp
+        assert 'hi' not in resp
 
         # now make an object with a desired logger
         logger = oct2py.get_log('test')
@@ -80,15 +79,15 @@ class MiscTests(test.TestCase):
         logger.setLevel(logging.INFO)
         with Oct2Py(logger=logger) as oc2:
             # generate some messages (logged and not logged)
-            oc2.ones(1, verbose=True)
+            oc2.disp('hi', verbose=False)
             oc2.logger.setLevel(logging.DEBUG)
-            oc2.zeros(1)
+            oc2.disp('ho', verbose=False)
 
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'zeros(A__)' in resp
-        assert 'load ' in resp
+        assert 'hi' not in resp
+        assert 'ho' in resp
 
     def test_demo(self):
         from oct2py import demo
@@ -113,7 +112,7 @@ class MiscTests(test.TestCase):
 
     def test_plot(self):
         self.oc.plot([1, 2, 3])
-        assert self.oc.extract_figures()
+        assert self.oc.make_figures()
 
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
@@ -197,10 +196,9 @@ class MiscTests(test.TestCase):
     def test_temp_dir(self):
         temp_dir = tempfile.mkdtemp()
         oc = Oct2Py(temp_dir=temp_dir)
-        oc._reader.create_file(oc.temp_dir)
-        oc._writer.create_file(oc.temp_dir, [])
-        assert oc._reader.out_file.startswith(temp_dir)
-        assert oc._writer.in_file.startswith(temp_dir)
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        temp_dir = tempfile.mkdtemp()
+        oc.temp_dir = temp_dir
         shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
 

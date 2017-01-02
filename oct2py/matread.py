@@ -23,7 +23,8 @@ def read_file(path, session):
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e))
-    return get_data(data['response'], session)
+    result = get_data(data['result'], session)
+    return dict(result=result, error=data['err'])
 
 
 def get_data(val, session):
