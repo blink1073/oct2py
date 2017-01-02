@@ -150,7 +150,6 @@ class BasicUsageTest(test.TestCase):
     def test_octave_class(self):
         polynomial = self.oc.polynomial
         p0 = polynomial([1, 2, 3])
-        print('hi')
         test.assert_equal(p0.poly, [[1, 2, 3]])
 
         p1 = polynomial([0, 1, 2])
@@ -160,5 +159,4 @@ class BasicUsageTest(test.TestCase):
         p1.display()
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
-        assert str(id(p1)) in text
         assert 'X + 2 * X ^ 2' in text

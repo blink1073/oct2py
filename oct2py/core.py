@@ -381,8 +381,8 @@ class Oct2Py(object):
         in_file = os.path.join(self.temp_dir, 'reader.mat')
         in_file = in_file.replace(os.path.sep, '/')
 
-        replacements = []
         func_args = list(func_args)
+        replacements = []
         for (i, value) in enumerate(func_args):
             if isinstance(value, OctavePtr):
                 replacements.append(i + 1)
@@ -421,7 +421,7 @@ class Oct2Py(object):
             raise Oct2PyError(resp['error']['message'])
 
         result = resp['result']
-        if not str(result):
+        if str(result) == '__no_value__':
             result = None
         return result
 

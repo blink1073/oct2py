@@ -237,7 +237,7 @@ class MiscTests(test.TestCase):
 
     def test_empty_values(self):
         self.oc.push('a', '')
-        assert self.oc.pull('a') == ''
+        assert self.oc.pull('a') is '', self.oc.pull('a')
 
         self.oc.push('a', [])
         assert self.oc.pull('a') == []

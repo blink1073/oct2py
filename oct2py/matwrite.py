@@ -45,11 +45,16 @@ def putvals(dict_, convert_to_float=True):
 
     """
     data = dict()
-    for key in dict_.keys():
-        if isinstance(dict_[key], dict):
-            data[key] = putvals(dict_[key], convert_to_float)
+    for (key, value) in dict_.items():
+        if isinstance(value, dict):
+            data[key] = putvals(value, convert_to_float)
+        elif key == 'func_args':
+            values = [putval(i, convert_to_float) for i in value]
+            if str_in_list(values):
+                values = np.array(values, dtype=object)
+            data[key] = values
         else:
-            data[key] = putval(dict_[key], convert_to_float)
+            data[key] = putval(value, convert_to_float)
     return data
 
 
@@ -80,7 +85,7 @@ def putval(data, convert_to_float=True):
         data = np.NaN
     if isinstance(data, set):
         data = list(data)
-    if isinstance(data, (list, tuple)):
+    if isinstance(data, list):
         # hack to get a viable cell object
         if str_in_list(data):
             try:
@@ -90,6 +95,8 @@ def putval(data, convert_to_float=True):
         else:
             out = []
             for el in data:
+                if el is None:
+                    el = np.Nan
                 if isinstance(el, np.ndarray) or len(data) == 1:
                     cell = np.zeros((1,), dtype=np.object)
                     cell[0] = el
@@ -137,6 +144,6 @@ def str_in_list(list_):
     for item in list_:
         if isinstance(item, (str, unicode)):
             return True
-        elif isinstance(item, (list, tuple)):
+        elif isinstance(item, list):
             if str_in_list(item):
                 return True

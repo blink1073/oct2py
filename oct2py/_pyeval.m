@@ -13,7 +13,8 @@ function _pyeval(input_file, output_file)
 %
 % Based on Max Jaderberg's web_feval
 
-response.result = '';
+sentinel = '__no_value__';
+response.result = sentinel;
 response.error = '';
 
 try
@@ -36,7 +37,7 @@ try
 
     % Use the `ans` response if no output arguments are expected.
     if req.nout == 0
-        assignin('base', 'ans', '');
+        assignin('base', 'ans', sentinel);
 
         if iscell(req.func_args)
           feval(req.func_name, req.func_args{:});
@@ -49,7 +50,7 @@ try
         try
           resp = evalin('base', 'ans');
         catch
-          resp = '';
+          resp = sentinel;
         end
 
     elseif iscell(req.func_args)
@@ -70,7 +71,7 @@ try
 
     if req.store_as
       assignin('base', req.store_as, response.result);
-      response.result = '';
+      response.result = sentinel;
     end
 
     if ((strcmp(get(0, 'defaultfigurevisible'), 'on') == 1) &&
