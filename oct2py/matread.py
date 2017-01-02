@@ -31,7 +31,10 @@ def get_data(val, session):
 
     # Parse each item of a list and collapse if it is a single item.
     if isinstance(val, list):
-        return [get_data(v, session) for v in val]
+        val = [get_data(v, session) for v in val]
+        if len(val) == 1 and isinstance(val[0], list):
+            val = val[0]
+        return val
 
     # Return leaf objects unchanged.
     if not isinstance(val, np.ndarray):
@@ -49,23 +52,29 @@ def get_data(val, session):
             out[name] = get_data(val[name], session)
         return out
 
-    # Extract opaque objects.
+    # Handle opaque objects.
     if val.dtype == np.object:
+        # These are transposed from their Python equivalents.
         if len(val.shape) > 1:
             val = val.T
         val = val.tolist()
         if isinstance(val, list):
+            # Extract the cell objects.
             out = []
-            for v in val:
-                if len(v) == 1:
-                    out.append(v[0])
+            for row in val:
+                # Cell object.
+                if len(row) == 1:
+                    out.append(row[0])
+                # Cell array object.
                 else:
-                    out.append(v)
-            val = out
+                    out.append(row)
+            return get_data(out, session)
+
         return get_data(val, session)
 
-    # Extract string arrays.
+    # Handle string arrays.
     if val.dtype.kind in 'US':
+        # These are transposed from their Python equivalents.
         if len(val.shape) > 1:
             val = val.T
         val = get_data(val.tolist(), session)

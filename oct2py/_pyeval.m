@@ -73,9 +73,6 @@ try
         result = resp;
     end
 
-    disp(req)
-    disp(resp)
-
     if req.store_as
       assignin('base', req.store_as, result);
       result = sentinel;
