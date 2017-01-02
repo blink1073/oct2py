@@ -390,7 +390,7 @@ class Oct2Py(object):
         replacements = np.array(replacements)
 
         # Save the request data to the output file.
-        req = dict(func_name=func_name, func_args=func_args,
+        req = dict(func_name=func_name, func_args=tuple(func_args),
                    dname=dname, nout=nout, store_as=store_as,
                    replacement_indices=replacements)
 

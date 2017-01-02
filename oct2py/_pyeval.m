@@ -21,7 +21,7 @@ try
     % Remove the existing file before doing anything.
     [err, msg] = unlink(output_file);
 
-    load(input_file, 'req');
+    req = load(input_file);
 
     % Add function path to current path
     if req.dname

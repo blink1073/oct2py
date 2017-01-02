@@ -21,7 +21,7 @@ def write_file(obj, path, oned_as='row', convert_to_float=True):
     """
     data = putvals(obj, convert_to_float=convert_to_float)
     try:
-        savemat(path, dict(req=data), appendmat=False, oned_as=oned_as,
+        savemat(path, data, appendmat=False, oned_as=oned_as,
                 long_field_names=True)
     except KeyError:  # pragma: no cover
         raise Exception('could not save mat file')
@@ -48,11 +48,6 @@ def putvals(dict_, convert_to_float=True):
     for (key, value) in dict_.items():
         if isinstance(value, dict):
             data[key] = putvals(value, convert_to_float)
-        elif key == 'func_args':
-            values = [putval(i, convert_to_float) for i in value]
-            if str_in_list(values):
-                values = np.array(values, dtype=object)
-            data[key] = values
         else:
             data[key] = putval(value, convert_to_float)
     return data
@@ -95,8 +90,6 @@ def putval(data, convert_to_float=True):
         else:
             out = []
             for el in data:
-                if el is None:
-                    el = np.Nan
                 if isinstance(el, np.ndarray) or len(data) == 1:
                     cell = np.zeros((1,), dtype=np.object)
                     cell[0] = el
@@ -106,6 +99,11 @@ def putval(data, convert_to_float=True):
                 else:
                     out.append(el)
             return out
+
+    if isinstance(data, tuple):
+        data = [putval(i, convert_to_float) for i in data]
+        return putval(data, convert_to_float)
+
     if isinstance(data, (str, unicode)):
         return data
     if isinstance(data, (csr_matrix, csc_matrix)):
