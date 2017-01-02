@@ -1,12 +1,10 @@
 from __future__ import absolute_import, print_function
-import glob
+
 import logging
 import os
 import shutil
 import sys
 import tempfile
-import threading
-import time
 
 try:
     import thread
@@ -114,10 +112,8 @@ class MiscTests(test.TestCase):
             speed_check.speed_check()
 
     def test_plot(self):
-        plot_dir = tempfile.mkdtemp().replace('\\', '/')
-        self.oc.plot([1, 2, 3], plot_dir=plot_dir)
-        assert glob.glob("%s/*" % plot_dir)
-        assert self.oc.extract_figures(plot_dir)
+        self.oc.plot([1, 2, 3])
+        assert self.oc.extract_figures()
 
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
