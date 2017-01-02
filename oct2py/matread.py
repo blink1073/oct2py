@@ -10,9 +10,7 @@ from __future__ import absolute_import, print_function, division
 
 import numpy as np
 from scipy.io import loadmat
-import scipy
 
-from .dynamic import OctaveUserClass
 from .utils import Struct, Oct2PyError
 
 
@@ -28,77 +26,51 @@ def read_file(path, session):
 
 
 def get_data(val, session):
-    '''Extract the data from the incoming value
-    '''
-    # check for objects
-    if val is None:
-        return
+    """Parse the data from a MAT file into Pythonic objects.
+    """
 
-    if isinstance(val, OctaveUserClass):
+    # Parse each item of a list and collapse if it is a single item.
+    if isinstance(val, list):
+        return [get_data(v, session) for v in val]
+
+    # Return leaf objects unchanged.
+    if not isinstance(val, np.ndarray):
         return val
 
-    if isinstance(val, np.ndarray) and hasattr(val, 'classname'):
+    # Handle user defined classes.
+    if hasattr(val, 'classname'):
         cls = session._get_user_class(val.classname)
         return cls.from_value(val)
 
-    if "'|O" in str(val.dtype) or "O'" in str(val.dtype):
-        data = Struct()
-        for key in val.dtype.fields.keys():
-            data[key] = get_data(val[key][0], session)
-        return data
+    # Convert a record array to a Struct.
+    if val.dtype.names:
+        out = Struct()
+        for name in val.dtype.names:
+            out[name] = get_data(val[name], session)
+        return out
 
-    # handle cell arrays
+    # Extract opaque objects.
     if val.dtype == np.object:
-        if val.size == 1:
-            val = val[0]
-            if "'|O" in str(val.dtype) or "O'" in str(val.dtype):
-                val = get_data(val, session)
-            if isinstance(val, Struct):
-                return val
-            if isinstance(val, OctaveUserClass):
-                return val
-            if val.size == 1:
-                val = val.flatten()
-
-    if val.dtype == np.object:
-        if len(val.shape) > 2:
-            val = val.T
-            val = np.array([get_data(val[i].T, session)
-                            for i in range(val.shape[0])])
         if len(val.shape) > 1:
-            if len(val.shape) == 2:
-                val = val.T
-            try:
-                return val.astype(val[0][0].dtype)
-            except (ValueError, TypeError):
-                # dig into the cell type
-                for row in range(val.shape[0]):
-                    for i in range(val[row].size):
-                        if not np.isscalar(val[row][i]):
-                            if val[row][i].size > 1:
-                                val[row][i] = val[row][i].squeeze()
-                            elif val[row][i].size:
-                                val[row][i] = val[row][i][0]
-                            else:
-                                val[row][i] = val[row][i].tolist()
-            except IndexError:
-                return val.tolist()
-        else:
-            val = np.array([get_data(val[i], session)
-                            for i in range(val.size)])
-        if len(val.shape) == 1 or val.shape[0] == 1 or val.shape[1] == 1:
-            val = val.flatten()
+            val = val.T
         val = val.tolist()
-        if len(val) == 1 and isinstance(val[0],
-                                        scipy.sparse.csc.csc_matrix):
+        if isinstance(val, list):
+            out = []
+            for v in val:
+                if len(v) == 1:
+                    out.append(v[0])
+                else:
+                    out.append(v)
+            val = out
+        return get_data(val, session)
+
+    # Extract string arrays.
+    if val.dtype.kind in 'US':
+        if len(val.shape) > 1:
+            val = val.T
+        val = get_data(val.tolist(), session)
+        if len(val) == 1:
             val = val[0]
-    elif val.size == 1:
-        if hasattr(val, 'flatten'):
-            val = val.flatten()[0]
-    elif val.size == 0:
-        if val.dtype.kind in 'US':
-            val = ''
-        else:
-            val = []
+        return val
 
     return val

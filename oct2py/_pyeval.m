@@ -31,15 +31,19 @@ try
     % Replace the names at the specified indices with their values.
     for index=1:length(req.replacement_indices)
       repl_index = req.replacement_indices(index);
-      var_name = req.func_args{repl_index};
-      req.func_args{repl_index} = evalin('base', var_name);
+      if req.nargin > 1
+        var_name = req.func_args{repl_index};
+        req.func_args{repl_index} = evalin('base', var_name);
+      else
+        req.func_args = evalin('base', req.func_args);
+      end
     end
 
     % Use the `ans` response if no output arguments are expected.
     if req.nout == 0
         assignin('base', 'ans', sentinel);
 
-        if iscell(req.func_args)
+        if req.nargin > 1
           feval(req.func_name, req.func_args{:});
         elseif length(req.func_args)
           feval(req.func_name, req.func_args);
@@ -53,7 +57,7 @@ try
           resp = sentinel;
         end
 
-    elseif iscell(req.func_args)
+    elseif req.nargin > 1
         [resp{1:req.nout}] = feval(req.func_name, req.func_args{:});
 
     elseif length(req.func_args)
@@ -69,8 +73,11 @@ try
         result = resp;
     end
 
+    disp(req)
+    disp(resp)
+
     if req.store_as
-      assignin('base', req.store_as, response.result);
+      assignin('base', req.store_as, result);
       result = sentinel;
     end
 

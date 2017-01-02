@@ -30,7 +30,7 @@ test.num.vector = [1 2 3 4];
 test.num.column_vector = [1;2;3;4];
 test.num.matrix3d = ones([2 3 4]) * pi;
 test.num.matrix5d = ones(1,2,3,4,5) * pi;
-
+test.num.sparse = speye(10);
 
 %%%%%%%%%%%%%%%
 % logical type
@@ -42,13 +42,19 @@ test.string.basic = 'spam';
 test.string.char_array = {'spam', 'eggs'; 'foo ', 'bar '};
 test.string.cell_array = {'spam', 'eggs'};
 
+
+%%%%%%%%%%%%%%%%
+% User defined object
+test.object = polynomial([1,2,3]);
+
+
 %%%%%%%%%%%%%%%
 % struct array types
 
 test.struct_array(1).name = 'Sharon';
 test.struct_array(1).age = 31;
-test.struct_array(2).name = 'Bill'
-test.struct_array(2).age = 42
+test.struct_array(2).name = 'Bill';
+test.struct_array(2).age = 42;
 
 %%%%%%%%%%%%%%%
 % cell array types

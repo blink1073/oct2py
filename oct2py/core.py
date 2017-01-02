@@ -29,6 +29,7 @@ from .dynamic import (
 # TODO:
 #       fix interrupt handling and release metakernel and octave kernel
 #       update the magic error handling
+#       add a stream_handler for stdout message handling
 #       get tests to pass
 #       add tests for:
 #            get_pointer - variable, function, class, object instance

@@ -10,16 +10,15 @@ from __future__ import absolute_import, print_function, division
 
 from scipy.io import savemat
 import numpy as np
-from scipy.sparse import csr_matrix, csc_matrix
 
 from .utils import Oct2PyError
-from .compat import unicode
 
 
 def write_file(obj, path, oned_as='row', convert_to_float=True):
     """Save a Python object to an Octave file on the given path.
     """
-    data = putvals(obj, convert_to_float=convert_to_float)
+    obj['nargin'] = len(obj['func_args'])
+    data = putval(obj, convert_to_float=convert_to_float)
     try:
         savemat(path, data, appendmat=False, oned_as=oned_as,
                 long_field_names=True)
@@ -27,96 +26,47 @@ def write_file(obj, path, oned_as='row', convert_to_float=True):
         raise Exception('could not save mat file')
 
 
-def putvals(dict_, convert_to_float=True):
+def putval(data, convert_to_float=False):
+    """Convert the Python values to values suitable to sent to Octave.
     """
-    Put a nested dict into the MAT file as a struct
 
-    Parameters
-    ==========
-    dict_ : dict
-        Dictionary of object(s) to store
-    convert_to_float : bool
-        If true, convert integer types to float
-
-    Returns
-    =======
-    out : array
-        Dictionary of object(s), ready for transit
-
-    """
-    data = dict()
-    for (key, value) in dict_.items():
-        if isinstance(value, dict):
-            data[key] = putvals(value, convert_to_float)
-        elif key == 'func_args':
-            values = [putval(i, convert_to_float) for i in value]
-            data[key] = putval(values, convert_to_float)
-        else:
+    # Extract the values from dict and Struct objects.
+    if isinstance(data, dict):
+        for (key, value) in data.items():
             data[key] = putval(value, convert_to_float)
+
+    # Send None as nan.
+    if data is None:
+        return np.NaN
+
+    # See if it should be an array, otherwise treat is as a tuple.
+    if isinstance(data, list):
+        try:
+            test = np.array(data)
+            if test.dtype.kind in 'uicf':
+                return putval(test, convert_to_float)
+        except Exception:
+            pass
+        return putval(tuple(test))
+
+    # Make a cell array.
+    if isinstance(data, (tuple, set)):
+        data = [putval(o, convert_to_float) for o in data]
+        if len(data) == 1:
+            return data[0]
+        else:
+            return np.array(data, dtype=object)
+
+    # Clean up nd arrays.
+    if isinstance(data, np.ndarray):
+        return clean_array(data, convert_to_float)
+
+    # Leave all other content alone.
     return data
 
 
-def putval(data, convert_to_float=True):
-    """
-    Convert data into a state suitable for transfer.
-
-    Parameters
-    ==========
-    data : object
-        Value to write to file.
-    convert_to_float : bool
-        If true, convert integer types to float.
-
-    Returns
-    =======
-    out : object
-        Object, ready for transit
-
-    Notes
-    =====
-    Several considerations must be made
-    for data type to ensure proper read/write of the MAT file.
-    Currently the following types supported: float96, complex192, void
-
-    """
-    if data is None:
-        data = np.NaN
-    if isinstance(data, set):
-        data = list(data)
-    if isinstance(data, (str, unicode)):
-        return data
-
-    if isinstance(data, list):
-        # hack to get a viable cell object
-        if str_in_list(data):
-            try:
-                data = np.array(data, dtype=np.object)
-            except ValueError as err:  # pragma: no cover
-                raise Oct2PyError(err)
-        else:
-            out = []
-            for el in data:
-                if isinstance(el, np.ndarray):
-                    cell = np.zeros((1,), dtype=np.object)
-                    cell[0] = el
-                    out.append(cell)
-                elif isinstance(el, (csr_matrix, csc_matrix)):
-                    out.append(el.astype(np.float64))
-                else:
-                    out.append(el)
-            try:
-                out = np.array(out)
-            except ValueError:
-                out = np.array(out, dtype=object)
-            return out
-
-    if isinstance(data, (csr_matrix, csc_matrix)):
-        return data.astype(np.float64)
-
-    try:
-        data = np.array(data)
-    except ValueError as err:  # pragma: no cover
-        data = np.array(data, dtype=object)
+def clean_array(data, convert_to_float=False):
+    """Handle data type considerations."""
     dstr = data.dtype.str
     if 'c' in dstr and dstr[-2:] == '24':
         raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
@@ -138,15 +88,5 @@ def putval(data, convert_to_float=True):
         data = data.T
     if convert_to_float and data.dtype.kind in 'uib':
         data = data.astype(float)
+
     return data
-
-
-def str_in_list(list_):
-    '''See if there are any strings in the given list
-    '''
-    for item in list_:
-        if isinstance(item, (str, unicode)):
-            return True
-        elif isinstance(item, list):
-            if str_in_list(item):
-                return True
