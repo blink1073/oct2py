@@ -18,7 +18,7 @@ complex         double         np.complex128
 str             char           unicode
 unicode         cell           unicode
 bool            int32          np.int32
-None            double         np.float64
+None            nan            np.nan
 dict            struct         Struct
 =============   ===========    =============
 

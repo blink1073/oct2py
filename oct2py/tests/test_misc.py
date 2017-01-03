@@ -45,7 +45,8 @@ class MiscTests(test.TestCase):
         '''Make sure a singleton sparse matrix works'''
         import scipy.sparse
         data = scipy.sparse.csc.csc_matrix(1)
-        self.oc.push('x', data)
+        self.oc.push('x', data.astype(float))
+        print(self.oc.pull('x'))
         assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
         self.oc.push('y', [data])
         assert np.allclose(data.toarray(), self.oc.pull('y').toarray())
@@ -170,7 +171,7 @@ class MiscTests(test.TestCase):
         with Oct2Py() as oc:
             oc.addpath(os.path.dirname(__file__))
             DATA = oc.test_datatypes()
-        assert DATA.string.basic == 'spam'
+        assert DATA.string.basic == ['spam']
 
     def test_long_variable_name(self):
         name = 'this_variable_name_is_over_32_char'
@@ -231,12 +232,12 @@ class MiscTests(test.TestCase):
 
     def test_empty_values(self):
         self.oc.push('a', '')
-        assert self.oc.pull('a') is '', self.oc.pull('a')
+        assert self.oc.pull('a') == [], self.oc.pull('a')
 
         self.oc.push('a', [])
-        assert self.oc.pull('a') == []
+        assert self.oc.pull('a').size == 0
 
         self.oc.push('a', None)
         assert np.isnan(self.oc.pull('a'))
 
-        assert self.oc.struct() == [None]
+        assert self.oc.struct() is None

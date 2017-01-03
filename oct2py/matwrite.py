@@ -9,6 +9,7 @@
 from __future__ import absolute_import, print_function, division
 
 from scipy.io import savemat
+from scipy.sparse import csr_matrix, csc_matrix
 import numpy as np
 
 from .utils import Oct2PyError
@@ -56,6 +57,10 @@ def putval(data, convert_to_float=False):
             return data[0]
         else:
             return np.array(data, dtype=object)
+
+    # We need to convert sparse matrices to ndarrays.
+    if isinstance(data, (csr_matrix, csc_matrix)):
+        return data.astype(np.float64)
 
     # Clean up nd arrays.
     if isinstance(data, np.ndarray):

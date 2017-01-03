@@ -56,21 +56,19 @@ def get_data(val, session):
     # Handle opaque objects.
     if val.dtype == np.object:
         val = val.tolist()
+        # Extract the cell objects.
         if isinstance(val, list):
-            # Extract the cell objects.
             out = []
             for row in val:
                 # Cell object.
                 if len(row) == 1:
                     row = row[0]
                 out.append(row)
-            return get_data(out, session)
-
+            val = out
         return get_data(val, session)
 
     # Handle string arrays.
     if val.dtype.kind in 'US':
-        # These are transposed from their Python equivalents.
         val = get_data(val.tolist(), session)
         if len(val) == 1:
             val = val[0]
