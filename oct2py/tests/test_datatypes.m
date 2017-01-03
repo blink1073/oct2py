@@ -30,11 +30,15 @@ test.num.vector = [1 2 3 4];
 test.num.column_vector = [1;2;3;4];
 test.num.matrix3d = ones([2 3 4]) * pi;
 test.num.matrix5d = ones(1,2,3,4,5) * pi;
-test.num.sparse = speye(10);
 
 %%%%%%%%%%%%%%%
 % logical type
 test.logical = [10 20 30 40 50] > 30;
+
+
+%%%%%%%%%%%%%%%%
+% sparse type
+test.sparse = speye(10);
 
 %%%%%%%%%%%%%%%
 % string types

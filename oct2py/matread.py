@@ -55,9 +55,6 @@ def get_data(val, session):
 
     # Handle opaque objects.
     if val.dtype == np.object:
-        # These are transposed from their Python equivalents.
-        if len(val.shape) > 1:
-            val = val.T
         val = val.tolist()
         if isinstance(val, list):
             # Extract the cell objects.
@@ -65,10 +62,8 @@ def get_data(val, session):
             for row in val:
                 # Cell object.
                 if len(row) == 1:
-                    out.append(row[0])
-                # Cell array object.
-                else:
-                    out.append(row)
+                    row = row[0]
+                out.append(row)
             return get_data(out, session)
 
         return get_data(val, session)
@@ -76,8 +71,6 @@ def get_data(val, session):
     # Handle string arrays.
     if val.dtype.kind in 'US':
         # These are transposed from their Python equivalents.
-        if len(val.shape) > 1:
-            val = val.T
         val = get_data(val.tolist(), session)
         if len(val) == 1:
             val = val[0]
