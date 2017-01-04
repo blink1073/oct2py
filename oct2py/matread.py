@@ -11,7 +11,6 @@ from __future__ import absolute_import, print_function, division
 import numpy as np
 from scipy.io import loadmat
 
-from .compat import unicode
 from .utils import Struct, Oct2PyError
 
 
@@ -22,20 +21,17 @@ def read_file(path, session):
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e))
-    result = get_data(data['result'], session)
+    result = extract(data['result'], session)
     return dict(result=result, error=data['err'])
 
 
-def get_data(val, session):
+def extract(val, session):
     """Parse the data from a MAT file into Pythonic objects.
     """
 
-    # Parse each item of a list and collapse if it is redundantly nested.
+    # Parse each item of a list.
     if isinstance(val, list):
-        val = [get_data(v, session) for v in val]
-        if len(val) == 1 and not isinstance(val[0], (str, unicode)):
-            val = val[0]
-        return val
+        return [extract(item, session) for item in val]
 
     # Return leaf objects unchanged.
     if not isinstance(val, np.ndarray):
@@ -50,26 +46,21 @@ def get_data(val, session):
     if val.dtype.names:
         out = Struct()
         for name in val.dtype.names:
-            out[name] = get_data(val[name], session)
+            out[name] = extract(val[name], session)
         return out
 
     # Handle opaque objects.
-    if val.dtype == np.object:
-        val = val.tolist()
-        # Extract the cell objects.
-        if isinstance(val, list):
-            out = []
-            for row in val:
-                # Cell object.
-                if len(row) == 1:
-                    row = row[0]
-                out.append(row)
-            val = out
-        return get_data(val, session)
+    if val.dtype.kind == 'O':
+        val = extract(val.tolist(), session)
+        # If it is a single cell, extract the inner value.
+        if len(val) == 1 and isinstance(val[0], list):
+            val = val[0]
+        return val
 
-    # Handle string arrays.
+    # Handle strings.
     if val.dtype.kind in 'US':
-        val = get_data(val.tolist(), session)
+        val = extract(val.tolist(), session)
+        # Extract the inner value of the string cell.
         if len(val) == 1:
             val = val[0]
         return val

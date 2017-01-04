@@ -18,8 +18,7 @@ from .utils import Oct2PyError
 def write_file(obj, path, oned_as='row', convert_to_float=True):
     """Save a Python object to an Octave file on the given path.
     """
-    obj['nargin'] = len(obj['func_args'])
-    data = putval(obj, convert_to_float=convert_to_float)
+    data = encode(obj, convert_to_float=convert_to_float)
     try:
         savemat(path, data, appendmat=False, oned_as=oned_as,
                 long_field_names=True)
@@ -27,14 +26,14 @@ def write_file(obj, path, oned_as='row', convert_to_float=True):
         raise Exception('could not save mat file')
 
 
-def putval(data, convert_to_float=False):
+def encode(data, convert_to_float=False):
     """Convert the Python values to values suitable to sent to Octave.
     """
 
     # Extract the values from dict and Struct objects.
     if isinstance(data, dict):
         for (key, value) in data.items():
-            data[key] = putval(value, convert_to_float)
+            data[key] = encode(value, convert_to_float)
 
     # Send None as nan.
     if data is None:
@@ -45,20 +44,23 @@ def putval(data, convert_to_float=False):
         try:
             test = np.array(data)
             if test.dtype.kind in 'uicf':
-                return putval(test, convert_to_float)
+                return encode(test, convert_to_float)
         except Exception:
             pass
-        return putval(tuple(data))
+        return encode(tuple(data), convert_to_float)
 
-    # Make a cell array.
+    # Make a cell or a cell array.
     if isinstance(data, (tuple, set)):
-        data = [putval(o, convert_to_float) for o in data]
+        data = [encode(o, convert_to_float) for o in data]
+        # Use a trick to force a cell.
         if len(data) == 1:
-            return data[0]
-        else:
-            return np.array(data, dtype=object)
+            cell = np.zeros((1,), dtype=np.object)
+            cell[0] = data
+            return cell
+        # Cell array.
+        return np.array(data, dtype=object)
 
-    # We need to convert sparse matrices to ndarrays.
+    # Convert sparse matrices to ndarrays.
     if isinstance(data, (csr_matrix, csc_matrix)):
         return data.astype(np.float64)
 

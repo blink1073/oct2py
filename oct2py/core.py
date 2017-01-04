@@ -20,7 +20,7 @@ from octave_kernel.kernel import OctaveEngine
 from .matwrite import write_file
 from .matread import read_file
 from .utils import get_nout, Oct2PyError, get_log
-from .compat import unicode, input
+from .compat import unicode, input, string_types
 from .dynamic import (
     _make_function_ptr_instance, _make_variable_ptr_instance,
     _make_user_class, OctavePtr)
@@ -29,7 +29,11 @@ from .dynamic import (
 # TODO:
 #       fix interrupt handling and release metakernel and octave kernel
 #       update the magic error handling
-#       add a stream_handler for stdout message handling
+#       update the magic stream handling
+#       make the plot_ commands work and reinstate extract_images
+#       we should always be sending and receiving a tuple for arguments
+#           handle whether it is a single or multiple value at the
+#           _feval level
 #       get tests to pass
 #       add tests for:
 #            get_pointer - variable, function, class, object instance
@@ -238,7 +242,7 @@ class Oct2Py(object):
         self._engine.plot_settings = dict(width=width, height=height,
             format=format, resolution=resolution, name=name, backend=backend)
 
-    def feval(self, func_path, *func_args, nout=None, verbose=True,
+    def feval(self, func_path, *func_args, nout=None, stream_handler=None,
               store_as='', timeout=None, **kwargs):
         """Run a function in Matlab and return the result.
 
@@ -251,8 +255,9 @@ class Oct2Py(object):
         nout: int, optional
             Desired number of return arguments.  If not given, the number
             of arguments will be inferred from the return value(s).
-        verbose: int, optional
-            If False, logs outputs at the DEBUG level instead of INFO.
+        stream_handler: callable, optional.
+            A callback for printed lines from Octave execution.  If not given,
+            lines will be logged at the INFO level.
         store_as: str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
@@ -262,6 +267,13 @@ class Oct2Py(object):
             Keyword arguments are passed to Octave in the form [key, val] so
             that matlab.plot(x, y, '--', LineWidth=2) would be translated into
             plot(x, y, '--', 'LineWidth', 2).
+
+        Notes
+        -----
+        Use `set_plot_settings` for deprecated `plot_*` kwargs, since they are
+        now ignored.
+        Deprecated `verbose` kwarg is honored, but `stream_handler` will take
+        precidence if given.
 
         Returns
         -------
@@ -276,6 +288,13 @@ class Oct2Py(object):
                 warnings.warn(msg)
             del kwargs[key]
 
+        verbose = kwargs.pop('verbose', True)
+        if stream_handler is None:
+            if verbose:
+                stream_handler = self.logger.info
+            else:
+                stream_handler = self.logger.debug
+
         func_args += tuple(item for pair in zip(kwargs.keys(), kwargs.values())
                            for item in pair)
         dname = os.path.dirname(func_path)
@@ -289,7 +308,8 @@ class Oct2Py(object):
                               ' eval("clear(var1, var2)")')
 
         return self._feval(func_name, func_args, dname=dname, nout=nout,
-                          timeout=timeout, verbose=verbose, store_as=store_as)
+                          timeout=timeout, stream_handler=stream_handler,
+                          store_as=store_as)
 
     def eval(self, cmds, verbose=True, timeout=None, **kwargs):
         """
@@ -299,17 +319,28 @@ class Oct2Py(object):
         ----------
         cmds : str or list
             Commands(s) to pass to Octave.
-        verbose : bool, optional
-             Log Octave output at INFO level.  If False, log at DEBUG level.
+        stream_handler: callable, optional.
+            A callback for printed lines from Octave execution.  If not given,
+            lines will be logged at the INFO level.
         timeout : float, optional
             Time to wait for response from Octave (per line).
-        **kwargs Deprecated keyword arguments.  Use `set_plot_settings` for
-                 deprecated `plot_*` kwargs.
+        **kwargs Deprecated keyword arguments.
 
         Returns
         -------
         out : object
             Octave "ans" variable, or None.
+
+        Notes
+        -----
+        Use `set_plot_settings` for deprecated `plot_*` kwargs, since they are
+        now ignored.
+        Deprecated `temp_dir` is honored, but using the instance level
+        `temp_dir` is preferred.
+        Deprecated `log` and `verbose` kwargs are honored, but
+        `stream_handler` will take precidence if given.
+        Deprecated `return_both` kwarg is honored, but `stream_handler` is the
+        preferred replacement.
 
         Raises
         ------
@@ -329,24 +360,39 @@ class Oct2Py(object):
         prev_temp_dir = self.temp_dir
         self.temp_dir = kwargs.get('temp_dir', prev_temp_dir)
 
-        if 'log' in kwargs:
-            msg = 'Ignoring deprecated `log` kwarg, use logging config'
-            warnings.warn(msg)
+        stream_handler = kwargs.get('stream_handler')
+        return_both = kwargs.get('return_both')
+        verbose = kwargs.get('verbose', True)
+        log = kwargs.get('log', True)
+
+        if log:
+            [self.logger.debug(c) for c in cmds]
+
+        if return_both:
+            lines = []
+
+        def handler(line):
+            if return_both:
+                lines.append(line.rstrip())
+            if stream_handler:
+                stream_handler(line)
+            elif verbose and log:
+                self.logger.info(line)
+            elif log:
+                self.logger.debug(line)
 
         ans = None
         for cmd in cmds:
             resp = self.feval('evalin', 'base', cmd, verbose=verbose,
-                              nout=0, timeout=timeout)
+                              nout=0, timeout=timeout,
+                              stream_handler=handler)
             if str(resp):
                 ans = resp
 
         self.temp_dir = prev_temp_dir
 
-        # Handle deprecated `return_both` kwarg.
-        msg = '`return_both` kwarg is deprecated, use logging config'
-        if kwargs.get('return_both', False):
-            warnings.warn(msg)
-            return '', ans
+        if return_both:
+            return '\n'.join(lines), ans
 
         return ans
 
@@ -369,7 +415,7 @@ class Oct2Py(object):
         self._engine.eval('addpath("%s");' % here.replace(os.path.sep, '/'))
 
     def _feval(self, func_name, func_args, dname='', nout=0,
-              timeout=None, verbose=True, store_as=''):
+              timeout=None, stream_handler=None, store_as=''):
         """Run the given function with the given args.
         """
         engine = self._engine
@@ -386,26 +432,23 @@ class Oct2Py(object):
         in_file = in_file.replace(os.path.sep, '/')
 
         func_args = list(func_args)
-        replacements = []
+        ref_indices = []
         for (i, value) in enumerate(func_args):
             if isinstance(value, OctavePtr):
-                replacements.append(i + 1)
+                ref_indices.append(i + 1)
                 func_args[i] = value._address
-        replacements = np.array(replacements)
+        ref_indices = np.array(ref_indices)
 
         # Save the request data to the output file.
         req = dict(func_name=func_name, func_args=tuple(func_args),
                    dname=dname, nout=nout, store_as=store_as,
-                   replacement_indices=replacements)
+                   ref_indices=ref_indices)
 
         write_file(req, out_file, oned_as=self._oned_as,
                    convert_to_float=self.convert_to_float)
 
         # Set up the engine and evaluate the `_pyeval()` function.
-        if not verbose:
-            engine.stream_handler = self.logger.debug
-        else:
-            engine.stream_handler = self.logger.info
+        engine.stream_handler = stream_handler or self.logger.info
 
         try:
             engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
@@ -423,13 +466,17 @@ class Oct2Py(object):
 
         # Read in the output.
         resp = read_file(in_file, self)
+
         if resp['error']:
             self.logger.debug(resp['error'])
             raise Oct2PyError(resp['error']['message'])
 
         result = resp['result']
-        if str(result) == '__no_value__':
-            result = None
+        if len(result) == 1:
+            result = result[0]
+            # Check for sentinel value.
+            if isinstance(result, string_types) and result == '__no_value__':
+                result = None
         return result
 
     def _get_doc(self, name):
