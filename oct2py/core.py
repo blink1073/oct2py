@@ -223,6 +223,12 @@ class Oct2Py(object):
     def make_figures(self, plot_dir=None):
         """Save the figures to disk.
 
+        Parameters
+        ----------
+        plot_dir: str, optional.
+            The plot dir where the figures should be created.  A temporary
+            directory will be used if none is given.
+
         Returns
         -------
         out: list
@@ -234,11 +240,19 @@ class Oct2Py(object):
         plot_dir = plot_dir or tempfile.mkdtemp(dir=self.temp_dir)
         return self._engine.make_figures(plot_dir)
 
-    def extract_figures(self, plot_dir):
+    def extract_figures(self, plot_dir, remove=True):
         """Extract the figures in the directory to IPython display objects.
+
+        Parameters
+        ----------
+        plot_dir: str
+            The plot dir where the figures were created.
+        remove: bool, optional.
+            Whether to remove the plot directory after saving.
         """
         figures = self._engine.extract_figures(plot_dir)
-        shutil.rmtree(plot_dir, True)
+        if remove:
+            shutil.rmtree(plot_dir, True)
         return figures
 
     def set_plot_settings(self, width=None, height=None, format=None,

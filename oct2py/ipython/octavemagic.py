@@ -39,7 +39,6 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #  the file COPYING, distributed as part of this software.
 #-----------------------------------------------------------------------------
 
-import logging
 import os
 
 import oct2py
