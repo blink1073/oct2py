@@ -219,8 +219,8 @@ class Oct2Py(object):
 
         raise Oct2PyError('Unknown type for object "%s"' % name)
 
-    def make_figures(self):
-        """Save the figures to disk and extract the image objects.
+    def make_figures(self, plot_dir=None):
+        """Save the figures to disk.
 
         Returns
         -------
@@ -230,8 +230,12 @@ class Oct2Py(object):
             and can be used with the `display` function from `IPython` for
             rich display.
         """
-        plot_dir = tempfile.mkdtemp(dir=self.temp_dir)
-        self._engine.make_figures(plot_dir)
+        plot_dir = plot_dir or tempfile.mkdtemp(dir=self.temp_dir)
+        return self._engine.make_figures(plot_dir)
+
+    def extract_figures(self, plot_dir):
+        """Extract the figures in the directory to IPython display objects.
+        """
         figures = self._engine.extract_figures(plot_dir)
         shutil.rmtree(plot_dir, True)
         return figures
@@ -243,8 +247,8 @@ class Oct2Py(object):
             format=format, resolution=resolution, name=name, backend=backend)
 
     def feval(self, func_path, *func_args, nout=None, stream_handler=None,
-              store_as='', timeout=None, **kwargs):
-        """Run a function in Matlab and return the result.
+              store_as=None, timeout=None):
+        """Run a function in Octave and return the result.
 
         Parameters
         ----------
@@ -263,17 +267,6 @@ class Oct2Py(object):
             instead of returning it.
         timeout: float, optional
             The timeout in seconds for the call.
-        kwargs:
-            Keyword arguments are passed to Octave in the form [key, val] so
-            that matlab.plot(x, y, '--', LineWidth=2) would be translated into
-            plot(x, y, '--', 'LineWidth', 2).
-
-        Notes
-        -----
-        Use `set_plot_settings` for deprecated `plot_*` kwargs, since they are
-        now ignored.
-        Deprecated `verbose` kwarg is honored, but `stream_handler` will take
-        precidence if given.
 
         Returns
         -------
@@ -282,21 +275,7 @@ class Oct2Py(object):
         if nout is None:
             nout = get_nout() or 1
 
-        msg = 'Ignoring deprecated `plot_*` kwargs, use `set_plot_settings`'
-        for key in list(kwargs.keys()):
-            if key.startswith('plot_'):
-                warnings.warn(msg)
-            del kwargs[key]
-
-        verbose = kwargs.pop('verbose', True)
-        if stream_handler is None:
-            if verbose:
-                stream_handler = self.logger.info
-            else:
-                stream_handler = self.logger.debug
-
-        func_args += tuple(item for pair in zip(kwargs.keys(), kwargs.values())
-                           for item in pair)
+        stream_handler = stream_handler or self.logger.info
         dname = os.path.dirname(func_path)
         fname = os.path.basename(func_path)
         func_name, ext = os.path.splitext(fname)
@@ -311,7 +290,7 @@ class Oct2Py(object):
                           timeout=timeout, stream_handler=stream_handler,
                           store_as=store_as)
 
-    def eval(self, cmds, verbose=True, timeout=None, **kwargs):
+    def eval(self, cmds, stream_handler=None, timeout=None, **kwargs):
         """
         Evaluate an Octave command or commands.
 
@@ -333,66 +312,36 @@ class Oct2Py(object):
 
         Notes
         -----
-        Use `set_plot_settings` for deprecated `plot_*` kwargs, since they are
-        now ignored.
-        Deprecated `temp_dir` is honored, but using the instance level
-        `temp_dir` is preferred.
-        Deprecated `log` and `verbose` kwargs are honored, but
-        `stream_handler` will take precidence if given.
-        Deprecated `return_both` kwarg is honored, but `stream_handler` is the
-        preferred replacement.
+        Deprecated keyword arguments will be ignored.
+        Use `stream_handler` to replace deprecated `verbose`, `log`,
+        and `return_both` kwargs.  A tuple of ('', ans) will be returned
+        if `return_both` is given.
+        Use `set_plot_settings()` for deprecated `plot_*` kwargs.
+        Use the instance-level `temp_dir` to replace the `temp_dir`
+        kwarg.
 
         Raises
         ------
         Oct2PyError
             If the command(s) fail.
-
         """
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
-        msg = 'Ignoring deprecated `plot_*` kwargs, use `set_plot_settings`'
-        for key in kwargs:
-            if key.startswith('plot_'):
-                warnings.warn(msg)
-
-        # Handle deprecated `temp_dir` kwarg.
-        prev_temp_dir = self.temp_dir
-        self.temp_dir = kwargs.get('temp_dir', prev_temp_dir)
-
-        stream_handler = kwargs.get('stream_handler')
-        return_both = kwargs.get('return_both')
-        verbose = kwargs.get('verbose', True)
-        log = kwargs.get('log', True)
-
-        if log:
-            [self.logger.debug(c) for c in cmds]
-
-        if return_both:
-            lines = []
-
-        def handler(line):
-            if return_both:
-                lines.append(line.rstrip())
-            if stream_handler:
-                stream_handler(line)
-            elif verbose and log:
-                self.logger.info(line)
-            elif log:
-                self.logger.debug(line)
+        if kwargs:
+            msg = 'Ignoring deprecated keyword arguments to `eval()`'
+            warnings.warn(msg)
 
         ans = None
         for cmd in cmds:
-            resp = self.feval('evalin', 'base', cmd, verbose=verbose,
+            resp = self.feval('evalin', 'base', cmd,
                               nout=0, timeout=timeout,
-                              stream_handler=handler)
-            if str(resp):
+                              stream_handler=stream_handler)
+            if resp is not None:
                 ans = resp
 
-        self.temp_dir = prev_temp_dir
-
-        if return_both:
-            return '\n'.join(lines), ans
+        if 'return_both' in kwargs:
+            return '', ans
 
         return ans
 
@@ -414,7 +363,7 @@ class Oct2Py(object):
         here = os.path.realpath(os.path.dirname(__file__))
         self._engine.eval('addpath("%s");' % here.replace(os.path.sep, '/'))
 
-    def _feval(self, func_name, func_args, dname='', nout=0,
+    def _feval(self, func_name, *func_args, dname='', nout=0,
               timeout=None, stream_handler=None, store_as=''):
         """Run the given function with the given args.
         """
@@ -518,7 +467,13 @@ class Oct2Py(object):
 
         doc = '\n'.join(doc.splitlines())
         doc = '\n' + doc + '\n\nParameters\n----------\n' + default
-
+        doc += '\n**kwargs - Deprecated keyword arguments\n\n'
+        doc += 'Notes\n-----\n'
+        doc += 'Keyword arguments to dynamic functions are deprecated.\n'
+        doc += 'The `plot_*` kwargs will be ignored, but the rest will\n'
+        doc += 'used as key - value pairs as in version 3.x.\n'
+        doc += 'Use `set_plot_settings()` for plot settings, and use\n'
+        doc += '`func_args` directly for key - value pairs.'
         return doc
 
     def _exist(self, name):
