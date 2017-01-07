@@ -43,7 +43,6 @@ import logging
 import os
 
 import oct2py
-from oct2py.compat import StringIO
 
 from IPython.core.display import publish_display_data, display
 from IPython.core.magic import (Magics, magics_class, line_magic,
@@ -75,11 +74,6 @@ class OctaveMagics(Magics):
         """
         super(OctaveMagics, self).__init__(shell)
         self._oct = oct2py.octave
-        sobj = StringIO()
-        hdlr = logging.StreamHandler(sobj)
-        hdlr.setLevel(logging.DEBUG)
-        self._sobj = sobj
-        self._oct.logger.addHandler(hdlr)
 
         # Allow display to be overridden for
         # testing purposes.
@@ -225,9 +219,6 @@ class OctaveMagics(Magics):
                 ...: plot([1, 2, 3]);
 
         '''
-        # match current working directory
-        self._oct.cd(os.getcwd())
-
         args = parse_argstring(self.octave, line)
 
         # arguments 'code' in line are prepended to the cell lines
@@ -265,42 +256,31 @@ class OctaveMagics(Magics):
             format=args.format, name='__ipy_oct_fig_',
             resolution=args.resolution, backend=backend)
 
-        # Reset the stdout handler.
-        self._sobj.truncate(0)
-        self._sobj.seek(0)
-
         try:
-            value = self._oct.eval(code)
+            # match current working directory
+            self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
+            value = self._oct.eval(code, stream_handler=self._publish)
         except oct2py.Oct2PyError as exception:
             # TODO
             raise OctaveMagicError(str(exception))
 
-        text_output = self._sobj.getvalue()
-
-        key = 'OctaveMagic.Octave'
-        display_data = []
-
-        # Publish text output
-        if text_output != "None":
-            display_data.append((key, {'text/plain': text_output}))
-
+        # Publish output
         if args.output:
             for output in ','.join(args.output).split(','):
                 output = unicode_to_str(output)
                 self.shell.push({output: self._oct.pull(output)})
 
-        for source, data in display_data:
-            # source is deprecated in IPython 3.0.
-            # specify with kwarg for backward compatibility.
-            publish_display_data(source=source, data=data)
-
         # Publish images
         if not args.gui:
-            for img in self._oct.make_figures():
+            plot_dir = self._oct.make_figures()
+            for img in self._oct.extract_figures(plot_dir):
                 self._display(img)
 
         if return_output:
             return value
+
+    def _publish(self, line):
+        publish_display_data({'text/plain': line})
 
 
 __doc__ = __doc__.format(
