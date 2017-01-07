@@ -54,8 +54,8 @@ class Oct2Py(object):
     The subsequent commands will be much faster.
 
     You may provide a logger object for logging events, or the oct2py.get_log()
-    default will be used.  Events will be logged as debug unless verbose is set
-    when calling a command, then they will be logged as info.
+    default will be used.  When calling commands, logger.info() will be used
+    to stream output, unless a `stream_handler` is provided.
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ class Oct2Py(object):
             self._engine.repl.terminate()
         self._engine = None
 
-    def push(self, name, var, verbose=True, timeout=None):
+    def push(self, name, var, timeout=None, **kwargs):
         """
         Put a variable or variables into the Octave session.
 
@@ -126,6 +126,7 @@ class Oct2Py(object):
             The value(s) to pass.
         timeout : float
             Time to wait for response from Octave (per character).
+        **kwargs: Deprecated kwargs, ignored.
 
         Examples
         --------
@@ -149,10 +150,9 @@ class Oct2Py(object):
             var = [var]
 
         for (n, v) in zip(name, var):
-            self.feval('assignin', 'base', n, v, nout=0, verbose=verbose,
-                       timeout=timeout)
+            self.feval('assignin', 'base', n, v, nout=0, timeout=timeout)
 
-    def pull(self, var, verbose=True, timeout=None):
+    def pull(self, var, timeout=None, **kwargs):
         """
         Retrieve a value or values from the Octave session.
 
@@ -162,6 +162,7 @@ class Oct2Py(object):
             Name of the variable(s) to retrieve.
         timeout : float
             Time to wait for response from Octave (per character).
+        **kwargs: Deprecated kwargs, ignored.
 
         Returns
         -------
@@ -191,7 +192,7 @@ class Oct2Py(object):
             isobject = self._isobject(name, exist)
             if exist == 1 and not isobject:
                 outputs.append(self.feval('evalin', 'base', name,
-                                          timeout=timeout, verbose=verbose))
+                                          timeout=timeout))
             else:
                 outputs.append(self.get_pointer(name, timeout=timeout))
 
@@ -286,7 +287,7 @@ class Oct2Py(object):
             raise Oct2PyError('Cannot use `clear` command directly, use' +
                               ' eval("clear(var1, var2)")')
 
-        return self._feval(func_name, func_args, dname=dname, nout=nout,
+        return self._feval(func_name, *func_args, dname=dname, nout=nout,
                           timeout=timeout, stream_handler=stream_handler,
                           store_as=store_as)
 
@@ -371,9 +372,6 @@ class Oct2Py(object):
         if engine is None:
             raise Oct2PyError('Session is closed')
 
-        if timeout is None:
-            timeout = self.timeout
-
         # Set up our mat file paths.
         out_file = os.path.join(self.temp_dir, 'writer.mat')
         out_file = out_file.replace(os.path.sep, '/')
@@ -390,7 +388,8 @@ class Oct2Py(object):
 
         # Save the request data to the output file.
         req = dict(func_name=func_name, func_args=tuple(func_args),
-                   dname=dname, nout=nout, store_as=store_as,
+                   dname=dname or '', nout=nout or 0,
+                   store_as=store_as or '',
                    ref_indices=ref_indices)
 
         write_file(req, out_file, oned_as=self._oned_as,
@@ -414,17 +413,16 @@ class Oct2Py(object):
             raise Oct2PyError('Session died, restarting')
 
         # Read in the output.
-        resp = read_file(in_file, self)
+        result, error = read_file(in_file, self)
 
-        if resp['error']:
-            self.logger.debug(resp['error'])
-            raise Oct2PyError(resp['error']['message'])
+        if error:
+            self.logger.debug(error)
+            raise Oct2PyError(error['message'][0])
 
-        result = resp['result']
         if len(result) == 1:
             result = result[0]
             # Check for sentinel value.
-            if isinstance(result, string_types) and result == '__no_value__':
+            if isinstance(result, list) and result == ['__no_value__']:
                 result = None
         return result
 
