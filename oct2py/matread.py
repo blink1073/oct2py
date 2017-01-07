@@ -22,7 +22,8 @@ def read_file(path, session):
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e))
     result = extract(data['result'], session)
-    return dict(result=result, error=data['err'])
+    error = extract(data['err'], session)
+    return result, error
 
 
 def extract(val, session):
