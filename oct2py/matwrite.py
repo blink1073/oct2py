@@ -15,83 +15,86 @@ import numpy as np
 from .utils import Oct2PyError
 
 
-def write_file(obj, path, oned_as='row', convert_to_float=True):
-    """Save a Python object to an Octave file on the given path.
-    """
-    data = encode(obj, convert_to_float=convert_to_float)
-    try:
-        savemat(path, data, appendmat=False, oned_as=oned_as,
-                long_field_names=True)
-    except KeyError:  # pragma: no cover
-        raise Exception('could not save mat file')
-
-
-def encode(data, convert_to_float=False):
-    """Convert the Python values to values suitable to sent to Octave.
+class Writer(object):
+    """An object used to write Python objects to a MAT file.
     """
 
-    # Extract the values from dict and Struct objects.
-    if isinstance(data, dict):
-        for (key, value) in data.items():
-            data[key] = encode(value, convert_to_float)
-
-    # Send None as nan.
-    if data is None:
-        return np.NaN
-
-    # See if it should be an array, otherwise treat is as a tuple.
-    if isinstance(data, list):
+    def write_file(self, obj, path, oned_as='row', convert_to_float=True):
+        """Save a Python object to an Octave file on the given path.
+        """
+        self.convert_to_float = convert_to_float
+        data = self._encode(obj)
         try:
-            test = np.array(data)
-            if test.dtype.kind in 'uicf':
-                return encode(test, convert_to_float)
-        except Exception:
-            pass
-        return encode(tuple(data), convert_to_float)
+            savemat(path, data, appendmat=False, oned_as=oned_as,
+                    long_field_names=True)
+        except KeyError:  # pragma: no cover
+            raise Exception('could not save mat file')
 
-    # Make a cell or a cell array.
-    if isinstance(data, (tuple, set)):
-        data = [encode(o, convert_to_float) for o in data]
-        # Use a trick to force a cell.
-        if len(data) == 1:
-            cell = np.zeros((1,), dtype=np.object)
-            cell[0] = data
-            return cell
-        # Cell array.
-        return np.array(data, dtype=object)
+    def _encode(self, data):
+        """Convert the Python values to values suitable to sent to Octave.
+        """
 
-    # Convert sparse matrices to ndarrays.
-    if isinstance(data, (csr_matrix, csc_matrix)):
-        return data.astype(np.float64)
+        # Extract the values from dict and Struct objects.
+        if isinstance(data, dict):
+            for (key, value) in data.items():
+                data[key] = self._encode(value)
 
-    # Clean up nd arrays.
-    if isinstance(data, np.ndarray):
-        return clean_array(data, convert_to_float)
+        # Send None as nan.
+        if data is None:
+            return np.NaN
 
-    # Leave all other content alone.
-    return data
+        # See if it should be an array, otherwise treat is as a tuple.
+        if isinstance(data, list):
+            try:
+                test = np.array(data)
+                if test.dtype.kind in 'uicf':
+                    return self._encode(test)
+            except Exception:
+                pass
+            return self._encode(tuple(data))
 
+        # Make a cell or a cell array.
+        if isinstance(data, (tuple, set)):
+            data = [self._encode(o) for o in data]
+            # Use a trick to force a cell.
+            if len(data) == 1:
+                cell = np.zeros((1,), dtype=np.object)
+                cell[0] = data
+                return cell
+            # Cell array.
+            return np.array(data, dtype=object)
 
-def clean_array(data, convert_to_float=False):
-    """Handle data type considerations."""
-    dstr = data.dtype.str
-    if 'c' in dstr and dstr[-2:] == '24':
-        raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-    elif 'f' in dstr and dstr[-2:] == '12':
-        raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-    elif 'V' in dstr and not hasattr(data, 'classname'):
-        raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-    elif dstr == '|b1':
-        data = data.astype(np.int8)
-    elif dstr == '<m8[us]' or dstr == '<M8[us]':
-        data = data.astype(np.uint64)
-    elif '|S' in dstr or '<U' in dstr:
-        data = data.astype(np.object)
-    elif '<c' in dstr and np.alltrue(data.imag == 0):
-        data.imag = 1e-9
-    if data.dtype.name in ['float128', 'complex256']:
-        raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-    if convert_to_float and data.dtype.kind in 'uib':
-        data = data.astype(float)
+        # Convert sparse matrices to ndarrays.
+        if isinstance(data, (csr_matrix, csc_matrix)):
+            return data.astype(np.float64)
 
-    return data
+        # Clean up nd arrays.
+        if isinstance(data, np.ndarray):
+            return self._clean_array(data)
+
+        # Leave all other content alone.
+        return data
+
+    def _clean_array(self, data):
+        """Handle data type considerations."""
+        dstr = data.dtype.str
+        if 'c' in dstr and dstr[-2:] == '24':
+            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
+        elif 'f' in dstr and dstr[-2:] == '12':
+            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
+        elif 'V' in dstr and not hasattr(data, 'classname'):
+            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
+        elif dstr == '|b1':
+            data = data.astype(np.int8)
+        elif dstr == '<m8[us]' or dstr == '<M8[us]':
+            data = data.astype(np.uint64)
+        elif '|S' in dstr or '<U' in dstr:
+            data = data.astype(np.object)
+        elif '<c' in dstr and np.alltrue(data.imag == 0):
+            data.imag = 1e-9
+        if data.dtype.name in ['float128', 'complex256']:
+            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
+        if self.convert_to_float and data.dtype.kind in 'uib':
+            data = data.astype(float)
+
+        return data

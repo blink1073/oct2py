@@ -11,11 +11,12 @@ from __future__ import absolute_import, print_function, division
 import numpy as np
 from scipy.io import loadmat
 
-from .compat import string_types
 from .utils import Struct, Oct2PyError
 
 
 class Reader(object):
+    """An object used to read objects from a MAT file.
+    """
 
     def __init__(self, session):
         self.session = session
@@ -72,4 +73,5 @@ class Reader(object):
             else:
                 val = []
 
+        # Return parsed value.
         return val
