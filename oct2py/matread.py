@@ -45,38 +45,27 @@ class Reader(object):
         # Convert user defined classes.
         if hasattr(val, 'classname'):
             cls = self.session._get_user_class(val.classname)
-            return cls.from_value(val)
+            val = cls.from_value(val)
 
         # Extract struct data.
-        if val.dtype.names:
+        elif val.dtype.names:
             out = Struct()
             for name in val.dtype.names:
                 out[name] = self._extract(val[name].squeeze().tolist())
-            return out
+            val = out
 
         # Extract cells.
-        if val.dtype.kind == 'O':
-            val = [self._extract(v) for v in val.squeeze().tolist()]
-            # Extract nested singleton strings.
-            if isinstance(val[0], list) and len(val) > 1:
-                out = []
-                for v in val:
-                    if len(v) == 1 and isinstance(v[0], string_types):
-                        v = v[0]
-                    out.append(v)
-                val = out
+        elif val.dtype.kind == 'O':
+            val = val.squeeze().tolist()
+            if not isinstance(val, list):
+                val = [val]
+            val = self._extract(val)
 
-            # If it contains all alike arrays, convert to an array.
-            if all(isinstance(v, np.ndarray) and v.dtype == val[0].dtype
-                   for v in val):
-                val = np.array(val)
+        # Compress singleton values.
+        elif val.size == 1:
+            val = val.item()
 
-            return val
-
-        # Compress scalar types.
-        if val.size == 1:
-            if hasattr(val, 'flatten'):
-                val = val.flatten()[0]
+        # Compress empty values.
         elif val.size == 0:
             if val.dtype.kind in 'US':
                 val = ''
