@@ -43,7 +43,10 @@ test.sparse = speye(10);
 %%%%%%%%%%%%%%%
 % string types
 test.string.basic = 'spam';
-test.string.char_array = {'spam', 'eggs'; 'foo ', 'bar '};
+test.string.cell = {'1'};
+test.string.char_array = ['Thomas R. Lee'; ...
+                          'Sr. Developer'; ...
+                          'SFTware Corp.'];
 test.string.cell_array = {'spam', 'eggs'};
 
 
@@ -64,6 +67,10 @@ test.struct_array(2).age = 42;
 % cell array types
 test.cell.vector = {'spam', 4.0, [1 2 3]};
 test.cell.matrix = {'Bob', 40; 'Pam', 41};
+test.cell.scalar = {1.8};
+test.cell.string = {'1'};
+test.cell.string_array = {'1', '2'};
+test.cell.empty = cell(3,4,2);
 test.cell.array = {[0.4194 0.3629 -0.0000;
                     0.0376 0.3306 0.0000;
                     0 0 1.0000],
@@ -72,10 +79,7 @@ test.cell.array = {[0.4194 0.3629 -0.0000;
                     0.8500 0.8250 1.0000]};
 
 %%%%%%%%%%%%%%
-% mixed struct
-test.mixed.array = [[1 2]; [3 4]];
-test.mixed.cell = {'1'};
-test.mixed.scalar = {1.8};
-test.mixed.complex = {1.2+2.4i, 3};
+% nest all of the above.
+test.nested = test;
 
 end
