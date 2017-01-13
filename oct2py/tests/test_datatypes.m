@@ -49,15 +49,16 @@ test.string.char_array = ['Thomas R. Lee'; ...
                           'SFTware Corp.'];
 test.string.cell_array = {'spam', 'eggs'};
 
-
 %%%%%%%%%%%%%%%%
 % User defined object
 test.object = polynomial([1,2,3]);
 
+%%%%%%%%%%%%%%%
+% struct array of shape 3x1
+test.struct_vector = [struct('key','a'); struct('key','b'); struct('key','c')];
 
 %%%%%%%%%%%%%%%
-% struct array types
-
+% struct array of shape 1x2
 test.struct_array(1).name = 'Sharon';
 test.struct_array(1).age = 31;
 test.struct_array(2).name = 'Bill';

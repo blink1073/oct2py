@@ -29,6 +29,8 @@ from .dynamic import (
 
 # TODO:
 #       fix interrupt handling and release metakernel and octave kernel
+#       add tracebacks (see note on phone)
+#       revert to the original test suite and get those tests to pass.
 #       update the magic error handling
 #       update the magic stream handling
 #       make the plot_ commands work and reinstate extract_images
