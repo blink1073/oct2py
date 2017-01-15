@@ -464,10 +464,8 @@ class Oct2Py(object):
         resp = self._reader.read_file(in_file)
 
         if resp['err']:
-            err = resp['err']
-            self.logger.debug(err)
-            # TODO: get the full stack trace here.
-            raise Oct2PyError('Octave returned error: "%s"' % err['message'])
+            msg = self._parse_error(resp['err'])
+            raise Oct2PyError(msg)
 
         result = resp['result']
         if len(result) == 1:
@@ -478,6 +476,24 @@ class Oct2Py(object):
 
         #TODO: handle return_both with a logger
         return result
+
+    def _parse_error(self, err):
+        """Create a traceback for an Octave evaluation error.
+        """
+        self.logger.debug(err)
+        stack = err['stack']
+        if not err['message'].startswith('parse error:'):
+            err['message'] = 'error: ' + err['message']
+        errmsg = 'Octave evaluation error:\n%s' % err['message']
+
+        if not isinstance(stack, list):
+            raise Oct2PyError(errmsg)
+
+        errmsg += '\nerror: called from:'
+        for item in stack[:-1]:
+            errmsg += '\nerror:   %(name)s at %(line)d' % item
+            if 'column' in item:
+                errmsg += ', column %(column)s' % item
 
     def _get_doc(self, name):
         """
