@@ -76,13 +76,9 @@ class Oct2Py(object):
         """
         self._oned_as = oned_as
         self._executable = executable
-
-        self.timeout = timeout
-        if logger is not None:
-            self.logger = logger
-        else:
-            self.logger = get_log()
         self._engine = None
+        self.logger = logger
+        self.timeout = timeout
         self.temp_dir = temp_dir or tempfile.mkdtemp()
         self.convert_to_float = convert_to_float
         self._user_classes = dict()
@@ -90,6 +86,19 @@ class Oct2Py(object):
         self._writer = Writer()
         self._reader = Reader(self)
         self.restart()
+
+    @property
+    def logger(self):
+        if self._logger:
+            return self._logger
+        log = self._logger = get_log()
+        return log
+
+    @logger.setter
+    def logger(self, value):
+        self._logger = value or get_log()
+        if self._engine:
+            self._engine.logger = self._logger
 
     def __enter__(self):
         """Return octave object, restart session if necessary"""
@@ -420,7 +429,8 @@ class Oct2Py(object):
         if 'OCTAVE_EXECUTABLE' not in os.environ and 'OCTAVE' in os.environ:
             os.environ['OCTAVE_EXECUTABLE'] = os.environ['OCTAVE']
 
-        self._engine = OctaveEngine(stdin_handler=self._handle_stdin)
+        self._engine = OctaveEngine(stdin_handler=self._handle_stdin,
+                                    logger=self.logger)
 
         # Add local Octave scripts.
         here = os.path.realpath(os.path.dirname(__file__))
