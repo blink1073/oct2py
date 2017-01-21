@@ -8,9 +8,7 @@
 """
 from __future__ import print_function, absolute_import, division
 
-import logging
 import os
-import shutil
 import tempfile
 import warnings
 
@@ -28,16 +26,15 @@ from .dynamic import (
 
 
 # TODO:
-#       fix interrupt handling and release metakernel and octave kernel
-#       add tracebacks (see note on phone)
-#       revert to the original test suite and get those tests to pass.
-#       update the magic error handling
-#       update the magic stream handling
-#       make the plot_ commands work and reinstate extract_images
+#       fix interrupt handling and release metakernel and octave kernel - done
+#       add tracebacks (see note on phone) -done
+#       update the magic error handling - done
+#       update the magic stream handling -done
+#       make the plot_ commands work and reinstate extract_images - done
 #       we should always be sending and receiving a tuple for arguments
 #           handle whether it is a single or multiple value at the
-#           _feval level
-#       get tests to pass
+#           _feval level -done
+#       revert to the original test suite and get those tests to pass.
 #       add tests for:
 #            get_pointer - variable, function, class, object instance
 #            set_plot_settings
@@ -130,7 +127,7 @@ class Oct2Py(object):
         var : object or list
             The value(s) to pass.
         timeout : float
-            Time to wait for response from Octave (per character).
+            Time to wait for response from Octave (per line).
         **kwargs: Deprecated kwargs, ignored.
 
         Examples
@@ -166,8 +163,8 @@ class Oct2Py(object):
         ----------
         var : str or list
             Name of the variable(s) to retrieve.
-        timeout : float
-            Time to wait for response from Octave (per character).
+        timeout : float, optional.
+            Time to wait for response from Octave (per line).
         **kwargs: Deprecated kwargs, ignored.
 
         Returns
@@ -175,11 +172,13 @@ class Oct2Py(object):
         out : object
             Object returned by Octave.
 
-        Raises:
-          Oct2PyError
+        Raises
+        ------
+        Oct2PyError
             If the variable does not exist in the Octave session.
 
-        Examples:
+        Examples
+        --------
           >>> from oct2py import octave
           >>> y = [1, 2]
           >>> octave.push('y', y)
@@ -207,8 +206,30 @@ class Oct2Py(object):
         return outputs
 
     def get_pointer(self, name, timeout=None):
+        """Get a pointer to a named object in the Octave workspace.
+
+        Parameters
+        ----------
+        name: str
+            The name of the object in the Octave workspace.
+        timemout: float, optional.
+            Time to wait for response from Octave (per line).
+
+        Raises
+        ------
+        Oct2PyError
+            If the variable does not exist in the Octave session or is of
+            unknown type.
+
+        Returns
+        -------
+        A variable, object, user class, or function pointer as appropriate.
+        """
         exist = self._exist(name)
         isobject = self._isobject(name, exist)
+
+        if exist == 0:
+            raise Oct2PyError('"%s" is undefined' % name)
 
         if exist == 1 and isobject:
             class_name = self.eval('class(%s);' % name)
@@ -226,27 +247,7 @@ class Oct2Py(object):
 
         raise Oct2PyError('Unknown type for object "%s"' % name)
 
-    def make_figures(self, plot_dir=None):
-        """Save the figures to disk.
-
-        Parameters
-        ----------
-        plot_dir: str, optional.
-            The plot dir where the figures should be created.  A temporary
-            directory will be used if none is given.
-
-        Returns
-        -------
-        out: list
-            The IPython Image or SVG objects for the figures.
-            These objects have a `.data` attribute with the raw image data,
-            and can be used with the `display` function from `IPython` for
-            rich display.
-        """
-        plot_dir = plot_dir or tempfile.mkdtemp(dir=self.temp_dir)
-        return self._engine.make_figures(plot_dir)
-
-    def extract_figures(self, plot_dir, remove=True):
+    def extract_figures(self, plot_dir, remove=False):
         """Extract the figures in the directory to IPython display objects.
 
         Parameters
@@ -256,9 +257,7 @@ class Oct2Py(object):
         remove: bool, optional.
             Whether to remove the plot directory after saving.
         """
-        figures = self._engine.extract_figures(plot_dir)
-        if remove:
-            shutil.rmtree(plot_dir, True)
+        figures = self._engine.extract_figures(plot_dir, remove)
         return figures
 
     def feval(self, func_path, *func_args, nout=None, verbose=True,
@@ -308,7 +307,13 @@ class Oct2Py(object):
         if nout is None:
             nout = get_nout() or 1
 
-        # TODO: handle plot settings - do the make_figures internally.
+        settings = dict(backend='inline' if plot_dir else 'gnuplot',
+                        format=plot_format,
+                        name=plot_name,
+                        width=plot_width,
+                        height=plot_height,
+                        resolution=plot_res)
+        self._engine.plot_settings = settings
 
         dname = os.path.dirname(func_path)
         fname = os.path.basename(func_path)
@@ -320,9 +325,12 @@ class Oct2Py(object):
             raise Oct2PyError('Cannot use `clear` command directly, use' +
                               ' eval("clear(var1, var2)")')
 
+        if not stream_handler:
+            stream_handler = self.logger.info if verbose else self.logger.debug
+
         return self._feval(func_name, *func_args, dname=dname, nout=nout,
-                          timeout=timeout, verbose=verbose,
-                          stream_handler=stream_handler, store_as=store_as)
+                          timeout=timeout, stream_handler=stream_handler,
+                          store_as=store_as, plot_dir=plot_dir)
 
     def eval(self, cmds, verbose=True, timeout=None, stream_handler=None,
              plot_dir=None, plot_name='plot', plot_format='svg',
@@ -340,7 +348,7 @@ class Oct2Py(object):
             A function that is called for each line of output from the
             evaluation.
         timeout : float, optional
-            Time to wait for response from Octave (per character).
+            Time to wait for response from Octave (per line).
         plot_dir: str, optional
             If specificed, save the session's plot figures to the plot
             directory instead of displaying the plot window.
@@ -367,9 +375,11 @@ class Oct2Py(object):
         -----
         The deprecated `temp_dir` kwarg will be ignored in favor of the
         instance-level `temp_dir`.
-        The deprecated `log` kwarg will be treated as `verbose=False`.
+        The deprecated `log` kwarg will be ignored.
         The deprecated `return_both` kwarg will still work, but the preferred
-        method is to use the `stream_handler`.
+        method is to use the `stream_handler`.  If `stream_handler` is given,
+        the `return_both` kwarg will be honored but will give an empty string
+        as the reponse.
 
         Raises
         ------
@@ -379,17 +389,31 @@ class Oct2Py(object):
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
-        # TODO: handle plot settings, and deprecated kwargs'
+        for name in ['log', 'return_both', 'temp_dir']:
+            if name not in kwargs:
+                continue
+            msg = 'Using deprecated `%s` kwarg, see docs on `eval()`' % name
+            warnings.warn(msg)
+
+        return_both = kwargs.pop('return_both', False)
+        lines = []
+        if return_both and not stream_handler:
+            stream_handler = lines.append
 
         ans = None
         for cmd in cmds:
             resp = self.feval('evalin', 'base', cmd,
                               nout=0, timeout=timeout,
                               stream_handler=stream_handler,
-                              verbose=verbose)
+                              verbose=verbose, plot_dir=plot_dir,
+                              plot_name=plot_name, plot_format=plot_format,
+                              plot_width=plot_width, plot_height=plot_height,
+                              plot_res=plot_res)
             if resp is not None:
                 ans = resp
 
+        if return_both:
+            return '\n'.join(lines), ans
         return ans
 
     def restart(self):
@@ -410,8 +434,8 @@ class Oct2Py(object):
         here = os.path.realpath(os.path.dirname(__file__))
         self._engine.eval('addpath("%s");' % here.replace(os.path.sep, '/'))
 
-    def _feval(self, func_name, *func_args, dname='', nout=0, verbose=True,
-              timeout=None, stream_handler=None, store_as=''):
+    def _feval(self, func_name, *func_args, dname='', nout=0,
+              timeout=None, stream_handler=None, store_as='', plot_dir=None):
         """Run the given function with the given args.
         """
         engine = self._engine
@@ -443,20 +467,19 @@ class Oct2Py(object):
 
         # Set up the engine and evaluate the `_pyeval()` function.
 
-        # TODO: handle stream handler
         engine.stream_handler = stream_handler or self.logger.info
 
         try:
             engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
                         timeout=timeout)
         except KeyboardInterrupt as e:
-            self.logger.info(engine.repl.interrupt())
+            stream_handler(engine.repl.interrupt())
             raise
         except TIMEOUT:
-            self.logger.info(engine.repl.interrupt())
+            stream_handler(engine.repl.interrupt())
             raise Oct2PyError('Timed out, interrupting')
         except EOF:
-            self.logger.info(engine.repl.child.before)
+            stream_handler(engine.repl.child.before)
             self.restart()
             raise Oct2PyError('Session died, restarting')
 
@@ -474,7 +497,9 @@ class Oct2Py(object):
             if isinstance(result, list) and result == ['__no_value__']:
                 result = None
 
-        #TODO: handle return_both with a logger
+        if plot_dir:
+            self._engine.make_figures(plot_dir)
+
         return result
 
     def _parse_error(self, err):

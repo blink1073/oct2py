@@ -260,7 +260,6 @@ class OctaveMagics(Magics):
             self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
             value = self._oct.eval(code, stream_handler=self._publish)
         except oct2py.Oct2PyError as exception:
-            # TODO
             raise OctaveMagicError(str(exception))
 
         # Publish output
