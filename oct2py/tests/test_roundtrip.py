@@ -154,6 +154,10 @@ class RoundtripTest(test.TestCase):
             func = 'isequaln'
         except Oct2PyError:
             func = 'isequalwithequalnans'
+        for key in self.data.keys():
+            if key not in ['struct_array', 'num', 'mixed']:
+                cmd = '{0}(x.{1},y.{1})'.format(func, key)
+                assert self.oc.eval(cmd), key
         self.oc.convert_to_float = False
         self.oc.push('y', self.data)
         cmd = '%s(x.num,y.num)' % func
@@ -198,8 +202,6 @@ class BuiltinsTest(test.TestCase):
                     break
         if not expected_type:
             expected_type = np.ndarray
-        if isinstance(outgoing, tuple):
-            outgoing = list(outgoing)
         try:
             self.assertEqual(incoming, outgoing)
         except ValueError:
@@ -213,7 +215,7 @@ class BuiltinsTest(test.TestCase):
         """
         test = dict(x='spam', y=[1, 2, 3])
         incoming = self.oc.roundtrip(test)
-        incoming['x'] = incoming['x'][0]
+        #incoming = dict(incoming)
         for key in incoming:
             self.helper(test[key], incoming[key])
 
@@ -222,7 +224,7 @@ class BuiltinsTest(test.TestCase):
         """
         test = dict(x=dict(y=1e3, z=[1, 2]), y='spam')
         incoming = self.oc.roundtrip(test)
-        incoming['y'] = incoming['y'][0]
+        incoming = dict(incoming)
         for key in test:
             if isinstance(test[key], dict):
                 for subkey in test[key]:
@@ -236,13 +238,13 @@ class BuiltinsTest(test.TestCase):
         test = set((1, 2, 3, 3))
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
-        self.assertEqual(type(incoming), list)
+        self.assertEqual(type(incoming), np.ndarray)
 
     def test_tuple(self):
         """Test python tuple type
         """
         test = tuple((1, 2, 3))
-        self.helper(test, expected_type=list)
+        self.helper(test, expected_type=np.ndarray)
 
     def test_list(self):
         """Test python list type

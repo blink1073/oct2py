@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 import os
 import logging
 import pickle
+import tempfile
 
 from IPython.display import Image, SVG
 import numpy as np
@@ -58,6 +59,7 @@ class BasicUsageTest(test.TestCase):
         spam, eggs = self.oc.pull(['spam', 'eggs'])
         self.assertEqual(spam, 'foo')
         assert np.allclose(eggs, np.array([[1, 2, 3, 4]]))
+        self.assertRaises(Oct2PyError, self.oc.push, '_spam', 1)
 
     def test_help(self):
         """Testing help command
@@ -68,11 +70,12 @@ class BasicUsageTest(test.TestCase):
     def test_dynamic(self):
         """Test the creation of a dynamic function
         """
-        tests = ['zeros', 'ones', 'plot']
-        for name in tests:
-            item = getattr(self.oc, name)
-            expected = "<class 'oct2py.dynamic.%s'>" % name
-            self.assertEqual(repr(type(item)), expected)
+        tests = [self.oc.zeros, self.oc.ones, self.oc.plot]
+        for item in tests:
+            try:
+                self.assertEqual(repr(type(item)), "<type 'method'>")
+            except AssertionError:
+                self.assertEqual(repr(type(item)), "<class 'method'>")
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'aaldkfasd')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, '_foo')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'foo\W')
@@ -121,31 +124,32 @@ class BasicUsageTest(test.TestCase):
         a = self.oc.pull('a')
         self.assertEqual(a, 1)
 
-    def test_make_figures(self):
+    def test_extract_figures(self):
+        plot_dir = tempfile.mkdtemp().replace('\\', '/')
         code = """
         plot([1,2,3])
         figure
         temp=rand(100,100);
         imshow(temp)
         """
-        self.oc.eval(code)
-        files = self.oc.make_figures()
+        self.oc.eval(code, plot_dir=plot_dir)
+        files = self.oc.extract_figures(plot_dir)
         assert len(files) == 2
         assert isinstance(files[0], SVG)
         assert isinstance(files[1], Image)
 
     def test_quit(self):
-        self.oc.eval('a=1')
         self.assertRaises(Oct2PyError, self.oc.eval, 'quit')
-        self.assertRaises(Oct2PyError, self.oc.eval, 'a')
+        self.assertRaises(Oct2PyError, self.oc.eval, 'a=1')
 
     def test_octave_error(self):
         self.assertRaises(Oct2PyError, self.oc.eval, 'a = ones2(1)')
 
     def test_keyword_arguments(self):
         self.oc.set(0, DefaultFigureColor='b')
-        self.oc.plot([1, 2, 3], linewidth=3)
-        assert self.oc.make_figures()
+        plot_dir = tempfile.mkdtemp().replace('\\', '/')
+        self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
+        assert self.oc.extract_figures(plot_dir)
 
     def test_octave_class(self):
         polynomial = self.oc.polynomial
@@ -155,8 +159,11 @@ class BasicUsageTest(test.TestCase):
         p1 = polynomial([0, 1, 2])
         sobj = StringIO()
         hdlr = logging.StreamHandler(sobj)
+        hdlr.setLevel(logging.DEBUG)
         self.oc.logger.addHandler(hdlr)
-        p1.display()
+        self.oc.logger.setLevel(logging.DEBUG)
+        p1.display(verbose=True)
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
+        assert str(id(p1)) in text
         assert 'X + 2 * X ^ 2' in text

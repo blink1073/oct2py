@@ -60,8 +60,8 @@ class NumpyTest(test.TestCase):
                 except TypeError:  # pragma: no cover
                     outgoing += np.random.rand(*size).astype(outgoing.dtype)
                 if typecode in ['U', 'S']:
-                    outgoing = [[['spam', 'eggs', 'ham'], ['spam', 'eggs', 'ham']],
-                                [['spam', 'eggs', 'ham'], ['spam', 'eggs', 'ham']]]
+                    outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
+                                [['spam', 'eggs'], ['spam', 'eggs']]]
                     outgoing = np.array(outgoing).astype(typecode)
                 else:
                     try:
@@ -81,10 +81,7 @@ class NumpyTest(test.TestCase):
                     outgoing = outgoing.squeeze()
                 elif incoming.size == 1:
                     incoming = incoming.squeeze()
-                if typecode in 'O':
-                    incoming = incoming.squeeze()
-                    outgoing = outgoing.squeeze()
-                assert incoming.shape == outgoing.shape, (outgoing, incoming, outgoing.shape, incoming.shape)
+                assert incoming.shape == outgoing.shape
                 if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
                     outgoing = outgoing.astype(np.uint64)
                 try:
@@ -100,14 +97,13 @@ class NumpyTest(test.TestCase):
     def test_sparse(self):
         '''Test roundtrip sparse matrices
         '''
-        import numpy as np
         from scipy.sparse import csr_matrix, identity
         rand = np.random.rand(100, 100)
         rand = csr_matrix(rand)
         iden = identity(1000)
         for item in [rand, iden]:
             incoming, type_ = self.oc.roundtrip(item)
-            assert item.shape == incoming.shape, (item.shape, incoming.shape)
+            assert item.shape == incoming.shape
             assert item.nnz == incoming.nnz
             assert np.allclose(item.todense(), incoming.todense())
             assert item.dtype == incoming.dtype

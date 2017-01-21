@@ -1,10 +1,12 @@
 from __future__ import absolute_import, print_function
-
+import glob
 import logging
 import os
 import shutil
 import sys
 import tempfile
+import threading
+import time
 
 try:
     import thread
@@ -45,8 +47,7 @@ class MiscTests(test.TestCase):
         '''Make sure a singleton sparse matrix works'''
         import scipy.sparse
         data = scipy.sparse.csc.csc_matrix(1)
-        self.oc.push('x', data.astype(float))
-        print(self.oc.pull('x'))
+        self.oc.push('x', data)
         assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
         self.oc.push('y', [data])
         assert np.allclose(data.toarray(), self.oc.pull('y').toarray())
@@ -62,16 +63,17 @@ class MiscTests(test.TestCase):
         self.oc.logger.addHandler(hdlr)
 
         # generate some messages (logged and not logged)
-        self.oc.disp('hi', verbose=False)
+        self.oc.ones(1, verbose=True)
 
         self.oc.logger.setLevel(logging.DEBUG)
-        self.oc.disp('ho', verbose=False)
+        self.oc.zeros(1)
 
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'ho' in resp
-        assert 'hi' not in resp
+        assert 'zeros(A__)' in resp
+        print(resp)
+        assert 'load ' in resp
 
         # now make an object with a desired logger
         logger = oct2py.get_log('test')
@@ -80,15 +82,15 @@ class MiscTests(test.TestCase):
         logger.setLevel(logging.INFO)
         with Oct2Py(logger=logger) as oc2:
             # generate some messages (logged and not logged)
-            oc2.disp('hi', verbose=False)
+            oc2.ones(1, verbose=True)
             oc2.logger.setLevel(logging.DEBUG)
-            oc2.disp('ho', verbose=False)
+            oc2.zeros(1)
 
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'hi' not in resp
-        assert 'ho' in resp
+        assert 'zeros(A__)' in resp
+        assert 'load ' in resp
 
     def test_demo(self):
         from oct2py import demo
@@ -112,8 +114,10 @@ class MiscTests(test.TestCase):
             speed_check.speed_check()
 
     def test_plot(self):
-        self.oc.plot([1, 2, 3])
-        assert self.oc.make_figures()
+        plot_dir = tempfile.mkdtemp().replace('\\', '/')
+        self.oc.plot([1, 2, 3], plot_dir=plot_dir)
+        assert glob.glob("%s/*" % plot_dir)
+        assert self.oc.extract_figures(plot_dir)
 
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
@@ -171,7 +175,7 @@ class MiscTests(test.TestCase):
         with Oct2Py() as oc:
             oc.addpath(os.path.dirname(__file__))
             DATA = oc.test_datatypes()
-        assert DATA.string.basic == ['spam']
+        assert DATA.string.basic == 'spam'
 
     def test_long_variable_name(self):
         name = 'this_variable_name_is_over_32_char'
@@ -197,17 +201,16 @@ class MiscTests(test.TestCase):
     def test_temp_dir(self):
         temp_dir = tempfile.mkdtemp()
         oc = Oct2Py(temp_dir=temp_dir)
-        shutil.rmtree(temp_dir, ignore_errors=True)
-        temp_dir = tempfile.mkdtemp()
-        oc.temp_dir = temp_dir
+        oc._reader.create_file(oc.temp_dir)
+        oc._writer.create_file(oc.temp_dir, [])
+        assert oc._reader.out_file.startswith(temp_dir)
+        assert oc._writer.in_file.startswith(temp_dir)
         shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
 
     def test_clear(self):
-        """Test handling of clear"""
-        test.assert_raises(Oct2PyError, self.oc.__getattr__, 'clear')
-        test.assert_raises(Oct2PyError, self.oc.feval, 'clear')
-        self.oc.eval('clear')
+        """Make sure clearing variables does not mess anything up."""
+        self.oc.clear()
 
     def test_multiline_statement(self):
         sobj = StringIO()
@@ -232,12 +235,12 @@ class MiscTests(test.TestCase):
 
     def test_empty_values(self):
         self.oc.push('a', '')
-        assert self.oc.pull('a') == [], self.oc.pull('a')
+        assert self.oc.pull('a') == ''
 
         self.oc.push('a', [])
-        assert self.oc.pull('a').size == 0
+        assert self.oc.pull('a') == []
 
         self.oc.push('a', None)
         assert np.isnan(self.oc.pull('a'))
 
-        assert self.oc.struct() is None
+        assert self.oc.struct() == [None]

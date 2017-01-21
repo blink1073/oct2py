@@ -26,14 +26,6 @@ from .dynamic import (
 
 
 # TODO:
-#       fix interrupt handling and release metakernel and octave kernel - done
-#       add tracebacks (see note on phone) -done
-#       update the magic error handling - done
-#       update the magic stream handling -done
-#       make the plot_ commands work and reinstate extract_images - done
-#       we should always be sending and receiving a tuple for arguments
-#           handle whether it is a single or multiple value at the
-#           _feval level -done
 #       revert to the original test suite and get those tests to pass.
 #       add tests for:
 #            get_pointer - variable, function, class, object instance
