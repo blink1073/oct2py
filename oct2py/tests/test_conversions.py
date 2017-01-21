@@ -17,7 +17,7 @@ TYPE_CONVERSIONS = [
     (complex, 'double', np.complex128),
     (str, 'char', unicode),
     (unicode, 'cell', unicode),
-    (bool, 'int8', np.int8),
+    (bool, 'logical', np.bool),
     (None, 'double', np.float64),
     (dict, 'struct', Struct),
     (np.int8, 'int8', np.int8),

@@ -7,9 +7,9 @@
 language: python
 
 env:
-    - CONDA="python=2.7 numpy=1.7"
-    - CONDA="python=3.5 numpy"
-    - CONDA="python=3.6 numpy"
+    - CONDA="python=2.7 numpy>=1.11 scipy=0.17.0"
+    - CONDA="python=3.5 scipy"
+    - CONDA="python=3.6 scipy"
 
 before_install:
   - sudo apt-add-repository -y ppa:picaso/octave;
@@ -22,7 +22,7 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - travis_retry conda create -n test $CONDA jupyter nose scipy pip
+  - travis_retry conda create -n test $CONDA jupyter nose pip
   - source activate test
   - travis_retry pip install coveralls
 

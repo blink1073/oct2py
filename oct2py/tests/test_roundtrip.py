@@ -17,7 +17,7 @@ TYPE_CONVERSIONS = [
     (complex, 'double', np.complex128),
     (str, 'char', unicode),
     (unicode, 'cell', unicode),
-    (bool, 'int8', np.int8),
+    (bool, 'bool', np.bool),
     (None, 'double', np.float64),
     (dict, 'struct', Struct),
     (np.int8, 'int8', np.int8),
@@ -294,11 +294,11 @@ class BuiltinsTest(test.TestCase):
         for t in tests:
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('float64'))
+            self.assertEqual(incoming.dtype, np.dtype('uint8'))
             self.oc.convert_to_float = False
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('int8'))
+            self.assertEqual(incoming.dtype, np.dtype('uint8'))
             self.oc.convert_to_float = True
 
     def test_none(self):

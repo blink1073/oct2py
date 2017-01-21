@@ -84,8 +84,6 @@ class Writer(object):
             raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
         elif 'V' in dstr and not hasattr(data, 'classname'):
             raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-        elif dstr == '|b1':
-            data = data.astype(np.int8)
         elif dstr == '<m8[us]' or dstr == '<M8[us]':
             data = data.astype(np.uint64)
         elif '|S' in dstr or '<U' in dstr:
@@ -94,7 +92,7 @@ class Writer(object):
             data.imag = 1e-9
         if data.dtype.name in ['float128', 'complex256']:
             raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-        if self.convert_to_float and data.dtype.kind in 'uib':
+        if self.convert_to_float and data.dtype.kind in 'ui':
             data = data.astype(float)
 
         return data
