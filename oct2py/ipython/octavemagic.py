@@ -40,6 +40,7 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #-----------------------------------------------------------------------------
 
 import os
+import tempfile
 
 import oct2py
 
@@ -249,18 +250,14 @@ class OctaveMagics(Magics):
         if args.size is not None:
             width, height = [int(s) for s in args.size.split(',')]
 
-        backend = 'gnuplot' if args.gui else 'inline'
+        plot_dir = None if args.gui else tempfile.mkdtemp()
 
-        self._oct.set_plot_settings(width=width, height=height,
-            format=args.format, name='__ipy_oct_fig_',
-            resolution=args.resolution, backend=backend)
-
-        try:
-            # match current working directory
-            self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
-            value = self._oct.eval(code, stream_handler=self._publish)
-        except oct2py.Oct2PyError as exception:
-            raise OctaveMagicError(str(exception))
+        # match current working directory
+        self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
+        value = self._oct.eval(code, stream_handler=self._publish,
+            plot_dir=plot_dir, plot_width=width,
+            plot_format=args.format, plot_name='__ipy_oct_fig_',
+            resolution=args.resolution)
 
         # Publish output
         if args.output:
@@ -269,9 +266,8 @@ class OctaveMagics(Magics):
                 self.shell.push({output: self._oct.pull(output)})
 
         # Publish images
-        if not args.gui:
-            plot_dir = self._oct.make_figures()
-            for img in self._oct.extract_figures(plot_dir):
+        if plot_dir:
+            for img in self._oct.extract_figures(plot_dir, True):
                 self._display(img)
 
         if return_output:

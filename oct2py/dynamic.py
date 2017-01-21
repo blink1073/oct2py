@@ -63,30 +63,25 @@ class OctaveFunctionPtr(OctavePtr):
         return '@%s' % self._name
 
     def __call__(self, *inputs, **kwargs):
-        # Extract valid keyword arguments.
+        # Check for allowed keyword arguments
         nout = kwargs.pop('nout', get_nout())
-        stream_handler = kwargs.pop('stream_handler', None)
-        store_as = kwargs.pop('store_as', None)
-        timeout = kwargs.pop('timeout', None)
+        allowed = ['verbose', 'store_as', 'timeout', 'stream_handler',
+                   'plot_dir', 'plot_name', 'plot_format', 'plot_width',
+                   'plot_height', 'plot_res']
 
-        plot_warn = False
-        for arg in ['plot_dir', 'plot_format', 'plot_name', 'plot_width',
-                    'plot_height']:
-            if arg in kwargs:
-                plot_warn = True
-                kwargs.pop(arg)
-        if plot_warn:
-            warnings.warn('Ignoring deprecated `plot_*` keyword args.')
+        extras = {}
+        for (key, value) in kwargs.items():
+            if key not in allowed:
+                extras[key] = kwargs.pop(key)
 
-        if kwargs:
+        if extras:
             warnings.warn('Key - value pairs are deprecated, use `func_args`')
 
-        inputs += tuple(item for pair in zip(kwargs.keys(), kwargs.values())
+        inputs += tuple(item for pair in zip(extras.keys(), extras.values())
                         for item in pair)
 
         return self._ref().feval(self._name, *inputs,
-            nout=nout, stream_handler=stream_handler,
-            store_as=store_as, timeout=timeout)
+            nout=nout, **kwargs)
 
     def __repr__(self):
         return '"%s" Octave function' % self._name

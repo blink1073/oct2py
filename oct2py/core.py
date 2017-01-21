@@ -14,7 +14,7 @@ import warnings
 
 import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
-from octave_kernel.kernel import OctaveEngine
+from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
 from .matwrite import Writer
 from .matread import Reader
@@ -420,7 +420,7 @@ class Oct2Py(object):
         if 'OCTAVE_EXECUTABLE' not in os.environ and 'OCTAVE' in os.environ:
             os.environ['OCTAVE_EXECUTABLE'] = os.environ['OCTAVE']
 
-        self._engine = OctaveEngine(stdin_handler=input)
+        self._engine = OctaveEngine(stdin_handler=self._handle_stdin)
 
         # Add local Octave scripts.
         here = os.path.realpath(os.path.dirname(__file__))
@@ -511,6 +511,10 @@ class Oct2Py(object):
             errmsg += '\nerror:   %(name)s at %(line)d' % item
             if 'column' in item:
                 errmsg += ', column %(column)s' % item
+
+    def _handle_stdin(self, line):
+        """Handle a stdin request from the session."""
+        return input(line.replace(STDIN_PROMPT, ''))
 
     def _get_doc(self, name):
         """
