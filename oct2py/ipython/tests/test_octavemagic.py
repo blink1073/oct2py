@@ -8,6 +8,7 @@ from IPython.testing.globalipapp import get_ipython
 try:
     import numpy.testing as npt
     from oct2py.ipython import octavemagic
+    from oct2py import Oct2PyError
 except Exception:  # pragma: no cover
     __test__ = False
 
@@ -69,9 +70,9 @@ class OctaveMagicTest(unittest.TestCase):
     def test_octave_syntax_error(self):
         try:
             self.ip.run_cell_magic('octave', '', "a='1")
-        except octavemagic.OctaveMagicError:
+        except Oct2PyError:
             self.ip.magic('reload_ext oct2py.ipython')
 
     def test_octave_error(self):
-        npt.assert_raises(octavemagic.OctaveMagicError, self.ip.run_cell_magic,
+        npt.assert_raises(Oct2PyError, self.ip.run_cell_magic,
                           'octave', '', 'a = ones2(1)')

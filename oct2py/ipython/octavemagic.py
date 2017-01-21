@@ -55,10 +55,6 @@ from IPython.utils.py3compat import unicode_to_str
 from IPython.utils.text import dedent
 
 
-class OctaveMagicError(oct2py.Oct2PyError):
-    pass
-
-
 @magics_class
 class OctaveMagics(Magics):
 
@@ -255,7 +251,7 @@ class OctaveMagics(Magics):
         # match current working directory
         self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
         value = self._oct.eval(code, stream_handler=self._publish,
-            plot_dir=plot_dir, plot_width=width,
+            plot_dir=plot_dir, plot_width=width, plot_height=height,
             plot_format=args.format, plot_name='__ipy_oct_fig_',
             resolution=args.resolution)
 
