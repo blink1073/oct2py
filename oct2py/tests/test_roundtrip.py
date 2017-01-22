@@ -155,14 +155,10 @@ class RoundtripTest(test.TestCase):
         except Oct2PyError:
             func = 'isequalwithequalnans'
         for key in self.data.keys():
-            if key not in ['struct_array', 'num', 'mixed']:
+            if key not in ['nested', 'cell', 'sparse', 'struct_array',
+                           'struct_vector', 'object', 'string']:
                 cmd = '{0}(x.{1},y.{1})'.format(func, key)
                 assert self.oc.eval(cmd), key
-        self.oc.convert_to_float = False
-        self.oc.push('y', self.data)
-        cmd = '%s(x.num,y.num)' % func
-        assert self.oc.eval(cmd), cmd
-        self.oc.convert_to_float = True
 
 
 class BuiltinsTest(test.TestCase):

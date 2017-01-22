@@ -43,26 +43,26 @@ class Writer(object):
         if data is None:
             return np.NaN
 
-        # See if it should be an array, otherwise treat is as a tuple.
-        if isinstance(data, list):
-            try:
-                test = np.array(data)
-                if test.dtype.kind in 'uicf':
-                    return self._encode(test)
-            except Exception:
-                pass
-            return self._encode(tuple(data))
-
-        # Make a cell or a cell array.
-        if isinstance(data, (tuple, set)):
+        # Handle list-like types.
+        if isinstance(data, (tuple, set, list)):
             data = [self._encode(o) for o in data]
-            # Use a trick to force a cell.
+
+            # Items of len(1) are treated as a single cell.
             if len(data) == 1:
                 cell = np.zeros((1,), dtype=np.object)
                 cell[0] = data
                 return cell
-            # Cell array.
-            return np.array(data, dtype=object)
+
+            # Tuples and sets are always treated like cell arrays.
+            if isinstance(data, (tuple, set)):
+                return np.array(data, dtype=object)
+
+            # For lists, convert to a matrix if possible, falling back
+            # on a cell array.
+            try:
+                return self._encode(np.asanyarray(data))
+            except ValueError:
+                return np.array(data, dtype=object)
 
         # Convert sparse matrices to ndarrays.
         if isinstance(data, (csr_matrix, csc_matrix)):
