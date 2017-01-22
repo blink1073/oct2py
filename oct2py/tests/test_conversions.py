@@ -18,7 +18,7 @@ TYPE_CONVERSIONS = [
     (str, 'char', unicode),
     (unicode, 'cell', unicode),
     (bool, 'logical', np.bool),
-    (None, 'double', np.float64),
+    (None, 'double', np.nan),
     (dict, 'struct', Struct),
     (np.int8, 'int8', np.int8),
     (np.int16, 'int16', np.int16),
@@ -73,7 +73,7 @@ class ConversionTest(test.TestCase):
         for key, type_ in zip(keys, types):
             if not type(base[key]) == type_:
                 try:
-                    assert type_(base[key]) == base[key]
+                    assert type_(base[key]) == base[key], key
                 except ValueError:
                     assert np.allclose(type_(base[key]), base[key])
 
@@ -98,7 +98,7 @@ class ConversionTest(test.TestCase):
     def test_misc_num(self):
         """Test incoming misc numeric types
         """
-        keys = ['inf', 'NaN', 'matrix', 'vector', 'column_vector', 'matrix3d',
+        keys = ['inf', 'matrix', 'vector', 'column_vector', 'matrix3d',
                 'matrix5d']
         types = [np.float64, np.float64, np.ndarray, np.ndarray, np.ndarray,
                  np.ndarray, np.ndarray]
@@ -112,9 +112,10 @@ class ConversionTest(test.TestCase):
     def test_string(self):
         """Test incoming string types
         """
-        keys = ['basic', 'char_array', 'cell_array']
-        types = [unicode, list, list]
+        keys = ['basic', 'cell', 'cell_array']
+        types = [str, list, list]
         self.helper(self.data.string, keys, types)
+        assert self.data.string.char_array.shape == (3,)
 
     def test_struct_array(self):
         ''' Test incoming struct array types '''
@@ -122,18 +123,12 @@ class ConversionTest(test.TestCase):
         types = [list, list]
         self.helper(self.data.struct_array, keys, types)
 
-    def test_cell_array(self):
-        ''' Test incoming cell array types '''
-        keys = ['vector', 'matrix']
-        types = [list, list]
+    def test_cells(self):
+        ''' Test incoming cell types '''
+        keys = ['vector', 'matrix', 'scalar', 'string', 'string_array',
+                'empty', 'array']
+        types = [list for i in range(len(keys))]
         self.helper(self.data.cell, keys, types)
-
-    def test_mixed_struct(self):
-        '''Test mixed struct type
-        '''
-        keys = ['array', 'cell', 'scalar']
-        types = [list, list, float]
-        self.helper(self.data.mixed, keys, types)
 
     def test_python_conversions(self):
         """Test roundtrip python type conversions
@@ -158,6 +153,10 @@ class ConversionTest(test.TestCase):
             else:
                 assert (octave_type == oct_type or
                         (octave_type == 'double' and self.oc.convert_to_float))
+            if out_type is None:
+                assert np.isnan(incoming)
+                return
+
             if type(incoming) != in_type:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
