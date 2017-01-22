@@ -128,7 +128,7 @@ class Oct2Py(object):
         >>> y = [1, 2]
         >>> octave.push('y', y)
         >>> octave.pull('y')
-        array([[1, 2]])
+        array([[ 1.,  2.]])
         >>> octave.push(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.pull(['x', 'y'])  # doctest: +SKIP
         [u'spam', array([[1, 2, 3, 4]])]
@@ -175,7 +175,7 @@ class Oct2Py(object):
           >>> y = [1, 2]
           >>> octave.push('y', y)
           >>> octave.pull('y')
-          array([[1, 2]])
+          array([[ 1.,  2.]])
           >>> octave.push(['x', 'y'], ['spam', [1, 2, 3, 4]])
           >>> octave.pull(['x', 'y'])  # doctest: +SKIP
           [u'spam', array([[1, 2, 3, 4]])]
