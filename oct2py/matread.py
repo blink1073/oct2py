@@ -22,6 +22,8 @@ class Reader(object):
         self.session = session
 
     def read_file(self, path):
+        """Read the data from the given file path.
+        """
         try:
             data = loadmat(path, struct_as_record=True)
         except UnicodeDecodeError as e:

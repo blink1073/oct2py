@@ -26,6 +26,7 @@ from .dynamic import (
 
 
 # TODO:
+#       why are objects not making the round trip?
 #       revert to the original test suite and get those tests to pass.
 #       add tests for:
 #            get_pointer - variable, function, class, object instance

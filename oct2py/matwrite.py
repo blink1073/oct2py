@@ -9,10 +9,7 @@
 from __future__ import absolute_import, print_function, division
 
 from scipy.io import savemat
-from scipy.sparse import csr_matrix, csc_matrix
 import numpy as np
-
-from .utils import Oct2PyError
 
 
 class Writer(object):
@@ -36,8 +33,10 @@ class Writer(object):
 
         # Extract the values from dict and Struct objects.
         if isinstance(data, dict):
+            out = dict()
             for (key, value) in data.items():
-                data[key] = self._encode(value)
+                out[key] = self._encode(value)
+            return out
 
         # Send None as nan.
         if data is None:
@@ -45,54 +44,46 @@ class Writer(object):
 
         # Handle list-like types.
         if isinstance(data, (tuple, set, list)):
+            is_tuple = isinstance(data, tuple)
             data = [self._encode(o) for o in data]
 
-            # Items of len(1) are treated as a single cell.
-            if len(data) == 1:
-                cell = np.zeros((1,), dtype=np.object)
-                cell[0] = data
-                return cell
+            if not is_tuple:
+                # Convert to a numeric array if possible.
+                try:
+                    return self._handle_list(data)
+                except ValueError:
+                    pass
 
-            # Tuples and sets are always treated like cell arrays.
-            if isinstance(data, (tuple, set)):
-                return np.array(data, dtype=object)
+            # Create a cell object.
+            return np.array((data,), dtype=np.object)
 
-            # For lists, convert to a matrix if possible, falling back
-            # on a cell array.
-            try:
-                return self._encode(np.asanyarray(data))
-            except ValueError:
-                return np.array(data, dtype=object)
+        # Return other data types unchanged.
+        if not isinstance(data, np.ndarray):
+            return data
 
-        # Convert sparse matrices to ndarrays.
-        if isinstance(data, (csr_matrix, csc_matrix)):
+        # Complex 128 is the highest supported by savemat.
+        if data.dtype.name == 'complex256':
+            return data.astype(np.complex128)
+
+        # Convert to float if applicable.
+        if self.convert_to_float and data.dtype.kind in 'ui':
             return data.astype(np.float64)
 
-        # Clean up nd arrays.
-        if isinstance(data, np.ndarray):
-            return self._clean_array(data)
-
-        # Leave all other content alone.
         return data
 
-    def _clean_array(self, data):
-        """Handle data type considerations."""
-        dstr = data.dtype.str
-        if 'c' in dstr and dstr[-2:] == '24':
-            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-        elif 'f' in dstr and dstr[-2:] == '12':
-            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-        elif 'V' in dstr and not hasattr(data, 'classname'):
-            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-        elif dstr == '<m8[us]' or dstr == '<M8[us]':
-            data = data.astype(np.uint64)
-        elif '|S' in dstr or '<U' in dstr:
-            data = data.astype(np.object)
-        elif '<c' in dstr and np.alltrue(data.imag == 0):
-            data.imag = 1e-9
-        if data.dtype.name in ['float128', 'complex256']:
-            raise Oct2PyError('Datatype not supported: {0}'.format(data.dtype))
-        if self.convert_to_float and data.dtype.kind in 'ui':
-            data = data.astype(float)
+    def _handle_list(self, data):
+        """Handle an encoded list."""
 
-        return data
+        # Convert to an array.
+        data = np.array(data)
+
+        # Only handle numeric types.
+        if data.dtype.kind not in 'uicf':
+            raise ValueError
+
+        # Use float for non-complex types.
+        if data.dtype.kind in 'ui':
+            data = data.astype(np.float64)
+
+        # Handle any other ndarray considerations.
+        return self._encode(data)
