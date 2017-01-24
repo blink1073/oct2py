@@ -179,6 +179,15 @@ class OctaveUserClass(OctavePtr):
         self._ref().push(self._name, value)
         return self
 
+    @classmethod
+    def to_value(cls, value):
+        out = dict()
+        if not isinstance(value, OctaveUserClass):
+            return out
+        for attr in value._attrs:
+            out[attr] = getattr(value, attr)
+        return out
+
 
 def _make_user_class(session, name):
     """Make an Octave class for a given class name"""
@@ -187,7 +196,7 @@ def _make_user_class(session, name):
     ref = weakref.ref(session)
 
     doc = _DocDescriptor(ref, name)
-    values = dict(__doc__=doc, _class_name=name, _ref=ref)
+    values = dict(__doc__=doc, _class_name=name, _ref=ref, _attrs=attrs)
 
     for method in methods:
         doc = _MethodDocDescriptor(ref, name, method)

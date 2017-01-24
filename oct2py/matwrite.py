@@ -1,5 +1,5 @@
 """
-.. module:: _h5write
+.. module:: matwrite
    :synopsis: Write Python values into an MAT file for Octave.
               Strives to preserve both value and type in transit.
 
@@ -10,6 +10,8 @@ from __future__ import absolute_import, print_function, division
 
 from scipy.io import savemat
 import numpy as np
+
+from .dynamic import OctaveVariablePtr, OctaveUserClass
 
 
 class Writer(object):
@@ -30,6 +32,14 @@ class Writer(object):
     def _encode(self, data):
         """Convert the Python values to values suitable to sent to Octave.
         """
+
+        # Extract the data from a variable pointer.
+        if isinstance(data, OctaveVariablePtr):
+            data = data.value
+
+        # Extract the data from a user defined object.
+        elif isinstance(data, OctaveUserClass):
+            data = OctaveUserClass.to_value(data)
 
         # Extract the values from dict and Struct objects.
         if isinstance(data, dict):
@@ -55,7 +65,10 @@ class Writer(object):
                     pass
 
             # Create a cell object.
-            return np.array((data,), dtype=np.object)
+            cell = np.empty((len(data),), dtype=object)
+            for i in range(len(data)):
+                cell[i] = data[i]
+            return cell
 
         # Return other data types unchanged.
         if not isinstance(data, np.ndarray):
@@ -80,10 +93,6 @@ class Writer(object):
         # Only handle numeric types.
         if data.dtype.kind not in 'uicf':
             raise ValueError
-
-        # Use float for non-complex types.
-        if data.dtype.kind in 'ui':
-            data = data.astype(np.float64)
 
         # Handle any other ndarray considerations.
         return self._encode(data)
