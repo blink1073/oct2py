@@ -196,7 +196,7 @@ class Oct2Py(object):
         for name in var:
             exist = self._exist(name)
             isobject = self._isobject(name, exist)
-            if exist == 1 and not isobject:
+            if exist == 1:
                 outputs.append(self.feval('evalin', 'base', name,
                                           timeout=timeout, verbose=verbose))
             else:
@@ -231,11 +231,6 @@ class Oct2Py(object):
 
         if exist == 0:
             raise Oct2PyError('"%s" is undefined' % name)
-
-        if exist == 1 and isobject:
-            class_name = self.eval('class(%s);' % name)
-            cls = self._get_user_class(class_name)
-            return cls.from_name(name)
 
         elif exist == 1:
             return _make_variable_ptr_instance(self, name)
@@ -455,7 +450,7 @@ class Oct2Py(object):
         for (i, value) in enumerate(func_args):
             if isinstance(value, OctavePtr):
                 ref_indices.append(i + 1)
-                func_args[i] = value._address
+                func_args[i] = value.address
         ref_indices = np.array(ref_indices)
 
         # Save the request data to the output file.

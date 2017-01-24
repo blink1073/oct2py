@@ -2,6 +2,9 @@ import types
 import warnings
 import weakref
 
+import numpy as np
+from scipy.io.matlab.mio5 import MatlabObject
+
 from oct2py.compat import PY2
 from oct2py.utils import get_nout
 
@@ -10,13 +13,13 @@ class OctavePtr(object):
     """A pointer to an Octave workspace value.
     """
 
-    def __init__(self, session_weakref, name):
+    def __init__(self, session_weakref):
         self._ref = session_weakref
         self.__module__ = 'oct2py.dynamic'
         self._name = name
 
     @property
-    def _address(self):
+    def address(self):
         return self._name
 
 
@@ -59,7 +62,7 @@ class OctaveFunctionPtr(OctavePtr):
         self.__name__ = name
 
     @property
-    def _address(self):
+    def address(self):
         return '@%s' % self._name
 
     def __call__(self, *inputs, **kwargs):
@@ -101,7 +104,7 @@ class OctaveUserClassAttr(OctavePtr):
             return
         # The set function returns a new struct, so we have to re-set it.
         instance._ref().feval('set', instance, self._name, value,
-                              store_as=instance._name)
+                              store_as=instance._address)
 
 
 class _MethodDocDescriptor(object):
@@ -150,23 +153,14 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
                                                   self._class_name)
 
 
-class OctaveUserClass(OctavePtr):
+class OctaveUserClass(object):
     """A wrapper for an Octave user class.
     """
 
     def __init__(self, *inputs, **kwargs):
         """Create a new instance with the user class constructor."""
-        name = '%s_%s' % (self._class_name, id(self))
-        OctavePtr.__init__(self, self._ref, name)
-        self._ref().feval(self._class_name, *inputs, store_as=name, **kwargs)
-
-    @classmethod
-    def from_name(cls, name):
-        """This is how an instance would be created from 'pull"' or
-            'get_pointer'"""
-        self = OctaveUserClass.__new__(cls)
-        OctavePtr.__init__(self, self._ref, name)
-        return self
+        addr = self._address = '%s_%s' % (self._name, id(self))
+        self._ref().feval(self._name, *inputs, store_as=addr, **kwargs)
 
     @classmethod
     def from_value(cls, value):
@@ -174,19 +168,25 @@ class OctaveUserClass(OctavePtr):
            MatlabObject from a MAT file.
         """
         self = OctaveUserClass.__new__(cls)
-        name = '%s_%s' % (self._class_name, id(self))
-        OctavePtr.__init__(self, self._ref, name)
-        self._ref().push(self._name, value)
+        self._address = '%s_%s' % (self._name, id(self))
+        self._ref().push(self._address, value)
         return self
 
     @classmethod
-    def to_value(cls, value):
-        out = dict()
-        if not isinstance(value, OctaveUserClass):
-            return out
-        for attr in value._attrs:
-            out[attr] = getattr(value, attr)
-        return out
+    def to_value(cls, instance):
+        """Convert to a value to send to Octave."""
+        if not isinstance(instance, OctaveUserClass) or not instance._attrs:
+            return dict()
+        # Bootstrap a MatlabObject from scipy.io
+        # From https://github.com/scipy/scipy/blob/93a0ea9e5d4aba1f661b6bb0e18f9c2d1fce436a/scipy/io/matlab/mio5.py#L435-L443
+        # and https://github.com/scipy/scipy/blob/93a0ea9e5d4aba1f661b6bb0e18f9c2d1fce436a/scipy/io/matlab/mio5_params.py#L224
+        dtype = []
+        values = []
+        for attr in instance._attrs:
+            dtype.append((attr, object))
+            values.append(getattr(instance, attr))
+        struct = np.array([tuple(values)], dtype)
+        return MatlabObject(struct, instance._class_name)
 
 
 def _make_user_class(session, name):
@@ -196,7 +196,8 @@ def _make_user_class(session, name):
     ref = weakref.ref(session)
 
     doc = _DocDescriptor(ref, name)
-    values = dict(__doc__=doc, _class_name=name, _ref=ref, _attrs=attrs)
+    values = dict(__doc__=doc, _name=name, _ref=ref, _attrs=attrs,
+                  __module__='oct2py.dynamic')
 
     for method in methods:
         doc = _MethodDocDescriptor(ref, name, method)
