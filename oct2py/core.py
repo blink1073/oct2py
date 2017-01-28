@@ -195,7 +195,6 @@ class Oct2Py(object):
         outputs = []
         for name in var:
             exist = self._exist(name)
-            isobject = self._isobject(name, exist)
             if exist == 1:
                 outputs.append(self.feval('evalin', 'base', name,
                                           timeout=timeout, verbose=verbose))
