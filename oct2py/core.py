@@ -14,10 +14,9 @@ import shutil
 import time
 import tempfile
 import types
-import weakref
 
 from metakernel.pexpect import TIMEOUT, EOF
-from octave_kernel.kernel import OctaveEngine
+from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
 from oct2py.matwrite import MatWrite
 from oct2py.matread import MatRead
@@ -579,7 +578,7 @@ class _Session(object):
             os.environ['OCTAVE_EXECUTABLE'] = executable
         if 'OCTAVE_EXECUTABLE' not in os.environ and 'OCTAVE' in os.environ:
             os.environ['OCTAVE_EXECUTABLE'] = os.environ['OCTAVE']
-        self.engine = OctaveEngine(stdin_handler=input)
+        self.engine = OctaveEngine(stdin_handler=self._handle_stdin)
         self.proc = self.engine.repl.child
         self.logger = logger or get_log()
         self._lines = []
@@ -692,6 +691,10 @@ class _Session(object):
     def _log_line(self, line):
         self._lines.append(line)
         self.logger.debug(line)
+
+    def _handle_stdin(self, line):
+        """Handle a stdin request from the session."""
+        return input(line.replace(STDIN_PROMPT, ''))
 
     def __del__(self):
         try:
