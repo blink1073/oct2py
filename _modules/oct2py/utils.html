@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.utils &#8212; Oct2Py 3.8.1 documentation</title>
+    <title>oct2py.utils &#8212; Oct2Py 3.9.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.8.1',
+        VERSION:     '3.9.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.8.1 documentation" href="../../index.html" />
+    <link rel="top" title="Oct2Py 3.9.0 documentation" href="../../index.html" />
     <link rel="up" title="oct2py" href="../oct2py.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +52,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.8.1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.9.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -135,7 +135,7 @@
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">dis</span>
 <span class="kn">from</span> <span class="nn">oct2py.compat</span> <span class="k">import</span> <span class="n">PY2</span>
-
+<span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="k">def</span> <span class="nf">get_nout</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -154,10 +154,16 @@
     <span class="c1"># nout is two frames back</span>
     <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span>
     <span class="n">bytecode</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_code</span>
-    <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">)):</span>
+        <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
     <span class="n">instruction</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">instruction</span>
     <span class="k">if</span> <span class="n">instruction</span> <span class="o">==</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;UNPACK_SEQUENCE&#39;</span><span class="p">]:</span>
-        <span class="n">howmany</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">)):</span>
+            <span class="n">howmany</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">howmany</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
         <span class="n">howmany</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">howmany</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">howmany</span>
         <span class="k">return</span> <span class="n">howmany</span>
     <span class="k">elif</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;POP_TOP&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;PRINT_EXPR&#39;</span><span class="p">]]:</span>
@@ -290,7 +296,7 @@
       
     </p>
     <p>
-        &copy; Copyright 2011 - 2016, Oct2Py contributors.<br/>
+        &copy; Copyright 2011 - 2017, Oct2Py contributors.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.<br/>
     </p>
   </div>
