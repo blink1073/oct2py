@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+3.9.0 (2017-01-28)
+++++++++++++++++++
+- Add support for Python 3.6 and Octave `input()` functions.
+
+
 3.8.0 (2016-12-25)
 ++++++++++++++++++
 - Add support for Octave class objects and clean up repr() and help()

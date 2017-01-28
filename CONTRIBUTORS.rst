@@ -33,3 +33,7 @@ Patches and Suggestions
 - @zimoun
 - Andrew Bolster @andrewbolster
 - @schlichtanders
+- Nicolas Mendoza
+- Jonathan Suever
+- Manuel Osdoba
+- Josue Ortega
