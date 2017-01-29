@@ -66,7 +66,7 @@ class OctaveFunctionPtr(OctavePtr):
 
     def __init__(self, session_weakref, name):
         address = '@%s' % name
-        super(session_weakref, self).__init__(session_weakref, name, address)
+        super(OctaveFunctionPtr, self).__init__(session_weakref, name, address)
 
     def __call__(self, *inputs, **kwargs):
         # Check for allowed keyword arguments
