@@ -210,7 +210,7 @@ class MiscTests(test.TestCase):
 
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""
-        self.oc.clear()
+        self.oc.eval('clear()')
 
     def test_multiline_statement(self):
         sobj = StringIO()

@@ -218,7 +218,7 @@ def _make_user_class(session, name):
         values[method] = method_cls(ref, method, name)
 
     for attr in attrs:
-        values[attr] = OctaveUserClassAttr(ref, attr)
+        values[attr] = OctaveUserClassAttr(ref, attr, attr)
 
     return type(name, (OctaveUserClass,), values)
 
