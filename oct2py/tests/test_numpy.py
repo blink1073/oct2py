@@ -4,8 +4,7 @@ import os
 import numpy as np
 import numpy.testing as test
 
-
-from oct2py import Oct2Py, Oct2PyError
+from oct2py import Oct2Py
 
 
 class NumpyTest(test.TestCase):

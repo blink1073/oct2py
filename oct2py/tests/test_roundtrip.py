@@ -28,7 +28,7 @@ TYPE_CONVERSIONS = [
     (np.uint16, 'uint16', np.uint16),
     (np.uint32, 'uint32', np.uint32),
     (np.uint64, 'uint64', np.uint64),
-    #(np.float16, 'double', np.float64),
+    (np.float16, 'double', np.float64),
     (np.float32, 'double', np.float64),
     (np.float64, 'double', np.float64),
     (np.str, 'char', np.unicode),
@@ -240,7 +240,9 @@ class BuiltinsTest(test.TestCase):
         """Test python tuple type
         """
         test = tuple((1, 2, 3))
-        self.helper(test, expected_type=np.ndarray)
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, list)
+        assert tuple(incoming) == test
 
     def test_list(self):
         """Test python list type
@@ -253,7 +255,8 @@ class BuiltinsTest(test.TestCase):
         """Test python list of tuples
         """
         test = [(1, 2), (1.5, 3.2)]
-        self.helper(test)
+        incoming = self.oc.roundtrip(test)
+        assert incoming == [[1, 2], [1.5, 3.2]]
 
     def test_numeric(self):
         """Test python numeric types
@@ -290,11 +293,9 @@ class BuiltinsTest(test.TestCase):
         for t in tests:
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('uint8'))
             self.oc.convert_to_float = False
             incoming = self.oc.roundtrip(t)
             self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('uint8'))
             self.oc.convert_to_float = True
 
     def test_none(self):

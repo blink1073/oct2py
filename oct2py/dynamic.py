@@ -194,7 +194,7 @@ class OctaveUserClass(object):
             dtype.append((attr, object))
             values.append(getattr(instance, attr))
         struct = np.array([tuple(values)], dtype)
-        return MatlabObject(struct, instance._class_name)
+        return MatlabObject(struct, instance._name)
 
     @classmethod
     def to_pointer(cls, instance):
