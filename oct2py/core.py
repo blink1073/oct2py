@@ -255,11 +255,7 @@ class Oct2Py(object):
         figures = self._engine.extract_figures(plot_dir, remove)
         return figures
 
-    def feval(self, func_path, *func_args, nout=None, verbose=True,
-              store_as=None, timeout=None, stream_handler=None,
-              plot_dir=None, plot_name='plot', plot_format='svg',
-              plot_width=None, plot_height=None,
-              plot_res=None):
+    def feval(self, func_path, *func_args, **kwargs):
         """Run a function in Octave and return the result.
 
         Parameters
@@ -302,15 +298,17 @@ class Oct2Py(object):
         if not self._engine:
             raise Oct2PyError('Session is not open')
 
+        nout = kwargs.get('nout')
         if nout is None:
             nout = get_nout() or 1
 
+        plot_dir = kwargs.get('plot_dir')
         settings = dict(backend='inline' if plot_dir else 'gnuplot',
-                        format=plot_format,
-                        name=plot_name,
-                        width=plot_width,
-                        height=plot_height,
-                        resolution=plot_res)
+                        format=kwargs.get('plot_format'),
+                        name=kwargs.get('plot_name'),
+                        width=kwargs.get('plot_width'),
+                        height=kwargs.get('plot_height'),
+                        resolution=kwargs.get('plot_res'))
         self._engine.plot_settings = settings
 
         dname = os.path.dirname(func_path)
@@ -323,10 +321,14 @@ class Oct2Py(object):
             raise Oct2PyError('Cannot use `clear` command directly, use' +
                               ' eval("clear(var1, var2)")')
 
+        stream_handler = kwargs.get('stream_handler')
+        verbose = kwargs.get('verbose', False)
+        store_as = kwargs.get('store_as', '')
+        timeout = kwargs.get('timeout', self.timeout)
         if not stream_handler:
             stream_handler = self.logger.info if verbose else self.logger.debug
 
-        return self._feval(func_name, *func_args, dname=dname, nout=nout,
+        return self._feval(func_name, func_args, dname=dname, nout=nout,
                           timeout=timeout, stream_handler=stream_handler,
                           store_as=store_as, plot_dir=plot_dir)
 
@@ -433,7 +435,7 @@ class Oct2Py(object):
         here = os.path.realpath(os.path.dirname(__file__))
         self._engine.eval('addpath("%s");' % here.replace(os.path.sep, '/'))
 
-    def _feval(self, func_name, *func_args, dname='', nout=0,
+    def _feval(self, func_name, func_args=(), dname='', nout=0,
               timeout=None, stream_handler=None, store_as='', plot_dir=None):
         """Run the given function with the given args.
         """
