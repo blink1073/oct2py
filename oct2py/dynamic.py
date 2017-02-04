@@ -236,4 +236,4 @@ def _make_function_ptr_instance(session, name):
 def _make_variable_ptr_instance(session, name):
     """Make a pointer instance for a given variable by name.
     """
-    return OctavePtr(weakref.ref(session), name, name)
+    return OctaveVariablePtr(weakref.ref(session), name, name)

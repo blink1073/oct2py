@@ -27,8 +27,6 @@ from .dynamic import (
 
 # TODO:
 #       add tests for:
-#            get_pointer - variable, function, class, object instance
-#            push and pull - object
 #            feval - store_as, variable ptr, function ptr, class ptr,
 #                    object instance ptr
 

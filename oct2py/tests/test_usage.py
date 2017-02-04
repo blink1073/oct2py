@@ -162,3 +162,31 @@ class BasicUsageTest(test.TestCase):
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
         assert 'X + 2 * X ^ 2' in text
+
+        self.oc.push('y', p0)
+        p2 = self.oc.pull('y')
+        assert np.allclose(p2.poly, [1, 2, 3])
+
+    def test_get_pointer(self):
+        self.oc.push('y', 1)
+        yptr = self.oc.get_pointer('y')
+        assert yptr.name == 'y'
+        assert yptr.value == 1
+        assert yptr.address == 'y'
+
+        onesptr = self.oc.get_pointer('ones')
+        assert onesptr.name == 'ones'
+        assert onesptr.address == '@ones'
+
+        self.oc.eval('p = polynomial([1,2,3])')
+        ppter = self.oc.get_pointer('p')
+        assert ppter.name == 'p'
+        assert ppter.address == 'p'
+        p = ppter.value
+        assert np.allclose(p.poly, [1, 2, 3])
+
+        clsptr = self.oc.get_pointer('polynomial')
+        value = clsptr([1, 2, 3])
+        assert np.allclose(value.poly, [1, 2, 3])
+
+        self.assertRaises(Oct2PyError, self.oc.get_pointer, 'foo')
