@@ -59,7 +59,6 @@ class BasicUsageTest(test.TestCase):
         spam, eggs = self.oc.pull(['spam', 'eggs'])
         self.assertEqual(spam, 'foo')
         assert np.allclose(eggs, np.array([[1, 2, 3, 4]]))
-        self.assertRaises(Oct2PyError, self.oc.push, '_spam', 1)
 
     def test_help(self):
         """Testing help command
@@ -72,10 +71,7 @@ class BasicUsageTest(test.TestCase):
         """
         tests = [self.oc.zeros, self.oc.ones, self.oc.plot]
         for item in tests:
-            try:
-                self.assertEqual(repr(type(item)), "<type 'method'>")
-            except AssertionError:
-                self.assertEqual(repr(type(item)), "<class 'method'>")
+            assert "class 'oct2py.dynamic" in repr(type(item))
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'aaldkfasd')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, '_foo')
         self.assertRaises(Oct2PyError, self.oc.__getattr__, 'foo\W')
@@ -140,7 +136,7 @@ class BasicUsageTest(test.TestCase):
 
     def test_quit(self):
         self.assertRaises(Oct2PyError, self.oc.eval, 'quit')
-        self.assertRaises(Oct2PyError, self.oc.eval, 'a=1')
+        self.oc.eval('a=1')
 
     def test_octave_error(self):
         self.assertRaises(Oct2PyError, self.oc.eval, 'a = ones2(1)')
@@ -165,5 +161,4 @@ class BasicUsageTest(test.TestCase):
         p1.display(verbose=True)
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
-        assert str(id(p1)) in text
         assert 'X + 2 * X ^ 2' in text

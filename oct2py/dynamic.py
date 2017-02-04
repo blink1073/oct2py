@@ -76,7 +76,7 @@ class OctaveFunctionPtr(OctavePtr):
                    'plot_height', 'plot_res']
 
         extras = {}
-        for (key, value) in kwargs.items():
+        for (key, value) in kwargs.copy().items():
             if key not in allowed:
                 extras[key] = kwargs.pop(key)
 
@@ -100,7 +100,8 @@ class OctaveUserClassAttr(OctavePtr):
     def __get__(self, instance, owner=None):
         if instance is None:
             return 'dynamic attribute'
-        return instance._ref().feval('get', instance, self.address)
+        pointer = OctaveUserClass.to_pointer(instance)
+        return instance._ref().feval('get', pointer, self.address)
 
     def __set__(self, instance, value):
         if instance is None:

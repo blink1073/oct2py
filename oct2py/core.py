@@ -299,6 +299,9 @@ class Oct2Py(object):
         -------
         The Python value(s) returned by the Octave function call.
         """
+        if not self._engine:
+            raise Oct2PyError('Session is not open')
+
         if nout is None:
             nout = get_nout() or 1
 
