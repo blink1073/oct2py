@@ -38,6 +38,16 @@ TYPE_CONVERSIONS = [
 ]
 
 
+def cleanupData(data):
+    """Convert lists to tuples for proper roundtrip"""
+    if isinstance(data, dict):
+        for (key, value) in data.items():
+            data[key] = cleanupData(value)
+    if isinstance(data, list):
+        data = tuple(cleanupData(d) for d in data)
+    return data
+
+
 class RoundtripTest(test.TestCase):
     """Test roundtrip value and type preservation between Python and Octave.
 
@@ -50,7 +60,8 @@ class RoundtripTest(test.TestCase):
     def setUpClass(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
-        cls.data = cls.oc.test_datatypes()
+        data = cls.oc.test_datatypes()
+        cls.data = cleanupData(data)
 
     @classmethod
     def tearDownClass(cls):
@@ -141,7 +152,6 @@ class RoundtripTest(test.TestCase):
         """
         for key in ['vector', 'matrix', 'array']:
             self.helper(self.data.cell[key])
-        #self.helper(DATA.cell['array'], np.ndarray)
 
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
@@ -154,11 +164,39 @@ class RoundtripTest(test.TestCase):
             func = 'isequaln'
         except Oct2PyError:
             func = 'isequalwithequalnans'
+
+        # Handle simple objects.
         for key in self.data.keys():
-            if key not in ['nested', 'cell', 'sparse', 'struct_array',
-                           'struct_vector', 'object', 'string']:
+            if key not in ['nested', 'sparse', 'struct_array', 'cell',
+                           'struct_vector', 'object']:
                 cmd = '{0}(x.{1},y.{1})'.format(func, key)
                 assert self.oc.eval(cmd), key
+                cmd = '{0}(x.nested.{1},y.nested.{1})'.format(func, key)
+                assert self.oc.eval(cmd), key
+
+        # Handle cell type.
+        for key in self.data['cell'].keys():
+            if key in ['matrix', 'empty', 'array']:
+                continue
+            cmd = '{0}(x.cell.{1},y.cell.{1})'.format(func, key)
+            assert self.oc.eval(cmd), key
+            cmd = '{0}(x.nested.cell.{1},y.nested.cell.{1})'.format(func, key)
+            assert self.oc.eval(cmd), key
+
+        # Handle object type.
+        cmd = '{0}(get(x.object, "poly"), get(y.object, "poly"))'
+        cmd = cmd.format(func, key)
+        assert self.oc.eval(cmd)
+
+        cmd = '{0}(get(x.nested.object, "poly"), get(y.nested.object, "poly"))'
+        cmd = cmd.format(func, key)
+        assert self.oc.eval(cmd)
+
+        # Handle sparse type.
+        cmd = '{0}(full(x.sparse), full(y.sparse))'.format(func)
+        assert self.oc.eval(cmd)
+        cmd = '{0}(full(x.nested.sparse), full(y.nested.sparse))'.format(func)
+        assert self.oc.eval(cmd)
 
 
 class BuiltinsTest(test.TestCase):
@@ -211,7 +249,6 @@ class BuiltinsTest(test.TestCase):
         """
         test = dict(x='spam', y=[1, 2, 3])
         incoming = self.oc.roundtrip(test)
-        #incoming = dict(incoming)
         for key in incoming:
             self.helper(test[key], incoming[key])
 

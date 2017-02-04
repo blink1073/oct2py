@@ -24,13 +24,16 @@ class NumpyTest(test.TestCase):
     def test_scalars(self):
         """Send scalar numpy types and make sure we get the same number back.
         """
-        for typecode in ['U']:
+        for typecode in self.codes:
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
             try:
                 outgoing = outgoing.astype(typecode)
             except TypeError:
                 continue
             incoming = self.oc.roundtrip(outgoing)
+            if typecode == 'U':
+                assert incoming.strip() == outgoing
+                continue
             try:
                 assert np.allclose(incoming, outgoing)
             except (ValueError, TypeError, NotImplementedError,
@@ -70,6 +73,8 @@ class NumpyTest(test.TestCase):
                     outgoing = outgoing.squeeze()
                 elif incoming.size == 1:
                     incoming = incoming.squeeze()
+                if typecode == 'O':
+                    outgoing = outgoing.squeeze()
                 assert incoming.shape == outgoing.shape
                 try:
                     assert np.allclose(incoming, outgoing)

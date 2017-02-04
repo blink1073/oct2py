@@ -28,7 +28,7 @@ TYPE_CONVERSIONS = [
     (np.uint16, 'uint16', np.uint16),
     (np.uint32, 'uint32', np.uint32),
     (np.uint64, 'uint64', np.uint64),
-    #(np.float16, 'double', np.float64),
+    (np.float16, 'double', np.float64),
     (np.float32, 'double', np.float64),
     (np.float64, 'double', np.float64),
     (np.str, 'char', np.unicode),

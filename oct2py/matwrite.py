@@ -79,10 +79,6 @@ class Writer(object):
         if not isinstance(data, np.ndarray):
             return data
 
-        # Convert string types to objects so the length is read properly.
-        if data.dtype.kind in 'US':
-            return data.astype(object)
-
         # Complex 128 is the highest supported by savemat.
         if data.dtype.name == 'complex256':
             return data.astype(np.complex128)
