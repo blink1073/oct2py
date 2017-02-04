@@ -12,8 +12,6 @@ class NumpyTest(test.TestCase):
     """Check value and type preservation of Numpy arrays
     """
     codes = np.typecodes['All']
-    blacklist_codes = 'V'
-    blacklist_names = ['float128', 'float96', 'complex192', 'complex256']
 
     @classmethod
     def setUpClass(cls):
@@ -27,19 +25,13 @@ class NumpyTest(test.TestCase):
     def test_scalars(self):
         """Send scalar numpy types and make sure we get the same number back.
         """
-        for typecode in self.codes:
+        for typecode in ['U']:
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
             try:
                 outgoing = outgoing.astype(typecode)
             except TypeError:
                 continue
-            if (typecode in self.blacklist_codes or
-                    outgoing.dtype.name in self.blacklist_names):
-                self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
-                continue
             incoming = self.oc.roundtrip(outgoing)
-            if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
-                outgoing = outgoing.astype(np.uint64)
             try:
                 assert np.allclose(incoming, outgoing)
             except (ValueError, TypeError, NotImplementedError,
@@ -60,18 +52,16 @@ class NumpyTest(test.TestCase):
                 except TypeError:  # pragma: no cover
                     outgoing += np.random.rand(*size).astype(outgoing.dtype)
                 if typecode in ['U', 'S']:
-                    outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
-                                [['spam', 'eggs'], ['spam', 'eggs']]]
+                    outgoing = [[['spam', 'eggs', 'hash'],
+                                 ['spam', 'eggs', 'hash']],
+                                [['spam', 'eggs', 'hash'],
+                                 ['spam', 'eggs', 'hash']]]
                     outgoing = np.array(outgoing).astype(typecode)
                 else:
                     try:
                         outgoing = outgoing.astype(typecode)
                     except TypeError:
                         continue
-                if (typecode in self.blacklist_codes or
-                        outgoing.dtype.name in self.blacklist_names):
-                    self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
-                    continue
                 incoming = self.oc.roundtrip(outgoing)
                 incoming = np.array(incoming)
                 if outgoing.size == 1:
@@ -82,8 +72,6 @@ class NumpyTest(test.TestCase):
                 elif incoming.size == 1:
                     incoming = incoming.squeeze()
                 assert incoming.shape == outgoing.shape
-                if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
-                    outgoing = outgoing.astype(np.uint64)
                 try:
                     assert np.allclose(incoming, outgoing)
                 except (AssertionError, ValueError, TypeError,
