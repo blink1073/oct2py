@@ -25,12 +25,6 @@ from .dynamic import (
     _make_user_class, OctavePtr)
 
 
-# TODO:
-#       add tests for:
-#            feval - store_as, variable ptr, function ptr, class ptr,
-#                    object instance ptr
-
-
 class Oct2Py(object):
 
     """Manages an Octave session.
@@ -463,7 +457,6 @@ class Oct2Py(object):
                                 convert_to_float=self.convert_to_float)
 
         # Set up the engine and evaluate the `_pyeval()` function.
-
         engine.stream_handler = stream_handler or self.logger.info
         if timeout is None:
             timeout = self.timeout
