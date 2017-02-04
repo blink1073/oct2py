@@ -26,13 +26,12 @@ from .dynamic import (
 
 
 # TODO:
-#       revert to the original test suite and get those tests to pass.
 #       add tests for:
 #            get_pointer - variable, function, class, object instance
-#            set_plot_settings
 #            pull - object
 #            feval - store_as, variable ptr, function ptr, class ptr,
 #                    object instance ptr
+#            roundtrip - test more of the functions
 
 
 class Oct2Py(object):
