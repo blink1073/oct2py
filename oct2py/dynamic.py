@@ -17,8 +17,7 @@ class OctavePtr(object):
         self._name = name
         self._address = address
         self._ref = session_weakref
-        self.__doc__ = self.__doc__ or '%s is a variable' % name
-        self.__module__ = 'oct2py.dyname'
+        self.__module__ = 'oct2py.dynamic'
         self.__name__ = name
 
     @property
@@ -50,6 +49,9 @@ class _DocDescriptor(object):
 class OctaveVariablePtr(OctavePtr):
     """An object that acts as a pointer to an Octave value.
     """
+    @property
+    def __doc__(self):
+        return '%s is a variable' % self.name
 
     @property
     def value(self):

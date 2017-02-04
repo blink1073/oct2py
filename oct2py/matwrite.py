@@ -9,6 +9,7 @@
 from __future__ import absolute_import, print_function, division
 
 from scipy.io import savemat
+from scipy.sparse import spmatrix
 import numpy as np
 
 from .dynamic import OctaveVariablePtr, OctaveUserClass
@@ -69,6 +70,10 @@ class Writer(object):
             for i in range(len(data)):
                 cell[i] = data[i]
             return cell
+
+        # Sparse data must be floating type.
+        if isinstance(data, spmatrix):
+            return data.astype(np.float64)
 
         # Return other data types unchanged.
         if not isinstance(data, np.ndarray):

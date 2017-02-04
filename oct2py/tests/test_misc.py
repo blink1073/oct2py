@@ -50,7 +50,7 @@ class MiscTests(test.TestCase):
         self.oc.push('x', data)
         assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
         self.oc.push('y', [data])
-        assert np.allclose(data.toarray(), self.oc.pull('y').toarray())
+        assert np.allclose(data.toarray(), self.oc.pull('y')[0].toarray())
 
     def test_logging(self):
         # create a stringio and a handler to log to it
@@ -71,9 +71,9 @@ class MiscTests(test.TestCase):
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'zeros(A__)' in resp
-        print(resp)
-        assert 'load ' in resp
+        assert 'exist("zeros")' in resp
+        assert 'exist("ones")' not in resp
+        assert '_pyeval(' in resp
 
         # now make an object with a desired logger
         logger = oct2py.get_log('test')
@@ -89,8 +89,9 @@ class MiscTests(test.TestCase):
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'zeros(A__)' in resp
-        assert 'load ' in resp
+        assert 'exist("zeros")' in resp
+        assert 'exist("ones")' not in resp
+        assert '_pyeval(' in resp
 
     def test_demo(self):
         from oct2py import demo
@@ -201,10 +202,8 @@ class MiscTests(test.TestCase):
     def test_temp_dir(self):
         temp_dir = tempfile.mkdtemp()
         oc = Oct2Py(temp_dir=temp_dir)
-        oc._reader.create_file(oc.temp_dir)
-        oc._writer.create_file(oc.temp_dir, [])
-        assert oc._reader.out_file.startswith(temp_dir)
-        assert oc._writer.in_file.startswith(temp_dir)
+        oc.push('a', 1)
+        assert len(os.listdir(temp_dir))
         shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
 

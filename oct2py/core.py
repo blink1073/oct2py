@@ -19,7 +19,7 @@ from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 from .matwrite import Writer
 from .matread import Reader
 from .utils import get_nout, Oct2PyError, get_log
-from .compat import unicode, input
+from .compat import unicode, input, string_types
 from .dynamic import (
     _make_function_ptr_instance, _make_variable_ptr_instance,
     _make_user_class, OctavePtr)
@@ -467,6 +467,8 @@ class Oct2Py(object):
         # Set up the engine and evaluate the `_pyeval()` function.
 
         engine.stream_handler = stream_handler or self.logger.info
+        if timeout is None:
+            timeout = self.timeout
 
         try:
             engine.eval('_pyeval("%s", "%s");' % (out_file, in_file),
@@ -493,7 +495,9 @@ class Oct2Py(object):
         if len(result) == 1:
             result = result[0]
             # Check for sentinel value.
-            if isinstance(result, list) and result == ['__no_value__']:
+            if (isinstance(result, list) and len(result) == 1 and
+                    isinstance(result[0], string_types) and
+                    result[0] == '__no_value__'):
                 result = None
 
         if plot_dir:
