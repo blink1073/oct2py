@@ -17,16 +17,17 @@ clean:
 	killall -9 py.test; true
 
 test: clean
+	pip install -q pytest
 	python setup.py build
 	export PYTHONWARNINGS="all"; cd build; py.test --doctest-modules
 	make clean
 
 cover: clean
-	pip install pytest codecov pytest-cov
+	pip install -q pytest codecov pytest-cov
 	py.test -l --cov-report html --cov=$(NAME)
 
 release: clean gh-pages
-	pip install wheel
+	pip install -q wheel
 	python setup.py register
 	rm -rf dist
 	python setup.py bdist_wheel --universal
@@ -39,9 +40,8 @@ release: clean gh-pages
 	shasum -a 256 dist/*.tar.gz
 
 docs: clean
-	export SPHINXOPTS=-W
-	pip install sphinx-bootstrap-theme numpydoc sphinx ghp-import
-	make -C docs html
+	pip install -q sphinx-bootstrap-theme numpydoc sphinx ghp-import
+	export SPHINXOPTS=-W; make -C doc html
 
 gh-pages:
 	git checkout master
