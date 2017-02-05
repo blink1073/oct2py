@@ -14,7 +14,7 @@ clean:
 	rm -rf dist
 	find . -name "*.pyc" -o -name "*.py,cover"| xargs rm -f
 	python -c $(KILL_PROC)
-	killall -9 nosetests; true
+	killall -9 py.test; true
 
 test: clean
 	python setup.py build
