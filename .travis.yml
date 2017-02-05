@@ -29,6 +29,7 @@ before_install:
 install:
   - export PYTHONWARNINGS=all
   - pip install -e .
+  - octave foo.m && echo 'yep'
 
 script:
     # run coverage on py3.5, regular on others
