@@ -218,7 +218,8 @@ def _make_user_class(session, name):
         doc = _MethodDocDescriptor(ref, name, method)
         cls_name = '%s_%s' % (name, method)
         method_values = dict(__doc__=doc)
-        method_cls = type(cls_name, (OctaveUserClassMethod,), method_values)
+        method_cls = type(str(cls_name),
+                          (OctaveUserClassMethod,), method_values)
         values[method] = method_cls(ref, method, name)
 
     for attr in attrs:
@@ -230,7 +231,7 @@ def _make_user_class(session, name):
 def _make_function_ptr_instance(session, name):
     ref = weakref.ref(session)
     doc = _DocDescriptor(ref, name)
-    custom = type(name, (OctaveFunctionPtr,), dict(__doc__=doc))
+    custom = type(str(name), (OctaveFunctionPtr,), dict(__doc__=doc))
     return custom(ref, name)
 
 
