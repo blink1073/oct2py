@@ -140,25 +140,25 @@ class TestMisc:
             with pytest.raises(Oct2PyError):
                 oc.eval("ones")
 
-    # def test_keyboard(self):
-    #     self.oc.eval('a=1')
+    def test_keyboard(self):
+        self.oc.eval('a=1')
 
-    #     stdin = sys.stdin
-    #     sys.stdin = StringIO('a\ndbquit\n')
+        stdin = sys.stdin
+        sys.stdin = StringIO('a\ndbquit\n')
 
-    #     try:
-    #         self.oc.keyboard(timeout=3)
-    #     except Oct2PyError as e:  # pragma: no cover
-    #         if 'session timed out' in str(e).lower():
-    #             # the keyboard command is not supported
-    #             # (likely using Octave 3.2)
-    #             return
-    #         else:
-    #             raise(e)
-    #     sys.stdin.flush()
-    #     sys.stdin = stdin
+        try:
+            self.oc.keyboard(timeout=3)
+        except Oct2PyError as e:  # pragma: no cover
+            if 'session timed out' in str(e).lower():
+                # the keyboard command is not supported
+                # (likely using Octave 3.2)
+                return
+            else:
+                raise(e)
+        sys.stdin.flush()
+        sys.stdin = stdin
 
-    #     self.oc.pull('a') == 1
+        self.oc.pull('a') == 1
 
     def test_func_without_docstring(self):
         out = self.oc.test_nodocstring(5)
