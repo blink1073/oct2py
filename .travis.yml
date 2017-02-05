@@ -7,9 +7,9 @@
 language: python
 
 env:
-    - CONDA="python=2.7 numpy>=1.11 scipy=0.17.0"
-    - CONDA="python=3.5 scipy"
-    - CONDA="python=3.6 scipy"
+    - CONDA="python=2.7 numpy>=1.11 scipy=0.17.0" KERNEL="python2"
+    - CONDA="python=3.5 scipy" KERNEL="python3"
+    - CONDA="python=3.6 scipy" KERNEL="python3"
 
 before_install:
   - sudo apt-add-repository -y ppa:picaso/octave;
@@ -37,11 +37,10 @@ script:
   - python -c "import octave_kernel"
   - if [[ $CONDA == python=2.7* ]]; then
       make test;
-      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
     else
       make cover;
-      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
     fi
+  - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=$KERNEL --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
   - make docs
 
 after_success:
