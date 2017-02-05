@@ -5,6 +5,8 @@
 
 # http://conda.pydata.org/docs/travis.html
 language: python
+dist: trusty
+sudo: required
 
 env:
     - CONDA="python=2.7 numpy>=1.11 scipy=0.17.0" KERNEL="python2"
@@ -12,8 +14,6 @@ env:
     - CONDA="python=3.6 scipy" KERNEL="python3"
 
 before_install:
-  - sudo apt-add-repository -y ppa:picaso/octave;
-  - sudo apt-get update -qq;
   - sudo apt-get install -qq octave liboctave-dev;
   - octave foo.m && echo 'yep'
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
