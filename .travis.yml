@@ -36,10 +36,10 @@ script:
   - which python
   - python -c "import octave_kernel"
   - if [[ $CONDA == python=2.7* ]]; then
-      make test
+      make test;
       jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
     else
-      make cover
+      make cover;
       jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
     fi
   - make docs
