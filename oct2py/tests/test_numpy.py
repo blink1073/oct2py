@@ -1,6 +1,5 @@
 from __future__ import absolute_import, print_function
 import os
-import unittest
 
 import numpy as np
 
@@ -8,18 +7,17 @@ import numpy as np
 from oct2py import Oct2Py
 
 
-class NumpyTest(unittest.TestCase):
+class NumpyTest:
     """Check value and type preservation of Numpy arrays
     """
     codes = np.typecodes['All']
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
 
-    @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def test_scalars(self):

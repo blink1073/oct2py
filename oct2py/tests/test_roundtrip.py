@@ -1,6 +1,5 @@
 from __future__ import absolute_import, print_function
 import os
-import unittest
 
 import numpy as np
 
@@ -47,7 +46,7 @@ def cleanupData(data):
     return data
 
 
-class RoundtripTest(unittest.TestCase):
+class RoundtripTest:
     """Test roundtrip value and type preservation between Python and Octave.
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -56,14 +55,14 @@ class RoundtripTest(unittest.TestCase):
 
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
         data = cls.oc.test_datatypes()
         cls.data = cleanupData(data)
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def nested_equal(self, val1, val2):
@@ -198,7 +197,7 @@ class RoundtripTest(unittest.TestCase):
         assert self.oc.eval(cmd)
 
 
-class BuiltinsTest(unittest.TestCase):
+class BuiltinsTest:
     """Test the exporting of standard Python data types, checking their type.
 
     Runs roundtrip.m and tests the types of all the values to make sure they
@@ -206,12 +205,12 @@ class BuiltinsTest(unittest.TestCase):
 
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def helper(self, outgoing, incoming=None, expected_type=None):

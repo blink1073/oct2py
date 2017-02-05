@@ -3,10 +3,10 @@ import os
 import logging
 import pickle
 import tempfile
-from numpy.testing import test
 
 from IPython.display import Image, SVG
 import numpy as np
+import pytest
 
 
 from oct2py import Oct2Py, Oct2PyError
@@ -14,16 +14,17 @@ from oct2py.utils import Struct
 from oct2py.compat import StringIO
 
 
-class BasicUsageTest(test.TestCase):
+class TestUsage:
     """Excercise the basic interface of the package
     """
+    @classmethod
+    def setup_class(cls):
+        cls.oc = Oct2Py()
+        cls.oc.addpath(cls.oc.genpath(os.path.dirname(__file__)))
 
-    def setUp(self):
-        self.oc = Oct2Py()
-        self.oc.addpath(self.oc.genpath(os.path.dirname(__file__)))
-
-    def tearDown(self):
-        self.oc.exit()
+    @classmethod
+    def teardown_class(cls):
+        cls.oc.exit()
 
     def test_run(self):
         """Test the run command
@@ -32,8 +33,9 @@ class BasicUsageTest(test.TestCase):
         desired = np.ones((3, 3))
         assert np.allclose(out, desired)
         out = self.oc.eval('ans = mean([[1, 2], [3, 4]])', verbose=True)
-        self.assertEqual(out, 2.5)
-        self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
+        assert out == 2.5
+        with pytest.raises(Oct2PyError):
+            self.oc.eval('_spam')
 
     def test_dynamic_functions(self):
         """Test some dynamic functions
@@ -48,9 +50,9 @@ class BasicUsageTest(test.TestCase):
         assert np.allclose(V, ([[-0.36059668, -0.93272184],
                            [-0.93272184, 0.36059668]]))
         out = self.oc.roundtrip(1)
-        self.assertEqual(out, 1)
-        self.assertEqual(out, 1)
-        self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
+        assert out == 1
+        with pytest.raises(Oct2PyError):
+            self.oc.eval('_spam')
 
     def test_push_pull(self):
         self.oc.push('spam', [1, 2])
@@ -58,7 +60,7 @@ class BasicUsageTest(test.TestCase):
         assert np.allclose(out, np.array([1, 2]))
         self.oc.push(['spam', 'eggs'], ['foo', [1, 2, 3, 4]])
         spam, eggs = self.oc.pull(['spam', 'eggs'])
-        self.assertEqual(spam, 'foo')
+        assert spam == 'foo'
         assert np.allclose(eggs, np.array([[1, 2, 3, 4]]))
 
     def test_help(self):
@@ -73,16 +75,19 @@ class BasicUsageTest(test.TestCase):
         tests = [self.oc.zeros, self.oc.ones, self.oc.plot]
         for item in tests:
             assert "class 'oct2py.dynamic" in repr(type(item))
-        self.assertRaises(Oct2PyError, self.oc.__getattr__, 'aaldkfasd')
-        self.assertRaises(Oct2PyError, self.oc.__getattr__, '_foo')
-        self.assertRaises(Oct2PyError, self.oc.__getattr__, 'foo\W')
+        with pytest.raises(Oct2PyError):
+            self.oc.__getattr__('aaldkfasd')
+        with pytest.raises(Oct2PyError):
+            self.oc.__getattr__('_foo')
+        with pytest.raises(Oct2PyError):
+            self.oc.__getattr__('foo\W')
 
     def test_open_close(self):
         """Test opening and closing the Octave session
         """
         self.oc.exit()
-        self.assertRaises(Oct2PyError, self.oc.push, name=['a'],
-                          var=[1.0])
+        with pytest.raises(Oct2PyError):
+            self.oc.push(name=['a'], var=[1.0])
         self.oc.restart()
         self.oc.push('a', 5)
         a = self.oc.pull('a')
@@ -94,32 +99,34 @@ class BasicUsageTest(test.TestCase):
         test = Struct()
         test.spam = 'eggs'
         test.eggs.spam = 'eggs'
-        self.assertEqual(test['spam'], 'eggs')
-        self.assertEqual(test['eggs']['spam'], 'eggs')
+        assert test['spam'] == 'eggs'
+        assert test['eggs']['spam'] == 'eggs'
         test["foo"]["bar"] = 10
-        self.assertEqual(test.foo.bar, 10)
+        assert test.foo.bar == 10
         p = pickle.dumps(test)
         test2 = pickle.loads(p)
-        self.assertEqual(test2['spam'], 'eggs')
-        self.assertEqual(test2['eggs']['spam'], 'eggs')
-        self.assertEqual(test2.foo.bar, 10)
+        assert test2['spam'] == 'eggs'
+        assert test2['eggs']['spam'] == 'eggs'
+        assert test2.foo.bar == 10
 
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError
         """
-        self.assertRaises(Oct2PyError, self.oc.eval, "a='1")
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("a='1")
 
         if os.name == 'nt':
             self.oc.restart()
 
-        self.assertRaises(Oct2PyError, self.oc.eval, "a=1++3")
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("a=1++3")
 
         if os.name == 'nt':
             self.oc.restart()
 
         self.oc.push('a', 1)
         a = self.oc.pull('a')
-        self.assertEqual(a, 1)
+        assert a == 1
 
     def test_extract_figures(self):
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
@@ -136,11 +143,13 @@ class BasicUsageTest(test.TestCase):
         assert isinstance(files[1], Image)
 
     def test_quit(self):
-        self.assertRaises(Oct2PyError, self.oc.eval, 'quit')
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("quit")
         self.oc.eval('a=1')
 
     def test_octave_error(self):
-        self.assertRaises(Oct2PyError, self.oc.eval, 'a = ones2(1)')
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("a = ones2(1)")
 
     def test_keyword_arguments(self):
         self.oc.set(0, DefaultFigureColor='b')
@@ -200,7 +209,8 @@ class BasicUsageTest(test.TestCase):
         value = clsptr([1, 2, 3])
         assert np.allclose(value.poly, [1, 2, 3])
 
-        self.assertRaises(Oct2PyError, self.oc.get_pointer, 'foo')
+        with pytest.raises(Oct2PyError):
+            self.oc.get_pointer('foo')
 
     def test_feval(self):
         a = self.oc.feval('ones', 3)

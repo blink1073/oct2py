@@ -5,7 +5,6 @@ import os
 import shutil
 import sys
 import tempfile
-from numpy.testing import test
 
 try:
     import thread
@@ -19,14 +18,16 @@ from oct2py import Oct2Py, Oct2PyError
 from oct2py.compat import StringIO
 
 
-class MiscTests(test.TestCase):
+class MiscTests:
 
-    def setUp(self):
-        self.oc = Oct2Py()
-        self.oc.addpath(os.path.dirname(__file__))
+    @classmethod
+    def setup_class(cls):
+        cls.oc = Oct2Py()
+        cls.oc.addpath(os.path.dirname(__file__))
 
-    def tearDown(self):
-        self.oc.exit()
+    @classmethod
+    def teardown_class(cls):
+        cls.oc.exit()
 
     def test_unicode_docstring(self):
         '''Make sure unicode docstrings in Octave functions work'''

@@ -1,6 +1,5 @@
 from __future__ import absolute_import, print_function
 import os
-import unittest
 
 import numpy as np
 
@@ -37,7 +36,7 @@ TYPE_CONVERSIONS = [
 ]
 
 
-class ConversionTest(unittest.TestCase):
+class TestConversions:
     """Test the importing of all Octave data types, checking their type
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -46,13 +45,13 @@ class ConversionTest(unittest.TestCase):
 
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
         cls.data = cls.oc.test_datatypes()
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def helper(self, base, keys, types):
@@ -91,8 +90,9 @@ class ConversionTest(unittest.TestCase):
         keys = ['float32', 'float64', 'complex', 'complex_matrix']
         types = [np.float64, np.float64, np.complex128, np.ndarray]
         self.helper(self.data.num, keys, types)
-        self.assertEqual(self.data.num.complex_matrix.dtype,
-                         np.dtype('complex128'))
+        assert (
+            self.data.num.complex_matrix.dtype == np.dtype('complex128')
+        )
 
     def test_misc_num(self):
         """Test incoming misc numeric types
@@ -106,7 +106,7 @@ class ConversionTest(unittest.TestCase):
     def test_logical(self):
         """Test incoming logical type
         """
-        self.assertEqual(type(self.data.logical), np.ndarray)
+        assert type(self.data.logical) == np.ndarray
 
     def test_string(self):
         """Test incoming string types
