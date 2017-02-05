@@ -4,13 +4,10 @@ import unittest
 import sys
 from IPython.display import SVG
 from IPython.testing.globalipapp import get_ipython
+import numpy as np
 
-try:
-    import numpy.testing as npt
-    from oct2py.ipython import octavemagic
-    from oct2py import Oct2PyError
-except Exception:  # pragma: no cover
-    __test__ = False
+from oct2py.ipython import octavemagic
+from oct2py import Oct2PyError
 
 
 class OctaveMagicTest(unittest.TestCase):
@@ -33,7 +30,7 @@ class OctaveMagicTest(unittest.TestCase):
 
     def test_octave_inline(self):
         result = self.ip.run_line_magic('octave', '[1, 2, 3] + 1;')
-        npt.assert_array_equal(result, [[2, 3, 4]])
+        assert np.allclose(result, [[2, 3, 4]])
 
     def test_octave_roundtrip(self):
         ip = self.ip
@@ -42,22 +39,22 @@ class OctaveMagicTest(unittest.TestCase):
         ip.run_line_magic('octave', 'x = x + 1; y = y + 1;')
         ip.run_line_magic('octave_pull', 'x y')
 
-        npt.assert_array_equal(ip.user_ns['x'], [[1, 2, 3]])
-        npt.assert_equal(ip.user_ns['y'], 5.5)
+        assert np.allclose(ip.user_ns['x'], [[1, 2, 3]])
+        assert np.allclose(ip.user_ns['y'], 5.5)
 
     def test_octave_cell_magic(self):
         ip = self.ip
         ip.ex('x = 3; y = [1, 2]')
         ip.run_cell_magic('octave', '-f png -s 400,400 -i x,y -o z',
                           'z = x + y;')
-        npt.assert_array_equal(ip.user_ns['z'], [[4, 5]])
+        assert np.allclose(ip.user_ns['z'], [[4, 5]])
 
     def test_octave_plot(self):
         magic = self.ip.find_cell_magic('octave').__self__
         magic._display = self._verify_display
         self.ip.run_cell_magic('octave', '-f svg -s 400,500',
             'plot([1, 2, 3]); figure; plot([4, 5, 6]);')
-        npt.assert_equal(self.svgs_generated, 2)
+        assert self.svgs_generated == 2
 
     def _verify_display(self, obj):
         if isinstance(obj, SVG):
@@ -74,5 +71,5 @@ class OctaveMagicTest(unittest.TestCase):
             self.ip.magic('reload_ext oct2py.ipython')
 
     def test_octave_error(self):
-        npt.assert_raises(Oct2PyError, self.ip.run_cell_magic,
+        self.assertRaises(Oct2PyError, self.ip.run_cell_magic,
                           'octave', '', 'a = ones2(1)')
