@@ -30,14 +30,14 @@ try
     % Add function path to current path.
     if req.dname
         addpath(req.dname);
-    endif
+    end
 
     % Replace the names at the specified indices with their values.
     for index=1:length(req.ref_indices)
       ref_index = req.ref_indices(index);
       var_name = req.func_args{ref_index};
       req.func_args{ref_index} = evalin('base', var_name);
-    endfor
+    end
 
     % Use the `ans` response if no output arguments are expected.
     if req.nout == 0
@@ -47,43 +47,43 @@ try
           feval(req.func_name, req.func_args{:});
         else
           feval(req.func_name)
-        endif
+        end
 
         try
           [result{1}] = evalin('base', 'ans');
         catch
           result = sentinel;
-        end_try_catch
+        end
 
     elseif length(req.func_args)
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
 
     else
         [result{1:req.nout}] = feval(req.func_name);
-    endif
+    end
 
     if req.store_as
       assignin('base', req.store_as, result{1});
       result = sentinel;
-    endif
+    end
 
     if ((strcmp(get(0, 'defaultfigurevisible'), 'on') == 1) &&
         length(get(0, 'children')))
       drawnow('expose');
-    endif
+    end
 
-catch
-    err.message = lasterr();
-end_try_catch
+catch ME
+    err = ME;
+end
 
 
 % Save the output to a file.
 try
   save('-v6', '-mat-binary', output_file, 'result', 'err');
-catch
+catch ME
   result = sentinel;
-  err.message = lasterr();
+  err = ME;
   save('-v6', '-mat-binary', output_file, 'result', 'err');
-end_try_catch 
+end 
 
-endfunction
+end  % function

@@ -15,7 +15,6 @@ env:
 
 before_install:
   - sudo apt-get install -qq octave liboctave-dev;
-  - octave foo.m && echo 'yep'
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
