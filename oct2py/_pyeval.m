@@ -72,17 +72,17 @@ try
       drawnow('expose');
     endif
 
-catch ME
-    err = ME;
+catch
+    err.message = lasterr();
 end_try_catch
 
 
 % Save the output to a file.
 try
   save('-v6', '-mat-binary', output_file, 'result', 'err');
-catch ME
+catch
   result = sentinel;
-  err = ME;
+  err.message = lasterr();
   save('-v6', '-mat-binary', output_file, 'result', 'err');
 end_try_catch 
 
