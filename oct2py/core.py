@@ -392,8 +392,8 @@ class Oct2Py(object):
         for name in ['log', 'return_both']:
             if name not in kwargs:
                 continue
-            msg = 'Using deprecated `%s` kwarg, see docs on `eval()`' % name
-            warnings.warn(msg, stacklevel=2)
+            msg = 'Using deprecated `%s` kwarg, see docs on `Oct2Py.eval()`'
+            warnings.warn(msg % name, stacklevel=2)
 
         return_both = kwargs.pop('return_both', False)
         lines = []
