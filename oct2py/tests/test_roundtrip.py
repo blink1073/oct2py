@@ -46,7 +46,7 @@ def cleanupData(data):
     return data
 
 
-class RoundtripTest:
+class TestRoundTrip:
     """Test roundtrip value and type preservation between Python and Octave.
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -75,17 +75,17 @@ class RoundtripTest:
                 elif isinstance(subval1, np.ndarray):
                     np.allclose(subval1, subval2)
                 else:
-                    self.assertEqual(subval1, subval2)
+                    assert subval1 == subval2
         elif isinstance(val1, np.ndarray):
             np.allclose(val1, np.array(val2))
         elif isinstance(val1, (str, unicode)):
-            self.assertEqual(val1, val2)
+            assert val1 == val2
         else:
             try:
                 assert (np.alltrue(np.isnan(val1)) and
                         np.alltrue(np.isnan(val2)))
             except (AssertionError, NotImplementedError):
-                self.assertEqual(val1, val2)
+                assert val1 == val2
 
     def helper(self, outgoing, expected_type=None):
         """
@@ -102,7 +102,7 @@ class RoundtripTest:
             expected_type = type(outgoing)
         self.nested_equal(incoming, outgoing)
         try:
-            self.assertEqual(type(incoming), expected_type)
+            assert type(incoming) == expected_type
         except AssertionError:
             if type(incoming) == np.float32 and expected_type == np.float64:
                 pass
@@ -197,7 +197,7 @@ class RoundtripTest:
         assert self.oc.eval(cmd)
 
 
-class BuiltinsTest:
+class TestBuiltins:
     """Test the exporting of standard Python data types, checking their type.
 
     Runs roundtrip.m and tests the types of all the values to make sure they
@@ -235,7 +235,7 @@ class BuiltinsTest:
         if not expected_type:
             expected_type = np.ndarray
         try:
-            self.assertEqual(incoming, outgoing)
+            assert incoming == outgoing
         except ValueError:
             assert np.allclose(np.array(incoming), np.array(outgoing))
         if type(incoming) != expected_type:
@@ -269,7 +269,7 @@ class BuiltinsTest:
         test = set((1, 2, 3, 3))
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
-        self.assertEqual(type(incoming), np.ndarray)
+        assert type(incoming) == np.ndarray
 
     def test_tuple(self):
         """Test python tuple type
@@ -327,10 +327,10 @@ class BuiltinsTest:
         tests = (True, False)
         for t in tests:
             incoming = self.oc.roundtrip(t)
-            self.assertEqual(incoming, t)
+            assert incoming == t
             self.oc.convert_to_float = False
             incoming = self.oc.roundtrip(t)
-            self.assertEqual(incoming, t)
+            assert incoming == t
             self.oc.convert_to_float = True
 
     def test_none(self):

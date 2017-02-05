@@ -7,7 +7,7 @@ import numpy as np
 from oct2py import Oct2Py
 
 
-class NumpyTest:
+class TestNumpy:
     """Check value and type preservation of Numpy arrays
     """
     codes = np.typecodes['All']

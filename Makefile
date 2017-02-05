@@ -18,7 +18,7 @@ clean:
 
 test: clean
 	pip install -q pytest
-	export PYTHONWARNINGS="all"; py.test --doctest-modules
+	export PYTHONWARNINGS="all"; py.test
 	make clean
 
 cover: clean

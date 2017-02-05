@@ -8,7 +8,6 @@ from IPython.display import Image, SVG
 import numpy as np
 import pytest
 
-
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
 from oct2py.compat import StringIO
@@ -20,7 +19,7 @@ class TestUsage:
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
-        cls.oc.addpath(cls.oc.genpath(os.path.dirname(__file__)))
+        cls.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
 
     @classmethod
     def teardown_class(cls):
@@ -158,6 +157,7 @@ class TestUsage:
         assert self.oc.extract_figures(plot_dir)
 
     def test_octave_class(self):
+        self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
         polynomial = self.oc.polynomial
         p0 = polynomial([1, 2, 3])
         assert np.allclose(p0.poly, [[1, 2, 3]])
@@ -183,6 +183,7 @@ class TestUsage:
         assert 'Display a polynomial object' in p2.display.__doc__
 
     def test_get_pointer(self):
+        self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
         self.oc.push('y', 1)
         yptr = self.oc.get_pointer('y')
         assert yptr.name == 'y'
@@ -213,6 +214,7 @@ class TestUsage:
             self.oc.get_pointer('foo')
 
     def test_feval(self):
+        self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
         a = self.oc.feval('ones', 3)
         assert np.allclose(a, np.ones((3, 3)))
 
