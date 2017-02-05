@@ -35,10 +35,10 @@ script:
   - which nosetests
   - which python
   - python -c "import octave_kernel"
-  - if [[ $CONDA == python=2.7* ]]; then
-      make test;
-    else
+  - if [[ $CONDA == python=3.5* ]]; then
       make cover;
+    else
+      make test;
     fi
   - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=$KERNEL --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
   - make docs
