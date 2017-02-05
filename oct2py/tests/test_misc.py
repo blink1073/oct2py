@@ -6,6 +6,8 @@ import shutil
 import sys
 import tempfile
 
+import pytest
+
 try:
     import thread
 except ImportError:
@@ -18,7 +20,7 @@ from oct2py import Oct2Py, Oct2PyError
 from oct2py.compat import StringIO
 
 
-class MiscTests:
+class TestMisc:
 
     @classmethod
     def setup_class(cls):
@@ -35,10 +37,10 @@ class MiscTests:
 
     def test_context_manager(self):
         '''Make sure oct2py works within a context manager'''
-        with self.oc as oc1:
+        with Oct2Py() as oc1:
             ones = oc1.ones(1)
         assert ones == np.ones(1)
-        with self.oc as oc2:
+        with Oct2Py() as oc2:
             ones = oc2.ones(1)
         assert ones == np.ones(1)
 
@@ -135,7 +137,8 @@ class MiscTests:
     def test_using_exited_session(self):
         with Oct2Py() as oc:
             oc.exit()
-            self.assertRaises(Oct2PyError, oc.eval, 'ones')
+            with pytest.raises(Oct2PyError):
+                oc.eval("ones")
 
     def test_keyboard(self):
         self.oc.eval('a=1')
@@ -164,12 +167,14 @@ class MiscTests:
         assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
 
     def test_func_noexist(self):
-        self.assertRaises(Oct2PyError, self.oc.eval, 'oct2py_dummy')
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("oct2py_dummy")
 
     def test_timeout(self):
         with Oct2Py(timeout=2) as oc:
             oc.sleep(2.1, timeout=5)
-            self.assertRaises(Oct2PyError, oc.sleep, 3)
+            with pytest.raises(Oct2PyError):
+                oc.sleep(3)
 
     def test_call_path(self):
         with Oct2Py() as oc:
@@ -184,7 +189,8 @@ class MiscTests:
         assert x == 1
 
     def test_syntax_error_embedded(self):
-        self.assertRaises(Oct2PyError, self.oc.eval, """eval("a='1")""")
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("""eval("a='1")""")
         self.oc.push('b', 1)
         x = self.oc.pull('b')
         assert x == 1
@@ -209,7 +215,8 @@ class MiscTests:
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""
         self.oc.eval('clear()')
-        self.assertRaises(Oct2PyError, self.oc.__getattr__, 'clear')
+        with pytest.raises(Oct2PyError):
+            self.oc.__getattr__('clear')
 
     def test_multiline_statement(self):
         sobj = StringIO()
