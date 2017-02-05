@@ -5,7 +5,7 @@ import os
 import shutil
 import sys
 import tempfile
-import unittest
+from numpy.testing import test
 
 try:
     import thread
@@ -19,7 +19,7 @@ from oct2py import Oct2Py, Oct2PyError
 from oct2py.compat import StringIO
 
 
-class MiscTests(unittest.TestCase):
+class MiscTests(test.TestCase):
 
     def setUp(self):
         self.oc = Oct2Py()

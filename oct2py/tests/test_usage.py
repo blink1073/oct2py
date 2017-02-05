@@ -3,7 +3,7 @@ import os
 import logging
 import pickle
 import tempfile
-import unittest
+from numpy.testing import test
 
 from IPython.display import Image, SVG
 import numpy as np
@@ -14,7 +14,7 @@ from oct2py.utils import Struct
 from oct2py.compat import StringIO
 
 
-class BasicUsageTest(unittest.TestCase):
+class BasicUsageTest(test.TestCase):
     """Excercise the basic interface of the package
     """
 
