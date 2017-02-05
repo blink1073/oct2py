@@ -22,7 +22,7 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - travis_retry conda create -n test $CONDA jupyter pytest pip
+  - travis_retry conda create -n test $CONDA jupyter pytest pip nose
   - source activate test
   - travis_retry pip install codecov
 
@@ -38,7 +38,8 @@ script:
   - if [[ $CONDA == python=3.5* ]]; then
       make cover;
     else
-      make test;
+      #make test;
+      nosetests
     fi
   - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=$KERNEL --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
   - make docs
