@@ -83,7 +83,8 @@ class OctaveFunctionPtr(OctavePtr):
                 extras[key] = kwargs.pop(key)
 
         if extras:
-            warnings.warn('Key - value pairs are deprecated, use `func_args`')
+            warnings.warn('Key - value pairs are deprecated, use `func_args`',
+                          stacklevel=2)
 
         inputs += tuple(item for pair in zip(extras.keys(), extras.values())
                         for item in pair)

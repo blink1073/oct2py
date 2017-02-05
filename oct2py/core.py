@@ -8,6 +8,7 @@
 """
 from __future__ import print_function, absolute_import, division
 
+import logging
 import os
 import tempfile
 import warnings
@@ -323,7 +324,7 @@ class Oct2Py(object):
                           store_as=store_as, plot_dir=plot_dir)
 
     def eval(self, cmds, verbose=True, timeout=None, stream_handler=None,
-             plot_dir=None, plot_name='plot', plot_format='svg',
+             temp_dir=None, plot_dir=None, plot_name='plot', plot_format='svg',
              plot_width=None, plot_height=None, plot_res=None, **kwargs):
         """
         Evaluate an Octave command or commands.
@@ -338,7 +339,12 @@ class Oct2Py(object):
             A function that is called for each line of output from the
             evaluation.
         timeout : float, optional
-            Time to wait for response from Octave (per line).
+            Time to wait for response from Octave (per line).  If not given,
+            the instance `timeout` is used.
+        temp_dir: str, optional
+            If specified, the session's MAT files will be created in the
+            directory, otherwise a the instance `temp_dir` is used.
+            a shared memory (tmpfs) path.
         plot_dir: str, optional
             If specificed, save the session's plot figures to the plot
             directory instead of displaying the plot window.
@@ -363,9 +369,8 @@ class Oct2Py(object):
 
         Notes
         -----
-        The deprecated `temp_dir` kwarg will be ignored in favor of the
-        instance-level `temp_dir`.
-        The deprecated `log` kwarg will be ignored.
+        The deprecated `log` kwarg will temporarily set the `logger` level to
+        `WARN`.  Using the `logger` settings directly is preferred.
         The deprecated `return_both` kwarg will still work, but the preferred
         method is to use the `stream_handler`.  If `stream_handler` is given,
         the `return_both` kwarg will be honored but will give an empty string
@@ -379,11 +384,16 @@ class Oct2Py(object):
         if isinstance(cmds, (str, unicode)):
             cmds = [cmds]
 
-        for name in ['log', 'return_both', 'temp_dir']:
+        prev_temp_dir = self.temp_dir
+        self.temp_dir = temp_dir or self.temp_dir
+        prev_log_level = self.logger.level
+        self.logger.setLevel(logging.WARN)
+
+        for name in ['log', 'return_both']:
             if name not in kwargs:
                 continue
             msg = 'Using deprecated `%s` kwarg, see docs on `eval()`' % name
-            warnings.warn(msg)
+            warnings.warn(msg, stacklevel=2)
 
         return_both = kwargs.pop('return_both', False)
         lines = []
@@ -401,6 +411,9 @@ class Oct2Py(object):
                               plot_res=plot_res)
             if resp is not None:
                 ans = resp
+
+        self.temp_dir = prev_temp_dir
+        self.logger.setLevel(prev_log_level)
 
         if return_both:
             return '\n'.join(lines), ans
