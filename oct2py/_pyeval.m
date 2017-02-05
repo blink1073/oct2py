@@ -72,7 +72,7 @@ try
       drawnow('expose');
     end
 
-catch ME;
+catch ME
     err = ME;
 end
 
@@ -80,7 +80,7 @@ end
 % Save the output to a file.
 try
   save('-v6', '-mat-binary', output_file, 'result', 'err');
-catch ME;
+catch ME
   result = sentinel;
   err = ME;
   save('-v6', '-mat-binary', output_file, 'result', 'err');
