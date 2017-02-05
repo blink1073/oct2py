@@ -9,9 +9,9 @@ Shows the round-trip data types, originating in Python.
 Lists and sets will be converted to a numeric array if possible, falling back 
 on cells.  If an Octave cell consisting of numbers is desired, use a tuple.
 
-=============   ===============   =============
+=============   ===============   ===============
 Python          Octave            Python
-=============   ===============   =============
+=============   ===============   ===============
 int             int32             np.int32
 long            int64             np.int64
 float           double            np.float64
@@ -67,9 +67,9 @@ These are handled unambiguously.  The only known data type that
 is not transferable is a function pointer, since Octave cannot
 save them to the v6 MAT file format.
 
-===============      ======================
+===================  ======================
 Octave               Python
-===============      ======================
+===================  ======================
 array                ndarray
 cell                 list
 struct               Struct
