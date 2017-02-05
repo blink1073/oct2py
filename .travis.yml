@@ -12,6 +12,7 @@ env:
     - CONDA="python=3.6 scipy" KERNEL="python3"
 
 before_install:
+  - octave foo.m && echo 'yep'
   - sudo apt-add-repository -y ppa:picaso/octave;
   - sudo apt-get update -qq;
   - sudo apt-get install -qq octave liboctave-dev;
@@ -29,7 +30,6 @@ before_install:
 install:
   - export PYTHONWARNINGS=all
   - pip install -e .
-  - octave foo.m && echo 'yep'
 
 script:
     # run coverage on py3.5, regular on others
