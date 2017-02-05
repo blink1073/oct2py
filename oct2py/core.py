@@ -68,6 +68,7 @@ class Oct2Py(object):
         self._oned_as = oned_as
         self._executable = executable
         self._engine = None
+        self._logger = None
         self.logger = logger
         self.timeout = timeout
         self.temp_dir = temp_dir or tempfile.mkdtemp()
@@ -80,10 +81,7 @@ class Oct2Py(object):
 
     @property
     def logger(self):
-        if self._logger:
-            return self._logger
-        log = self._logger = get_log()
-        return log
+        return self._logger
 
     @logger.setter
     def logger(self, value):
@@ -387,7 +385,9 @@ class Oct2Py(object):
         prev_temp_dir = self.temp_dir
         self.temp_dir = temp_dir or self.temp_dir
         prev_log_level = self.logger.level
-        self.logger.setLevel(logging.WARN)
+
+        if kwargs.get('log') is False:
+            self.logger.setLevel(logging.WARN)
 
         for name in ['log', 'return_both']:
             if name not in kwargs:

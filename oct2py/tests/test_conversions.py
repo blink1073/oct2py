@@ -1,9 +1,8 @@
 from __future__ import absolute_import, print_function
 import os
+import unittest
 
 import numpy as np
-import numpy.testing as test
-
 
 from oct2py import Oct2Py
 from oct2py.utils import Struct
@@ -38,7 +37,7 @@ TYPE_CONVERSIONS = [
 ]
 
 
-class ConversionTest(test.TestCase):
+class ConversionTest(unittest.TestCase):
     """Test the importing of all Octave data types, checking their type
 
     Uses test_datatypes.m to read in a dictionary with all Octave types

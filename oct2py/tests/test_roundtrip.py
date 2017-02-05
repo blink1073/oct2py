@@ -1,9 +1,8 @@
 from __future__ import absolute_import, print_function
 import os
+import unittest
 
 import numpy as np
-import numpy.testing as test
-
 
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.utils import Struct
@@ -17,8 +16,8 @@ TYPE_CONVERSIONS = [
     (complex, 'double', np.complex128),
     (str, 'char', unicode),
     (unicode, 'cell', unicode),
-    (bool, 'bool', np.bool),
-    (None, 'double', np.float64),
+    (bool, 'logical', np.bool),
+    (None, 'double', np.nan),
     (dict, 'struct', Struct),
     (np.int8, 'int8', np.int8),
     (np.int16, 'int16', np.int16),
@@ -48,7 +47,7 @@ def cleanupData(data):
     return data
 
 
-class RoundtripTest(test.TestCase):
+class RoundtripTest(unittest.TestCase):
     """Test roundtrip value and type preservation between Python and Octave.
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -121,7 +120,7 @@ class RoundtripTest(test.TestCase):
         """
         for key in ['float64', 'complex', 'complex_matrix']:
             self.helper(self.data.num[key])
-        self.helper(self.data.num['float32'], np.float64)
+        self.helper(self.data.num['float32'], float)
 
     def test_misc_num(self):
         """Test roundtrip value and type preservation for misc numeric types
@@ -138,20 +137,20 @@ class RoundtripTest(test.TestCase):
     def test_string(self):
         """Test roundtrip value and type preservation for string types
         """
-        for key in ['basic', 'cell_array']:
-            self.helper(self.data.string[key])
+        self.helper(self.data.string['basic'], str)
+        self.helper(self.data.string['cell_array'], list)
 
     def test_struct_array(self):
         """Test roundtrip value and type preservation for struct array types
         """
-        self.helper(self.data.struct_array['name'])
-        self.helper(self.data.struct_array['age'], np.ndarray)
+        self.helper(self.data.struct_array['name'], list)
+        self.helper(self.data.struct_array['age'], list)
 
     def test_cell_array(self):
         """Test roundtrip value and type preservation for cell array types
         """
         for key in ['vector', 'matrix', 'array']:
-            self.helper(self.data.cell[key])
+            self.helper(self.data.cell[key], list)
 
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
@@ -199,7 +198,7 @@ class RoundtripTest(test.TestCase):
         assert self.oc.eval(cmd)
 
 
-class BuiltinsTest(test.TestCase):
+class BuiltinsTest(unittest.TestCase):
     """Test the exporting of standard Python data types, checking their type.
 
     Runs roundtrip.m and tests the types of all the values to make sure they

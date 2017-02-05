@@ -5,8 +5,7 @@ import os
 import shutil
 import sys
 import tempfile
-import threading
-import time
+import unittest
 
 try:
     import thread
@@ -14,14 +13,13 @@ except ImportError:
     import _thread as thread
 
 import numpy as np
-import numpy.testing as test
 
 import oct2py
 from oct2py import Oct2Py, Oct2PyError
 from oct2py.compat import StringIO
 
 
-class MiscTests(test.TestCase):
+class MiscTests(unittest.TestCase):
 
     def setUp(self):
         self.oc = Oct2Py()
@@ -136,7 +134,7 @@ class MiscTests(test.TestCase):
     def test_using_exited_session(self):
         with Oct2Py() as oc:
             oc.exit()
-            test.assert_raises(Oct2PyError, oc.eval, 'ones')
+            self.assertRaises(Oct2PyError, oc.eval, 'ones')
 
     def test_keyboard(self):
         self.oc.eval('a=1')
@@ -165,12 +163,12 @@ class MiscTests(test.TestCase):
         assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
 
     def test_func_noexist(self):
-        test.assert_raises(Oct2PyError, self.oc.eval, 'oct2py_dummy')
+        self.assertRaises(Oct2PyError, self.oc.eval, 'oct2py_dummy')
 
     def test_timeout(self):
         with Oct2Py(timeout=2) as oc:
             oc.sleep(2.1, timeout=5)
-            test.assert_raises(Oct2PyError, oc.sleep, 3)
+            self.assertRaises(Oct2PyError, oc.sleep, 3)
 
     def test_call_path(self):
         with Oct2Py() as oc:
@@ -185,7 +183,7 @@ class MiscTests(test.TestCase):
         assert x == 1
 
     def test_syntax_error_embedded(self):
-        test.assert_raises(Oct2PyError, self.oc.eval, """eval("a='1")""")
+        self.assertRaises(Oct2PyError, self.oc.eval, """eval("a='1")""")
         self.oc.push('b', 1)
         x = self.oc.pull('b')
         assert x == 1
@@ -210,6 +208,7 @@ class MiscTests(test.TestCase):
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""
         self.oc.eval('clear()')
+        self.assertRaises(Oct2PyError, self.oc.__getattr__, 'clear')
 
     def test_multiline_statement(self):
         sobj = StringIO()
@@ -243,3 +242,35 @@ class MiscTests(test.TestCase):
         assert np.isnan(self.oc.pull('a'))
 
         assert self.oc.struct() == [None]
+
+    def test_deprecated_log(self):
+        sobj = StringIO()
+        hdlr = logging.StreamHandler(sobj)
+        hdlr.setLevel(logging.DEBUG)
+        self.oc.logger.addHandler(hdlr)
+
+        self.oc.logger.setLevel(logging.DEBUG)
+        self.oc.eval('disp("hi")', log=False)
+        text = hdlr.stream.getvalue().strip()
+        assert not text
+        self.oc.logger.removeHandler(hdlr)
+
+    def test_deprecated_return_both(self):
+        text, value = self.oc.eval(['disp("hi")', 'ones(3);'],
+                                   return_both=True)
+        assert text.strip() == 'hi'
+        assert np.allclose(value, np.ones((3, 3)))
+
+        lines = []
+        text, value = self.oc.eval(['disp("hi")', 'ones(3);'],
+                                   return_both=True,
+                                   stream_handler=lines.append)
+        assert text == ''
+        assert np.allclose(value, np.ones((3, 3)))
+        assert lines[0].strip() == 'hi'
+
+    def test_logger(self):
+        logger = self.oc.logger
+        self.oc.logger = None
+        assert self.oc.logger
+        self.oc.logger == logger

@@ -1,5 +1,7 @@
 """Setup script for oct2py package.
 """
+import glob
+
 DISTNAME = 'oct2py'
 DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
 LONG_DESCRIPTION = open('README.rst', 'rb').read().decode('utf-8')
@@ -11,7 +13,7 @@ REQUIRES = ["numpy (>= 1.11)", "scipy (>= 0.17)", "octave_kernel (>= 0.25)"]
 INSTALL_REQUIRES = ["octave_kernel >= 0.25"]
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,
             '%s/ipython/tests' % DISTNAME]
-PACKAGE_DATA = {DISTNAME: ['tests/*.m', '*.m']}
+PACKAGE_DATA = {DISTNAME: ['*.m'] + glob.glob('%s/**/*.m' % DISTNAME)}
 CLASSIFIERS = """\
 Development Status :: 5 - Production/Stable
 Intended Audience :: Developers
@@ -46,6 +48,7 @@ setup(
     maintainer_email=MAINTAINER_EMAIL,
     packages=PACKAGES,
     package_data=PACKAGE_DATA,
+    include_package_data=True,
     url=URL,
     download_url=URL,
     license=LICENSE,

@@ -1,7 +1,6 @@
 # Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release gh-pages docs
 
-export TEST_ARGS=--exe -v --with-doctest
 export NAME=oct2py
 export KILL_PROC="from $(NAME) import kill_octave; kill_octave()"
 export GHP_MSG="Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
@@ -19,13 +18,12 @@ clean:
 
 test: clean
 	python setup.py build
-	export PYTHONWARNINGS="all"; cd build; nosetests $(TEST_ARGS) $(NAME)
+	export PYTHONWARNINGS="all"; cd build; py.test --doctest-modules
 	make clean
 
 cover: clean
-	pip install nose-cov
-	nosetests $(TEST_ARGS) --with-cov --cov $(NAME) $(NAME)
-	coverage annotate
+	pip install pytest codecov pytest-cov
+	py.test -l --cov-report html --cov=$(NAME)
 
 release: clean gh-pages
 	pip install wheel
@@ -36,8 +34,8 @@ release: clean gh-pages
 	git tag v$(VERSION)
 	git push origin --all
 	git push origin --tags
-	printf '\nUpgrade oct2py-feedstock with release and sha256 sum:'
 	twine upload dist/*
+	printf '\nUpgrade oct2py-feedstock with release and sha256 sum:'
 	shasum -a 256 dist/*.tar.gz
 
 docs: clean

@@ -1,13 +1,14 @@
 from __future__ import absolute_import, print_function
 import os
+import unittest
 
 import numpy as np
-import numpy.testing as test
+
 
 from oct2py import Oct2Py
 
 
-class NumpyTest(test.TestCase):
+class NumpyTest(unittest.TestCase):
     """Check value and type preservation of Numpy arrays
     """
     codes = np.typecodes['All']

@@ -3,10 +3,10 @@ import os
 import logging
 import pickle
 import tempfile
+import unittest
 
 from IPython.display import Image, SVG
 import numpy as np
-import numpy.testing as test
 
 
 from oct2py import Oct2Py, Oct2PyError
@@ -14,9 +14,10 @@ from oct2py.utils import Struct
 from oct2py.compat import StringIO
 
 
-class BasicUsageTest(test.TestCase):
+class BasicUsageTest(unittest.TestCase):
     """Excercise the basic interface of the package
     """
+
     def setUp(self):
         self.oc = Oct2Py()
         self.oc.addpath(self.oc.genpath(os.path.dirname(__file__)))
@@ -29,7 +30,7 @@ class BasicUsageTest(test.TestCase):
         """
         out = self.oc.eval('ones(3,3)')
         desired = np.ones((3, 3))
-        test.assert_allclose(out, desired)
+        assert np.allclose(out, desired)
         out = self.oc.eval('ans = mean([[1, 2], [3, 4]])', verbose=True)
         self.assertEqual(out, 2.5)
         self.assertRaises(Oct2PyError, self.oc.eval, '_spam')
@@ -42,9 +43,9 @@ class BasicUsageTest(test.TestCase):
         U, S, V = self.oc.svd([[1, 2], [1, 3]])
         assert np.allclose(U, ([[-0.57604844, -0.81741556],
                            [-0.81741556, 0.57604844]]))
-        assert np.allclose(S,  ([[3.86432845, 0.],
+        assert np.allclose(S, ([[3.86432845, 0.],
                            [0., 0.25877718]]))
-        assert np.allclose(V,  ([[-0.36059668, -0.93272184],
+        assert np.allclose(V, ([[-0.36059668, -0.93272184],
                            [-0.93272184, 0.36059668]]))
         out = self.oc.roundtrip(1)
         self.assertEqual(out, 1)
@@ -150,7 +151,7 @@ class BasicUsageTest(test.TestCase):
     def test_octave_class(self):
         polynomial = self.oc.polynomial
         p0 = polynomial([1, 2, 3])
-        test.assert_equal(p0.poly, [[1, 2, 3]])
+        assert np.allclose(p0.poly, [[1, 2, 3]])
 
         p1 = polynomial([0, 1, 2])
         sobj = StringIO()
@@ -167,16 +168,26 @@ class BasicUsageTest(test.TestCase):
         p2 = self.oc.pull('y')
         assert np.allclose(p2.poly, [1, 2, 3])
 
+        p2.poly = [2, 3, 4]
+        assert np.allclose(p2.poly, [2, 3, 4])
+
+        assert 'Display a polynomial object' in p2.display.__doc__
+
     def test_get_pointer(self):
         self.oc.push('y', 1)
         yptr = self.oc.get_pointer('y')
         assert yptr.name == 'y'
         assert yptr.value == 1
         assert yptr.address == 'y'
+        yptr.value = 2
+        assert yptr.value == 2
+        assert self.oc.pull('y') == 2
+        assert 'is a variable' in yptr.__doc__
 
         onesptr = self.oc.get_pointer('ones')
         assert onesptr.name == 'ones'
         assert onesptr.address == '@ones'
+        assert 'ones' in onesptr.__doc__
 
         self.oc.eval('p = polynomial([1,2,3])')
         ppter = self.oc.get_pointer('p')
