@@ -224,7 +224,7 @@ def _make_user_class(session, name):
     for attr in attrs:
         values[attr] = OctaveUserClassAttr(ref, attr, attr)
 
-    return type(name, (OctaveUserClass,), values)
+    return type(str(name), (OctaveUserClass,), values)
 
 
 def _make_function_ptr_instance(session, name):
