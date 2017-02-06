@@ -194,6 +194,8 @@ class OctaveUserClass(object):
         for attr in instance._attrs:
             dtype.append((attr, object))
             values.append(getattr(instance, attr))
+        print(values)
+        print(dtype)
         struct = np.array([tuple(values)], dtype)
         return MatlabObject(struct, instance._name)
 
