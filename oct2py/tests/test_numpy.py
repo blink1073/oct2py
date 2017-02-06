@@ -31,7 +31,7 @@ class TestNumpy:
                 continue
             incoming = self.oc.roundtrip(outgoing)
             if typecode in 'SU':
-                assert incoming.strip() == outgoing
+                assert incoming.astype(typecode) == outgoing
                 continue
             try:
                 assert np.allclose(incoming, outgoing)
