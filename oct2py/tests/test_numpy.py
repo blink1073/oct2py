@@ -25,14 +25,13 @@ class TestNumpy:
         """
         for typecode in self.codes:
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
+            if typecode in 'US':
+                outgoing = np.array('spam').astype(typecode)
             try:
                 outgoing = outgoing.astype(typecode)
             except TypeError:
                 continue
             incoming = self.oc.roundtrip(outgoing)
-            if typecode in 'SU':
-                assert incoming.astype(typecode) == outgoing
-                continue
             try:
                 assert np.allclose(incoming, outgoing)
             except (ValueError, TypeError, NotImplementedError,
