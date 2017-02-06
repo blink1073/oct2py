@@ -30,7 +30,7 @@ class TestNumpy:
             except TypeError:
                 continue
             incoming = self.oc.roundtrip(outgoing)
-            if typecode == 'U':
+            if typecode in 'SU':
                 assert incoming.strip() == outgoing
                 continue
             try:
