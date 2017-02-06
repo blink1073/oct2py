@@ -192,7 +192,7 @@ class OctaveUserClass(object):
         dtype = []
         values = []
         for attr in instance._attrs:
-            dtype.append((attr, object))
+            dtype.append((attr, 'O'))
             values.append(getattr(instance, attr))
         print(values)
         print(dtype)
