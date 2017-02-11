@@ -11,7 +11,7 @@ from __future__ import absolute_import, print_function, division
 import numpy as np
 from scipy.io import loadmat
 
-from .utils import Struct, Oct2PyError
+from .utils import Struct, StructArray, Oct2PyError
 
 
 class Reader(object):
@@ -52,10 +52,22 @@ class Reader(object):
 
         # Extract struct data.
         elif val.dtype.names:
-            out = Struct()
-            for name in val.dtype.names:
-                out[name] = self._extract(val[name].squeeze().tolist())
-            val = out
+            # Singular struct
+            if val.size == 1:
+                out = Struct()
+                for name in val.dtype.names:
+                    out[name] = self._extract(val[name].squeeze().tolist())
+                val = out
+            # Struct array
+            else:
+                out = StructArray(keys=val.dtype.names)
+                val = val.squeeze()
+                for i in range(val.size):
+                    data = Struct()
+                    for (j, name) in enumerate(val.dtype.names):
+                        data[name] = self._extract(val[i][j])
+                    out.append(data)
+                val = out
 
         # Extract cells.
         elif val.dtype.kind == 'O':

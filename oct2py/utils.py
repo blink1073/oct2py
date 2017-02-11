@@ -69,6 +69,7 @@ class Struct(dict):
     >>> pprint(a)
     {'b': 'spam', 'c': {'d': 'eggs'}}
     """
+
     def __getattr__(self, attr):
         """Access the dictionary keys for unknown attributes."""
         try:
@@ -109,6 +110,59 @@ class Struct(dict):
     def __dict__(self):
         """Allow for code completion in a REPL"""
         return self.copy()
+
+
+class StructArray(list):
+    """A Python representation of an Octave structure array.
+
+    Supports value access by index and accessing fields by name or value.
+
+    This class is not meant to be directly created by the user.  It is
+    created automatically for structure array values received from Octave.
+
+    Examples
+    ========
+    >>> from oct2py import octave
+    >>> octave.eval('foo = struct("bar", {1, 2}, "baz", {3, 4});')
+    >>> foo = octave.pull('foo')
+    >>> foo.bar
+    [1.0, 2.0]
+    >>> foo['baz']
+    [3.0, 4.0]
+    >>> foo[0]
+    {'bar': 1.0, 'baz': 3.0}
+    """
+
+    def __init__(self, keys):
+        """Initialize the struct array."""
+        self._keys = keys
+
+    def fieldnames(self):
+        """Get the field names of the structure."""
+        return self._keys
+
+    def __getattr__(self, attr):
+        """Access the dictionary keys for unknown attributes."""
+        try:
+            return self[attr]
+        except KeyError:
+            msg = "'Struct' object has no attribute %s" % attr
+            raise AttributeError(msg)
+
+    def __getitem__(self, attr):
+        """Get an item from the struct array."""
+        if attr in self._keys:
+            return [getattr(item, attr) for item in self]
+
+        return list.__getitem__(self, attr)
+
+    @property
+    def __dict__(self):
+        """Allow for code completion in a REPL"""
+        data = dict()
+        for key in self._keys:
+            data[key] = None
+        return data
 
 
 def get_log(name=None):
