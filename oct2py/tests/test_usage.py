@@ -137,12 +137,11 @@ class TestUsage:
         """
         self.oc.eval(code, plot_dir=plot_dir, plot_format='svg')
         print('plot_settings', self.oc._engine.plot_settings)
-        files = self.oc.extract_figures(plot_dir)
-        print(files)
-        assert len(files) == 2
-        assert isinstance(files[0], SVG)
-        assert isinstance(files[1], Image)
-        assert os.path.splitext(files[1])[1] == '.png'
+        print(os.listdir(plot_dir))
+        imgs = self.oc.extract_figures(plot_dir)
+        assert len(imgs) == 2
+        assert isinstance(imgs[0], SVG)
+        assert isinstance(imgs[1], Image)
 
     def test_quit(self):
         with pytest.raises(Oct2PyError):
@@ -174,7 +173,7 @@ class TestUsage:
         p1.display(verbose=True)
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
-        assert 'X + 2 * X ^ 2' in text
+        assert 'in poly display' in text
 
         self.oc.push('y', p0)
         p2 = self.oc.pull('y')
