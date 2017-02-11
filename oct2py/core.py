@@ -298,7 +298,6 @@ class Oct2Py(object):
                         width=kwargs.get('plot_width'),
                         height=kwargs.get('plot_height'),
                         resolution=kwargs.get('plot_res'))
-        print('plot_settings', settings)
         self._engine.plot_settings = settings
 
         dname = os.path.dirname(func_path)

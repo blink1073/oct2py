@@ -136,6 +136,7 @@ class TestUsage:
         imshow(temp)
         """
         self.oc.eval(code, plot_dir=plot_dir, plot_format='svg')
+        print('plot_settings', self.oc._engine.plot_settings)
         files = self.oc.extract_figures(plot_dir)
         assert len(files) == 2
         assert isinstance(files[0], SVG)

@@ -32,8 +32,6 @@ try
         addpath(req.dname);
     end
 
-    disp(req);
-
     % Replace the names at the specified indices with their values.
     for index=1:length(req.ref_indices)
       ref_index = req.ref_indices(index);
