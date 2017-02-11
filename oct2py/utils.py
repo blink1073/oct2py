@@ -112,7 +112,7 @@ class Struct(dict):
         return self.copy()
 
 
-class StructArray(list):
+class StructArray(object):
     """A Python representation of an Octave structure array.
 
     Supports value access by index and accessing fields by name or value.
@@ -135,14 +135,22 @@ class StructArray(list):
     >>> foo[1].baz  # This is a Struct
     4.0
     """
-
-    def __init__(self, keys):
+    @classmethod
+    def create(cls, value, extractor):
         """Initialize the struct array."""
-        self._keys = keys
+        instance = StructArray()
+        value = np.atleast_2d(value)
+        instance._value = value
+        instance._extractor = extractor
+        return instance
 
+    @property
     def fieldnames(self):
-        """Get the field names of the structure."""
-        return self._keys
+        return self._value.dtype.names
+
+    @property
+    def shape(self):
+        return self._value.shape
 
     def __getattr__(self, attr):
         """Access the dictionary keys for unknown attributes."""
@@ -154,16 +162,42 @@ class StructArray(list):
 
     def __getitem__(self, attr):
         """Get an item from the struct array."""
-        if attr in self._keys:
-            return [getattr(item, attr) for item in self]
 
-        return list.__getitem__(self, attr)
+        # Get the values as a nested list.
+        if attr in self.fieldnames:
+            return self._extractor(self._value[attr])
+
+        # Return simple items as structs
+        if isinstance(attr, int):
+            data = self._value.flatten()[attr]
+            value = Struct()
+            for (i, name) in enumerate(self.fieldnames):
+                value[name] = self._extractor(data[i])
+            return value
+
+        else:
+            # Use numpy indexing.
+            data = self._value[attr]
+            # Return a single value as a struct.
+            if data.size == 1:
+                value = Struct()
+                for (i, name) in enumerate(self.fieldnames):
+                    value[name] = self._extractor(data[i])
+                return value
+            return self._extractor(data)
+
+    def __repr__(self):
+        msg = 'x'.join(str(i) for i in self.shape)
+        msg += ' struct array containing the fields:'
+        for key in self.fieldnames:
+            msg += '\n    %s' % key
+        return msg
 
     @property
     def __dict__(self):
         """Allow for code completion in a REPL"""
         data = dict()
-        for key in self._keys:
+        for key in self.fieldnames:
             data[key] = None
         return data
 

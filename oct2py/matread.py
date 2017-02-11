@@ -60,14 +60,7 @@ class Reader(object):
                 val = out
             # Struct array
             else:
-                out = StructArray(keys=val.dtype.names)
-                val = val.squeeze()
-                for i in range(val.size):
-                    data = Struct()
-                    for (j, name) in enumerate(val.dtype.names):
-                        data[name] = self._extract(val[i][j])
-                    out.append(data)
-                val = out
+                val = StructArray.create(val, self._extract)
 
         # Extract cells.
         elif val.dtype.kind == 'O':
