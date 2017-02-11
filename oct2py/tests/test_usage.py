@@ -135,11 +135,12 @@ class TestUsage:
         temp=rand(100,100);
         imshow(temp)
         """
-        self.oc.eval(code, plot_dir=plot_dir)
+        self.oc.eval(code, plot_dir=plot_dir, plot_format='svg')
         files = self.oc.extract_figures(plot_dir)
         assert len(files) == 2
         assert isinstance(files[0], SVG)
         assert isinstance(files[1], Image)
+        assert os.path.splitext(files[1])[1] == '.png'
 
     def test_quit(self):
         with pytest.raises(Oct2PyError):
@@ -211,7 +212,7 @@ class TestUsage:
         assert np.allclose(value.poly, [1, 2, 3])
 
         with pytest.raises(Oct2PyError):
-            self.oc.get_pointer('foo')
+            self.oc.get_pointer('foo123')
 
     def test_feval(self):
         self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
