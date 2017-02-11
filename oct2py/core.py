@@ -17,9 +17,8 @@ import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
-from .matwrite import Writer
-from .matread import Reader
-from .utils import get_nout, Oct2PyError, get_log
+from .matwrite import write_file
+from .utils import get_nout, Oct2PyError, get_log, read_file
 from .compat import unicode, input, string_types
 from .dynamic import (
     _make_function_ptr_instance, _make_variable_ptr_instance,
@@ -75,8 +74,6 @@ class Oct2Py(object):
         self.convert_to_float = convert_to_float
         self._user_classes = dict()
         self._function_ptrs = dict()
-        self._writer = Writer()
-        self._reader = Reader(self)
         self.restart()
 
     @property
@@ -466,8 +463,8 @@ class Oct2Py(object):
                    store_as=store_as or '',
                    ref_indices=ref_indices)
 
-        self._writer.write_file(req, out_file, oned_as=self._oned_as,
-                                convert_to_float=self.convert_to_float)
+        write_file(req, out_file, oned_as=self._oned_as,
+                   convert_to_float=self.convert_to_float)
 
         # Set up the engine and evaluate the `_pyeval()` function.
         engine.stream_handler = stream_handler or self.logger.info
@@ -489,7 +486,7 @@ class Oct2Py(object):
             raise Oct2PyError('Session died, restarting')
 
         # Read in the output.
-        resp = self._reader.read_file(in_file)
+        resp = read_file(in_file, self)
 
         if resp['err']:
             msg = self._parse_error(resp['err'])

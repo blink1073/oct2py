@@ -13,91 +13,89 @@ from scipy.sparse import spmatrix
 import numpy as np
 
 from .dynamic import OctaveVariablePtr, OctaveUserClass
+from .utils import StructArray
 
 
-class Writer(object):
-    """An object used to write Python objects to a MAT file.
+def write_file(obj, path, oned_as='row', convert_to_float=True):
+    """Save a Python object to an Octave file on the given path.
+    """
+    data = _encode(obj, convert_to_float)
+    try:
+        savemat(path, data, appendmat=False, oned_as=oned_as,
+                long_field_names=True)
+    except KeyError:  # pragma: no cover
+        raise Exception('could not save mat file')
+
+
+def _encode(data, convert_to_float):
+    """Convert the Python values to values suitable to sent to Octave.
     """
 
-    def write_file(self, obj, path, oned_as='row', convert_to_float=True):
-        """Save a Python object to an Octave file on the given path.
-        """
-        self.convert_to_float = convert_to_float
-        data = self._encode(obj)
-        try:
-            savemat(path, data, appendmat=False, oned_as=oned_as,
-                    long_field_names=True)
-        except KeyError:  # pragma: no cover
-            raise Exception('could not save mat file')
+    # Extract the data from a variable pointer or a struct array.
+    if isinstance(data, (StructArray, OctaveVariablePtr)):
+        data = data.value
 
-    def _encode(self, data):
-        """Convert the Python values to values suitable to sent to Octave.
-        """
+    # Extract the data from a user defined object.
+    elif isinstance(data, OctaveUserClass):
+        data = OctaveUserClass.to_value(data)
 
-        # Extract the data from a variable pointer.
-        if isinstance(data, OctaveVariablePtr):
-            data = data.value
+    # Extract the values from dict and Struct objects.
+    if isinstance(data, dict):
+        out = dict()
+        for (key, value) in data.items():
+            out[key] = _encode(value, convert_to_float)
+        return out
 
-        # Extract the data from a user defined object.
-        elif isinstance(data, OctaveUserClass):
-            data = OctaveUserClass.to_value(data)
+    # Send None as nan.
+    if data is None:
+        return np.NaN
 
-        # Extract the values from dict and Struct objects.
-        if isinstance(data, dict):
-            out = dict()
-            for (key, value) in data.items():
-                out[key] = self._encode(value)
-            return out
+    # Handle list-like types.
+    if isinstance(data, (tuple, set, list)):
+        is_tuple = isinstance(data, tuple)
+        data = [_encode(o, convert_to_float) for o in data]
 
-        # Send None as nan.
-        if data is None:
-            return np.NaN
+        if not is_tuple:
+            # Convert to a numeric array if possible.
+            try:
+                return _handle_list(data, convert_to_float)
+            except ValueError:
+                pass
 
-        # Handle list-like types.
-        if isinstance(data, (tuple, set, list)):
-            is_tuple = isinstance(data, tuple)
-            data = [self._encode(o) for o in data]
+        # Create a cell object.
+        cell = np.empty((len(data),), dtype=object)
+        for i in range(len(data)):
+            cell[i] = data[i]
+        return cell
 
-            if not is_tuple:
-                # Convert to a numeric array if possible.
-                try:
-                    return self._handle_list(data)
-                except ValueError:
-                    pass
+    # Sparse data must be floating type.
+    if isinstance(data, spmatrix):
+        return data.astype(np.float64)
 
-            # Create a cell object.
-            cell = np.empty((len(data),), dtype=object)
-            for i in range(len(data)):
-                cell[i] = data[i]
-            return cell
-
-        # Sparse data must be floating type.
-        if isinstance(data, spmatrix):
-            return data.astype(np.float64)
-
-        # Return other data types unchanged.
-        if not isinstance(data, np.ndarray):
-            return data
-
-        # Complex 128 is the highest supported by savemat.
-        if data.dtype.name == 'complex256':
-            return data.astype(np.complex128)
-
-        # Convert to float if applicable.
-        if self.convert_to_float and data.dtype.kind in 'ui':
-            return data.astype(np.float64)
-
+    # Return other data types unchanged.
+    if not isinstance(data, np.ndarray):
         return data
 
-    def _handle_list(self, data):
-        """Handle an encoded list."""
+    # Complex 128 is the highest supported by savemat.
+    if data.dtype.name == 'complex256':
+        return data.astype(np.complex128)
 
-        # Convert to an array.
-        data = np.array(data)
+    # Convert to float if applicable.
+    if convert_to_float and data.dtype.kind in 'ui':
+        return data.astype(np.float64)
 
-        # Only handle numeric types.
-        if data.dtype.kind not in 'uicf':
-            raise ValueError
+    return data
 
-        # Handle any other ndarray considerations.
-        return self._encode(data)
+
+def _handle_list(data, convert_to_float):
+    """Handle an encoded list."""
+
+    # Convert to an array.
+    data = np.array(data)
+
+    # Only handle numeric types.
+    if data.dtype.kind not in 'uicf':
+        raise ValueError
+
+    # Handle any other ndarray considerations.
+    return _encode(data, convert_to_float)

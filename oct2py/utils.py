@@ -56,6 +56,8 @@ class Struct(dict):
     """
     Octave style struct, enhanced.
 
+    Notes
+    =====
     Supports dictionary and attribute style access.  Can be pickled,
     and supports code completion in a REPL.
 
@@ -69,6 +71,13 @@ class Struct(dict):
     >>> pprint(a)
     {'b': 'spam', 'c': {'d': 'eggs'}}
     """
+    @classmethod
+    def from_value(cls, value, session=None):
+        instance = Struct()
+        for name in value.dtype.names:
+            data = value[name].squeeze().tolist()
+            instance[name] = extract_data(data, session)
+        return instance
 
     def __getattr__(self, attr):
         """Access the dictionary keys for unknown attributes."""
@@ -113,9 +122,14 @@ class Struct(dict):
 
 
 class StructArray(object):
-    """A Python representation of an Octave structure array.
+    """A Python representation of a view to an Octave structure array.
 
+    Notes
+    =====
     Supports value access by index and accessing fields by name or value.
+    Differs slightly from numpy indexing in that a single number index
+    is used to find the nth element in the flattened array, mimicking
+    the behavior of a struct array in Octave.
 
     This class is not meant to be directly created by the user.  It is
     created automatically for structure array values received from Octave.
@@ -136,21 +150,21 @@ class StructArray(object):
     4.0
     """
     @classmethod
-    def create(cls, value, extractor):
+    def from_value(cls, value, session=None):
         """Initialize the struct array."""
         instance = StructArray()
         value = np.atleast_2d(value)
         instance._value = value
-        instance._extractor = extractor
+        instance._session = session
         return instance
 
     @property
-    def fieldnames(self):
-        return self._value.dtype.names
+    def value(self):
+        return self._value
 
     @property
-    def shape(self):
-        return self._value.shape
+    def fieldnames(self):
+        return self.value.dtype.names
 
     def __getattr__(self, attr):
         """Access the dictionary keys for unknown attributes."""
@@ -165,29 +179,22 @@ class StructArray(object):
 
         # Get the values as a nested list.
         if attr in self.fieldnames:
-            return self._extractor(self._value[attr])
+            return extract_data(self.value[attr], self._session)
 
-        # Return simple items as structs
+        # Support simple indexing.
         if isinstance(attr, int):
-            data = self._value.flatten()[attr]
-            value = Struct()
-            for (i, name) in enumerate(self.fieldnames):
-                value[name] = self._extractor(data[i])
-            return value
+            data = self.value.flatten()[attr]
+            return Struct.from_value(data, self._session)
 
-        else:
-            # Use numpy indexing.
-            data = self._value[attr]
-            # Return a single value as a struct.
-            if data.size == 1:
-                value = Struct()
-                for (i, name) in enumerate(self.fieldnames):
-                    value[name] = self._extractor(data[i])
-                return value
-            return self._extractor(data)
+        # Otherwise use numpy indexing.
+        data = self.value[attr]
+        # Return a single value as a struct.
+        if data.size == 1:
+            return Struct.from_value(data, self._session)
+        return StructArray.from_value(data, self._session)
 
     def __repr__(self):
-        msg = 'x'.join(str(i) for i in self.shape)
+        msg = 'x'.join(str(i) for i in self.value.shape)
         msg += ' struct array containing the fields:'
         for key in self.fieldnames:
             msg += '\n    %s' % key
@@ -200,6 +207,64 @@ class StructArray(object):
         for key in self.fieldnames:
             data[key] = None
         return data
+
+
+def read_file(path, session=None):
+    """Read the data from the given file path.
+    """
+    try:
+        data = loadmat(path, struct_as_record=True)
+    except UnicodeDecodeError as e:
+        raise Oct2PyError(str(e))
+    out = dict()
+    for (key, value) in data.items():
+        out[key] = extract_data(value, session)
+    return out
+
+
+def extract_data(data, session=None):
+    # Extract each item of a list.
+    if isinstance(data, list):
+        return [extract_data(v, session) for v in data]
+
+    # Ignore leaf objects.
+    if not isinstance(data, np.ndarray):
+        return data
+
+    # Convert user defined classes.
+    if hasattr(data, 'classname') and session:
+        cls = session._get_user_class(data.classname)
+        data = cls.from_value(data)
+
+    # Extract struct data.
+    if data.dtype.names:
+        # Singular struct
+        if data.size == 1:
+            data = Struct.from_value(data, session)
+        # Struct array
+        else:
+            data = StructArray.from_value(data, session)
+
+    # Extract cells.
+    elif data.dtype.kind == 'O':
+        data = data.squeeze().tolist()
+        if not isinstance(data, list):
+            data = [data]
+        data = extract_data(data, session)
+
+    # Compress singleton values.
+    elif data.size == 1:
+        data = data.item()
+
+    # Compress empty values.
+    elif data.size == 0:
+        if data.dtype.kind in 'US':
+            data = ''
+        else:
+            data = []
+
+    # Return parsed value.
+    return data
 
 
 def get_log(name=None):
@@ -247,5 +312,6 @@ def _setup_log():
     log.addHandler(handler)
     log.setLevel(logging.INFO)
     log.propagate = False
+
 
 _setup_log()
