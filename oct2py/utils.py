@@ -123,14 +123,17 @@ class StructArray(list):
     Examples
     ========
     >>> from oct2py import octave
+    >>> # generate the struct array
     >>> octave.eval('foo = struct("bar", {1, 2}, "baz", {3, 4});')
     >>> foo = octave.pull('foo')
-    >>> foo.bar
+    >>> foo.bar  # value access
     [1.0, 2.0]
-    >>> foo['baz']
+    >>> foo['baz']  # item access
     [3.0, 4.0]
-    >>> foo[0]
+    >>> foo[0]  # index access
     {'bar': 1.0, 'baz': 3.0}
+    >>> foo[1].baz  # This is a Struct
+    4.0
     """
 
     def __init__(self, keys):
