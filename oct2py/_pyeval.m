@@ -73,6 +73,8 @@ try
     end
 
 catch ME
+    disp('***handling error')
+    disp(req);
     err = ME;
 end
 

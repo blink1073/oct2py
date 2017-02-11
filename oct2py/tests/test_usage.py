@@ -138,6 +138,7 @@ class TestUsage:
         self.oc.eval(code, plot_dir=plot_dir, plot_format='svg')
         print('plot_settings', self.oc._engine.plot_settings)
         files = self.oc.extract_figures(plot_dir)
+        print(files)
         assert len(files) == 2
         assert isinstance(files[0], SVG)
         assert isinstance(files[1], Image)
