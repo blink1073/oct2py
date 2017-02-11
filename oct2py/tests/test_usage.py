@@ -130,8 +130,9 @@ class TestUsage:
     def test_extract_figures(self):
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
         code = """
+        figure 1
         plot([1,2,3])
-        figure
+        figure 2
         temp=rand(100,100);
         imshow(temp)
         """
