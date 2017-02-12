@@ -326,7 +326,7 @@ def _extract_data(data, session=None):
         data = cls.from_value(data)
 
     # Extract struct data.
-    if data.dtype.names:
+    elif data.dtype.names:
         # Singular struct
         if data.size == 1:
             data = Struct.from_value(data, session)
