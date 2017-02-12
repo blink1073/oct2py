@@ -38,9 +38,9 @@ Note that when `convert_to_float` is set (default is True),
 integer types are converted to floating point before sending them
 to Octave.
 
-=============   ===========    =============
+=============   ============   =============
 Numpy           Octave         Numpy
-=============   ===========    =============
+=============   ============   =============
 np.int8         int8           np.int8
 np.int16        int16          np.int16
 np.int32        int32          np.int32

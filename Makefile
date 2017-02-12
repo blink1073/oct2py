@@ -40,7 +40,7 @@ release: clean gh-pages
 
 docs: clean
 	pip install -q sphinx-bootstrap-theme numpydoc sphinx ghp-import
-	export SPHINXOPTS=-W; make -C doc html
+	export SPHINXOPTS=-W; make -C docs html
 
 gh-pages:
 	git checkout master
