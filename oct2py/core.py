@@ -510,7 +510,7 @@ class Oct2Py(object):
         """Create a traceback for an Octave evaluation error.
         """
         self.logger.debug(err)
-        stack = err['stack']
+        stack = err.get('stack', [])
         if not err['message'].startswith('parse error:'):
             err['message'] = 'error: ' + err['message']
         errmsg = 'Octave evaluation error:\n%s' % err['message']
