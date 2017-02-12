@@ -585,7 +585,8 @@ class Oct2Py(object):
         resp = self._engine.eval(cmd, silent=True).strip()
         exist = int(resp.split()[-1])
         if exist == 0:
-            raise Oct2PyError('Value "%s" does not exist' % name)
+            msg = 'Value "%s" does not exist in Octave workspace'
+            raise Oct2PyError(msg % name)
         return exist
 
     def _isobject(self, name, exist):
