@@ -146,6 +146,7 @@ class StructArray(object):
             for name in value.dtype.names:
                 value[index][name] = _extract_data(value[index][name], session)
         instance._value = value
+        instance._session = session
         return instance
 
     @classmethod
@@ -153,11 +154,15 @@ class StructArray(object):
         value = instance._value
         out = np.empty(value.shape, value.dtype)
         names = instance.fieldnames
+        convert_to_float = True
+        if hasattr(instance, '_session'):
+            convert_to_float = instance._session.convert_to_float
+
         for i in range(value.size):
             index = np.unravel_index(i, value.shape)
             item = out[index]
             for name in names:
-                item[name] = _encode[item[name]]
+                item[name] = _encode(item[name], convert_to_float)
         return out
 
     @property
@@ -192,13 +197,13 @@ class StructArray(object):
             if attr >= value.size:
                 raise IndexError('Index out of range')
             index = np.unravel_index(attr, value.shape)
-            return StructElement(self._value[index])
+            return StructElement(self._value[index], self._session)
 
         # Otherwise use numpy indexing.
         data = value[attr]
         # Return a single value as a struct.
         if data.size == 1:
-            return StructElement(data)
+            return StructElement(data, self._session)
         instance = StructArray()
         instance._value = data
         return instance
@@ -247,15 +252,19 @@ class StructElement(object):
     'spam'
     """
 
-    def __init__(self, data):
+    def __init__(self, data, session=None):
         """Create a new struct element"""
         self._data = data
+        self._session = session
 
     @classmethod
     def to_value(cls, instance):
         out = Struct()
+        convert_to_float = True
+        if hasattr(instance, '_session'):
+            convert_to_float = instance._session.convert_to_float
         for key in instance.fieldnames:
-            out[key] = _encode(instance[key])
+            out[key] = _encode(instance[key], convert_to_float)
         return out
 
     @property
