@@ -1,16 +1,12 @@
-"""
-.. module:: speed_test
-   :synopsis: Checks the speed penalty of the HDF transfers.
+# -*- coding: utf-8 -*-
+# Copyright (c) oct2py developers.
+# Distributed under the terms of the MIT License.
 
-.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
-
-
-"""
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import time
 import timeit
 import numpy as np
-from oct2py import Oct2Py
+from . import Oct2Py
 
 
 class SpeedCheck(object):

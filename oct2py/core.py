@@ -1,11 +1,7 @@
-"""
-.. module:: core
-   :synopsis: Main module for oct2py package.
-              Contains the core session object Oct2Py
+# -*- coding: utf-8 -*-
+# Copyright (c) oct2py developers.
+# Distributed under the terms of the MIT License.
 
-.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
-
-"""
 from __future__ import print_function, absolute_import, division
 
 import logging
@@ -17,8 +13,8 @@ import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
-from .matwrite import write_file
-from .utils import get_nout, Oct2PyError, get_log, read_file
+from .io import read_file, write_file
+from .utils import get_nout, Oct2PyError, get_log
 from .compat import unicode, input, string_types
 from .dynamic import (
     _make_function_ptr_instance, _make_variable_ptr_instance,

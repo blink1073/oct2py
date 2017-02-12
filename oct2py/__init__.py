@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) oct2py developers.
+# Distributed under the terms of the MIT License.
+
 """
-Oct2Py is a means to seamlessly call M-files and GNU Octave functions from Python.
+Oct2Py is a means to seamlessly call M-files and GNU Octave functions from
+Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
@@ -17,32 +21,18 @@ MAT files.  Usage is as simple as:
 If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
 """
+from __future__ import absolute_import, print_function, division
 
-__title__ = 'oct2py'
-__version__ = '3.9.2'
-__author__ = 'Steven Silvester'
-__license__ = 'MIT'
-__copyright__ = 'Copyright 2014-2016 Steven Silvester'
-__all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_check',
-           'thread_check', '__version__', 'get_log']
-
-
-import imp
-import functools
-import os
-import ctypes
-
-try:
-    import thread
-except ImportError:
-    import _thread as thread
-
-from .core import Oct2Py, Oct2PyError
-from .utils import Struct, get_log
+from .core import Oct2Py
+from .io import Struct
+from .utils import get_log, Oct2PyError
 from .demo import demo
 from .speed_check import speed_check
 from .thread_check import thread_check
 
+__version__ = '4.0-dev'
+__all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_check',
+           'thread_check', '__version__', 'get_log']
 
 try:
     octave = Oct2Py()
@@ -63,7 +53,3 @@ def kill_octave():
         os.system('killall -9 octave')
         os.system('killall -9 octave-cli')
     octave.restart()
-
-
-# clean up namespace
-del functools, imp, os, ctypes, thread

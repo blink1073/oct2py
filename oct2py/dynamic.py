@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) oct2py developers.
+# Distributed under the terms of the MIT License.
+
+from __future__ import absolute_import, print_function, division
+
 import types
 import warnings
 import weakref
@@ -5,8 +11,8 @@ import weakref
 import numpy as np
 from scipy.io.matlab.mio5 import MatlabObject
 
-from oct2py.compat import PY2
-from oct2py.utils import get_nout
+from .compat import PY2
+from .utils import get_nout
 
 
 class OctavePtr(object):
