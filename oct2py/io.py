@@ -25,7 +25,7 @@ def read_file(path, session=None):
         raise Oct2PyError(str(e))
     out = dict()
     for (key, value) in data.items():
-        out[key] = _extract_data(value, session)
+        out[key] = _extract(value, session)
     return out
 
 
@@ -68,7 +68,7 @@ class Struct(dict):
             data = value[name]
             if isinstance(data, np.ndarray) and data.dtype.kind == 'O':
                 data = value[name].squeeze().tolist()
-            instance[name] = _extract_data(data, session)
+            instance[name] = _extract(data, session)
         return instance
 
     def __getattr__(self, attr):
@@ -144,15 +144,15 @@ class StructArray(object):
         for i in range(value.size):
             index = np.unravel_index(i, value.shape)
             for name in value.dtype.names:
-                value[index][name] = _extract_data(value[index][name], session)
+                value[index][name] = _extract(value[index][name], session)
         instance._value = value
         instance._session = session
         return instance
 
     @classmethod
     def to_value(cls, instance):
-        value = instance._value
-        out = np.empty(value.shape, value.dtype)
+        orig = instance._value
+        value = np.empty(orig.shape, orig.dtype)
         names = instance.fieldnames
         convert_to_float = True
         if hasattr(instance, '_session'):
@@ -160,10 +160,10 @@ class StructArray(object):
 
         for i in range(value.size):
             index = np.unravel_index(i, value.shape)
-            item = out[index]
+            item = orig[index]
             for name in names:
-                item[name] = _encode(item[name], convert_to_float)
-        return out
+                value[index][name] = _encode(item[name], convert_to_float)
+        return value
 
     @property
     def fieldnames(self):
@@ -190,7 +190,7 @@ class StructArray(object):
 
         # Get the values as a nested list.
         if attr in self.fieldnames:
-            return _extract_data(value[attr])
+            return _extract(value[attr])
 
         # Support simple indexing.
         if isinstance(attr, int):
@@ -306,10 +306,10 @@ class StructElement(object):
         return data
 
 
-def _extract_data(data, session=None):
+def _extract(data, session=None):
     # Extract each item of a list.
     if isinstance(data, list):
-        return [_extract_data(v, session) for v in data]
+        return [_extract(v, session) for v in data]
 
     # Ignore leaf objects.
     if not isinstance(data, np.ndarray):
@@ -334,7 +334,7 @@ def _extract_data(data, session=None):
         data = data.squeeze().tolist()
         if not isinstance(data, list):
             data = [data]
-        data = _extract_data(data, session)
+        data = _extract(data, session)
 
     # Compress singleton values.
     elif data.size == 1:
@@ -351,8 +351,17 @@ def _extract_data(data, session=None):
     return data
 
 
+class Cell(np.ndarray):
+    """An octave cell object"""
+    def __new__(cls, data):
+        obj = np.empty((len(data),), dtype=object).view(cls)
+        for (i, item) in enumerate(data):
+            obj[i] = item
+        return obj
+
+
 def _encode(data, convert_to_float):
-    """Convert the Python values to values suitable to sent to Octave.
+    """Convert the Python values to values suitable to send to Octave.
     """
 
     # Handle variable pointer.
@@ -382,23 +391,25 @@ def _encode(data, convert_to_float):
     if data is None:
         return np.NaN
 
-    # Handle list-like types.
-    if isinstance(data, (tuple, set, list)):
-        is_tuple = isinstance(data, tuple)
-        data = [_encode(o, convert_to_float) for o in data]
+    # Sets are treated like lists.
+    if isinstance(data, set):
+        data = list(data)
 
-        if not is_tuple:
-            # Convert to a numeric array if possible.
-            try:
-                return _handle_list(data, convert_to_float)
-            except ValueError:
-                pass
+    # Lists can be interpreted as numeric arrays or cell arrays.
+    if isinstance(data, list):
+        if _is_simple_numeric(data):
+            data = np.array(data)
+        else:
+            data = tuple(data)
 
-        # Create a cell object.
-        cell = np.empty((len(data),), dtype=object)
-        for i in range(len(data)):
-            cell[i] = data[i]
-        return cell
+    # Tuples are handled as cells.
+    if isinstance(data, tuple):
+        data = [_encode(i, convert_to_float) for i in data]
+        # Aggregate cells if necessary.
+        if len(data) > 1 and all(isinstance(i, Cell) for i in data):
+            data = np.array(data)
+        else:
+            data = Cell(data)
 
     # Sparse data must be floating type.
     if isinstance(data, spmatrix):
@@ -419,15 +430,14 @@ def _encode(data, convert_to_float):
     return data
 
 
-def _handle_list(data, convert_to_float):
-    """Handle an encoded list."""
-
-    # Convert to an array.
-    data = np.array(data)
-
-    # Only handle numeric types.
-    if data.dtype.kind not in 'uicf':
-        raise ValueError
-
-    # Handle any other ndarray considerations.
-    return _encode(data, convert_to_float)
+def _is_simple_numeric(data):
+    """Test if a list contains simple numeric data."""
+    for item in data:
+        if isinstance(item, set):
+            item = list(item)
+        if isinstance(item, list):
+            if not _is_simple_numeric(item):
+                return False
+        elif not isinstance(item, (int, float, complex)):
+            return False
+    return True

@@ -164,21 +164,24 @@ class TestRoundTrip:
 
         # Handle simple objects.
         for key in self.data.keys():
-            if key not in ['nested', 'sparse', 'struct_array', 'cell',
-                           'struct_vector', 'object']:
-                cmd = '{0}(x.{1},y.{1})'.format(func, key)
+            if key not in ['nested', 'sparse', 'cell', 'object']:
+                cmd = '{0}(x.{1},y.{1});'.format(func, key)
                 assert self.oc.eval(cmd), key
-                cmd = '{0}(x.nested.{1},y.nested.{1})'.format(func, key)
+                cmd = '{0}(x.nested.{1},y.nested.{1});'.format(func, key)
                 assert self.oc.eval(cmd), key
 
         # Handle cell type.
         for key in self.data['cell'].keys():
-            if key in ['matrix', 'empty', 'array']:
+            if key in ['empty', 'array']:
                 continue
-            cmd = '{0}(x.cell.{1},y.cell.{1})'.format(func, key)
+            cmd = '{0}(x.cell.{1},y.cell.{1});'.format(func, key)
             assert self.oc.eval(cmd), key
-            cmd = '{0}(x.nested.cell.{1},y.nested.cell.{1})'.format(func, key)
+            cmd = '{0}(x.nested.cell.{1},y.nested.cell.{1});'.format(func, key)
             assert self.oc.eval(cmd), key
+        for i in [1, 2]:
+            cmd = '{0}(x.cell.{1}({2}),y.cell.{1}({2}))'
+            cmd = cmd.format(func, 'array', i)
+            assert self.oc.eval(cmd, key)
 
         # Handle object type.
         cmd = '{0}(get(x.object, "poly"), get(y.object, "poly"))'
@@ -268,7 +271,7 @@ class TestBuiltins:
         test = set((1, 2, 3, 3))
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
-        assert type(incoming) == np.ndarray
+        assert isinstance(incoming, np.ndarray)
 
     def test_tuple(self):
         """Test python tuple type
@@ -277,6 +280,12 @@ class TestBuiltins:
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, list)
         assert tuple(incoming) == test
+
+    def test_tuple_of_tuples(self):
+        test = tuple(((1, 2), (3, 4)))
+        incoming = self.oc.roundtrip(test)
+        assert type(incoming) == list
+        assert np.allclose(np.array(incoming), np.array(test))
 
     def test_list(self):
         """Test python list type
@@ -290,7 +299,7 @@ class TestBuiltins:
         """
         test = [(1, 2), (1.5, 3.2)]
         incoming = self.oc.roundtrip(test)
-        assert incoming == [[1, 2], [1.5, 3.2]]
+        assert np.allclose(incoming, [[1, 2], [1.5, 3.2]])
 
     def test_numeric(self):
         """Test python numeric types

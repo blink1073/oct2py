@@ -304,7 +304,7 @@ class Oct2Py(object):
                               ' eval("clear(var1, var2)")')
 
         stream_handler = kwargs.get('stream_handler')
-        verbose = kwargs.get('verbose', False)
+        verbose = kwargs.get('verbose', True)
         store_as = kwargs.get('store_as', '')
         timeout = kwargs.get('timeout', self.timeout)
         if not stream_handler:
