@@ -13,7 +13,7 @@ from scipy.sparse import spmatrix
 import numpy as np
 
 from .dynamic import OctaveVariablePtr, OctaveUserClass
-from .utils import StructArray
+from .utils import StructArray, StructElement
 
 
 def write_file(obj, path, oned_as='row', convert_to_float=True):
@@ -31,13 +31,21 @@ def _encode(data, convert_to_float):
     """Convert the Python values to values suitable to sent to Octave.
     """
 
-    # Extract the data from a variable pointer or a struct array.
-    if isinstance(data, (StructArray, OctaveVariablePtr)):
+    # Handle variable pointer.
+    if isinstance(data, (OctaveVariablePtr)):
         data = data.value
 
-    # Extract the data from a user defined object.
+    # Handle a user defined object.
     elif isinstance(data, OctaveUserClass):
         data = OctaveUserClass.to_value(data)
+
+    # Handle struct array.
+    elif isinstance(data, StructArray):
+        data = StructArray.to_value(data)
+
+    # Handle struct element.
+    elif isinstance(data, StructElement):
+        data = StructElement.to_value(data)
 
     # Extract the values from dict and Struct objects.
     if isinstance(data, dict):

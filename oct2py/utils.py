@@ -73,14 +73,18 @@ class Struct(dict):
     """
     @classmethod
     def from_value(cls, value, session=None):
+        """Create a struct from an Octave value and optional session.
+        """
         instance = Struct()
         for name in value.dtype.names:
-            data = value[name].squeeze().tolist()
-            instance[name] = extract_data(data, session)
+            data = value[name]
+            if isinstance(data, np.ndarray) and data.dtype.kind == 'O':
+                data = value[name].squeeze().tolist()
+            instance[name] = _extract_data(data, session)
         return instance
 
     def __getattr__(self, attr):
-        """Access the dictionary keys for unknown attributes."""
+        # Access the dictionary keys for unknown attributes.
         try:
             return self[attr]
         except KeyError:
@@ -88,11 +92,8 @@ class Struct(dict):
             raise AttributeError(msg)
 
     def __getitem__(self, attr):
-        """
-        Get a dict value; create a Struct if requesting a Struct member.
-
-        Do not create a key if the attribute starts with an underscore.
-        """
+        # Get a dict value; create a Struct if requesting a Struct member.
+        # Do not create a key if the attribute starts with an underscore.
         if attr in self.keys() or attr.startswith('_'):
             return dict.__getitem__(self, attr)
         frame = inspect.currentframe()
@@ -104,7 +105,7 @@ class Struct(dict):
         return dict.__getitem__(self, attr)
 
     def _is_allowed(self, frame):
-        """Check for allowed op code in the calling frame"""
+        # Check for allowed op code in the calling frame.
         allowed = [dis.opmap['STORE_ATTR'], dis.opmap['LOAD_CONST'],
                    dis.opmap.get('STOP_CODE', 0)]
         bytecode = frame.f_code.co_code
@@ -117,18 +118,18 @@ class Struct(dict):
 
     @property
     def __dict__(self):
-        """Allow for code completion in a REPL"""
+        # Allow for code completion in a REPL.
         return self.copy()
 
 
 class StructArray(object):
-    """A Python representation of a view to an Octave structure array.
+    """A Python representation of an Octave structure array.
 
     Notes
     =====
     Supports value access by index and accessing fields by name or value.
     Differs slightly from numpy indexing in that a single number index
-    is used to find the nth element in the flattened array, mimicking
+    is used to find the nth element in the array, mimicking
     the behavior of a struct array in Octave.
 
     This class is not meant to be directly created by the user.  It is
@@ -144,63 +145,151 @@ class StructArray(object):
     [1.0, 2.0]
     >>> foo['baz']  # item access
     [3.0, 4.0]
-    >>> foo[0]  # index access
-    {'bar': 1.0, 'baz': 3.0}
-    >>> foo[1].baz  # This is a Struct
+    >>> ell = foo[0]  # index access
+    >>> foo[1]['baz']
     4.0
     """
     @classmethod
     def from_value(cls, value, session=None):
-        """Initialize the struct array."""
+        """Create a struct array from an Octave value and optional seesion."""
         instance = StructArray()
-        value = np.atleast_2d(value)
+        for i in range(value.size):
+            index = np.unravel_index(i, value.shape)
+            for name in value.dtype.names:
+                value[index][name] = _extract_data(value[index][name], session)
         instance._value = value
-        instance._session = session
         return instance
 
-    @property
-    def value(self):
-        return self._value
+    @classmethod
+    def to_value(cls, instance):
+        return instance._value
 
     @property
     def fieldnames(self):
-        return self.value.dtype.names
+        """The field names of the struct array."""
+        return self._value.dtype.names
+
+    def __setattr__(self, attr, value):
+        if attr not in ['_value', '_session'] and attr in self.fieldnames:
+            self._value[attr] = value
+        else:
+            object.__setattr__(self, attr, value)
 
     def __getattr__(self, attr):
-        """Access the dictionary keys for unknown attributes."""
+        # Access the dictionary keys for unknown attributes.
         try:
             return self[attr]
         except KeyError:
-            msg = "'Struct' object has no attribute %s" % attr
+            msg = "'StructArray' object has no attribute %s" % attr
             raise AttributeError(msg)
 
     def __getitem__(self, attr):
-        """Get an item from the struct array."""
+        # Get an item from the struct array.
+        value = self._value
 
         # Get the values as a nested list.
         if attr in self.fieldnames:
-            return extract_data(self.value[attr], self._session)
+            return _extract_data(value[attr])
 
         # Support simple indexing.
         if isinstance(attr, int):
-            data = self.value.flatten()[attr]
-            return Struct.from_value(data, self._session)
+            if attr >= value.size:
+                raise IndexError('Index out of range')
+            index = np.unravel_index(attr, value.shape)
+            return StructElement(self._value[index])
 
         # Otherwise use numpy indexing.
-        data = self.value[attr]
+        data = value[attr]
         # Return a single value as a struct.
         if data.size == 1:
-            return Struct.from_value(data, self._session)
-        return StructArray.from_value(data, self._session)
+            return StructElement(data)
+        instance = StructArray()
+        instance._value = data
+        return instance
 
     def __repr__(self):
-        msg = 'x'.join(str(i) for i in self.value.shape)
+        shape = self._value.shape
+        if len(shape) == 1:
+            shape = (shape, 1)
+        msg = 'x'.join(str(i) for i in shape)
         msg += ' struct array containing the fields:'
         for key in self.fieldnames:
             msg += '\n    %s' % key
         return msg
 
     @property
+    def __dict__(self):
+        # Allow for code completion in a REPL.
+        data = dict()
+        for key in self.fieldnames:
+            data[key] = None
+        return data
+
+
+class StructElement(object):
+    """An element of a structure array.
+
+    Notes
+    -----
+    Supports value access by index and accessing fields by name or value.
+    Does not support adding or removing fields.
+
+    This class is not meant to be directly created by the user.  It is
+    created automatically for structure array values received from Octave.
+
+    Examples
+    --------
+    >>> from oct2py import octave
+    >>> # generate the struct array
+    >>> octave.eval('foo = struct("bar", {1, 2}, "baz", {3, 4});')
+    >>> foo = octave.pull('foo')
+    >>> el = foo[0]
+    >>> el['baz']
+    3.0
+    >>> el.bar = 'spam'
+    >>> el.bar
+    'spam'
+    """
+
+    def __init__(self, data):
+        """Create a new struct element"""
+        self._data = data
+
+    @classmethod
+    def to_value(cls, instance):
+        return instance._data
+
+    @property
+    def fieldnames(self):
+        """The field names of the struct array element."""
+        return self._data.dtype.names
+
+    def __getattr__(self, attr):
+        # Access the dictionary keys for unknown attributes.
+        if not attr.startswith('_') and attr in self.fieldnames:
+            return self.__getitem__(attr)
+        return object.__getattr__(self, attr)
+
+    def __setattr__(self, attr, value):
+        if not attr.startswith('_') and attr in self.fieldnames:
+            self._data[attr] = value
+            return
+        object.__setattr__(self, attr, value)
+
+    def __getitem__(self, item):
+        if item in self.fieldnames:
+            return self._data[item]
+        raise IndexError('Invalid index')
+
+    def __setitem__(self, item, value):
+        self._data[item] = value
+
+    def __repr__(self):
+        msg = 'struct array element containing the fields:'
+        for key in self.fieldnames:
+            msg += '\n    %s' % key
+        return msg
+
     def __dict__(self):
         """Allow for code completion in a REPL"""
         data = dict()
@@ -218,14 +307,14 @@ def read_file(path, session=None):
         raise Oct2PyError(str(e))
     out = dict()
     for (key, value) in data.items():
-        out[key] = extract_data(value, session)
+        out[key] = _extract_data(value, session)
     return out
 
 
-def extract_data(data, session=None):
+def _extract_data(data, session=None):
     # Extract each item of a list.
     if isinstance(data, list):
-        return [extract_data(v, session) for v in data]
+        return [_extract_data(v, session) for v in data]
 
     # Ignore leaf objects.
     if not isinstance(data, np.ndarray):
@@ -250,7 +339,7 @@ def extract_data(data, session=None):
         data = data.squeeze().tolist()
         if not isinstance(data, list):
             data = [data]
-        data = extract_data(data, session)
+        data = _extract_data(data, session)
 
     # Compress singleton values.
     elif data.size == 1:
@@ -315,3 +404,4 @@ def _setup_log():
 
 
 _setup_log()
+

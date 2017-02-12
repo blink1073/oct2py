@@ -8,6 +8,7 @@ Python to Octave Types
 Shows the round-trip data types, originating in Python.
 Lists and sets will be converted to a numeric array if possible, falling back 
 on cells.  If an Octave cell consisting of numbers is desired, use a tuple.
+Struct, StructArray, and StructElement are Oct2Py convenience classes.
 
 =============   ===============   ===============
 Python          Octave            Python
@@ -24,6 +25,9 @@ dict            struct            Struct
 tuple           cell              list
 list            array or cell     ndarray or list
 set             array or cell     ndarray or list
+Struct          struct            Struct
+StructArray     struct array      StructArray
+StructElement   struct            Struct
 =============   ===============   ===============
 
 
@@ -57,7 +61,8 @@ np.bool         logical        bool
 np.str          cell           list
 np.object       cell           list
 sparse          sparse         sparse
-=============   ===========    =============
+recarray        struct array   StructArray
+=============   ============   =============
 
 
 Octave to Python Types
@@ -73,6 +78,7 @@ Octave               Python
 array                ndarray
 cell                 list
 struct               Struct
+struct array         StructArray
 logical              ndarray (of uint8)
 sparse               sparse
 user defined object  Oct2Py object pointer
