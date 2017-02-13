@@ -141,8 +141,10 @@ class TestRoundTrip:
     def test_struct_array(self):
         """Test roundtrip value and type preservation for struct array types
         """
-        self.helper(self.data.struct_array['name'], list)
-        self.helper(self.data.struct_array['age'], list)
+        data = self.data.struct_array
+        incoming = self.oc.roundtrip(data)
+        assert incoming.name.tolist() == data.name.tolist()
+        assert incoming.age.tolist() == data.age.tolist()
 
     def test_cell_array(self):
         """Test roundtrip value and type preservation for cell array types

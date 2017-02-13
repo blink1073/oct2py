@@ -110,13 +110,12 @@ class Struct(dict):
         return self.copy()
 
 
-class StructArray(object):
+class StructArray(np.recarray):
     """A Python representation of an Octave structure array.
 
     Notes
     =====
-    Supports value access by index and accessing fields by name or value.
-    Differs slightly from numpy indexing in that a single number index
+    Differs from numpy indexing in that a single number index
     is used to find the nth element in the array, mimicking
     the behavior of a struct array in Octave.
 
@@ -129,87 +128,39 @@ class StructArray(object):
     >>> # generate the struct array
     >>> octave.eval('foo = struct("bar", {1, 2}, "baz", {3, 4});')
     >>> foo = octave.pull('foo')
-    >>> foo.bar  # value access
+    >>> foo.bar  # attribute access
     [1.0, 2.0]
     >>> foo['baz']  # item access
     [3.0, 4.0]
-    >>> ell = foo[0]  # index access
+    >>> el = foo[0]  # index access
     >>> foo[1]['baz']
     4.0
     """
-    @classmethod
-    def from_value(cls, value, session=None):
+    def __new__(cls, value, session=None):
         """Create a struct array from an Octave value and optional seesion."""
-        instance = StructArray()
+        obj = value.view(cls)
         for i in range(value.size):
             index = np.unravel_index(i, value.shape)
             for name in value.dtype.names:
-                value[index][name] = _extract(value[index][name], session)
-        instance._value = value
-        instance._session = session
-        return instance
-
-    @classmethod
-    def to_value(cls, instance):
-        orig = instance._value
-        value = np.empty(orig.shape, orig.dtype)
-        names = instance.fieldnames
-        convert_to_float = True
-        if hasattr(instance, '_session'):
-            convert_to_float = instance._session.convert_to_float
-
-        for i in range(value.size):
-            index = np.unravel_index(i, value.shape)
-            item = orig[index]
-            for name in names:
-                value[index][name] = _encode(item[name], convert_to_float)
-        return value
+                obj[index][name] = _extract(value[index][name], session)
+        return obj
 
     @property
     def fieldnames(self):
         """The field names of the struct array."""
-        return self._value.dtype.names
-
-    def __setattr__(self, attr, value):
-        if attr not in ['_value', '_session'] and attr in self.fieldnames:
-            self._value[attr] = value
-        else:
-            object.__setattr__(self, attr, value)
-
-    def __getattr__(self, attr):
-        # Access the dictionary keys for unknown attributes.
-        try:
-            return self[attr]
-        except KeyError:
-            msg = "'StructArray' object has no attribute %s" % attr
-            raise AttributeError(msg)
+        return self.dtype.names
 
     def __getitem__(self, attr):
-        # Get an item from the struct array.
-        value = self._value
-
-        # Get the values as a nested list.
-        if attr in self.fieldnames:
-            return _extract(value[attr])
-
-        # Support simple indexing.
+        # Support int based indexing by absolute position.
         if isinstance(attr, int):
-            if attr >= value.size:
+            if abs(attr) >= self.size:
                 raise IndexError('Index out of range')
-            index = np.unravel_index(attr, value.shape)
-            return StructElement(self._value[index], self._session)
-
-        # Otherwise use numpy indexing.
-        data = value[attr]
-        # Return a single value as a struct.
-        if data.size == 1:
-            return StructElement(data, self._session)
-        instance = StructArray()
-        instance._value = data
-        return instance
+            index = np.unravel_index(attr % self.size, self.shape)
+            return self[index]
+        return np.recarray.__getitem__(self, attr)
 
     def __repr__(self):
-        shape = self._value.shape
+        shape = self.shape
         if len(shape) == 1:
             shape = (shape, 1)
         msg = 'x'.join(str(i) for i in shape)
@@ -218,98 +169,15 @@ class StructArray(object):
             msg += '\n    %s' % key
         return msg
 
-    @property
-    def __dict__(self):
-        # Allow for code completion in a REPL.
-        data = dict()
-        for key in self.fieldnames:
-            data[key] = None
-        return data
-
-
-class StructElement(object):
-    """An element of a structure array.
-
-    Notes
-    -----
-    Supports value access by index and accessing fields by name or value.
-    Does not support adding or removing fields.
-
-    This class is not meant to be directly created by the user.  It is
-    created automatically for structure array values received from Octave.
-
-    Examples
-    --------
-    >>> from oct2py import octave
-    >>> # generate the struct array
-    >>> octave.eval('foo = struct("bar", {1, 2}, "baz", {3, 4});')
-    >>> foo = octave.pull('foo')
-    >>> el = foo[0]
-    >>> el['baz']
-    3.0
-    >>> el.bar = 'spam'
-    >>> el.bar
-    'spam'
-    """
-
-    def __init__(self, data, session=None):
-        """Create a new struct element"""
-        self._data = data
-        self._session = session
-
-    @classmethod
-    def to_value(cls, instance):
-        out = Struct()
-        convert_to_float = True
-        if hasattr(instance, '_session'):
-            convert_to_float = instance._session.convert_to_float
-        for key in instance.fieldnames:
-            out[key] = _encode(instance[key], convert_to_float)
-        return out
-
-    @property
-    def fieldnames(self):
-        """The field names of the struct array element."""
-        return self._data.dtype.names
-
-    def __getattr__(self, attr):
-        # Access the dictionary keys for unknown attributes.
-        if not attr.startswith('_') and attr in self.fieldnames:
-            return self.__getitem__(attr)
-        return object.__getattr__(self, attr)
-
-    def __setattr__(self, attr, value):
-        if not attr.startswith('_') and attr in self.fieldnames:
-            self._data[attr] = value
-            return
-        object.__setattr__(self, attr, value)
-
-    def __getitem__(self, item):
-        if item in self.fieldnames:
-            return self._data[item]
-        raise IndexError('Invalid index')
-
-    def __setitem__(self, item, value):
-        self._data[item] = value
-
-    def __repr__(self):
-        msg = 'struct array element containing the fields:'
-        for key in self.fieldnames:
-            msg += '\n    %s' % key
-        return msg
-
-    def __dict__(self):
-        """Allow for code completion in a REPL"""
-        data = dict()
-        for key in self.fieldnames:
-            data[key] = None
-        return data
-
 
 def _extract(data, session=None):
+    # Ignore local items.
+    if isinstance(data, (Struct, StructArray, Cell, CellArray)):
+        return data
+
     # Extract each item of a list.
     if isinstance(data, list):
-        return [_extract(v, session) for v in data]
+        data = [_extract(v, session) for v in data]
 
     # Ignore leaf objects.
     if not isinstance(data, np.ndarray):
@@ -327,14 +195,15 @@ def _extract(data, session=None):
             data = Struct.from_value(data, session)
         # Struct array
         else:
-            data = StructArray.from_value(data, session)
+            data = StructArray(data, session)
 
     # Extract cells.
     elif data.dtype.kind == 'O':
         data = data.squeeze().tolist()
-        if not isinstance(data, list):
-            data = [data]
-        data = _extract(data, session)
+        if len(data) == 1:
+            return Cell(data, session)
+        else:
+            return CellArray(data, session)
 
     # Compress singleton values.
     elif data.size == 1:
@@ -352,12 +221,69 @@ def _extract(data, session=None):
 
 
 class Cell(np.ndarray):
-    """An octave cell object"""
-    def __new__(cls, data):
-        obj = np.empty((len(data),), dtype=object).view(cls)
-        for (i, item) in enumerate(data):
-            obj[i] = item
+    """A Python representation of an Octave cell object.
+
+    Notes
+    =====
+    This class is not meant to be directly created by the user.  It is
+    created automatically for cell values received from Octave.
+    """
+    def __new__(cls, item, session=None):
+        obj = np.empty((1,), dtype=object).view(cls)
+        obj[0] = _extract(item, session)
         return obj
+
+    def __repr__(self):
+        msg = np.ndarray.__repr__(self)
+        return msg.replace(', dtype=object', '')
+
+
+class CellArray(np.ndarray):
+    """A Python representation of an Octave cell array.
+
+    Notes
+    =====
+    Differs from numpy indexing in that a single number index
+    is used to find the nth element in the array, mimicking
+    the behavior of a cell array in Octave.
+
+    This class is not meant to be directly created by the user.  It is
+    created automatically for cell array values received from Octave.
+    """
+    def __new__(cls, data, session=None):
+        # Normalize the data.
+        if isinstance(data, np.ndarray):
+            shape = data.shape
+            data = data.ravel()
+        else:
+            shape = (len(data), 1)
+            # Special case all children being cells.
+            if all(isinstance(i, (Cell, CellArray)) for i in data):
+                obj = np.asarray(data).view(cls)
+                return obj
+
+        # Extract each component and reshape.
+        obj = np.empty(len(data), dtype=object).view(cls)
+        for i in range(len(data)):
+            obj[i] = _extract(data[i], session)
+        obj = obj.reshape(shape)
+        return obj
+
+    def __getitem__(self, attr):
+        # Support int based indexing by absolute position.
+        if isinstance(attr, int):
+            if abs(attr) >= self.size:
+                raise IndexError('Index out of range')
+            index = np.unravel_index(attr % self.size, self.shape)
+            return self[index]
+        return np.ndarray.__getitem__(self, attr)
+
+    def __repr__(self):
+        shape = self.shape
+        if len(shape) == 1:
+            shape = (shape, 1)
+        msg = 'x'.join(str(i) for i in shape)
+        return msg + ' cell array'
 
 
 def _encode(data, convert_to_float):
@@ -371,14 +297,6 @@ def _encode(data, convert_to_float):
     # Handle a user defined object.
     elif isinstance(data, OctaveUserClass):
         data = OctaveUserClass.to_value(data)
-
-    # Handle struct array.
-    elif isinstance(data, StructArray):
-        data = StructArray.to_value(data)
-
-    # Handle struct element.
-    elif isinstance(data, StructElement):
-        data = StructElement.to_value(data)
 
     # Extract the values from dict and Struct objects.
     if isinstance(data, dict):
@@ -405,11 +323,11 @@ def _encode(data, convert_to_float):
     # Tuples are handled as cells.
     if isinstance(data, tuple):
         data = [_encode(i, convert_to_float) for i in data]
-        # Aggregate cells if necessary.
-        if len(data) > 1 and all(isinstance(i, Cell) for i in data):
-            data = np.array(data)
+        # Create a cell or a cell array.
+        if len(data) == 1:
+            data = Cell(data[0])
         else:
-            data = Cell(data)
+            data = CellArray(data)
 
     # Sparse data must be floating type.
     if isinstance(data, spmatrix):
