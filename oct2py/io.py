@@ -59,17 +59,6 @@ class Struct(dict):
     >>> pprint(a)
     {'b': 'spam', 'c': {'d': 'eggs'}}
     """
-    @classmethod
-    def from_value(cls, value, session=None):
-        """Create a struct from an Octave value and optional session.
-        """
-        instance = Struct()
-        for name in value.dtype.names:
-            data = value[name]
-            if isinstance(data, np.ndarray) and data.dtype.kind == 'O':
-                data = value[name].squeeze().tolist()
-            instance[name] = _extract(data, session)
-        return instance
 
     def __getattr__(self, attr):
         # Access the dictionary keys for unknown attributes.
@@ -137,12 +126,15 @@ class StructArray(np.recarray):
     4.0
     """
     def __new__(cls, value, session=None):
-        """Create a struct array from an Octave value and optional seesion."""
+        """Create a struct array from an Octave value and optional session."""
         obj = value.view(cls)
         for i in range(value.size):
             index = np.unravel_index(i, value.shape)
             for name in value.dtype.names:
-                obj[index][name] = _extract(value[index][name], session)
+                item = value[index][name]
+                if session:
+                    item = _extract(value[index][name], session)
+                obj[index][name] = item
         return obj
 
     @property
@@ -172,7 +164,7 @@ class StructArray(np.recarray):
 
 def _extract(data, session=None):
     # Ignore local items.
-    if isinstance(data, (Struct, StructArray, Cell, CellArray)):
+    if isinstance(data, (Struct, StructArray, Cell)):
         return data
 
     # Extract each item of a list.
@@ -192,18 +184,17 @@ def _extract(data, session=None):
     elif data.dtype.names:
         # Singular struct
         if data.size == 1:
-            data = Struct.from_value(data, session)
+            out = Struct()
+            for name in data.dtype.names:
+                out[name] = _extract(data[name], session)
+            data = out
         # Struct array
         else:
             data = StructArray(data, session)
 
     # Extract cells.
     elif data.dtype.kind == 'O':
-        data = data.squeeze().tolist()
-        if len(data) == 1:
-            return Cell(data, session)
-        else:
-            return CellArray(data, session)
+        return Cell(data.squeeze().tolist(), session)
 
     # Compress singleton values.
     elif data.size == 1:
@@ -221,24 +212,6 @@ def _extract(data, session=None):
 
 
 class Cell(np.ndarray):
-    """A Python representation of an Octave cell object.
-
-    Notes
-    =====
-    This class is not meant to be directly created by the user.  It is
-    created automatically for cell values received from Octave.
-    """
-    def __new__(cls, item, session=None):
-        obj = np.empty((1,), dtype=object).view(cls)
-        obj[0] = _extract(item, session)
-        return obj
-
-    def __repr__(self):
-        msg = np.ndarray.__repr__(self)
-        return msg.replace(', dtype=object', '')
-
-
-class CellArray(np.ndarray):
     """A Python representation of an Octave cell array.
 
     Notes
@@ -256,17 +229,17 @@ class CellArray(np.ndarray):
             shape = data.shape
             data = data.ravel()
         else:
-            shape = (len(data), 1)
-            # Special case all children being cells.
-            if all(isinstance(i, (Cell, CellArray)) for i in data):
-                obj = np.asarray(data).view(cls)
-                return obj
+            shape = None
 
         # Extract each component and reshape.
         obj = np.empty(len(data), dtype=object).view(cls)
         for i in range(len(data)):
-            obj[i] = _extract(data[i], session)
-        obj = obj.reshape(shape)
+            item = data[i]
+            if session:
+                item = _extract(item, session)
+            obj[i] = item
+        if shape:
+            obj = obj.reshape(shape)
         return obj
 
     def __getitem__(self, attr):
@@ -279,6 +252,7 @@ class CellArray(np.ndarray):
         return np.ndarray.__getitem__(self, attr)
 
     def __repr__(self):
+        # TODO: clean this up.
         shape = self.shape
         if len(shape) == 1:
             shape = (shape, 1)
@@ -322,12 +296,7 @@ def _encode(data, convert_to_float):
 
     # Tuples are handled as cells.
     if isinstance(data, tuple):
-        data = [_encode(i, convert_to_float) for i in data]
-        # Create a cell or a cell array.
-        if len(data) == 1:
-            data = Cell(data[0])
-        else:
-            data = CellArray(data)
+        return Cell([_encode(i, convert_to_float) for i in data])
 
     # Sparse data must be floating type.
     if isinstance(data, spmatrix):
