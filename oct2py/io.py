@@ -6,7 +6,6 @@ from __future__ import absolute_import, print_function, division
 
 import inspect
 import dis
-import re
 
 import numpy as np
 from scipy.io import loadmat, savemat
@@ -209,6 +208,8 @@ class Cell(np.ndarray):
 
 
 def _extract(data, session=None):
+    """Convert the Octave values to values suitable for Python.
+    """
 
     # Extract each item of a list.
     if isinstance(data, list):
