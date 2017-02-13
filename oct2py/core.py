@@ -13,7 +13,7 @@ import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
-from .io import read_file, write_file
+from .io import read_file, write_file, Cell
 from .utils import get_nout, Oct2PyError, get_log
 from .compat import unicode, input, string_types
 from .dynamic import (
@@ -492,7 +492,7 @@ class Oct2Py(object):
         if len(result) == 1:
             result = result[0]
             # Check for sentinel value.
-            if (isinstance(result, list) and len(result) == 1 and
+            if (isinstance(result, Cell) and len(result) == 1 and
                     isinstance(result[0], string_types) and
                     result[0] == '__no_value__'):
                 result = None

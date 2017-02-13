@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, division
 
 import inspect
 import dis
+import re
 
 import numpy as np
 from scipy.io import loadmat, savemat
@@ -127,15 +128,17 @@ class StructArray(np.recarray):
     """
     def __new__(cls, value, session=None):
         """Create a struct array from an Octave value and optional session."""
-        obj = value.view(cls)
-        for i in range(value.size):
-            index = np.unravel_index(i, value.shape)
+        value = np.asarray(value)
+
+        if not session:
+            return value.view(cls)
+
+        # Extract the values.
+        obj = np.empty(value.size, dtype=value.dtype).view(cls)
+        for (i, item) in enumerate(value.ravel()):
             for name in value.dtype.names:
-                item = value[index][name]
-                if session:
-                    item = _extract(value[index][name], session)
-                obj[index][name] = item
-        return obj
+                obj[i][name] = _extract(item[name], session)
+        return obj.reshape(value.shape)
 
     @property
     def fieldnames(self):
@@ -156,20 +159,59 @@ class StructArray(np.recarray):
         if len(shape) == 1:
             shape = (shape, 1)
         msg = 'x'.join(str(i) for i in shape)
-        msg += ' struct array containing the fields:'
+        msg += ' StructArray containing the fields:'
         for key in self.fieldnames:
             msg += '\n    %s' % key
         return msg
 
 
+class Cell(np.ndarray):
+    """A Python representation of an Octave cell array.
+
+    Notes
+    =====
+    Differs from numpy indexing in that a single number index
+    is used to find the nth element in the array, mimicking
+    the behavior of a cell array in Octave.
+
+    This class is not meant to be directly created by the user.  It is
+    created automatically for cell array values received from Octave.
+    """
+    def __new__(cls, data, session=None):
+        data = np.asarray(data, dtype=object)
+
+        if not session:
+            return data.view(cls)
+
+        # Extract the values.
+        obj = np.empty(data.size, dtype=object).view(cls)
+        for (i, item) in enumerate(data.ravel()):
+            obj[i] = _extract(item, session)
+        return obj.reshape(data.shape)
+
+    def __getitem__(self, attr):
+        # Support int based indexing by absolute position.
+        if isinstance(attr, int):
+            if abs(attr) >= self.size:
+                raise IndexError('Index out of range')
+            index = np.unravel_index(attr % self.size, self.shape)
+            return self[index]
+        return np.ndarray.__getitem__(self, attr)
+
+    def __repr__(self):
+        shape = self.shape
+        if len(shape) == 1:
+            shape = (shape[0], 1)
+        msg = self.view(np.ndarray).__repr__()
+        msg = msg.replace('array', 'Cell', 1)
+        return msg.replace(', dtype=object', '', 1)
+
+
 def _extract(data, session=None):
-    # Ignore local items.
-    if isinstance(data, (Struct, StructArray, Cell)):
-        return data
 
     # Extract each item of a list.
     if isinstance(data, list):
-        data = [_extract(v, session) for v in data]
+        return [_extract(v, session) for v in data]
 
     # Ignore leaf objects.
     if not isinstance(data, np.ndarray):
@@ -186,7 +228,11 @@ def _extract(data, session=None):
         if data.size == 1:
             out = Struct()
             for name in data.dtype.names:
-                out[name] = _extract(data[name], session)
+                item = data[name]
+                # Extract values that are cells (they are doubly wrapped).
+                if isinstance(item, np.ndarray) and item.dtype.kind == 'O':
+                    item = item.squeeze().tolist()
+                out[name] = _extract(item, session)
             data = out
         # Struct array
         else:
@@ -194,7 +240,7 @@ def _extract(data, session=None):
 
     # Extract cells.
     elif data.dtype.kind == 'O':
-        return Cell(data.squeeze().tolist(), session)
+        data = Cell(data, session)
 
     # Compress singleton values.
     elif data.size == 1:
@@ -211,55 +257,6 @@ def _extract(data, session=None):
     return data
 
 
-class Cell(np.ndarray):
-    """A Python representation of an Octave cell array.
-
-    Notes
-    =====
-    Differs from numpy indexing in that a single number index
-    is used to find the nth element in the array, mimicking
-    the behavior of a cell array in Octave.
-
-    This class is not meant to be directly created by the user.  It is
-    created automatically for cell array values received from Octave.
-    """
-    def __new__(cls, data, session=None):
-        # Normalize the data.
-        if isinstance(data, np.ndarray):
-            shape = data.shape
-            data = data.ravel()
-        else:
-            shape = None
-
-        # Extract each component and reshape.
-        obj = np.empty(len(data), dtype=object).view(cls)
-        for i in range(len(data)):
-            item = data[i]
-            if session:
-                item = _extract(item, session)
-            obj[i] = item
-        if shape:
-            obj = obj.reshape(shape)
-        return obj
-
-    def __getitem__(self, attr):
-        # Support int based indexing by absolute position.
-        if isinstance(attr, int):
-            if abs(attr) >= self.size:
-                raise IndexError('Index out of range')
-            index = np.unravel_index(attr % self.size, self.shape)
-            return self[index]
-        return np.ndarray.__getitem__(self, attr)
-
-    def __repr__(self):
-        # TODO: clean this up.
-        shape = self.shape
-        if len(shape) == 1:
-            shape = (shape, 1)
-        msg = 'x'.join(str(i) for i in shape)
-        return msg + ' cell array'
-
-
 def _encode(data, convert_to_float):
     """Convert the Python values to values suitable to send to Octave.
     """
@@ -271,6 +268,21 @@ def _encode(data, convert_to_float):
     # Handle a user defined object.
     elif isinstance(data, OctaveUserClass):
         data = OctaveUserClass.to_value(data)
+
+    # Handle a cell array.
+    elif isinstance(data, Cell):
+        out = np.empty(data.size, dtype=object)
+        for (i, item) in enumerate(data.ravel()):
+            out[i] = _encode(item, convert_to_float)
+        data = out.reshape(data.shape)
+
+    # Handle a struct array.
+    elif isinstance(data, StructArray):
+        out = np.empty(data.size, dtype=data.dtype)
+        for (i, item) in enumerate(data.ravel()):
+            for name in data.dtype.names:
+                out[i][name] = _encode(item[name], convert_to_float)
+        data = out.reshape(data.shape)
 
     # Extract the values from dict and Struct objects.
     if isinstance(data, dict):
