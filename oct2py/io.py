@@ -271,22 +271,18 @@ def _encode(data, convert_to_float):
     elif isinstance(data, OctaveUserClass):
         data = OctaveUserClass.to_value(data)
 
-    # Handle a cell array.
-    elif isinstance(data, Cell):
-        out = np.empty(data.size, dtype=object)
-        for (i, item) in enumerate(data.ravel()):
-            out[i] = _encode(item, convert_to_float)
-        data = out.reshape(data.shape)
-
-    # Handle a struct array.
-    elif isinstance(data, StructArray):
+    # Extract and encode data from object-like arrays.
+    if isinstance(data, np.ndarray) and data.dtype.kind in 'OV':
         out = np.empty(data.size, dtype=data.dtype)
         for (i, item) in enumerate(data.ravel()):
-            for name in data.dtype.names:
-                out[i][name] = _encode(item[name], convert_to_float)
+            if data.dtype.names:
+                for name in data.dtype.names:
+                    out[i][name] = _encode(item[name], convert_to_float)
+            else:
+                out[i] = _encode(item, convert_to_float)
         data = out.reshape(data.shape)
 
-    # Extract the values from dict and Struct objects.
+    # Extract and encode values from dict-like objects.
     if isinstance(data, dict):
         out = dict()
         for (key, value) in data.items():
