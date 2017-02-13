@@ -127,7 +127,7 @@ class StructArray(np.recarray):
     4.0
     """
     def __new__(cls, value, session=None):
-        """Create a struct array from an Octave value and optional session."""
+        """Create a struct array from a value and optional Octave session."""
         value = np.asarray(value)
 
         if not session:
@@ -177,17 +177,18 @@ class Cell(np.ndarray):
     This class is not meant to be directly created by the user.  It is
     created automatically for cell array values received from Octave.
     """
-    def __new__(cls, data, session=None):
-        data = np.asarray(data, dtype=object)
+    def __new__(cls, value, session=None):
+        """Create a cell array from a value and optional Octave session."""
+        value = np.asarray(value, dtype=object)
 
         if not session:
-            return data.view(cls)
+            return value.view(cls)
 
         # Extract the values.
-        obj = np.empty(data.size, dtype=object).view(cls)
-        for (i, item) in enumerate(data.ravel()):
+        obj = np.empty(value.size, dtype=object).view(cls)
+        for (i, item) in enumerate(value.ravel()):
             obj[i] = _extract(item, session)
-        return obj.reshape(data.shape)
+        return obj.reshape(value.shape)
 
     def __getitem__(self, attr):
         # Support int based indexing by absolute position.
