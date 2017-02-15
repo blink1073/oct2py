@@ -104,9 +104,8 @@ class StructArray(np.recarray):
 
     Notes
     =====
-    Differs from numpy indexing in that a single number index
-    is used to find the nth element in the array, mimicking
-    the behavior of a struct array in Octave.
+    Differs from numpy indexing in that it uses list-like indexing for
+    integers and slices, mimicking the behavior of a struct array in Octave.
 
     This class is not meant to be directly created by the user.  It is
     created automatically for structure array values received from Octave.
@@ -145,12 +144,9 @@ class StructArray(np.recarray):
         return self.dtype.names
 
     def __getitem__(self, attr):
-        # Support int based indexing by absolute position.
-        if isinstance(attr, int):
-            if abs(attr) >= self.size:
-                raise IndexError('Index out of range')
-            index = np.unravel_index(attr % self.size, self.shape)
-            return self[index]
+        # Use list-like indexing for integers and slices
+        if isinstance(attr, (int, slice)):
+            return self.ravel()[attr]
         return np.recarray.__getitem__(self, attr)
 
     def __repr__(self):
@@ -169,9 +165,8 @@ class Cell(np.ndarray):
 
     Notes
     =====
-    Differs from numpy indexing in that a single number index
-    is used to find the nth element in the array, mimicking
-    the behavior of a cell array in Octave.
+    Differs from numpy indexing in that it uses list-like indexing for
+    integers and slices, mimicking the behavior of a cell array in Octave.
 
     This class is not meant to be directly created by the user.  It is
     created automatically for cell array values received from Octave.
@@ -190,12 +185,9 @@ class Cell(np.ndarray):
         return obj.reshape(value.shape)
 
     def __getitem__(self, attr):
-        # Support int based indexing by absolute position.
-        if isinstance(attr, int):
-            if abs(attr) >= self.size:
-                raise IndexError('Index out of range')
-            index = np.unravel_index(attr % self.size, self.shape)
-            return self[index]
+        # Use list-like indexing for integers and slices
+        if isinstance(attr, (int, slice)):
+            return self.ravel()[attr]
         return np.ndarray.__getitem__(self, attr)
 
     def __repr__(self):
