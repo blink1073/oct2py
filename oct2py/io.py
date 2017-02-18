@@ -144,18 +144,18 @@ class StructArray(np.recarray):
         return self.dtype.names
 
     def __getattribute__(self, attr):
-        """Return arrays as cells and all other values unchanged.
+        """Return object arrays as cells and all other values unchanged.
         """
         attr = np.recarray.__getattribute__(self, attr)
-        if isinstance(attr, np.ndarray):
+        if isinstance(attr, np.ndarray) and attr.dtype.kind == 'O':
             return Cell(attr)
         return attr
 
     def __getitem__(self, item):
-        """Return arrays as cells and all other values unchanged.
+        """Return object arrays as cells and all other values unchanged.
         """
         item = np.recarray.__getitem__(self, item)
-        if isinstance(item, np.ndarray):
+        if isinstance(item, np.ndarray) and item.dtype.kind == 'O':
             return Cell(item)
         return item
 
