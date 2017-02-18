@@ -24,15 +24,15 @@ trust a code translator, this is your library.
 from __future__ import absolute_import, print_function, division
 
 from .core import Oct2Py
-from .io import Struct
+from .io import Struct, Cell, StructArray
 from .utils import get_log, Oct2PyError
 from .demo import demo
 from .speed_check import speed_check
 from .thread_check import thread_check
 
 __version__ = '4.0-dev'
-__all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'demo', 'speed_check',
-           'thread_check', '__version__', 'get_log']
+__all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'Cell', 'StructArray',
+           'demo', 'speed_check', 'thread_check', '__version__', 'get_log']
 
 try:
     octave = Oct2Py()

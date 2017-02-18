@@ -307,7 +307,10 @@ def _encode(data, convert_to_float):
 
     # Tuples are handled as cells.
     if isinstance(data, tuple):
-        return Cell([_encode(i, ctf) for i in data])
+        obj = np.empty(len(data), dtype=object)
+        for (i, item) in enumerate(data):
+            obj[i] = _encode(item, ctf)
+        return obj
 
     # Sparse data must be floating type.
     if isinstance(data, spmatrix):

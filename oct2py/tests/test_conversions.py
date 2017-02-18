@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 
-from oct2py import Oct2Py, Struct
+from oct2py import Oct2Py, Struct, Cell, StructArray
 from oct2py.compat import unicode, long
 
 
@@ -111,21 +111,22 @@ class TestConversions:
         """Test incoming string types
         """
         keys = ['basic', 'cell', 'cell_array']
-        types = [str, list, list]
+        types = [str, Cell, Cell]
         self.helper(self.data.string, keys, types)
         assert self.data.string.char_array.shape == (3,)
 
     def test_struct_array(self):
         ''' Test incoming struct array types '''
-        keys = ['name', 'age']
-        types = [list, list]
-        self.helper(self.data.struct_array, keys, types)
+        data = self.data.struct_array
+        incoming, octave_type = self.oc.roundtrip(data)
+        assert incoming.tolist() == data.tolist()
+        assert octave_type == 'struct'
 
     def test_cells(self):
         ''' Test incoming cell types '''
         keys = ['vector', 'matrix', 'scalar', 'string', 'string_array',
                 'empty', 'array']
-        types = [list for i in range(len(keys))]
+        types = [Cell for i in range(len(keys))]
         self.helper(self.data.cell, keys, types)
 
     def test_python_conversions(self):
