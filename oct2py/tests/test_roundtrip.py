@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 
-from oct2py import Oct2Py, Oct2PyError, Struct
+from oct2py import Oct2Py, Oct2PyError, Struct, Cell, StructArray
 from oct2py.compat import unicode, long
 
 
@@ -322,14 +322,21 @@ class TestBuiltins:
     def test_nested_list(self):
         """Test python nested lists
         """
-        test = [['spam', 'eggs'], ['foo ', 'bar ']]
-        self.helper(test, expected_type=list)
+        test = [['spam', 'eggs', 'baz'], ['foo ', 'bar ', 'baz ']]
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, Cell)
+        assert incoming[0][0] == 'spam'
+        assert incoming.shape == (2,)
+
         test = [[1, 2], [3, 4]]
-        self.helper(test)
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, np.ndarray)
+        assert np.allclose(incoming, test)
+
         test = [[1, 2], [3, 4, 5]]
         incoming = self.oc.roundtrip(test)
-        for i in range(len(test)):
-            assert np.alltrue(incoming[i] == np.array(test[i]))
+        assert isinstance(incoming, Cell)
+        assert incoming.shape == (2,)
 
     def test_bool(self):
         """Test boolean values
