@@ -280,28 +280,34 @@ class TestBuiltins:
         """
         test = tuple((1, 2, 3))
         incoming = self.oc.roundtrip(test)
-        assert isinstance(incoming, list)
-        assert tuple(incoming) == test
+        assert isinstance(incoming, Cell)
+        assert incoming.tolist() == list(test)
 
     def test_tuple_of_tuples(self):
         test = tuple(((1, 2), (3, 4)))
         incoming = self.oc.roundtrip(test)
-        assert type(incoming) == list
-        assert np.allclose(np.array(incoming), np.array(test))
+        assert type(incoming) == Cell
+        assert incoming.shape == (2,)
+        assert incoming[0].tolist() == list(test[0])
+        assert incoming[1].tolist() == list(test[1])
 
     def test_list(self):
         """Test python list type
         """
-        tests = [[1, 2], ['a', 'b']]
-        self.helper(tests[0])
-        self.helper(tests[1], expected_type=list)
+        incoming = self.oc.roundtrip([1, 2])
+        assert np.allclose(incoming, [1, 2])
+        incoming = self.oc.roundtrip(['a', 'b'])
+        assert isinstance(incoming, Cell)
+        assert incoming.tolist() == ['a', 'b']
 
     def test_list_of_tuples(self):
         """Test python list of tuples
         """
         test = [(1, 2), (1.5, 3.2)]
         incoming = self.oc.roundtrip(test)
-        assert np.allclose(incoming, [[1, 2], [1.5, 3.2]])
+        assert isinstance(incoming, Cell)
+        assert incoming[0].tolist() == list(test[0])
+        assert incoming[1].tolist() == list(test[1])
 
     def test_numeric(self):
         """Test python numeric types
