@@ -483,7 +483,6 @@ class Oct2Py(object):
 
         # Read in the output.
         resp = read_file(in_file, self)
-
         if resp['err']:
             msg = self._parse_error(resp['err'])
             raise Oct2PyError(msg)

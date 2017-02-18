@@ -104,29 +104,29 @@ class StructArray(np.recarray):
 
     Notes
     =====
-    Differs from numpy indexing in that it uses list-like indexing for
-    integers and slices, mimicking the behavior of a struct array in Octave.
-
     This class is not meant to be directly created by the user.  It is
     created automatically for structure array values received from Octave.
+    The value is squeezed during creation, but will be at least 1d.
 
     Examples
     ========
     >>> from oct2py import octave
     >>> # generate the struct array
-    >>> octave.eval('foo = struct("bar", {1, 2}, "baz", {3, 4});')
-    >>> foo = octave.pull('foo')
-    >>> foo.bar  # attribute access
-    [1.0, 2.0]
-    >>> foo['baz']  # item access
-    [3.0, 4.0]
-    >>> el = foo[0]  # index access
-    >>> foo[1]['baz']
+    >>> octave.eval('x = struct("y", {1, 2}, "z", {3, 4});')
+    >>> x = octave.pull('x')
+    >>> x.y  # attribute access -> oct2py Cell
+    Cell([1.0, 2.0])
+    >>> x['z']  # item access -> oct2py Cell
+    Cell([3.0, 4.0])
+    >>> x[0]  # index access -> numpy record
+    (1.0, 3.0)
+    >>> foo[1].z
     4.0
     """
     def __new__(cls, value, session=None):
         """Create a struct array from a value and optional Octave session."""
-        value = np.asarray(value)
+        value = np.asarray(value).squeeze()
+        value = np.atleast_1d(value)
 
         if not session:
             return value.view(cls)
@@ -143,16 +143,26 @@ class StructArray(np.recarray):
         """The field names of the struct array."""
         return self.dtype.names
 
-    def __getitem__(self, attr):
-        # Use list-like indexing for integers and slices
-        if isinstance(attr, (int, slice)):
-            return self.ravel()[attr]
-        return np.recarray.__getitem__(self, attr)
+    def __getattribute__(self, attr):
+        """Return arrays as cells and all other values unchanged.
+        """
+        attr = np.recarray.__getattribute__(self, attr)
+        if isinstance(attr, np.ndarray):
+            return Cell(attr)
+        return attr
+
+    def __getitem__(self, item):
+        """Return arrays as cells and all other values unchanged.
+        """
+        item = np.recarray.__getitem__(self, item)
+        if isinstance(item, np.ndarray):
+            return Cell(item)
+        return item
 
     def __repr__(self):
         shape = self.shape
         if len(shape) == 1:
-            shape = (shape, 1)
+            shape = (shape[0], 1)
         msg = 'x'.join(str(i) for i in shape)
         msg += ' StructArray containing the fields:'
         for key in self.fieldnames:
@@ -165,15 +175,28 @@ class Cell(np.ndarray):
 
     Notes
     =====
-    Differs from numpy indexing in that it uses list-like indexing for
-    integers and slices, mimicking the behavior of a cell array in Octave.
-
     This class is not meant to be directly created by the user.  It is
     created automatically for cell array values received from Octave.
+    The value is squeezed during creation, but will be at least 1d.
+
+    Examples
+    ========
+    >>> from oct2py import octave
+    >>> # generate the struct array
+    >>> octave.eval("x = cell(2,2); x(:) = 'hi';")
+    >>> x = octave.pull('x')
+    >>> x
+    Cell([['hi', 'hi'],
+          ['hi', 'hi']])
+    >>> x[0]
+    Cell(['hi', 'hi'])
+    >>> x[0].tolist()
+    ['hi', 'hi']
     """
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
-        value = np.asarray(value, dtype=object)
+        value = np.asarray(value, dtype=object).squeeze()
+        value = np.atleast_1d(value)
 
         if not session:
             return value.view(cls)
@@ -183,12 +206,6 @@ class Cell(np.ndarray):
         for (i, item) in enumerate(value.ravel()):
             obj[i] = _extract(item, session)
         return obj.reshape(value.shape)
-
-    def __getitem__(self, attr):
-        # Use list-like indexing for integers and slices
-        if isinstance(attr, (int, slice)):
-            return self.ravel()[attr]
-        return np.ndarray.__getitem__(self, attr)
 
     def __repr__(self):
         shape = self.shape
@@ -202,83 +219,76 @@ class Cell(np.ndarray):
 def _extract(data, session=None):
     """Convert the Octave values to values suitable for Python.
     """
-
     # Extract each item of a list.
     if isinstance(data, list):
-        return [_extract(v, session) for v in data]
+        return [_extract(d, session) for d in data]
 
     # Ignore leaf objects.
     if not isinstance(data, np.ndarray):
         return data
 
-    # Convert user defined classes.
+    # Extract user defined classes.
     if hasattr(data, 'classname') and session:
         cls = session._get_user_class(data.classname)
-        data = cls.from_value(data)
+        return cls.from_value(data)
 
     # Extract struct data.
-    elif data.dtype.names:
+    if data.dtype.names:
         # Singular struct
         if data.size == 1:
-            out = Struct()
-            for name in data.dtype.names:
-                item = data[name]
-                # Extract values that are cells (they are doubly wrapped).
-                if isinstance(item, np.ndarray) and item.dtype.kind == 'O':
-                    item = item.squeeze().tolist()
-                out[name] = _extract(item, session)
-            data = out
+            return _create_struct(data, session)
         # Struct array
-        else:
-            data = StructArray(data, session)
+        return StructArray(data, session)
 
     # Extract cells.
-    elif data.dtype.kind == 'O':
-        data = Cell(data, session)
+    if data.dtype.kind == 'O':
+        return Cell(data, session)
 
     # Compress singleton values.
-    elif data.size == 1:
-        data = data.item()
+    if data.size == 1:
+        return data.item()
 
     # Compress empty values.
-    elif data.size == 0:
+    if data.size == 0:
         if data.dtype.kind in 'US':
-            data = ''
-        else:
-            data = []
+            return ''
+        return []
 
-    # Return parsed value.
+    # Return standard array.
     return data
+
+
+def _create_struct(data, session):
+    """Create a struct from session data.
+    """
+    out = Struct()
+    for name in data.dtype.names:
+        item = data[name]
+        # Extract values that are cells (they are doubly wrapped).
+        if isinstance(item, np.ndarray) and item.dtype.kind == 'O':
+            item = item.squeeze().tolist()
+        out[name] = _extract(item, session)
+    return out
 
 
 def _encode(data, convert_to_float):
     """Convert the Python values to values suitable to send to Octave.
     """
+    ctf = convert_to_float
 
     # Handle variable pointer.
     if isinstance(data, (OctaveVariablePtr)):
-        data = data.value
+        return _encode(data.value, ctf)
 
     # Handle a user defined object.
-    elif isinstance(data, OctaveUserClass):
-        data = OctaveUserClass.to_value(data)
-
-    # Extract and encode data from object-like arrays.
-    if isinstance(data, np.ndarray) and data.dtype.kind in 'OV':
-        out = np.empty(data.size, dtype=data.dtype)
-        for (i, item) in enumerate(data.ravel()):
-            if data.dtype.names:
-                for name in data.dtype.names:
-                    out[i][name] = _encode(item[name], convert_to_float)
-            else:
-                out[i] = _encode(item, convert_to_float)
-        data = out.reshape(data.shape)
+    if isinstance(data, OctaveUserClass):
+        return _encode(OctaveUserClass.to_value(data), ctf)
 
     # Extract and encode values from dict-like objects.
     if isinstance(data, dict):
         out = dict()
         for (key, value) in data.items():
-            out[key] = _encode(value, convert_to_float)
+            out[key] = _encode(value, ctf)
         return out
 
     # Send None as nan.
@@ -287,18 +297,17 @@ def _encode(data, convert_to_float):
 
     # Sets are treated like lists.
     if isinstance(data, set):
-        data = list(data)
+        return _encode(list(data), ctf)
 
     # Lists can be interpreted as numeric arrays or cell arrays.
     if isinstance(data, list):
         if _is_simple_numeric(data):
-            data = np.array(data)
-        else:
-            data = tuple(data)
+            return _encode(np.array(data), ctf)
+        return _encode(tuple(data), ctf)
 
     # Tuples are handled as cells.
     if isinstance(data, tuple):
-        return Cell([_encode(i, convert_to_float) for i in data])
+        return Cell([_encode(i, ctf) for i in data])
 
     # Sparse data must be floating type.
     if isinstance(data, spmatrix):
@@ -308,14 +317,26 @@ def _encode(data, convert_to_float):
     if not isinstance(data, np.ndarray):
         return data
 
+    # Extract and encode data from object-like arrays.
+    if data.dtype.kind in 'OV':
+        out = np.empty(data.size, dtype=data.dtype)
+        for (i, item) in enumerate(data.ravel()):
+            if data.dtype.names:
+                for name in data.dtype.names:
+                    out[i][name] = _encode(item[name], ctf)
+            else:
+                out[i] = _encode(item, ctf)
+        return out.reshape(data.shape)
+
     # Complex 128 is the highest supported by savemat.
     if data.dtype.name == 'complex256':
         return data.astype(np.complex128)
 
     # Convert to float if applicable.
-    if convert_to_float and data.dtype.kind in 'ui':
+    if ctf and data.dtype.kind in 'ui':
         return data.astype(np.float64)
 
+    # Return standard array.
     return data
 
 
