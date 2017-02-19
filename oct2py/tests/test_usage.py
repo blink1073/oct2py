@@ -201,6 +201,10 @@ class TestUsage:
         assert onesptr.address == '@ones'
         assert 'ones' in onesptr.__doc__
 
+        sin = self.oc.get_pointer('sin')
+        x = self.oc.quad(sin, 0, self.oc.pi())
+        assert x == 2
+
         self.oc.eval('p = polynomial([1,2,3])')
         ppter = self.oc.get_pointer('p')
         assert ppter.name == 'p'

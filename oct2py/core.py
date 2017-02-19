@@ -74,6 +74,7 @@ class Oct2Py(object):
 
     @property
     def logger(self):
+        """The logging instance used by the session."""
         return self._logger
 
     @logger.setter
@@ -93,7 +94,7 @@ class Oct2Py(object):
         self.exit()
 
     def exit(self):
-        """Quits this octave session and removes temp files
+        """Quits this octave session and cleans up.
         """
         if self._engine:
             self._engine.repl.terminate()
@@ -197,6 +198,26 @@ class Oct2Py(object):
         timemout: float, optional.
             Time to wait for response from Octave (per line).
 
+        Examples
+        --------
+        >>> from oct2py import octave
+        >>> octave.eval('foo = [1, 2];')
+        >>> ptr = octave.get_pointer('foo')
+        >>> ptr.value
+        array([[ 1.,  2.]])
+        >>> ptr.address
+        'foo'
+        >>> octave.disp(ptr)  # can be passed as an argument
+        1  2
+
+        >>> from oct2py import octave
+        >>> sin = octave.get_pointer('sin')  # equivalent to `octave.sin`
+        >>> sin.address
+        @sin
+        >>> x = octave.quad(sin, 0, octave.pi())
+        >>> x
+        2
+
         Raises
         ------
         Oct2PyError
@@ -272,6 +293,29 @@ class Oct2Py(object):
             The plot with in pixels.
         plot_height: int, optional
             The plot height in pixels.
+
+        Examples
+        --------
+        >>> from oct2py import octave
+        >>> cell = octave.feval('cell', 10, 10, 10)
+        >>> cell.shape
+        (10, 10, 10)
+
+        >>> from oct2py import octave
+        >>> x = octave.feval('linspace', 0, octave.pi() / 2)
+        >>> x.shape
+        (1, 100)
+
+        >>> from oct2py import octave
+        >>> x = octave.feval('svd', octave.hilb(3))
+        >>> x
+        array([[ 1.40831893],
+               [ 0.12232707],
+               [ 0.00268734]])
+        >>> # nout is inferred from the return value
+        >>> (u, v, d) = octave.feval('svd', octave.hilb(3))
+        >>> u.shape
+        (3, 3)
 
         Returns
         -------
@@ -352,6 +396,28 @@ class Oct2Py(object):
         plot_res: int, optional
             The plot resolution in pixels per inch.
         **kwargs Deprectated kwargs.
+
+        Examples
+        --------
+        >>> from oct2py import octave
+        >>> octave.eval('disp("hello")')
+        hello
+        >>> x = octave.eval('round(quad(@sin, 0, pi/2));')
+        >>> x
+        1.0
+
+        >>> a = octave.eval('disp("hello");1;')
+        hello
+        >>> a = octave.eval('disp("hello");1;', verbose=false)
+        >>> a
+        1.0
+
+        >>> from oct2py import octave
+        >>> lines = []
+        >>> octave.eval('for i = 1:3; disp(i);;end',
+                        stream_handler=lines.append)
+        >>> lines
+        [' 1', ' 2', ' 3']
 
         Returns
         -------

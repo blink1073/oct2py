@@ -184,15 +184,15 @@ class Cell(np.ndarray):
     ========
     >>> from oct2py import octave
     >>> # generate the struct array
-    >>> octave.eval("x = cell(2,2); x(:) = 'hi';")
+    >>> octave.eval("x = cell(2,2); x(:) = 1.0;")
     >>> x = octave.pull('x')
     >>> x
-    Cell([['hi', 'hi'],
-           ['hi', 'hi']])
+    Cell([[1.0, 1.0],
+           [1.0, 1.0]])
     >>> x[0]
-    Cell(['hi', 'hi'])
+    Cell([1.0, 1.0])
     >>> x[0].tolist()
-    ['hi', 'hi']
+    [1.0, 1.0]
     """
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
