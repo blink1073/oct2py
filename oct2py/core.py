@@ -409,7 +409,7 @@ class Oct2Py(object):
 
         >>> a = octave.eval('disp("hello");1;')  # doctest: +SKIP
         hello
-        >>> a = octave.eval('disp("hello");1;', verbose=false)
+        >>> a = octave.eval('disp("hello");1;', verbose=False)
         >>> a
         1.0
 
