@@ -8,7 +8,7 @@ from IPython.display import Image, SVG
 import numpy as np
 import pytest
 
-from oct2py import Oct2Py, Oct2PyError, Struct
+from oct2py import Oct2Py, Oct2PyError, Struct, Cell
 from oct2py.compat import StringIO
 
 
@@ -245,8 +245,8 @@ class TestUsage:
         val = self.oc.feval('svd', [[1, 2], [1, 3]])
         val2 = self.oc.feval('svd', [[1, 2], [1, 3]], nout=3)
         assert isinstance(val, np.ndarray)
-        assert isinstance(val2, list)
-        assert len(val2), 3
+        assert isinstance(val2, Cell)
+        assert val2.size == 3
 
     def test_eval(self):
         a = self.oc.eval('ones(3);')
