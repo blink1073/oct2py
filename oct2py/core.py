@@ -415,7 +415,7 @@ class Oct2Py(object):
 
         >>> from oct2py import octave
         >>> lines = []
-        >>> octave.eval('for i = 1:3; disp(i);;end',
+        >>> octave.eval('for i = 1:3; disp(i);end', \
                         stream_handler=lines.append)
         >>> lines
         [' 1', ' 2', ' 3']
