@@ -214,7 +214,7 @@ class Oct2Py(object):
         >>> from oct2py import octave
         >>> sin = octave.get_pointer('sin')  # equivalent to `octave.sin`
         >>> sin.address
-        @sin
+        '@sin'
         >>> x = octave.quad(sin, 0, octave.pi())
         >>> x
         2
