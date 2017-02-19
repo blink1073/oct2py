@@ -121,7 +121,7 @@ class StructArray(np.recarray):
     Cell([3.0, 4.0])
     >>> x[0]  # index access -> numpy record
     (1.0, 3.0)
-    >>> foo[1].z
+    >>> x[1].z
     4.0
     """
     def __new__(cls, value, session=None):
@@ -188,7 +188,7 @@ class Cell(np.ndarray):
     >>> x = octave.pull('x')
     >>> x
     Cell([['hi', 'hi'],
-          ['hi', 'hi']])
+           ['hi', 'hi']])
     >>> x[0]
     Cell(['hi', 'hi'])
     >>> x[0].tolist()

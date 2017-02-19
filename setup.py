@@ -11,6 +11,11 @@ URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
 REQUIRES = ["numpy (>= 1.11)", "scipy (>= 0.17)", "octave_kernel (>= 0.25)"]
 INSTALL_REQUIRES = ["octave_kernel >= 0.25"]
+EXTRAS_REQUIRE = {
+    'test:python_version == "2.7"': ['mock'],
+    'test': ['pytest'],
+    'docs': ['sphinx', 'sphinx-bootstrap-theme', 'numpydoc']
+}
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,
             '%s/ipython/tests' % DISTNAME]
 PACKAGE_DATA = {DISTNAME: ['*.m'] + glob.glob('%s/**/*.m' % DISTNAME)}
@@ -57,5 +62,6 @@ setup(
     long_description=LONG_DESCRIPTION,
     classifiers=list(filter(None, CLASSIFIERS.split('\n'))),
     requires=REQUIRES,
-    install_requires=INSTALL_REQUIRES
- )
+    install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE
+)

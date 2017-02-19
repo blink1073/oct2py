@@ -28,7 +28,7 @@ before_install:
 
 install:
   - export PYTHONWARNINGS=all
-  - pip install -e .
+  - pip install -e .[test]
 
 script:
     # run coverage on py3.5, regular on others
