@@ -9,10 +9,11 @@ import dis
 
 import numpy as np
 from scipy.io import loadmat, savemat
+from scipy.io.matlab.mio5 import MatlabObject
 from scipy.sparse import spmatrix
 
 from .compat import PY2
-from .dynamic import OctaveVariablePtr, OctaveUserClass
+from .dynamic import OctaveVariablePtr, OctaveUserClass, OctaveFunctionPtr
 from .utils import Oct2PyError
 
 
@@ -228,7 +229,7 @@ def _extract(data, session=None):
         return data
 
     # Extract user defined classes.
-    if hasattr(data, 'classname') and session:
+    if isinstance(data, MatlabObject):
         cls = session._get_user_class(data.classname)
         return cls.from_value(data)
 
@@ -283,6 +284,18 @@ def _encode(data, convert_to_float):
     # Handle a user defined object.
     if isinstance(data, OctaveUserClass):
         return _encode(OctaveUserClass.to_value(data), ctf)
+
+    # Handle a function pointer.
+    if isinstance(data, OctaveFunctionPtr):
+        raise Oct2PyError('Cannot write Octave functions')
+
+    # Handle matlab objects.
+    if isinstance(data, MatlabObject):
+        view = data.view(np.ndarray)
+        out = MatlabObject(data, data.classname)
+        for name in out.dtype.names:
+            out[name] = _encode(view[name], ctf)
+        return out
 
     # Extract and encode values from dict-like objects.
     if isinstance(data, dict):
