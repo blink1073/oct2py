@@ -417,7 +417,7 @@ class Oct2Py(object):
         >>> lines = []
         >>> octave.eval('for i = 1:3; disp(i);end', \
                         stream_handler=lines.append)
-        >>> lines
+        >>> lines  # doctest: +SKIP
         [' 1', ' 2', ' 3']
 
         Returns
