@@ -217,7 +217,7 @@ class Oct2Py(object):
         '@sin'
         >>> x = octave.quad(sin, 0, octave.pi())
         >>> x
-        2
+        2.0
 
         Raises
         ------
@@ -401,7 +401,7 @@ class Oct2Py(object):
         Examples
         --------
         >>> from oct2py import octave
-        >>> octave.eval('disp("hello")')
+        >>> octave.eval('disp("hello")') # doctest: +SKIP
         hello
         >>> x = octave.eval('round(quad(@sin, 0, pi/2));')
         >>> x
