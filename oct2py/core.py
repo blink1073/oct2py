@@ -207,7 +207,8 @@ class Oct2Py(object):
         array([[ 1.,  2.]])
         >>> ptr.address
         'foo'
-        >>> octave.disp(ptr)  # can be passed as an argument
+        >>> # Can be passed as an argument
+        >>> octave.disp(ptr)  # doctest: +SKIP
         1  2
 
         >>> from oct2py import octave
@@ -406,7 +407,7 @@ class Oct2Py(object):
         >>> x
         1.0
 
-        >>> a = octave.eval('disp("hello");1;')
+        >>> a = octave.eval('disp("hello");1;')  # doctest: +SKIP
         hello
         >>> a = octave.eval('disp("hello");1;', verbose=false)
         >>> a
