@@ -35,16 +35,6 @@ TYPE_CONVERSIONS = [
 ]
 
 
-def cleanupData(data):
-    """Convert lists to tuples for proper roundtrip"""
-    if isinstance(data, dict):
-        for (key, value) in data.items():
-            data[key] = cleanupData(value)
-    if isinstance(data, list):
-        data = tuple(cleanupData(d) for d in data)
-    return data
-
-
 class TestRoundTrip:
     """Test roundtrip value and type preservation between Python and Octave.
 
@@ -57,8 +47,7 @@ class TestRoundTrip:
     def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
-        data = cls.oc.test_datatypes()
-        cls.data = cleanupData(data)
+        cls.data = cls.oc.test_datatypes()
 
     @classmethod
     def teardown_class(cls):
@@ -136,7 +125,10 @@ class TestRoundTrip:
         """Test roundtrip value and type preservation for string types
         """
         self.helper(self.data.string['basic'], str)
-        self.helper(self.data.string['cell_array'], list)
+        data = self.data.string['cell_array']
+        incoming = self.oc.roundtrip(data)
+        assert isinstance(incoming, Cell)
+        assert incoming.tolist() == data.tolist()
 
     def test_struct_array(self):
         """Test roundtrip value and type preservation for struct array types
@@ -150,7 +142,10 @@ class TestRoundTrip:
         """Test roundtrip value and type preservation for cell array types
         """
         for key in ['vector', 'matrix', 'array']:
-            self.helper(self.data.cell[key], list)
+            data = self.data.cell[key]
+            incoming = self.oc.roundtrip(data)
+            assert isinstance(incoming, Cell), type(incoming)
+            assert incoming.shape == data.squeeze().shape
 
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
@@ -166,7 +161,7 @@ class TestRoundTrip:
 
         # Handle simple objects.
         for key in self.data.keys():
-            if key not in ['nested', 'sparse', 'cell', 'object']:
+            if key not in ['nested', 'sparse', 'cell', 'object', 'struct_vector']:
                 cmd = '{0}(x.{1},y.{1});'.format(func, key)
                 assert self.oc.eval(cmd), key
                 cmd = '{0}(x.nested.{1},y.nested.{1});'.format(func, key)
@@ -199,6 +194,13 @@ class TestRoundTrip:
         assert self.oc.eval(cmd)
         cmd = '{0}(full(x.nested.sparse), full(y.nested.sparse))'.format(func)
         assert self.oc.eval(cmd)
+
+        # Handle struct vector type.
+        for i in range(self.data.struct_vector.size):
+            cmd = '{0}(x.struct_vector({1}), y.struct_vector({1}))'
+            assert self.oc.eval(cmd.format(func, i + 1))
+            cmd = '{0}(x.nested.struct_vector({1}), y.nested.struct_vector({1}))'
+            assert self.oc.eval(cmd.format(func, i + 1))
 
 
 class TestBuiltins:
@@ -318,7 +320,7 @@ class TestBuiltins:
         self.helper(float(test))
         self.helper(complex(1, 2))
 
-    def test_string(self):
+    def test_simple_string(self):
         """Test python str and unicode types
         """
         tests = ['spam', unicode('eggs')]
