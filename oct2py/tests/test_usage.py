@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from oct2py import Oct2Py, Oct2PyError, Struct, Cell
+from oct2py.io import MatlabFunction
 from oct2py.compat import StringIO
 
 
@@ -106,6 +107,7 @@ class TestUsage:
         assert test2['spam'] == 'eggs'
         assert test2['eggs']['spam'] == 'eggs'
         assert test2.foo.bar == 10
+        assert 'spam' in test.__dict__
 
     def test_syntax_error(self):
         """Make sure a syntax error in Octave throws an Oct2PyError
@@ -158,6 +160,11 @@ class TestUsage:
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
+    def test_octave_function(self):
+        func = MatlabFunction()
+        with pytest.raises(Oct2PyError):
+            self.oct.push('x', func)
+
     def test_octave_class(self):
         self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
         polynomial = self.oc.polynomial
@@ -195,6 +202,8 @@ class TestUsage:
         assert yptr.value == 2
         assert self.oc.pull('y') == 2
         assert 'is a variable' in yptr.__doc__
+        ones = self.oct.ones(yptr)
+        assert ones.shape == (2, 2)
 
         onesptr = self.oc.get_pointer('ones')
         assert onesptr.name == 'ones'

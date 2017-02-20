@@ -15,7 +15,7 @@ except ImportError:
 import numpy as np
 
 import oct2py
-from oct2py import Oct2Py, Oct2PyError
+from oct2py import Oct2Py, Oct2PyError, StructArray, Cell
 from oct2py.compat import StringIO
 
 
@@ -281,3 +281,10 @@ class TestMisc:
         self.oc.logger = None
         assert self.oc.logger
         self.oc.logger == logger
+
+    def test_struct_array(self):
+        self.oc.eval('x = struct("y", {1, 2}, "z", {3, 4});')
+        x = self.oc.pull('x')
+        assert x.fieldnames.tolist() == ['y', 'z']
+        other = StructArray(x)
+        assert other.shape == x.shape
