@@ -9,7 +9,7 @@ import dis
 
 import numpy as np
 from scipy.io import loadmat, savemat
-from scipy.io.matlab.mio5 import MatlabObject
+from scipy.io.matlab.mio5 import MatlabObject, MatlabFunction
 from scipy.sparse import spmatrix
 
 from .compat import PY2
@@ -286,7 +286,7 @@ def _encode(data, convert_to_float):
         return _encode(OctaveUserClass.to_value(data), ctf)
 
     # Handle a function pointer.
-    if isinstance(data, OctaveFunctionPtr):
+    if isinstance(data, (OctaveFunctionPtr, MatlabFunction)):
         raise Oct2PyError('Cannot write Octave functions')
 
     # Handle matlab objects.

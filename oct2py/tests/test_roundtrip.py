@@ -279,8 +279,8 @@ class TestBuiltins:
 
         test = [set((1, 2))]
         incoming = self.oc.roundtrip(test)
-        assert np.allclose(tuple(test), incoming)
         assert isinstance(incoming, np.ndarray)
+        assert np.allclose(incoming.tolist(), [1, 2])
 
     def test_tuple(self):
         """Test python tuple type

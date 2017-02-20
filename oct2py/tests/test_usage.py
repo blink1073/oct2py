@@ -161,9 +161,14 @@ class TestUsage:
         assert self.oc.extract_figures(plot_dir)
 
     def test_octave_function(self):
-        func = MatlabFunction()
+        func = MatlabFunction([1])
         with pytest.raises(Oct2PyError):
-            self.oct.push('x', func)
+            self.oc.push('x', func)
+
+    def test_bad_getattr(self):
+        self.oc.eval('foo = 1')
+        with pytest.raises(Oct2PyError):
+            self.oc.__getattr__('foo')
 
     def test_octave_class(self):
         self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
@@ -191,6 +196,10 @@ class TestUsage:
 
         assert 'Display a polynomial object' in p2.display.__doc__
 
+        self.oc.eval('p3 = polynomial([1,2,3])')
+        p3 = self.oc.pull('p3')
+        assert np.allclose(p3.poly, [1, 2, 3])
+
     def test_get_pointer(self):
         self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
         self.oc.push('y', 1)
@@ -202,7 +211,7 @@ class TestUsage:
         assert yptr.value == 2
         assert self.oc.pull('y') == 2
         assert 'is a variable' in yptr.__doc__
-        ones = self.oct.ones(yptr)
+        ones = self.oc.ones(yptr)
         assert ones.shape == (2, 2)
 
         onesptr = self.oc.get_pointer('ones')
@@ -260,6 +269,10 @@ class TestUsage:
         assert isinstance(val, np.ndarray)
         assert isinstance(val2, Cell)
         assert val2.size == 3
+
+        self.oc.feval('test_nodocstring.m', 1)
+        with pytest.raises(TypeError):
+            self.oc.feval('test_usage.py')
 
     def test_eval(self):
         a = self.oc.eval('ones(3);')

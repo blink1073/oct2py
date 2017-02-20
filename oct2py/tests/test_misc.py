@@ -216,6 +216,8 @@ class TestMisc:
         self.oc.eval('clear()')
         with pytest.raises(Oct2PyError):
             self.oc.__getattr__('clear')
+        with pytest.raises(Oct2PyError):
+            self.oc.feval('clear')
 
     def test_multiline_statement(self):
         sobj = StringIO()
@@ -285,6 +287,6 @@ class TestMisc:
     def test_struct_array(self):
         self.oc.eval('x = struct("y", {1, 2}, "z", {3, 4});')
         x = self.oc.pull('x')
-        assert x.fieldnames.tolist() == ['y', 'z']
+        assert set(x.fieldnames) == set(('y', 'z'))
         other = StructArray(x)
         assert other.shape == x.shape
