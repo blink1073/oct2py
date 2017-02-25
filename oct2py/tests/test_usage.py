@@ -141,10 +141,7 @@ class TestUsage:
         self.oc.eval(code, plot_dir=plot_dir, plot_format='svg')
         imgs = self.oc.extract_figures(plot_dir)
         assert len(imgs) == 2
-        # The figures may be in a different order depending on the
-        # octave handling of the figures.
         assert isinstance(imgs[0], SVG) or isinstance(imgs[1], SVG)
-        assert isinstance(imgs[0], Image) or isinstance(imgs[1], Image)
 
     def test_quit(self):
         with pytest.raises(Oct2PyError):
