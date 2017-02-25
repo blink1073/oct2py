@@ -7,35 +7,36 @@ Release History
 ++++++++++++++++++
 Features
 --------
-- Added an `feval` method, which can be used to call Octave functions without 
-creating a dynamic function.  The function also supports calling a function
-by path.
-- The new `feval` method and the dynamic functions both now support a 
-`store_as` argument, which saves the result of the call to the Octave
+- Added an ``feval`` method, which can be used to call Octave functions 
+without  creating a dynamic function.  The function also supports calling a 
+function by path.
+- The new ``feval`` method and the dynamic functions both now support a 
+``store_as`` argument, which saves the result of the call to the Octave
 workspace rather than returning it.
-- Added `get_pointer` method that can be used to retrieve a pointer to
+- Added ``get_pointer`` method that can be used to retrieve a pointer to
 a value in the Octave namespace, including Octave functions.  
-Pointers can be passed to `feval` or dynamic functions as function arguments.  A pointer passed as a nested value will be passed by value instead.
-- Added an Oct2Py `Cell` ndarray subclass used for Octave cell arrays.
-- Added an Oct2PY `StructArray` numpy `recarray` subclass used for Octave
+Pointers can be passed to ``feval`` or dynamic functions as function 
+arguments.  A pointer passed as a nested value will be passed by value instead.
+- Added an Oct2Py ``Cell`` ndarray subclass used for Octave cell arrays.
+- Added an Oct2PY ``StructArray`` numpy ``recarray`` subclass used for Octave
 structure arrays.
-- Added a `stream_handler` argument to `eval` and the new `feval` that
-can be used to capture streaming output using a simple callback.
+- Added a ``stream_handler`` argument to ``eval`` and the new ``feval`` method
+ that can be used to capture streaming output using a simple callback.
 
 Breaking Changes
 ----------------
-- Removed inferred `nout` for Octave function calls; it must be explicitly 
-given if not `1`.  The old behavior was too surprising and relied on
+- Removed inferred ``nout`` for Octave function calls; it must be explicitly 
+given if not ``1``.  The old behavior was too surprising and relied on
 internal logic of the CPython interpreter.
 - Any code that received Cell or Struct Array values will need to be updated.
 - Numpy booleans are now equivalent to Octave literals.  They were previously
 handled as uint8 when sending to Octave.
 - Deprecated the use of keyword arguments to Octave function calls,
 use standard Octave calling conventions.
-- Deprecated the `log` and `return_both` keyword arguments to `eval()`.
-See docs on `Oct2Py.eval()` for more information.
+- Deprecated the ``log`` and `return_both` keyword arguments to ``eval()``.
+See docs on ``Oct2Py.eval()`` for more information.
 - Oct2Py will no longer create dynamic functions for values that are not
-Octave functions - use `get_pointer` or `pull` instead.
+Octave functions - use `get_pointer` or ``pull`` instead.
 
 
 3.9.0 (2017-01-28)
