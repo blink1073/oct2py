@@ -46,7 +46,7 @@ class Oct2Py(object):
     timeout : float, optional
         Timeout in seconds for commands
     squeeze_arrays: boolean, optional.
-        Whether to squeeze arrays from Matlab (default is False). 
+        Whether to squeeze arrays from Octave (default is False). 
         Cell and Struct Arrays are always squeezed. 
     infer_nout: boolean, optional. 
         Whether to infer the number of output arguments  in `feval` and 
@@ -64,7 +64,8 @@ class Oct2Py(object):
     """
 
     def __init__(self, executable=None, logger=None, timeout=None,
-                 oned_as='row', temp_dir=None, convert_to_float=True):
+                 squeeze_arrays=False, oned_as='row', temp_dir=None, 
+                 convert_to_float=True):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
@@ -74,6 +75,7 @@ class Oct2Py(object):
         self.logger = logger
         self.timeout = timeout
         self.temp_dir = temp_dir or tempfile.mkdtemp()
+        self.squeeze_arrays = squeeze_arrays
         self.convert_to_float = convert_to_float
         self._user_classes = dict()
         self._function_ptrs = dict()
