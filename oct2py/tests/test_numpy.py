@@ -2,26 +2,21 @@ from __future__ import absolute_import, print_function
 import os
 
 import numpy as np
-import numpy.testing as test
+
+from oct2py import Oct2Py
 
 
-from oct2py import Oct2Py, Oct2PyError
-
-
-class NumpyTest(test.TestCase):
+class TestNumpy:
     """Check value and type preservation of Numpy arrays
     """
     codes = np.typecodes['All']
-    blacklist_codes = 'V'
-    blacklist_names = ['float128', 'float96', 'complex192', 'complex256']
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
 
-    @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def test_scalars(self):
@@ -29,17 +24,13 @@ class NumpyTest(test.TestCase):
         """
         for typecode in self.codes:
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
+            if typecode in 'US':
+                outgoing = np.array('spam').astype(typecode)
             try:
                 outgoing = outgoing.astype(typecode)
             except TypeError:
                 continue
-            if (typecode in self.blacklist_codes or
-                    outgoing.dtype.name in self.blacklist_names):
-                self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
-                continue
             incoming = self.oc.roundtrip(outgoing)
-            if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
-                outgoing = outgoing.astype(np.uint64)
             try:
                 assert np.allclose(incoming, outgoing)
             except (ValueError, TypeError, NotImplementedError,
@@ -60,18 +51,16 @@ class NumpyTest(test.TestCase):
                 except TypeError:  # pragma: no cover
                     outgoing += np.random.rand(*size).astype(outgoing.dtype)
                 if typecode in ['U', 'S']:
-                    outgoing = [[['spam', 'eggs'], ['spam', 'eggs']],
-                                [['spam', 'eggs'], ['spam', 'eggs']]]
+                    outgoing = [[['spam', 'eggs', 'hash'],
+                                 ['spam', 'eggs', 'hash']],
+                                [['spam', 'eggs', 'hash'],
+                                 ['spam', 'eggs', 'hash']]]
                     outgoing = np.array(outgoing).astype(typecode)
                 else:
                     try:
                         outgoing = outgoing.astype(typecode)
                     except TypeError:
                         continue
-                if (typecode in self.blacklist_codes or
-                        outgoing.dtype.name in self.blacklist_names):
-                    self.assertRaises(Oct2PyError, self.oc.roundtrip, outgoing)
-                    continue
                 incoming = self.oc.roundtrip(outgoing)
                 incoming = np.array(incoming)
                 if outgoing.size == 1:
@@ -81,9 +70,10 @@ class NumpyTest(test.TestCase):
                     outgoing = outgoing.squeeze()
                 elif incoming.size == 1:
                     incoming = incoming.squeeze()
+                if typecode == 'O':
+                    incoming = incoming.squeeze()
+                    outgoing = outgoing.squeeze()
                 assert incoming.shape == outgoing.shape
-                if outgoing.dtype.str in ['<M8[us]', '<m8[us]']:
-                    outgoing = outgoing.astype(np.uint64)
                 try:
                     assert np.allclose(incoming, outgoing)
                 except (AssertionError, ValueError, TypeError,
@@ -102,7 +92,7 @@ class NumpyTest(test.TestCase):
         rand = csr_matrix(rand)
         iden = identity(1000)
         for item in [rand, iden]:
-            incoming, type_ = self.oc.roundtrip(item)
+            incoming, type_ = self.oc.roundtrip(item, nout=2)
             assert item.shape == incoming.shape
             assert item.nnz == incoming.nnz
             assert np.allclose(item.todense(), incoming.todense())
@@ -113,7 +103,7 @@ class NumpyTest(test.TestCase):
         '''Test roundtrip empty matrices
         '''
         empty = np.empty((100, 100))
-        incoming, type_ = self.oc.roundtrip(empty)
+        incoming, type_ = self.oc.roundtrip(empty, nout=2)
         assert empty.squeeze().shape == incoming.squeeze().shape
         assert np.allclose(empty[np.isfinite(empty)],
                            incoming[np.isfinite(incoming)])
@@ -124,7 +114,7 @@ class NumpyTest(test.TestCase):
         '''
         test = np.random.rand(1000)
         test = np.mat(test)
-        incoming, type_ = self.oc.roundtrip(test)
+        incoming, type_ = self.oc.roundtrip(test, nout=2)
         assert np.allclose(test, incoming)
         assert test.dtype == incoming.dtype
         assert type_ == 'double'
@@ -134,7 +124,7 @@ class NumpyTest(test.TestCase):
         '''
         test = np.random.rand(100)
         test = np.ma.array(test)
-        incoming, type_ = self.oc.roundtrip(test)
+        incoming, type_ = self.oc.roundtrip(test, nout=2)
         assert np.allclose(test, incoming)
         assert test.dtype == incoming.dtype
         assert type_ == 'double'

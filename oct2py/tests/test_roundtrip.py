@@ -2,11 +2,8 @@ from __future__ import absolute_import, print_function
 import os
 
 import numpy as np
-import numpy.testing as test
 
-
-from oct2py import Oct2Py, Oct2PyError
-from oct2py.utils import Struct
+from oct2py import Oct2Py, Oct2PyError, Struct, Cell, StructArray
 from oct2py.compat import unicode, long
 
 
@@ -17,8 +14,8 @@ TYPE_CONVERSIONS = [
     (complex, 'double', np.complex128),
     (str, 'char', unicode),
     (unicode, 'cell', unicode),
-    (bool, 'int8', np.int8),
-    (None, 'double', np.float64),
+    (bool, 'logical', np.bool),
+    (None, 'double', np.nan),
     (dict, 'struct', Struct),
     (np.int8, 'int8', np.int8),
     (np.int16, 'int16', np.int16),
@@ -28,7 +25,7 @@ TYPE_CONVERSIONS = [
     (np.uint16, 'uint16', np.uint16),
     (np.uint32, 'uint32', np.uint32),
     (np.uint64, 'uint64', np.uint64),
-    #(np.float16, 'double', np.float64),
+    (np.float16, 'double', np.float64),
     (np.float32, 'double', np.float64),
     (np.float64, 'double', np.float64),
     (np.str, 'char', np.unicode),
@@ -38,7 +35,7 @@ TYPE_CONVERSIONS = [
 ]
 
 
-class RoundtripTest(test.TestCase):
+class TestRoundTrip:
     """Test roundtrip value and type preservation between Python and Octave.
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -47,13 +44,13 @@ class RoundtripTest(test.TestCase):
 
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
         cls.data = cls.oc.test_datatypes()
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def nested_equal(self, val1, val2):
@@ -66,17 +63,17 @@ class RoundtripTest(test.TestCase):
                 elif isinstance(subval1, np.ndarray):
                     np.allclose(subval1, subval2)
                 else:
-                    self.assertEqual(subval1, subval2)
+                    assert subval1 == subval2
         elif isinstance(val1, np.ndarray):
             np.allclose(val1, np.array(val2))
         elif isinstance(val1, (str, unicode)):
-            self.assertEqual(val1, val2)
+            assert val1 == val2
         else:
             try:
                 assert (np.alltrue(np.isnan(val1)) and
                         np.alltrue(np.isnan(val2)))
             except (AssertionError, NotImplementedError):
-                self.assertEqual(val1, val2)
+                assert val1 == val2
 
     def helper(self, outgoing, expected_type=None):
         """
@@ -93,7 +90,7 @@ class RoundtripTest(test.TestCase):
             expected_type = type(outgoing)
         self.nested_equal(incoming, outgoing)
         try:
-            self.assertEqual(type(incoming), expected_type)
+            assert type(incoming) == expected_type
         except AssertionError:
             if type(incoming) == np.float32 and expected_type == np.float64:
                 pass
@@ -110,7 +107,7 @@ class RoundtripTest(test.TestCase):
         """
         for key in ['float64', 'complex', 'complex_matrix']:
             self.helper(self.data.num[key])
-        self.helper(self.data.num['float32'], np.float64)
+        self.helper(self.data.num['float32'], float)
 
     def test_misc_num(self):
         """Test roundtrip value and type preservation for misc numeric types
@@ -127,21 +124,28 @@ class RoundtripTest(test.TestCase):
     def test_string(self):
         """Test roundtrip value and type preservation for string types
         """
-        for key in ['basic', 'cell_array']:
-            self.helper(self.data.string[key])
+        self.helper(self.data.string['basic'], str)
+        data = self.data.string['cell_array']
+        incoming = self.oc.roundtrip(data)
+        assert isinstance(incoming, Cell)
+        assert incoming.tolist() == data.tolist()
 
     def test_struct_array(self):
         """Test roundtrip value and type preservation for struct array types
         """
-        self.helper(self.data.struct_array['name'])
-        self.helper(self.data.struct_array['age'], np.ndarray)
+        data = self.data.struct_array
+        incoming = self.oc.roundtrip(data)
+        assert incoming.name.tolist() == data.name.tolist()
+        assert incoming.age.tolist() == data.age.tolist()
 
     def test_cell_array(self):
         """Test roundtrip value and type preservation for cell array types
         """
         for key in ['vector', 'matrix', 'array']:
-            self.helper(self.data.cell[key])
-        #self.helper(DATA.cell['array'], np.ndarray)
+            data = self.data.cell[key]
+            incoming = self.oc.roundtrip(data)
+            assert isinstance(incoming, Cell), type(incoming)
+            assert incoming.squeeze().shape == data.squeeze().shape
 
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
@@ -154,18 +158,52 @@ class RoundtripTest(test.TestCase):
             func = 'isequaln'
         except Oct2PyError:
             func = 'isequalwithequalnans'
+
+        # Handle simple objects.
         for key in self.data.keys():
-            if key not in ['struct_array', 'num', 'mixed']:
-                cmd = '{0}(x.{1},y.{1})'.format(func, key)
+            if key not in ['nested', 'sparse', 'cell', 'object', 'struct_vector']:
+                cmd = '{0}(x.{1},y.{1});'.format(func, key)
                 assert self.oc.eval(cmd), key
-        self.oc.convert_to_float = False
-        self.oc.push('y', self.data)
-        cmd = '%s(x.num,y.num)' % func
-        assert self.oc.eval(cmd), cmd
-        self.oc.convert_to_float = True
+                cmd = '{0}(x.nested.{1},y.nested.{1});'.format(func, key)
+                assert self.oc.eval(cmd), key
+
+        # Handle cell type.
+        for key in self.data['cell'].keys():
+            if key in ['empty', 'array']:
+                continue
+            cmd = '{0}(x.cell.{1},y.cell.{1});'.format(func, key)
+            assert self.oc.eval(cmd), key
+            cmd = '{0}(x.nested.cell.{1},y.nested.cell.{1});'.format(func, key)
+            assert self.oc.eval(cmd), key
+        for i in [1, 2]:
+            cmd = '{0}(x.cell.{1}({2}),y.cell.{1}({2}))'
+            cmd = cmd.format(func, 'array', i)
+            assert self.oc.eval(cmd, key)
+
+        # Handle object type.
+        cmd = '{0}(get(x.object, "poly"), get(y.object, "poly"))'
+        cmd = cmd.format(func, key)
+        assert self.oc.eval(cmd)
+
+        cmd = '{0}(get(x.nested.object, "poly"), get(y.nested.object, "poly"))'
+        cmd = cmd.format(func, key)
+        assert self.oc.eval(cmd)
+
+        # Handle sparse type.
+        cmd = '{0}(full(x.sparse), full(y.sparse))'.format(func)
+        assert self.oc.eval(cmd)
+        cmd = '{0}(full(x.nested.sparse), full(y.nested.sparse))'.format(func)
+        assert self.oc.eval(cmd)
+
+        # Handle struct vector type.
+        for i in range(self.data.struct_vector.size):
+            cmd = '{0}(x.struct_vector({1}), y.struct_vector({1}))'
+            assert self.oc.eval(cmd.format(func, i + 1))
+            cmd = '{0}(x.nested.struct_vector({1}), y.nested.struct_vector({1}))'
+            assert self.oc.eval(cmd.format(func, i + 1))
 
 
-class BuiltinsTest(test.TestCase):
+class TestBuiltins:
     """Test the exporting of standard Python data types, checking their type.
 
     Runs roundtrip.m and tests the types of all the values to make sure they
@@ -173,12 +211,12 @@ class BuiltinsTest(test.TestCase):
 
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def helper(self, outgoing, incoming=None, expected_type=None):
@@ -203,7 +241,7 @@ class BuiltinsTest(test.TestCase):
         if not expected_type:
             expected_type = np.ndarray
         try:
-            self.assertEqual(incoming, outgoing)
+            assert incoming == outgoing
         except ValueError:
             assert np.allclose(np.array(incoming), np.array(outgoing))
         if type(incoming) != expected_type:
@@ -215,7 +253,6 @@ class BuiltinsTest(test.TestCase):
         """
         test = dict(x='spam', y=[1, 2, 3])
         incoming = self.oc.roundtrip(test)
-        #incoming = dict(incoming)
         for key in incoming:
             self.helper(test[key], incoming[key])
 
@@ -238,26 +275,48 @@ class BuiltinsTest(test.TestCase):
         test = set((1, 2, 3, 3))
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
-        self.assertEqual(type(incoming), np.ndarray)
+        assert isinstance(incoming, np.ndarray)
+
+        test = [set((1, 2))]
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, np.ndarray)
+        assert np.allclose(incoming.tolist(), [1, 2])
 
     def test_tuple(self):
         """Test python tuple type
         """
         test = tuple((1, 2, 3))
-        self.helper(test, expected_type=np.ndarray)
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, Cell)
+        assert incoming.squeeze().tolist() == list(test)
+
+    def test_tuple_of_tuples(self):
+        test = tuple(((1, 2), (3, 4)))
+        incoming = self.oc.roundtrip(test)
+        assert type(incoming) == Cell
+        assert incoming.shape == (1, 2)
+        incoming = incoming.squeeze()
+        assert incoming[0].squeeze().tolist() == list(test[0])
+        assert incoming[1].squeeze().tolist() == list(test[1])
 
     def test_list(self):
         """Test python list type
         """
-        tests = [[1, 2], ['a', 'b']]
-        self.helper(tests[0])
-        self.helper(tests[1], expected_type=list)
+        incoming = self.oc.roundtrip([1, 2])
+        assert np.allclose(incoming, [1, 2])
+        incoming = self.oc.roundtrip(['a', 'b'])
+        assert isinstance(incoming, Cell)
+        assert incoming.squeeze().tolist() == ['a', 'b']
 
     def test_list_of_tuples(self):
         """Test python list of tuples
         """
         test = [(1, 2), (1.5, 3.2)]
-        self.helper(test)
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, Cell)
+        incoming = incoming.squeeze()
+        assert incoming[0].squeeze().tolist() == list(test[0])
+        assert incoming[1].squeeze().tolist() == list(test[1])
 
     def test_numeric(self):
         """Test python numeric types
@@ -268,7 +327,7 @@ class BuiltinsTest(test.TestCase):
         self.helper(float(test))
         self.helper(complex(1, 2))
 
-    def test_string(self):
+    def test_simple_string(self):
         """Test python str and unicode types
         """
         tests = ['spam', unicode('eggs')]
@@ -278,14 +337,22 @@ class BuiltinsTest(test.TestCase):
     def test_nested_list(self):
         """Test python nested lists
         """
-        test = [['spam', 'eggs'], ['foo ', 'bar ']]
-        self.helper(test, expected_type=list)
+        test = [['spam', 'eggs', 'baz'], ['foo ', 'bar ', 'baz ']]
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, Cell)
+
+        assert incoming[0, 0][0, 0] == 'spam'
+        assert incoming.shape == (1, 2)
+
         test = [[1, 2], [3, 4]]
-        self.helper(test)
+        incoming = self.oc.roundtrip(test)
+        assert isinstance(incoming, np.ndarray)
+        assert np.allclose(incoming, test)
+
         test = [[1, 2], [3, 4, 5]]
         incoming = self.oc.roundtrip(test)
-        for i in range(len(test)):
-            assert np.alltrue(incoming[i] == np.array(test[i]))
+        assert isinstance(incoming, Cell)
+        assert incoming.shape == (1, 2)
 
     def test_bool(self):
         """Test boolean values
@@ -293,12 +360,10 @@ class BuiltinsTest(test.TestCase):
         tests = (True, False)
         for t in tests:
             incoming = self.oc.roundtrip(t)
-            self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('float64'))
+            assert incoming == t
             self.oc.convert_to_float = False
             incoming = self.oc.roundtrip(t)
-            self.assertEqual(incoming, t)
-            self.assertEqual(incoming.dtype, np.dtype('int8'))
+            assert incoming == t
             self.oc.convert_to_float = True
 
     def test_none(self):

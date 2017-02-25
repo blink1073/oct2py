@@ -39,10 +39,8 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #  the file COPYING, distributed as part of this software.
 #-----------------------------------------------------------------------------
 
-import tempfile
 import os
-from shutil import rmtree
-import re
+import tempfile
 
 import oct2py
 
@@ -55,10 +53,6 @@ from IPython.core.magic_arguments import (
 )
 from IPython.utils.py3compat import unicode_to_str
 from IPython.utils.text import dedent
-
-
-class OctaveMagicError(oct2py.Oct2PyError):
-    pass
 
 
 @magics_class
@@ -221,9 +215,6 @@ class OctaveMagics(Magics):
                 ...: plot([1, 2, 3]);
 
         '''
-        # match current working directory
-        self._oct.cd(os.getcwd())
-
         args = parse_argstring(self.octave, line)
 
         # arguments 'code' in line are prepended to the cell lines
@@ -249,63 +240,37 @@ class OctaveMagics(Magics):
                     val = self.shell.user_ns[input]
                 self._oct.push(input, val)
 
-        # generate plots in a temporary directory
-        if args.gui:
-            plot_dir = None
-        else:
-            plot_dir = tempfile.mkdtemp()
-
-        plot_width = args.width
-        plot_height = args.height
+        width = args.width
+        height = args.height
 
         if args.size is not None:
-            plot_width, plot_height = [int(s) for s in args.size.split(',')]
+            width, height = [int(s) for s in args.size.split(',')]
 
-        try:
-            text_output, value = self._oct.eval(code,
-                                                plot_dir=plot_dir,
-                                                plot_format=args.format,
-                                                plot_width=plot_width,
-                                                plot_height=plot_height,
-                                                plot_name='__ipy_oct_fig_',
-                                                plot_res=args.resolution,
-                                                verbose=False,
-                                                return_both=True)
-        except oct2py.Oct2PyError as exception:
-            msg = str(exception)
-            if 'Octave Session Interrupted' in msg:
-                return
-            if 'Octave Syntax Error' in msg:
-                raise OctaveMagicError(msg)
-            msg = re.sub('"""\s+', '"""\n', msg)
-            msg = re.sub('\s+"""', '\n"""', msg)
-            raise OctaveMagicError(msg)
+        plot_dir = None if args.gui else tempfile.mkdtemp()
 
-        key = 'OctaveMagic.Octave'
-        display_data = []
+        # match current working directory
+        self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
+        value = self._oct.eval(code, stream_handler=self._publish,
+            plot_dir=plot_dir, plot_width=width, plot_height=height,
+            plot_format=args.format, plot_name='__ipy_oct_fig_',
+            resolution=args.resolution)
 
-        # Publish text output
-        if text_output != "None":
-            display_data.append((key, {'text/plain': text_output}))
-
+        # Publish output
         if args.output:
             for output in ','.join(args.output).split(','):
                 output = unicode_to_str(output)
                 self.shell.push({output: self._oct.pull(output)})
 
-        for source, data in display_data:
-            # source is deprecated in IPython 3.0.
-            # specify with kwarg for backward compatibility.
-            publish_display_data(source=source, data=data)
-
         # Publish images
         if plot_dir:
-            for img in self._oct.extract_figures(plot_dir):
+            for img in self._oct.extract_figures(plot_dir, True):
                 self._display(img)
-            rmtree(plot_dir, True)
 
         if return_output:
             return value
+
+    def _publish(self, line):
+        publish_display_data({'text/plain': line})
 
 
 __doc__ = __doc__.format(

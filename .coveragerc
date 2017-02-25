@@ -1,1 +1,1 @@
-# Configuration for coverage.py[run]branch = Truesource = oct2pyinclude = */oct2py/*omit =    */setup.py[report]exclude_lines =    def __repr__    if __name__ == .__main__.:
+# Configuration for coverage.py[run]branch = Truesource = oct2pyinclude = */oct2py/*omit =    */setup.py    oct2py/compat.py    oct2py/tests/*    oct2py/ipython/tests/*[report]exclude_lines =    def __repr__    if __name__ == .__main__.:

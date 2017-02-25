@@ -2,11 +2,8 @@ from __future__ import absolute_import, print_function
 import os
 
 import numpy as np
-import numpy.testing as test
 
-
-from oct2py import Oct2Py
-from oct2py.utils import Struct
+from oct2py import Oct2Py, Struct, Cell, StructArray
 from oct2py.compat import unicode, long
 
 
@@ -17,8 +14,8 @@ TYPE_CONVERSIONS = [
     (complex, 'double', np.complex128),
     (str, 'char', unicode),
     (unicode, 'cell', unicode),
-    (bool, 'int8', np.int8),
-    (None, 'double', np.float64),
+    (bool, 'logical', np.bool),
+    (None, 'double', np.nan),
     (dict, 'struct', Struct),
     (np.int8, 'int8', np.int8),
     (np.int16, 'int16', np.int16),
@@ -28,7 +25,7 @@ TYPE_CONVERSIONS = [
     (np.uint16, 'uint16', np.uint16),
     (np.uint32, 'uint32', np.uint32),
     (np.uint64, 'uint64', np.uint64),
-    #(np.float16, 'double', np.float64),
+    (np.float16, 'double', np.float64),
     (np.float32, 'double', np.float64),
     (np.float64, 'double', np.float64),
     (np.str, 'char', np.unicode),
@@ -38,7 +35,7 @@ TYPE_CONVERSIONS = [
 ]
 
 
-class ConversionTest(test.TestCase):
+class TestConversions:
     """Test the importing of all Octave data types, checking their type
 
     Uses test_datatypes.m to read in a dictionary with all Octave types
@@ -47,13 +44,13 @@ class ConversionTest(test.TestCase):
 
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
         cls.data = cls.oc.test_datatypes()
 
     @classmethod
-    def tearDownClass(cls):
+    def teardown_class(cls):
         cls.oc.exit()
 
     def helper(self, base, keys, types):
@@ -73,7 +70,7 @@ class ConversionTest(test.TestCase):
         for key, type_ in zip(keys, types):
             if not type(base[key]) == type_:
                 try:
-                    assert type_(base[key]) == base[key]
+                    assert type_(base[key]) == base[key], key
                 except ValueError:
                     assert np.allclose(type_(base[key]), base[key])
 
@@ -92,13 +89,14 @@ class ConversionTest(test.TestCase):
         keys = ['float32', 'float64', 'complex', 'complex_matrix']
         types = [np.float64, np.float64, np.complex128, np.ndarray]
         self.helper(self.data.num, keys, types)
-        self.assertEqual(self.data.num.complex_matrix.dtype,
-                         np.dtype('complex128'))
+        assert (
+            self.data.num.complex_matrix.dtype == np.dtype('complex128')
+        )
 
     def test_misc_num(self):
         """Test incoming misc numeric types
         """
-        keys = ['inf', 'NaN', 'matrix', 'vector', 'column_vector', 'matrix3d',
+        keys = ['inf', 'matrix', 'vector', 'column_vector', 'matrix3d',
                 'matrix5d']
         types = [np.float64, np.float64, np.ndarray, np.ndarray, np.ndarray,
                  np.ndarray, np.ndarray]
@@ -107,33 +105,29 @@ class ConversionTest(test.TestCase):
     def test_logical(self):
         """Test incoming logical type
         """
-        self.assertEqual(type(self.data.logical), np.ndarray)
+        assert type(self.data.logical) == np.ndarray
 
     def test_string(self):
         """Test incoming string types
         """
-        keys = ['basic', 'char_array', 'cell_array']
-        types = [unicode, list, list]
+        keys = ['basic', 'cell', 'cell_array']
+        types = [str, Cell, Cell]
         self.helper(self.data.string, keys, types)
+        assert self.data.string.char_array.shape == (3,)
 
     def test_struct_array(self):
         ''' Test incoming struct array types '''
-        keys = ['name', 'age']
-        types = [list, list]
-        self.helper(self.data.struct_array, keys, types)
+        data = self.data.struct_array
+        incoming, octave_type = self.oc.roundtrip(data, nout=2)
+        assert incoming.tolist() == data.tolist()
+        assert octave_type == 'struct'
 
-    def test_cell_array(self):
-        ''' Test incoming cell array types '''
-        keys = ['vector', 'matrix']
-        types = [list, list]
+    def test_cells(self):
+        ''' Test incoming cell types '''
+        keys = ['vector', 'matrix', 'scalar', 'string', 'string_array',
+                'empty', 'array']
+        types = [Cell for i in range(len(keys))]
         self.helper(self.data.cell, keys, types)
-
-    def test_mixed_struct(self):
-        '''Test mixed struct type
-        '''
-        keys = ['array', 'cell', 'scalar']
-        types = [list, list, float]
-        self.helper(self.data.mixed, keys, types)
 
     def test_python_conversions(self):
         """Test roundtrip python type conversions
@@ -146,7 +140,7 @@ class ConversionTest(test.TestCase):
                 outgoing = None
             else:
                 outgoing = out_type(1)
-            incoming, octave_type = self.oc.roundtrip(outgoing)
+            incoming, octave_type = self.oc.roundtrip(outgoing, nout=2)
             if octave_type == 'int32' and oct_type == 'int64':
                 pass
             elif octave_type == 'char' and oct_type == 'cell':
@@ -158,6 +152,10 @@ class ConversionTest(test.TestCase):
             else:
                 assert (octave_type == oct_type or
                         (octave_type == 'double' and self.oc.convert_to_float))
+            if out_type is None:
+                assert np.isnan(incoming)
+                return
+
             if type(incoming) != in_type:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass

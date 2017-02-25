@@ -7,6 +7,8 @@ oct2py.egg-info/*
 build/*
 dist/*
 docs/_build/*
+.cache/*
+htmlcov/*
 example/.ipynb_checkpoints/
 .ipynb_checkpoints/
 octave-workspace

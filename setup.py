@@ -1,5 +1,7 @@
 """Setup script for oct2py package.
 """
+import glob
+
 DISTNAME = 'oct2py'
 DESCRIPTION = 'Python to GNU Octave bridge --> run m-files from python.'
 LONG_DESCRIPTION = open('README.rst', 'rb').read().decode('utf-8')
@@ -7,11 +9,16 @@ MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
-REQUIRES = ["numpy (>= 1.7.1)", "scipy (>= 0.12)", "octave_kernel (>= 0.25)"]
+REQUIRES = ["numpy (>= 1.11)", "scipy (>= 0.17)", "octave_kernel (>= 0.25)"]
 INSTALL_REQUIRES = ["octave_kernel >= 0.25"]
+EXTRAS_REQUIRE = {
+    'test:python_version == "2.7"': ['mock'],
+    'test': ['pytest'],
+    'docs': ['sphinx', 'sphinx-bootstrap-theme', 'numpydoc']
+}
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,
             '%s/ipython/tests' % DISTNAME]
-PACKAGE_DATA = {DISTNAME: ['tests/*.m', '*.m']}
+PACKAGE_DATA = {DISTNAME: ['*.m'] + glob.glob('%s/**/*.m' % DISTNAME)}
 CLASSIFIERS = """\
 Development Status :: 5 - Production/Stable
 Intended Audience :: Developers
@@ -46,6 +53,7 @@ setup(
     maintainer_email=MAINTAINER_EMAIL,
     packages=PACKAGES,
     package_data=PACKAGE_DATA,
+    include_package_data=True,
     url=URL,
     download_url=URL,
     license=LICENSE,
@@ -54,5 +62,6 @@ setup(
     long_description=LONG_DESCRIPTION,
     classifiers=list(filter(None, CLASSIFIERS.split('\n'))),
     requires=REQUIRES,
-    install_requires=INSTALL_REQUIRES
- )
+    install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE
+)

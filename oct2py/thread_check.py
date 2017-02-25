@@ -1,15 +1,11 @@
-"""
-.. module:: thread_test
-   :synopsis: Test Starting Multiple Threads.
-              Verify that they each have their own session
+# -*- coding: utf-8 -*-
+# Copyright (c) oct2py developers.
+# Distributed under the terms of the MIT License.
 
-.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
-
-"""
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import threading
 import datetime
-from oct2py import Oct2Py, Oct2PyError
+from . import Oct2Py, Oct2PyError
 
 
 class ThreadClass(threading.Thread):

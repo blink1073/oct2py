@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) oct2py developers.
+# Distributed under the terms of the MIT License.
+
 import sys
 import ctypes
 import os
@@ -9,16 +12,19 @@ PY3 = sys.version[0] == '3'
 
 if PY2:
     unicode = unicode
+    string_types = basestring
     long = long
     from StringIO import StringIO
     import Queue as queue
     input = raw_input
+    
 else:  # pragma : no cover
-    input = input
     unicode = str
+    string_types = str
     long = int
     from io import StringIO
     import queue
+    input = input
 
 
 ###########################

@@ -1,11 +1,8 @@
-"""
-.. module:: demo
-   :synopsis: Play a demo script showing most of the p2oct api features.
+# -*- coding: utf-8 -*-
+# Copyright (c) oct2py developers.
+# Distributed under the terms of the MIT License.
 
-.. moduleauthor:: Steven Silvester <steven.silvester@ieee.org>
-
-"""
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import time
 from .compat import PY2
 
@@ -42,7 +39,7 @@ def demo(delay=1, interactive=True):
     help(oc.svd)
     # single vs. multiple return values
     print(oc.svd(np.array([[1,2], [1,3]])))
-    U, S, V = oc.svd([[1,2], [1,3]])
+    U, S, V = oc.svd([[1,2], [1,3]], nout=3)
     print(U, S, V)
     # low level constructs
     oc.eval("y=ones(3,3)")

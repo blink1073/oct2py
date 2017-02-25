@@ -3,10 +3,9 @@ import glob
 import logging
 import os
 import shutil
-import sys
 import tempfile
-import threading
-import time
+
+import pytest
 
 try:
     import thread
@@ -14,21 +13,22 @@ except ImportError:
     import _thread as thread
 
 import numpy as np
-import numpy.testing as test
 
 import oct2py
-from oct2py import Oct2Py, Oct2PyError
+from oct2py import Oct2Py, Oct2PyError, StructArray, Cell
 from oct2py.compat import StringIO
 
 
-class MiscTests(test.TestCase):
+class TestMisc:
 
-    def setUp(self):
-        self.oc = Oct2Py()
-        self.oc.addpath(os.path.dirname(__file__))
+    @classmethod
+    def setup_class(cls):
+        cls.oc = Oct2Py()
+        cls.oc.addpath(os.path.dirname(__file__))
 
-    def tearDown(self):
-        self.oc.exit()
+    @classmethod
+    def teardown_class(cls):
+        cls.oc.exit()
 
     def test_unicode_docstring(self):
         '''Make sure unicode docstrings in Octave functions work'''
@@ -36,10 +36,10 @@ class MiscTests(test.TestCase):
 
     def test_context_manager(self):
         '''Make sure oct2py works within a context manager'''
-        with self.oc as oc1:
+        with Oct2Py() as oc1:
             ones = oc1.ones(1)
         assert ones == np.ones(1)
-        with self.oc as oc2:
+        with Oct2Py() as oc2:
             ones = oc2.ones(1)
         assert ones == np.ones(1)
 
@@ -50,7 +50,8 @@ class MiscTests(test.TestCase):
         self.oc.push('x', data)
         assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
         self.oc.push('y', [data])
-        assert np.allclose(data.toarray(), self.oc.pull('y').toarray())
+        y = self.oc.pull('y')
+        assert np.allclose(data.toarray(), y[0].toarray())
 
     def test_logging(self):
         # create a stringio and a handler to log to it
@@ -71,9 +72,9 @@ class MiscTests(test.TestCase):
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'zeros(A__)' in resp
-        print(resp)
-        assert 'load ' in resp
+        assert 'exist("zeros")' in resp
+        assert 'exist("ones")' not in resp
+        assert '_pyeval(' in resp
 
         # now make an object with a desired logger
         logger = oct2py.get_log('test')
@@ -89,8 +90,9 @@ class MiscTests(test.TestCase):
         # check the output
         lines = hdlr.stream.getvalue().strip().split('\n')
         resp = '\n'.join(lines)
-        assert 'zeros(A__)' in resp
-        assert 'load ' in resp
+        assert 'exist("zeros")' in resp
+        assert 'exist("ones")' not in resp
+        assert '_pyeval(' in resp
 
     def test_demo(self):
         from oct2py import demo
@@ -122,7 +124,7 @@ class MiscTests(test.TestCase):
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
         assert s.shape == (2, 1)
-        U, S, V = self.oc.svd([[1, 2], [1, 3]])
+        U, S, V = self.oc.svd([[1, 2], [1, 3]], nout=3)
         assert U.shape == S.shape == V.shape == (2, 2)
 
     def test_help(self):
@@ -135,27 +137,28 @@ class MiscTests(test.TestCase):
     def test_using_exited_session(self):
         with Oct2Py() as oc:
             oc.exit()
-            test.assert_raises(Oct2PyError, oc.eval, 'ones')
+            with pytest.raises(Oct2PyError):
+                oc.eval("ones")
 
-    def test_keyboard(self):
-        self.oc.eval('a=1')
+    # def test_keyboard(self):
+    #     self.oc.eval('a=1')
 
-        stdin = sys.stdin
-        sys.stdin = StringIO('a\ndbquit\n')
+    #     stdin = sys.stdin
+    #     sys.stdin = StringIO('a\ndbquit\n')
 
-        try:
-            self.oc.keyboard(timeout=3)
-        except Oct2PyError as e:  # pragma: no cover
-            if 'session timed out' in str(e).lower():
-                # the keyboard command is not supported
-                # (likely using Octave 3.2)
-                return
-            else:
-                raise(e)
-        sys.stdin.flush()
-        sys.stdin = stdin
+    #     try:
+    #         self.oc.keyboard(timeout=3)
+    #     except Oct2PyError as e:  # pragma: no cover
+    #         if 'session timed out' in str(e).lower():
+    #             # the keyboard command is not supported
+    #             # (likely using Octave 3.2)
+    #             return
+    #         else:
+    #             raise(e)
+    #     sys.stdin.flush()
+    #     sys.stdin = stdin
 
-        self.oc.pull('a') == 1
+    #     self.oc.pull('a') == 1
 
     def test_func_without_docstring(self):
         out = self.oc.test_nodocstring(5)
@@ -164,12 +167,14 @@ class MiscTests(test.TestCase):
         assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
 
     def test_func_noexist(self):
-        test.assert_raises(Oct2PyError, self.oc.eval, 'oct2py_dummy')
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("oct2py_dummy")
 
     def test_timeout(self):
         with Oct2Py(timeout=2) as oc:
-            oc.sleep(2.1, timeout=5)
-            test.assert_raises(Oct2PyError, oc.sleep, 3)
+            oc.sleep(2.1, timeout=5, nout=0)
+            with pytest.raises(Oct2PyError):
+                oc.sleep(3, nout=0)
 
     def test_call_path(self):
         with Oct2Py() as oc:
@@ -184,7 +189,8 @@ class MiscTests(test.TestCase):
         assert x == 1
 
     def test_syntax_error_embedded(self):
-        test.assert_raises(Oct2PyError, self.oc.eval, """eval("a='1")""")
+        with pytest.raises(Oct2PyError):
+            self.oc.eval("""eval("a='1")""")
         self.oc.push('b', 1)
         x = self.oc.pull('b')
         assert x == 1
@@ -201,16 +207,18 @@ class MiscTests(test.TestCase):
     def test_temp_dir(self):
         temp_dir = tempfile.mkdtemp()
         oc = Oct2Py(temp_dir=temp_dir)
-        oc._reader.create_file(oc.temp_dir)
-        oc._writer.create_file(oc.temp_dir, [])
-        assert oc._reader.out_file.startswith(temp_dir)
-        assert oc._writer.in_file.startswith(temp_dir)
+        oc.push('a', 1)
+        assert len(os.listdir(temp_dir))
         shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
 
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""
-        self.oc.clear()
+        self.oc.eval('clear()')
+        with pytest.raises(Oct2PyError):
+            self.oc.__getattr__('clear')
+        with pytest.raises(Oct2PyError):
+            self.oc.feval('clear')
 
     def test_multiline_statement(self):
         sobj = StringIO()
@@ -244,3 +252,42 @@ class MiscTests(test.TestCase):
         assert np.isnan(self.oc.pull('a'))
 
         assert self.oc.struct() == [None]
+
+    def test_deprecated_log(self):
+        sobj = StringIO()
+        hdlr = logging.StreamHandler(sobj)
+        hdlr.setLevel(logging.DEBUG)
+        self.oc.logger.addHandler(hdlr)
+
+        self.oc.logger.setLevel(logging.DEBUG)
+        self.oc.eval('disp("hi")', log=False)
+        text = hdlr.stream.getvalue().strip()
+        assert not text
+        self.oc.logger.removeHandler(hdlr)
+
+    def test_deprecated_return_both(self):
+        text, value = self.oc.eval(['disp("hi")', 'ones(3);'],
+                                   return_both=True)
+        assert text.strip() == 'hi'
+        assert np.allclose(value, np.ones((3, 3)))
+
+        lines = []
+        text, value = self.oc.eval(['disp("hi")', 'ones(3);'],
+                                   return_both=True,
+                                   stream_handler=lines.append)
+        assert text == ''
+        assert np.allclose(value, np.ones((3, 3)))
+        assert lines[0].strip() == 'hi'
+
+    def test_logger(self):
+        logger = self.oc.logger
+        self.oc.logger = None
+        assert self.oc.logger
+        self.oc.logger == logger
+
+    def test_struct_array(self):
+        self.oc.eval('x = struct("y", {1, 2}, "z", {3, 4});')
+        x = self.oc.pull('x')
+        assert set(x.fieldnames) == set(('y', 'z'))
+        other = StructArray(x)
+        assert other.shape == x.shape

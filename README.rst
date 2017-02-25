@@ -4,9 +4,8 @@ Oct2Py: Python to GNU Octave Bridge
 .. image:: https://badge.fury.io/py/oct2py.png/
     :target: http://badge.fury.io/py/oct2py
 
-.. image:: https://coveralls.io/repos/blink1073/oct2py/badge.png?branch=master
-  :target: https://coveralls.io/r/blink1073/oct2py
-
+.. image:: https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=master
+  :target: https://codecov.io/github/blink1073/oct2py?branch=master
 
 Oct2Py is a means to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
@@ -42,6 +41,9 @@ Features
 - Optional timeout command parameter to prevent runaway Octave sessions.
 
 
+.. _OctaveMagic: http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+
+
 Installation
 ------------
 You must have GNU Octave 3.6 or newer installed and in your ``PATH``.
@@ -60,6 +62,8 @@ If using conda, it is available on conda-forge:
    
    $ conda install -c conda-forge oct2py
 
+.. _instructions: http://blink1073.github.io/oct2py/source/installation.html
+
 
 Documentation
 -------------
@@ -67,11 +71,6 @@ Documentation
 Documentation is available online_.
 
 For version information, see the Revision History_.
-
-
-.. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
-
-.. _instructions: http://blink1073.github.io/oct2py/source/installation.html
 
 .. _online: http://blink1073.github.io/oct2py/
 

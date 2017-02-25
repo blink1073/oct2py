@@ -5,15 +5,15 @@
 
 # http://conda.pydata.org/docs/travis.html
 language: python
+dist: trusty
+sudo: required
 
 env:
-    - CONDA="python=2.7 numpy=1.7"
-    - CONDA="python=3.5 numpy"
-    - CONDA="python=3.6 numpy"
+    - CONDA="python=2.7 numpy>=1.11 scipy=0.17.0" KERNEL="python2"
+    - CONDA="python=3.5 scipy" KERNEL="python3"
+    - CONDA="python=3.6 scipy" KERNEL="python3"
 
 before_install:
-  - sudo apt-add-repository -y ppa:picaso/octave;
-  - sudo apt-get update -qq;
   - sudo apt-get install -qq octave liboctave-dev;
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
@@ -22,27 +22,23 @@ before_install:
   - conda config --set always_yes yes
   - conda update conda
   - conda info -a
-  - travis_retry conda create -n test $CONDA jupyter nose scipy pip
+  - travis_retry conda create -n test $CONDA jupyter pytest pip nose
   - source activate test
-  - travis_retry pip install coveralls
+  - travis_retry pip install codecov
 
 install:
   - export PYTHONWARNINGS=all
-  - python setup.py install
+  - pip install -e .[test]
 
 script:
-    # run coverage on py2.7, regular on others
-  - which nosetests
-  - which python
-  - python -c "import octave_kernel"
-  - if [[ $CONDA == python=2.7* ]]; then
-      nosetests --exe -v --with-doctest --with-cov --cover-package oct2py;
-      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python2 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
+    # run coverage on py3.5, regular on others
+  - if [[ $CONDA == python=3.5* ]]; then
+      make cover;
     else
-      nosetests --exe -v oct2py;
-      jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
+      make test;
     fi
+  - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=$KERNEL --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
   - make docs
 
 after_success:
-    - coveralls
+    - codecov
