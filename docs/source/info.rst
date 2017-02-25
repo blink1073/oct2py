@@ -54,6 +54,7 @@ Using M-Files
 In order to use an m-file in Oct2Py you must first call `addpath`
 for the directory containing the script.  You can then use it as
 a dynamic function or use the `eval` function to call it.
+Alternatively, you can call `feval` with the full path.
 
 .. code-block:: python
 
@@ -62,6 +63,8 @@ a dynamic function or use the `eval` function to call it.
     >>> octave.myscript(1, 2)
     >>> # or
     >>> octave.eval("myscript(1, 2)")
+    >>> # as feval
+    >>> octave.feval('/path/to/myscript', 1, 2)
 
 
 Direct Interaction
@@ -145,20 +148,6 @@ temporary m-files will be deleted when the Context Manager exits.
     >>> from oct2py import Oct2Py
     >>> with Oct2Py() as oc:
     >>>     oc.ones(10)
-
-
-Nargout
-=======
-Oct2Py handles nargout the same way that Octave would (which is not how it
-normally works in Python).  The number return variables affects the
-behavior of the Octave function.  For example, the following two calls to SVD
-return different results:
-
-.. code-block:: python
-
-    >>> from oct2py import octave
-    >>> out = octave.svd(np.array([[1,2], [1,3]])))
-    >>> U, S, V = octave.svd([[1,2], [1,3]])
 
 
 Structs
