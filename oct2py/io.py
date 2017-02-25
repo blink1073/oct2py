@@ -17,11 +17,11 @@ from .dynamic import OctaveVariablePtr, OctaveUserClass, OctaveFunctionPtr
 from .utils import Oct2PyError
 
 
-def read_file(path, session=None, squeeze_me=False):
+def read_file(path, session=None):
     """Read the data from the given file path.
     """
     try:
-        data = loadmat(path, struct_as_record=True, squeeze_me=squeeze_me)
+        data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e))
     out = dict()

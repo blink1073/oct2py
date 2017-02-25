@@ -45,8 +45,6 @@ class Oct2Py(object):
         Optional logger to use for Oct2Py session
     timeout : float, optional
         Timeout in seconds for commands
-    squeeze_arrays: boolean, optional.
-        Whether to squeeze arrays from Octave (default is False). 
     oned_as : {'row', 'column'}, optional
         If 'column', write 1-D numpy arrays as column vectors.
         If 'row', write 1-D numpy arrays as row vectors.}
@@ -59,8 +57,7 @@ class Oct2Py(object):
     """
 
     def __init__(self, executable=None, logger=None, timeout=None,
-                 squeeze_arrays=False, oned_as='row', temp_dir=None, 
-                 convert_to_float=True):
+                 oned_as='row', temp_dir=None, convert_to_float=True):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
@@ -70,7 +67,6 @@ class Oct2Py(object):
         self.logger = logger
         self.timeout = timeout
         self.temp_dir = temp_dir or tempfile.mkdtemp()
-        self.squeeze_arrays = squeeze_arrays
         self.convert_to_float = convert_to_float
         self._user_classes = dict()
         self._function_ptrs = dict()
@@ -562,12 +558,15 @@ class Oct2Py(object):
             raise Oct2PyError('Session died, restarting')
 
         # Read in the output.
-        resp = read_file(in_file, self, self.squeeze_arrays)
+        resp = read_file(in_file, self)
         if resp['err']:
             msg = self._parse_error(resp['err'])
             raise Oct2PyError(msg)
+        
+        result = resp['result'].ravel().tolist()
+        if isinstance(result, list) and len(result) == 1:
+            result = result[0]
 
-        result = resp['result'].squeeze().tolist()
         # Check for sentinel value.
         if (isinstance(result, Cell) and 
                 result.size == 1 and

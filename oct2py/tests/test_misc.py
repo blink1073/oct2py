@@ -50,7 +50,8 @@ class TestMisc:
         self.oc.push('x', data)
         assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
         self.oc.push('y', [data])
-        assert np.allclose(data.toarray(), self.oc.pull('y')[0].toarray())
+        y = self.oc.pull('y')
+        assert np.allclose(data.toarray(), y[0, 0].toarray())
 
     def test_logging(self):
         # create a stringio and a handler to log to it
@@ -123,7 +124,7 @@ class TestMisc:
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
         assert s.shape == (2, 1)
-        U, S, V = self.oc.svd([[1, 2], [1, 3]])
+        U, S, V = self.oc.svd([[1, 2], [1, 3]], nout=3)
         assert U.shape == S.shape == V.shape == (2, 2)
 
     def test_help(self):
@@ -171,9 +172,9 @@ class TestMisc:
 
     def test_timeout(self):
         with Oct2Py(timeout=2) as oc:
-            oc.sleep(2.1, timeout=5)
+            oc.sleep(2.1, timeout=5, nout=0)
             with pytest.raises(Oct2PyError):
-                oc.sleep(3)
+                oc.sleep(3, nout=0)
 
     def test_call_path(self):
         with Oct2Py() as oc:

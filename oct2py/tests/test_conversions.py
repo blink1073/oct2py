@@ -118,7 +118,7 @@ class TestConversions:
     def test_struct_array(self):
         ''' Test incoming struct array types '''
         data = self.data.struct_array
-        incoming, octave_type = self.oc.roundtrip(data)
+        incoming, octave_type = self.oc.roundtrip(data, nout=2)
         assert incoming.tolist() == data.tolist()
         assert octave_type == 'struct'
 
@@ -140,7 +140,7 @@ class TestConversions:
                 outgoing = None
             else:
                 outgoing = out_type(1)
-            incoming, octave_type = self.oc.roundtrip(outgoing)
+            incoming, octave_type = self.oc.roundtrip(outgoing, nout=2)
             if octave_type == 'int32' and oct_type == 'int64':
                 pass
             elif octave_type == 'char' and oct_type == 'cell':

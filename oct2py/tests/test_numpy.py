@@ -71,6 +71,7 @@ class TestNumpy:
                 elif incoming.size == 1:
                     incoming = incoming.squeeze()
                 if typecode == 'O':
+                    incoming = incoming.squeeze()
                     outgoing = outgoing.squeeze()
                 assert incoming.shape == outgoing.shape
                 try:
@@ -91,7 +92,7 @@ class TestNumpy:
         rand = csr_matrix(rand)
         iden = identity(1000)
         for item in [rand, iden]:
-            incoming, type_ = self.oc.roundtrip(item)
+            incoming, type_ = self.oc.roundtrip(item, nout=2)
             assert item.shape == incoming.shape
             assert item.nnz == incoming.nnz
             assert np.allclose(item.todense(), incoming.todense())
@@ -102,7 +103,7 @@ class TestNumpy:
         '''Test roundtrip empty matrices
         '''
         empty = np.empty((100, 100))
-        incoming, type_ = self.oc.roundtrip(empty)
+        incoming, type_ = self.oc.roundtrip(empty, nout=2)
         assert empty.squeeze().shape == incoming.squeeze().shape
         assert np.allclose(empty[np.isfinite(empty)],
                            incoming[np.isfinite(incoming)])
@@ -113,7 +114,7 @@ class TestNumpy:
         '''
         test = np.random.rand(1000)
         test = np.mat(test)
-        incoming, type_ = self.oc.roundtrip(test)
+        incoming, type_ = self.oc.roundtrip(test, nout=2)
         assert np.allclose(test, incoming)
         assert test.dtype == incoming.dtype
         assert type_ == 'double'
@@ -123,7 +124,7 @@ class TestNumpy:
         '''
         test = np.random.rand(100)
         test = np.ma.array(test)
-        incoming, type_ = self.oc.roundtrip(test)
+        incoming, type_ = self.oc.roundtrip(test, nout=2)
         assert np.allclose(test, incoming)
         assert test.dtype == incoming.dtype
         assert type_ == 'double'

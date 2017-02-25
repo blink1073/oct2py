@@ -145,7 +145,7 @@ class TestRoundTrip:
             data = self.data.cell[key]
             incoming = self.oc.roundtrip(data)
             assert isinstance(incoming, Cell), type(incoming)
-            assert incoming.shape == data.squeeze().shape
+            assert incoming.shape == data.shape
 
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning
@@ -288,15 +288,16 @@ class TestBuiltins:
         test = tuple((1, 2, 3))
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
-        assert incoming.tolist() == list(test)
+        assert incoming.squeeze().tolist() == list(test)
 
     def test_tuple_of_tuples(self):
         test = tuple(((1, 2), (3, 4)))
         incoming = self.oc.roundtrip(test)
         assert type(incoming) == Cell
-        assert incoming.shape == (2,)
-        assert incoming[0].tolist() == list(test[0])
-        assert incoming[1].tolist() == list(test[1])
+        assert incoming.shape == (1, 2)
+        incoming = incoming.squeeze()
+        assert incoming[0].squeeze().tolist() == list(test[0])
+        assert incoming[1].squeeze().tolist() == list(test[1])
 
     def test_list(self):
         """Test python list type
@@ -305,7 +306,7 @@ class TestBuiltins:
         assert np.allclose(incoming, [1, 2])
         incoming = self.oc.roundtrip(['a', 'b'])
         assert isinstance(incoming, Cell)
-        assert incoming.tolist() == ['a', 'b']
+        assert incoming.squeeze().tolist() == ['a', 'b']
 
     def test_list_of_tuples(self):
         """Test python list of tuples
@@ -313,8 +314,9 @@ class TestBuiltins:
         test = [(1, 2), (1.5, 3.2)]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
-        assert incoming[0].tolist() == list(test[0])
-        assert incoming[1].tolist() == list(test[1])
+        incoming = incoming.squeeze()
+        assert incoming[0].squeeze().tolist() == list(test[0])
+        assert incoming[1].squeeze().tolist() == list(test[1])
 
     def test_numeric(self):
         """Test python numeric types
@@ -338,8 +340,9 @@ class TestBuiltins:
         test = [['spam', 'eggs', 'baz'], ['foo ', 'bar ', 'baz ']]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
-        assert incoming[0][0] == 'spam'
-        assert incoming.shape == (2,)
+
+        assert incoming[0, 0][0, 0] == 'spam'
+        assert incoming.shape == (1, 2)
 
         test = [[1, 2], [3, 4]]
         incoming = self.oc.roundtrip(test)
@@ -349,7 +352,7 @@ class TestBuiltins:
         test = [[1, 2], [3, 4, 5]]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
-        assert incoming.shape == (2,)
+        assert incoming.shape == (1, 2)
 
     def test_bool(self):
         """Test boolean values

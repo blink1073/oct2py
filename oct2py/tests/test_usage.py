@@ -183,7 +183,7 @@ class TestUsage:
         hdlr.setLevel(logging.DEBUG)
         self.oc.logger.addHandler(hdlr)
         self.oc.logger.setLevel(logging.DEBUG)
-        p1.display(verbose=True)
+        p1.display(verbose=True, nout=0)
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
         assert 'in poly display' in text
@@ -243,7 +243,7 @@ class TestUsage:
         a = self.oc.feval('ones', 3)
         assert np.allclose(a, np.ones((3, 3)))
 
-        self.oc.feval('ones', 3, store_as='foo', nout=0)
+        self.oc.feval('ones', 3, store_as='foo')
         b = self.oc.pull('foo')
         assert np.allclose(b, np.ones((3, 3)))
 
@@ -266,10 +266,9 @@ class TestUsage:
         assert lines == [' 1', ' 2', ' 3'], lines
 
         val = self.oc.feval('svd', [[1, 2], [1, 3]])
-        val2 = self.oc.feval('svd', [[1, 2], [1, 3]], nout=3)
+        u, v, d = self.oc.feval('svd', [[1, 2], [1, 3]], nout=3)
         assert isinstance(val, np.ndarray)
-        assert isinstance(val2, Cell)
-        assert val2.size == 3
+        assert isinstance(u, np.ndarray)
 
         self.oc.feval('test_nodocstring.m', 1)
         with pytest.raises(TypeError):
