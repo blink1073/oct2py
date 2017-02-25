@@ -17,4 +17,8 @@ Utils
 
 .. autoclass:: Struct
 
+.. autoClass:: Cell
+
+.. autoClass:: StructArray
+
 .. autofunction:: kill_octave
