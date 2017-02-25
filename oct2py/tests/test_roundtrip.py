@@ -145,7 +145,7 @@ class TestRoundTrip:
             data = self.data.cell[key]
             incoming = self.oc.roundtrip(data)
             assert isinstance(incoming, Cell), type(incoming)
-            assert incoming.shape == data.shape
+            assert incoming.squeeze().shape == data.squeeze().shape
 
     def test_octave_origin(self):
         '''Test all of the types, originating in octave, and returning

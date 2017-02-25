@@ -51,7 +51,7 @@ class TestMisc:
         assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
         self.oc.push('y', [data])
         y = self.oc.pull('y')
-        assert np.allclose(data.toarray(), y[0, 0].toarray())
+        assert np.allclose(data.toarray(), y[0].toarray())
 
     def test_logging(self):
         # create a stringio and a handler to log to it

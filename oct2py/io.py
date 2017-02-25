@@ -105,8 +105,10 @@ class StructArray(np.recarray):
 
     Notes
     =====
+    Accessing a record returns a Cell containing the values.  
     This class is not meant to be directly created by the user.  It is
     created automatically for structure array values received from Octave.
+    The last axis is squeezed if it is of size 1 to simplify element access.
 
     Examples
     ========
@@ -115,17 +117,20 @@ class StructArray(np.recarray):
     >>> octave.eval('x = struct("y", {1, 2}, "z", {3, 4});')
     >>> x = octave.pull('x')
     >>> x.y  # attribute access -> oct2py Cell
-    Cell([1.0, 2.0])
+    Cell([[1.0, 2.0]])
     >>> x['z']  # item access -> oct2py Cell
-    Cell([3.0, 4.0])
-    >>> x[0]  # index access -> numpy record
+    Cell([[3.0, 4.0]])
+    >>> x[0, 0]  # index access -> numpy record
     (1.0, 3.0)
-    >>> x[1].z
+    >>> x[0, 1].z
     4.0
     """
     def __new__(cls, value, session=None):
         """Create a struct array from a value and optional Octave session."""
         value = np.asarray(value)
+        # Squeeze the last element if it is 1
+        if (value.shape[value.ndim - 1] == 1):
+            value = value.squeeze(axis=value.ndim - 1)
         value = np.atleast_1d(value)
 
         if not session:
@@ -177,6 +182,7 @@ class Cell(np.ndarray):
     =====
     This class is not meant to be directly created by the user.  It is
     created automatically for cell array values received from Octave.
+    The last axis is squeezed if it is of size 1 to simplify element access.
 
     Examples
     ========
@@ -195,6 +201,9 @@ class Cell(np.ndarray):
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
         value = np.asarray(value, dtype=object)
+        # Squeeze the last element if it is 1
+        if (value.shape[value.ndim - 1] == 1):
+            value = value.squeeze(axis=value.ndim - 1)
         value = np.atleast_1d(value)
 
         if not session:

@@ -16,11 +16,9 @@ workspace rather than returning it.
 - Added `get_pointer` method that can be used to retrieve a pointer to
 a value in the Octave namespace, including Octave functions.  
 Pointers can be passed to `feval` or dynamic functions as function arguments.  A pointer passed as a nested value will be passed by value instead.
-- Octave Cell and Struct Arrays, which now returned as numpy array objects
-with the original shape.  
-- Added an Oct2Py `Cell` class that is a numpy array of type `object`.
-- Added an Oct2PY `StructArray` class that is a numpy recarray.  Accessing
-a record returns a Cell containing the values.  
+- Added an Oct2Py `Cell` ndarray subclass used for Octave cell arrays.
+- Added an Oct2PY `StructArray` numpy `recarray` subclass used for Octave
+structure arrays.
 - Added a `stream_handler` argument to `eval` and the new `feval` that
 can be used to capture streaming output using a simple callback.
 
