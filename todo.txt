@@ -1,2 +1,0 @@
-
-x - Add inline toggingle to magics
