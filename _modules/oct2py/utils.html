@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.utils &#8212; Oct2Py 3.9.2 documentation</title>
+    <title>oct2py.utils &#8212; Oct2Py 4.0rc1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,10 +15,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '3.9.2',
+        VERSION:     '4.0rc1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
@@ -28,8 +29,8 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.9.2 documentation" href="../../index.html" />
-    <link rel="up" title="oct2py" href="../oct2py.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -52,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.9.2</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>4.0rc1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -125,117 +126,25 @@
     <div class="col-md-9 content">
       
   <h1>Source code for oct2py.utils</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">.. module:: utils</span>
-<span class="sd">   :synopsis: Miscellaneous helper constructs</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright (c) oct2py developers.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
 
-<span class="sd">.. moduleauthor:: Steven Silvester &lt;steven.silvester@ieee.org&gt;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">dis</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">oct2py.compat</span> <span class="k">import</span> <span class="n">PY2</span>
 
-
-<span class="k">def</span> <span class="nf">get_nout</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return the number of return values the caller is expecting.</span>
-
-<span class="sd">    Adapted from the ompc project.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    =======</span>
-<span class="sd">    out : int</span>
-<span class="sd">        Number of arguments expected by caller.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
-    <span class="c1"># step into the function that called us</span>
-    <span class="c1"># nout is two frames back</span>
-    <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span>
-    <span class="n">bytecode</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_code</span>
-    <span class="k">if</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)):</span>
-        <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
-    <span class="n">instruction</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">instruction</span>
-    <span class="k">if</span> <span class="n">instruction</span> <span class="o">==</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;UNPACK_SEQUENCE&#39;</span><span class="p">]:</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)):</span>
-            <span class="n">howmany</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">howmany</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
-        <span class="n">howmany</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">howmany</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">howmany</span>
-        <span class="k">return</span> <span class="n">howmany</span>
-    <span class="k">elif</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;POP_TOP&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;PRINT_EXPR&#39;</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="mi">0</span>
-    <span class="k">return</span> <span class="mi">1</span>
+<span class="kn">from</span> <span class="nn">.compat</span> <span class="k">import</span> <span class="n">PY2</span>
 
 
 <div class="viewcode-block" id="Oct2PyError"><a class="viewcode-back" href="../../source/api.html#oct2py.Oct2PyError">[docs]</a><span class="k">class</span> <span class="nc">Oct2PyError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; Called when we can&#39;t open Octave or Octave throws an error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="Struct"><a class="viewcode-back" href="../../source/api.html#oct2py.Struct">[docs]</a><span class="k">class</span> <span class="nc">Struct</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Octave style struct, enhanced.</span>
-
-<span class="sd">    Supports dictionary and attribute style access.  Can be pickled,</span>
-<span class="sd">    and supports code completion in a REPL.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    ========</span>
-<span class="sd">    &gt;&gt;&gt; from pprint import pprint</span>
-<span class="sd">    &gt;&gt;&gt; from oct2py import Struct</span>
-<span class="sd">    &gt;&gt;&gt; a = Struct()</span>
-<span class="sd">    &gt;&gt;&gt; a.b = &#39;spam&#39;  # a[&quot;b&quot;] == &#39;spam&#39;</span>
-<span class="sd">    &gt;&gt;&gt; a.c[&quot;d&quot;] = &#39;eggs&#39;  # a.c.d == &#39;eggs&#39;</span>
-<span class="sd">    &gt;&gt;&gt; pprint(a)</span>
-<span class="sd">    {&#39;b&#39;: &#39;spam&#39;, &#39;c&#39;: {&#39;d&#39;: &#39;eggs&#39;}}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Access the dictionary keys for unknown attributes.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&#39;Struct&#39; object has no attribute </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">attr</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get a dict value; create a Struct if requesting a Struct member.</span>
-
-<span class="sd">        Do not create a key if the attribute starts with an underscore.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-        <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
-        <span class="c1"># step into the function that called us</span>
-        <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_allowed</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span><span class="p">):</span>
-            <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">Struct</span><span class="p">())</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_allowed</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="p">):</span>
-            <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">Struct</span><span class="p">())</span>
-        <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_is_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Check for allowed op code in the calling frame&quot;&quot;&quot;</span>
-        <span class="n">allowed</span> <span class="o">=</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;STORE_ATTR&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;LOAD_CONST&#39;</span><span class="p">],</span>
-                   <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;STOP_CODE&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
-        <span class="n">bytecode</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_code</span>
-        <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
-        <span class="n">instruction</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">instruction</span>
-        <span class="k">return</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">allowed</span>
-
-    <span class="n">__setattr__</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span>
-    <span class="n">__delattr__</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__delitem__</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">__dict__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Allow for code completion in a REPL&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="get_log"><a class="viewcode-back" href="../../source/api.html#oct2py.get_log">[docs]</a><span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -255,25 +164,19 @@
 <span class="sd">           http://docs.python.org/library/logging.html</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span> <span class="nn">logging</span>
-
     <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;oct2py&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;oct2py.&#39;</span> <span class="o">+</span> <span class="n">name</span>
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">log</span></div>
 
 
 <span class="k">def</span> <span class="nf">_setup_log</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Configure root logger.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span> <span class="nn">logging</span>
-    <span class="kn">import</span> <span class="nn">sys</span>
-
     <span class="k">try</span><span class="p">:</span>
         <span class="n">handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
@@ -281,8 +184,9 @@
 
     <span class="n">log</span> <span class="o">=</span> <span class="n">get_log</span><span class="p">()</span>
     <span class="n">log</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARN</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
     <span class="n">log</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
+
 
 <span class="n">_setup_log</span><span class="p">()</span>
 </pre></div>
@@ -299,7 +203,7 @@
     </p>
     <p>
         &copy; Copyright 2011 - 2017, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
     </p>
   </div>
 </footer>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oct2py.io &#8212; Oct2Py 4.0rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.3.6/cosmo/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '4.0rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body role="document">
+  
+  
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          Oct2Py</a>
+        <span class="navbar-text navbar-version pull-left"><b>4.0rc1</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/demo.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/conversions.html">Conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/info.html">Information</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary">
+        </div>
+      </div>
+    <div class="col-md-9 content">
+      
+  <h1>Source code for oct2py.io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright (c) oct2py developers.</span>
+<span class="c1"># Distributed under the terms of the MIT License.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">dis</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="k">import</span> <span class="n">loadmat</span><span class="p">,</span> <span class="n">savemat</span>
+<span class="kn">from</span> <span class="nn">scipy.io.matlab.mio5</span> <span class="k">import</span> <span class="n">MatlabObject</span><span class="p">,</span> <span class="n">MatlabFunction</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="k">import</span> <span class="n">spmatrix</span>
+
+<span class="kn">from</span> <span class="nn">.compat</span> <span class="k">import</span> <span class="n">PY2</span>
+<span class="kn">from</span> <span class="nn">.dynamic</span> <span class="k">import</span> <span class="n">OctaveVariablePtr</span><span class="p">,</span> <span class="n">OctaveUserClass</span><span class="p">,</span> <span class="n">OctaveFunctionPtr</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">Oct2PyError</span>
+
+
+<span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read the data from the given file path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">struct_as_record</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">UnicodeDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">oned_as</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">,</span> <span class="n">convert_to_float</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Save a Python object to an Octave file on the given path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_encode</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">convert_to_float</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">savemat</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">appendmat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">oned_as</span><span class="o">=</span><span class="n">oned_as</span><span class="p">,</span>
+                <span class="n">long_field_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;could not save mat file&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Struct"><a class="viewcode-back" href="../../source/api.html#oct2py.Struct">[docs]</a><span class="k">class</span> <span class="nc">Struct</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Octave style struct, enhanced.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    =====</span>
+<span class="sd">    Supports dictionary and attribute style access.  Can be pickled,</span>
+<span class="sd">    and supports code completion in a REPL.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    ========</span>
+<span class="sd">    &gt;&gt;&gt; from pprint import pprint</span>
+<span class="sd">    &gt;&gt;&gt; from oct2py import Struct</span>
+<span class="sd">    &gt;&gt;&gt; a = Struct()</span>
+<span class="sd">    &gt;&gt;&gt; a.b = &#39;spam&#39;  # a[&quot;b&quot;] == &#39;spam&#39;</span>
+<span class="sd">    &gt;&gt;&gt; a.c[&quot;d&quot;] = &#39;eggs&#39;  # a.c.d == &#39;eggs&#39;</span>
+<span class="sd">    &gt;&gt;&gt; pprint(a)</span>
+<span class="sd">    {&#39;b&#39;: &#39;spam&#39;, &#39;c&#39;: {&#39;d&#39;: &#39;eggs&#39;}}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="c1"># Access the dictionary keys for unknown attributes.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&#39;Struct&#39; object has no attribute </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">attr</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="c1"># Get a dict value; create a Struct if requesting a Struct member.</span>
+        <span class="c1"># Do not create a key if the attribute starts with an underscore.</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+        <span class="c1"># step into the function that called us</span>
+        <span class="k">if</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_allowed</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="o">.</span><span class="n">f_back</span><span class="p">):</span>
+            <span class="nb">dict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">Struct</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_allowed</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">f_back</span><span class="p">):</span>
+            <span class="nb">dict</span><span class="o">.</span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">Struct</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_is_allowed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="c1"># Check for allowed op code in the calling frame.</span>
+        <span class="n">allowed</span> <span class="o">=</span> <span class="p">[</span><span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;STORE_ATTR&#39;</span><span class="p">],</span> <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="p">[</span><span class="s1">&#39;LOAD_CONST&#39;</span><span class="p">],</span>
+                   <span class="n">dis</span><span class="o">.</span><span class="n">opmap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;STOP_CODE&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+        <span class="n">bytecode</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_code</span>
+        <span class="n">instruction</span> <span class="o">=</span> <span class="n">bytecode</span><span class="p">[</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lasti</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">instruction</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">instruction</span><span class="p">)</span> <span class="k">if</span> <span class="n">PY2</span> <span class="k">else</span> <span class="n">instruction</span>
+        <span class="k">return</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">allowed</span>
+
+    <span class="fm">__setattr__</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__setitem__</span>
+    <span class="fm">__delattr__</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="fm">__delitem__</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">__dict__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Allow for code completion in a REPL.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="StructArray"><a class="viewcode-back" href="../../source/api.html#oct2py.StructArray">[docs]</a><span class="k">class</span> <span class="nc">StructArray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A Python representation of an Octave structure array.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    =====</span>
+<span class="sd">    Accessing a record returns a Cell containing the values.  </span>
+<span class="sd">    This class is not meant to be directly created by the user.  It is</span>
+<span class="sd">    created automatically for structure array values received from Octave.</span>
+<span class="sd">    The last axis is squeezed if it is of size 1 to simplify element access.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    ========</span>
+<span class="sd">    &gt;&gt;&gt; from oct2py import octave</span>
+<span class="sd">    &gt;&gt;&gt; # generate the struct array</span>
+<span class="sd">    &gt;&gt;&gt; octave.eval(&#39;x = struct(&quot;y&quot;, {1, 2}, &quot;z&quot;, {3, 4});&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; x = octave.pull(&#39;x&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; x.y  # attribute access -&gt; oct2py Cell</span>
+<span class="sd">    Cell([[1.0, 2.0]])</span>
+<span class="sd">    &gt;&gt;&gt; x[&#39;z&#39;]  # item access -&gt; oct2py Cell</span>
+<span class="sd">    Cell([[3.0, 4.0]])</span>
+<span class="sd">    &gt;&gt;&gt; x[0, 0]  # index access -&gt; numpy record</span>
+<span class="sd">    (1.0, 3.0)</span>
+<span class="sd">    &gt;&gt;&gt; x[0, 1].z</span>
+<span class="sd">    4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a struct array from a value and optional Octave session.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="c1"># Squeeze the last element if it is 1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+        <span class="c1"># Extract the values.</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                <span class="n">obj</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">session</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fieldnames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The field names of the struct array.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
+
+    <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return object arrays as cells and all other values unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Cell</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attr</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return object arrays as cells and all other values unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Cell</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39; StructArray containing the fields:&#39;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fieldnames</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">key</span>
+        <span class="k">return</span> <span class="n">msg</span></div>
+
+
+<div class="viewcode-block" id="Cell"><a class="viewcode-back" href="../../source/api.html#oct2py.Cell">[docs]</a><span class="k">class</span> <span class="nc">Cell</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A Python representation of an Octave cell array.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    =====</span>
+<span class="sd">    This class is not meant to be directly created by the user.  It is</span>
+<span class="sd">    created automatically for cell array values received from Octave.</span>
+<span class="sd">    The last axis is squeezed if it is of size 1 to simplify element access.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    ========</span>
+<span class="sd">    &gt;&gt;&gt; from oct2py import octave</span>
+<span class="sd">    &gt;&gt;&gt; # generate the struct array</span>
+<span class="sd">    &gt;&gt;&gt; octave.eval(&quot;x = cell(2,2); x(:) = 1.0;&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; x = octave.pull(&#39;x&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; x</span>
+<span class="sd">    Cell([[1.0, 1.0],</span>
+<span class="sd">           [1.0, 1.0]])</span>
+<span class="sd">    &gt;&gt;&gt; x[0]</span>
+<span class="sd">    Cell([1.0, 1.0])</span>
+<span class="sd">    &gt;&gt;&gt; x[0].tolist()</span>
+<span class="sd">    [1.0, 1.0]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a cell array from a value and optional Octave session.&quot;&quot;&quot;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="c1"># Squeeze the last element if it is 1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">session</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+
+        <span class="c1"># Extract the values.</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+            <span class="n">obj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;array&#39;</span><span class="p">,</span> <span class="s1">&#39;Cell&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">msg</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;, dtype=object&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_extract</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the Octave values to values suitable for Python.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract each item of a list.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_extract</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+
+    <span class="c1"># Ignore leaf objects.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="c1"># Extract user defined classes.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">MatlabObject</span><span class="p">):</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">_get_user_class</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">classname</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_value</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># Extract struct data.</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+        <span class="c1"># Singular struct</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_create_struct</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+        <span class="c1"># Struct array</span>
+        <span class="k">return</span> <span class="n">StructArray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+
+    <span class="c1"># Extract cells.</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Cell</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+
+    <span class="c1"># Compress singleton values.</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="c1"># Compress empty values.</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s1">&#39;US&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="c1"># Return standard array.</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">_create_struct</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a struct from session data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Struct</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="c1"># Extract values that are cells (they are doubly wrapped).</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;O&#39;</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_extract</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">convert_to_float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the Python values to values suitable to send to Octave.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ctf</span> <span class="o">=</span> <span class="n">convert_to_float</span>
+
+    <span class="c1"># Handle variable pointer.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">OctaveVariablePtr</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">_encode</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ctf</span><span class="p">)</span>
+
+    <span class="c1"># Handle a user defined object.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">OctaveUserClass</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_encode</span><span class="p">(</span><span class="n">OctaveUserClass</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">ctf</span><span class="p">)</span>
+
+    <span class="c1"># Handle a function pointer.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">OctaveFunctionPtr</span><span class="p">,</span> <span class="n">MatlabFunction</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="s1">&#39;Cannot write Octave functions&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Handle matlab objects.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">MatlabObject</span><span class="p">):</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">MatlabObject</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">classname</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_encode</span><span class="p">(</span><span class="n">view</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">ctf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># Extract and encode values from dict-like objects.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ctf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+
+    <span class="c1"># Send None as nan.</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
+
+    <span class="c1"># Sets are treated like lists.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_encode</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">ctf</span><span class="p">)</span>
+
+    <span class="c1"># Lists can be interpreted as numeric arrays or cell arrays.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_is_simple_numeric</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_encode</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">ctf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_encode</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">ctf</span><span class="p">)</span>
+
+    <span class="c1"># Tuples are handled as cells.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">obj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_encode</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">ctf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="c1"># Sparse data must be floating type.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="c1"># Return other data types unchanged.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="c1"># Extract and encode data from object-like arrays.</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s1">&#39;OV&#39;</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                    <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_encode</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">ctf</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_encode</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">ctf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="c1"># Complex 128 is the highest supported by savemat.</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;complex256&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">complex128</span><span class="p">)</span>
+
+    <span class="c1"># Convert to float if applicable.</span>
+    <span class="k">if</span> <span class="n">ctf</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="s1">&#39;ui&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="c1"># Return standard array.</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">_is_simple_numeric</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Test if a list contains simple numeric data.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_simple_numeric</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">complex</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2011 - 2017, Oct2Py contributors.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

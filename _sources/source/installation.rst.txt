@@ -54,5 +54,5 @@ GNU Octave Installation
 .. _pip: http://www.pip-installer.org/en/latest/installing.html
 .. _Octave:  http://www.gnu.org/software/octave/doc/interpreter/Installation.html
 .. _wiki: http://wiki.octave.org/Octave_for_MacOS_X
-.. _version: http://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
+.. _version: https://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/
 .. _7zip: http://portableapps.com/apps/utilities/7-zip_portable

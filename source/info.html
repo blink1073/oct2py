@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Information &#8212; Oct2Py 3.9.2 documentation</title>
+    <title>Information &#8212; Oct2Py 4.0rc1 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,10 +15,11 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '3.9.2',
+        VERSION:     '4.0rc1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
@@ -28,7 +29,8 @@
     <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="Oct2Py 3.9.2 documentation" href="../index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="API Reference" href="api.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -52,7 +54,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.9.2</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>4.0rc1</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -97,7 +99,6 @@
 <li><a class="reference internal" href="#timeout">Timeout</a></li>
 <li><a class="reference internal" href="#graphics-toolkit">Graphics Toolkit</a></li>
 <li><a class="reference internal" href="#context-manager">Context Manager</a></li>
-<li><a class="reference internal" href="#nargout">Nargout</a></li>
 <li><a class="reference internal" href="#structs">Structs</a></li>
 <li><a class="reference internal" href="#unicode">Unicode</a></li>
 <li><a class="reference internal" href="#speed">Speed</a></li>
@@ -124,7 +125,7 @@
             
               <li class="hidden-sm">
 <div id="sourcelink">
-  <a href="../_sources/source/info.txt"
+  <a href="../_sources/source/info.rst.txt"
      rel="nofollow">Source</a>
 </div></li>
             
@@ -158,7 +159,6 @@
 <li><a class="reference internal" href="#timeout">Timeout</a></li>
 <li><a class="reference internal" href="#graphics-toolkit">Graphics Toolkit</a></li>
 <li><a class="reference internal" href="#context-manager">Context Manager</a></li>
-<li><a class="reference internal" href="#nargout">Nargout</a></li>
 <li><a class="reference internal" href="#structs">Structs</a></li>
 <li><a class="reference internal" href="#unicode">Unicode</a></li>
 <li><a class="reference internal" href="#speed">Speed</a></li>
@@ -216,12 +216,15 @@ you were using logging).</p>
 <h2>Using M-Files<a class="headerlink" href="#using-m-files" title="Permalink to this headline">¶</a></h2>
 <p>In order to use an m-file in Oct2Py you must first call <cite>addpath</cite>
 for the directory containing the script.  You can then use it as
-a dynamic function or use the <cite>eval</cite> function to call it.</p>
+a dynamic function or use the <cite>eval</cite> function to call it.
+Alternatively, you can call <cite>feval</cite> with the full path.</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">addpath</span><span class="p">(</span><span class="s1">&#39;/path/to/&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">myscript</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># or</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;myscript(1, 2)&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># as feval</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">feval</span><span class="p">(</span><span class="s1">&#39;/path/to/myscript&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -294,18 +297,6 @@ temporary m-files will be deleted when the Context Manager exits.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="nargout">
-<h2>Nargout<a class="headerlink" href="#nargout" title="Permalink to this headline">¶</a></h2>
-<p>Oct2Py handles nargout the same way that Octave would (which is not how it
-normally works in Python).  The number return variables affects the
-behavior of the Octave function.  For example, the following two calls to SVD
-return different results:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="kn">import</span> <span class="n">octave</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]])))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">octave</span><span class="o">.</span><span class="n">svd</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]])</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="structs">
 <h2>Structs<a class="headerlink" href="#structs" title="Permalink to this headline">¶</a></h2>
 <p>Struct is a convenience class that mimics an Octave structure variable type.
@@ -349,7 +340,7 @@ interfere with any other session.</p>
 </div>
 <div class="section" id="ipython-notebook">
 <h2>IPython Notebook<a class="headerlink" href="#ipython-notebook" title="Permalink to this headline">¶</a></h2>
-<p>Oct2Py provides <a class="reference external" href="http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1">OctaveMagic</a> for IPython, including inline plotting in
+<p>Oct2Py provides <a class="reference external" href="http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1">OctaveMagic</a> for IPython, including inline plotting in
 notebooks.  This requires IPython &gt;= 1.0.0.</p>
 </div>
 </div>
@@ -367,7 +358,7 @@ notebooks.  This requires IPython &gt;= 1.0.0.</p>
     </p>
     <p>
         &copy; Copyright 2011 - 2017, Oct2Py contributors.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.2.<br/>
     </p>
   </div>
 </footer>
