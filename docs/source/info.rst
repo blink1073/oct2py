@@ -213,7 +213,7 @@ IPython Notebook
 Oct2Py provides OctaveMagic_ for IPython, including inline plotting in
 notebooks.  This requires IPython >= 1.0.0.
 
-.. _OctaveMagic: http://nbviewer.ipython.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+.. _OctaveMagic: http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
 
 
 
