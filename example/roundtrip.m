@@ -1,5 +1,5 @@
 
-function [x, class] = roundtrip(y)
+function [x, cls] = roundtrip(y)
 
   % returns the variable it was given, and optionally the class
 
@@ -7,7 +7,7 @@ function [x, class] = roundtrip(y)
 
   if nargout == 2
 
-	 class = class(x);
+	 cls = class(x);
 
   end
 
