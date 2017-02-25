@@ -107,7 +107,6 @@ class StructArray(np.recarray):
     =====
     This class is not meant to be directly created by the user.  It is
     created automatically for structure array values received from Octave.
-    The value is squeezed during creation, but will be at least 1d.
 
     Examples
     ========
@@ -126,7 +125,7 @@ class StructArray(np.recarray):
     """
     def __new__(cls, value, session=None):
         """Create a struct array from a value and optional Octave session."""
-        value = np.asarray(value).squeeze()
+        value = np.asarray(value)
         value = np.atleast_1d(value)
 
         if not session:
@@ -178,7 +177,6 @@ class Cell(np.ndarray):
     =====
     This class is not meant to be directly created by the user.  It is
     created automatically for cell array values received from Octave.
-    The value is squeezed during creation, but will be at least 1d.
 
     Examples
     ========
@@ -196,7 +194,7 @@ class Cell(np.ndarray):
     """
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
-        value = np.asarray(value, dtype=object).squeeze()
+        value = np.asarray(value, dtype=object)
         value = np.atleast_1d(value)
 
         if not session:

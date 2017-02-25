@@ -18,7 +18,7 @@ function _pyeval(input_file, output_file)
 % Based on Max Jaderberg's web_feval
 
 sentinel = { '__no_value__' };
-result = sentinel;
+result = { sentinel };
 err = '';
 
 try
@@ -52,7 +52,7 @@ try
         try
           [result{1}] = evalin('base', 'ans');
         catch
-          result = sentinel;
+          result = { sentinel };
         end
 
     elseif length(req.func_args)
@@ -64,7 +64,7 @@ try
 
     if req.store_as
       assignin('base', req.store_as, result{1});
-      result = sentinel;
+      result = { sentinel };
     end
 
     if ((strcmp(get(0, 'defaultfigurevisible'), 'on') == 1) &&
@@ -81,7 +81,7 @@ end
 try
   save('-v6', '-mat-binary', output_file, 'result', 'err');
 catch ME
-  result = sentinel;
+  result = { sentinel };
   err = ME;
   save('-v6', '-mat-binary', output_file, 'result', 'err');
 end 

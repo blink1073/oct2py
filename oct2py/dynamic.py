@@ -12,7 +12,6 @@ import numpy as np
 from scipy.io.matlab.mio5 import MatlabObject
 
 from .compat import PY2
-from .utils import get_nout
 
 
 class OctavePtr(object):
@@ -78,10 +77,9 @@ class OctaveFunctionPtr(OctavePtr):
 
     def __call__(self, *inputs, **kwargs):
         # Check for allowed keyword arguments
-        nout = kwargs.pop('nout', get_nout())
         allowed = ['verbose', 'store_as', 'timeout', 'stream_handler',
                    'plot_dir', 'plot_name', 'plot_format', 'plot_width',
-                   'plot_height', 'plot_res']
+                   'plot_height', 'plot_res', 'nout']
 
         extras = {}
         for (key, value) in kwargs.copy().items():
@@ -95,8 +93,7 @@ class OctaveFunctionPtr(OctavePtr):
         inputs += tuple(item for pair in zip(extras.keys(), extras.values())
                         for item in pair)
 
-        return self._ref().feval(self.name, *inputs,
-            nout=nout, **kwargs)
+        return self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):
         return '"%s" Octave function' % self.name
@@ -158,10 +155,9 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
         return types.MethodType(self, instance)
 
     def __call__(self, instance, *inputs, **kwargs):
-        nout = kwargs.get('nout', get_nout())
         pointer = OctaveUserClass.to_pointer(instance)
         inputs = [pointer] + list(inputs)
-        self._ref().feval(self.name, *inputs, nout=nout, **kwargs)
+        self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):
         return '"%s" Octave method for object' % (self.name,
@@ -220,7 +216,7 @@ def _make_user_class(session, name):
     values = dict(__doc__=doc, _name=name, _ref=ref, _attrs=attrs,
                   __module__='oct2py.dynamic')
 
-    for method in methods:
+    for method in methods.squeeze().tolist():
         doc = _MethodDocDescriptor(ref, name, method)
         cls_name = '%s_%s' % (name, method)
         method_values = dict(__doc__=doc)
@@ -228,7 +224,7 @@ def _make_user_class(session, name):
                           (OctaveUserClassMethod,), method_values)
         values[method] = method_cls(ref, method, name)
 
-    for attr in attrs:
+    for attr in attrs.squeeze().tolist():
         values[attr] = OctaveUserClassAttr(ref, attr, attr)
 
     return type(str(name), (OctaveUserClass,), values)

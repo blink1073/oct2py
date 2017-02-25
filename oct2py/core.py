@@ -14,7 +14,7 @@ from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
 from .io import read_file, write_file, Cell
-from .utils import get_nout, Oct2PyError, get_log
+from .utils import Oct2PyError, get_log
 from .compat import unicode, input, string_types
 from .dynamic import (
     _make_function_ptr_instance, _make_variable_ptr_instance,
@@ -47,11 +47,6 @@ class Oct2Py(object):
         Timeout in seconds for commands
     squeeze_arrays: boolean, optional.
         Whether to squeeze arrays from Octave (default is False). 
-        Cell and Struct Arrays are always squeezed. 
-    infer_nout: boolean, optional. 
-        Whether to infer the number of output arguments  in `feval` and 
-        dynamic functions like `.ones()`.  The default is `True`.  The value 
-        can always be overriden in the function call as `nout=`.
     oned_as : {'row', 'column'}, optional
         If 'column', write 1-D numpy arrays as column vectors.
         If 'row', write 1-D numpy arrays as row vectors.}
@@ -278,10 +273,7 @@ class Oct2Py(object):
         func_args: object, optional
             Args to send to the function.
         nout: int, optional
-            Desired number of return arguments.  If not given, the number
-            of arguments will be inferred from the return value(s) unless
-            `infer_nout` is set to `false` at the instance level, in which
-            case it will default to `1`.
+            Desired number of return arguments, defaults to 1.
         store_as: str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
@@ -330,8 +322,8 @@ class Oct2Py(object):
         array([[ 1.40831893],
                [ 0.12232707],
                [ 0.00268734]])
-        >>> # nout is inferred from the return value
-        >>> (u, v, d) = octave.feval('svd', octave.hilb(3))
+        >>> # specify three return values
+        >>> (u, v, d) = octave.feval('svd', octave.hilb(3), nout=3)
         >>> u.shape
         (3, 3)
 
@@ -342,11 +334,9 @@ class Oct2Py(object):
         if not self._engine:
             raise Oct2PyError('Session is not open')
 
-        nout = kwargs.get('nout')
+        nout = kwargs.get('nout', None)
         if nout is None:
-            if self.infer_nout:
-                nout = get_nout();
-            nout = nout or 1
+            nout = 1
 
         plot_dir = kwargs.get('plot_dir')
         settings = dict(backend='inline' if plot_dir else 'gnuplot',
@@ -398,7 +388,8 @@ class Oct2Py(object):
             Time to wait for response from Octave (per line).  If not given,
             the instance `timeout` is used.
         nout : int, optional.
-            The desired number of returned values, defaults to 0.
+            The desired number of returned values, defaults to 0.  If nout
+            is 0, the `ans` will be returned as the return value.
         temp_dir: str, optional
             If specified, the session's MAT files will be created in the
             directory, otherwise a the instance `temp_dir` is used.
@@ -544,7 +535,7 @@ class Oct2Py(object):
 
         # Save the request data to the output file.
         req = dict(func_name=func_name, func_args=tuple(func_args),
-                   dname=dname or '', nout=nout or 0,
+                   dname=dname or '', nout=nout,
                    store_as=store_as or '',
                    ref_indices=ref_indices)
 
@@ -576,14 +567,13 @@ class Oct2Py(object):
             msg = self._parse_error(resp['err'])
             raise Oct2PyError(msg)
 
-        result = resp['result']
-        if len(result) == 1:
-            result = result[0]
-            # Check for sentinel value.
-            if (isinstance(result, Cell) and len(result) == 1 and
-                    isinstance(result[0], string_types) and
-                    result[0] == '__no_value__'):
-                result = None
+        result = resp['result'].squeeze().tolist()
+        # Check for sentinel value.
+        if (isinstance(result, Cell) and 
+                result.size == 1 and
+                isinstance(result[0], string_types) and 
+                result[0] == '__no_value__'):
+            result = None
 
         if plot_dir:
             self._engine.make_figures(plot_dir)

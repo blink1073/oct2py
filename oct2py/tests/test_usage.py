@@ -41,7 +41,8 @@ class TestUsage:
         """
         out = self.oc.ones(1, 2)
         assert np.allclose(out, np.ones((1, 2)))
-        U, S, V = self.oc.svd([[1, 2], [1, 3]])
+        
+        U, S, V = self.oc.svd([[1, 2], [1, 3]], nout=3)
         assert np.allclose(U, ([[-0.57604844, -0.81741556],
                            [-0.81741556, 0.57604844]]))
         assert np.allclose(S, ([[3.86432845, 0.],
@@ -155,7 +156,7 @@ class TestUsage:
             self.oc.eval("a = ones2(1)")
 
     def test_keyword_arguments(self):
-        self.oc.set(0, DefaultFigureColor='b')
+        self.oc.set(0, DefaultFigureColor='b', nout=0)
         plot_dir = tempfile.mkdtemp().replace('\\', '/')
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
         assert self.oc.extract_figures(plot_dir)
@@ -242,7 +243,7 @@ class TestUsage:
         a = self.oc.feval('ones', 3)
         assert np.allclose(a, np.ones((3, 3)))
 
-        self.oc.feval('ones', 3, store_as='foo')
+        self.oc.feval('ones', 3, store_as='foo', nout=0)
         b = self.oc.pull('foo')
         assert np.allclose(b, np.ones((3, 3)))
 
@@ -286,3 +287,7 @@ class TestUsage:
 
         a = self.oc.eval(['zeros(3);', 'ones(3);'])
         assert np.allclose(a, np.ones((3, 3)))
+
+        U, S, V = self.oc.eval('svd(hilb(3))', nout=3)
+        assert isinstance(U, np.ndarray)
+

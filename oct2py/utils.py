@@ -19,40 +19,6 @@ class Oct2PyError(Exception):
     pass
 
 
-def get_nout():
-    """
-    Return the number of return values the caller is expecting.
-
-    Adapted from the ompc project.
-
-    Returns
-    =======
-    out : int
-        Number of arguments expected by caller.
-
-    """
-    frame = inspect.currentframe()
-    # step into the function that called us
-    # nout is two frames back
-    frame = frame.f_back.f_back
-    bytecode = frame.f_code.co_code
-    if(sys.version_info >= (3, 6)):
-        instruction = bytecode[frame.f_lasti + 2]
-    else:
-        instruction = bytecode[frame.f_lasti + 3]
-    instruction = ord(instruction) if PY2 else instruction
-    if instruction == dis.opmap['UNPACK_SEQUENCE']:
-        if(sys.version_info >= (3, 6)):
-            howmany = bytecode[frame.f_lasti + 3]
-        else:
-            howmany = bytecode[frame.f_lasti + 4]
-        howmany = ord(howmany) if PY2 else howmany
-        return howmany
-    elif instruction in [dis.opmap['POP_TOP'], dis.opmap['PRINT_EXPR']]:
-        return 0
-    return 1
-
-
 def get_log(name=None):
     """Return a console logger.
 
