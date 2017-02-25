@@ -45,6 +45,13 @@ class Oct2Py(object):
         Optional logger to use for Oct2Py session
     timeout : float, optional
         Timeout in seconds for commands
+    squeeze_arrays: boolean, optional.
+        Whether to squeeze arrays from Matlab (default is False). 
+        Cell and Struct Arrays are always squeezed. 
+    infer_nout: boolean, optional. 
+        Whether to infer the number of output arguments  in `feval` and 
+        dynamic functions like `.ones()`.  The default is `True`.  The value 
+        can always be overriden in the function call as `nout=`.
     oned_as : {'row', 'column'}, optional
         If 'column', write 1-D numpy arrays as column vectors.
         If 'row', write 1-D numpy arrays as row vectors.}
@@ -270,7 +277,9 @@ class Oct2Py(object):
             Args to send to the function.
         nout: int, optional
             Desired number of return arguments.  If not given, the number
-            of arguments will be inferred from the return value(s).
+            of arguments will be inferred from the return value(s) unless
+            `infer_nout` is set to `false` at the instance level, in which
+            case it will default to `1`.
         store_as: str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
@@ -294,6 +303,12 @@ class Oct2Py(object):
             The plot with in pixels.
         plot_height: int, optional
             The plot height in pixels.
+
+        Notes
+        -----
+        The function arguments passed follow Octave calling convention, not 
+        Python. That is, all values must be passed as a comma separated list,
+        not using `x=foo` assignment.  
 
         Examples
         --------
@@ -327,7 +342,9 @@ class Oct2Py(object):
 
         nout = kwargs.get('nout')
         if nout is None:
-            nout = get_nout() or 1
+            if self.infer_nout:
+                nout = get_nout();
+            nout = nout or 1
 
         plot_dir = kwargs.get('plot_dir')
         settings = dict(backend='inline' if plot_dir else 'gnuplot',
@@ -361,7 +378,8 @@ class Oct2Py(object):
 
     def eval(self, cmds, verbose=True, timeout=None, stream_handler=None,
              temp_dir=None, plot_dir=None, plot_name='plot', plot_format='svg',
-             plot_width=None, plot_height=None, plot_res=None, **kwargs):
+             plot_width=None, plot_height=None, plot_res=None, 
+             nout=0, **kwargs):
         """
         Evaluate an Octave command or commands.
 
@@ -377,6 +395,8 @@ class Oct2Py(object):
         timeout : float, optional
             Time to wait for response from Octave (per line).  If not given,
             the instance `timeout` is used.
+        nout : int, optional.
+            The desired number of returned values, defaults to 0.
         temp_dir: str, optional
             If specified, the session's MAT files will be created in the
             directory, otherwise a the instance `temp_dir` is used.
@@ -463,7 +483,7 @@ class Oct2Py(object):
         ans = None
         for cmd in cmds:
             resp = self.feval('evalin', 'base', cmd,
-                              nout=0, timeout=timeout,
+                              nout=nout, timeout=timeout,
                               stream_handler=stream_handler,
                               verbose=verbose, plot_dir=plot_dir,
                               plot_name=plot_name, plot_format=plot_format,
@@ -549,7 +569,7 @@ class Oct2Py(object):
             raise Oct2PyError('Session died, restarting')
 
         # Read in the output.
-        resp = read_file(in_file, self)
+        resp = read_file(in_file, self, self.squeeze_arrays)
         if resp['err']:
             msg = self._parse_error(resp['err'])
             raise Oct2PyError(msg)
