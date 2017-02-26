@@ -3,8 +3,9 @@ Installation
 
 Library Installation
 --------------------
-You must have GNU Octave 3.6 or newer installed and in your PATH
-(see instructions below).
+You must have GNU Octave installed and in your PATH
+(see instructions below).  The library is only known to work with
+Octave 4.0+.
 Additionally, you must have the Numpy and Scipy libraries for Python 
 installed.  
 The simplest way to get them is to use the Anaconda_ distribution.
@@ -31,8 +32,7 @@ GNU Octave Installation
 - On OSX, the recommended methods are listed on this wiki_.
 
 - On Windows, download the latest MinGW or .NET version_.  Cygwin
-  is *NOT* supported.  Octave 3.8.2 is notionally supported, but it
-  is still an unofficial release.
+  is *NOT* supported. 
   The MinGW version requires the 7zip_ program for installation.
   Make sure to install gnuplot if prompted.
   Finally, to add Octave to your path. You can do so from the Environmental Variables dialog for your version of Windows, or set from the command prompt::

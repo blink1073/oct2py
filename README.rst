@@ -45,7 +45,7 @@ Features
 
 Installation
 ------------
-You must have GNU Octave 3.6 or newer installed and in your ``PATH``.
+You must have GNU Octave installed and in your ``PATH``.
 You must have the Numpy and Scipy libraries for Python installed.
 See the installation instructions_ for more details.
 
