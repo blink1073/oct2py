@@ -7,7 +7,7 @@ Oct2Py: Python to GNU Octave Bridge
 .. image:: https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=master
   :target: https://codecov.io/github/blink1073/oct2py?branch=master
 
-Oct2Py is a means to seamlessly call M-files and Octave functions from Python.
+Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
@@ -30,10 +30,9 @@ Features
 
 - Supports all Octave datatypes and most Python datatypes and Numpy dtypes.
 - Provides OctaveMagic_ for IPython, including inline plotting in notebooks.
-- Supports cell arrays and structs with arbitrary nesting.
+- Supports cell arrays and structs/struct arrays with arbitrary nesting.
 - Supports sparse matrices.
 - Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
-- Nargout is automatically inferred by the number of return variables.
 - Thread-safety: each Oct2Py object uses an independent Octave session.
 - Can be used as a context manager.
 - Supports Unicode characters.
