@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Oct2Py: Python to GNU Octave Bridge &#8212; Oct2Py 4.0rc1 documentation</title>
+    <title>Oct2Py: Python to GNU Octave Bridge &#8212; Oct2Py 4.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '4.0rc1',
+        VERSION:     '4.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -60,7 +60,7 @@
         </button>
         <a class="navbar-brand" href="#">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>4.0rc1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>4.0.0</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -166,7 +166,7 @@
 <h1>Oct2Py: Python to GNU Octave Bridge<a class="headerlink" href="#oct2py-python-to-gnu-octave-bridge" title="Permalink to this headline">¶</a></h1>
 <a class="reference external image-reference" href="http://badge.fury.io/py/oct2py"><img alt="https://badge.fury.io/py/oct2py.png/" src="https://badge.fury.io/py/oct2py.png/" /></a>
 <a class="reference external image-reference" href="https://codecov.io/github/blink1073/oct2py?branch=master"><img alt="https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=master" src="https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=master" /></a>
-<p>Oct2Py is a means to seamlessly call M-files and Octave functions from Python.
+<p>Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">oc</span> <span class="o">=</span> <span class="n">oct2py</span><span class="o">.</span><span class="n">Oct2Py</span><span class="p">()</span>
@@ -185,10 +185,9 @@ trust a code translator, this is your library.</p>
 <ul class="simple">
 <li>Supports all Octave datatypes and most Python datatypes and Numpy dtypes.</li>
 <li>Provides <a class="reference external" href="http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1">OctaveMagic</a> for IPython, including inline plotting in notebooks.</li>
-<li>Supports cell arrays and structs with arbitrary nesting.</li>
+<li>Supports cell arrays and structs/struct arrays with arbitrary nesting.</li>
 <li>Supports sparse matrices.</li>
 <li>Builds methods on the fly linked to Octave commands (e.g. <cite>zeros</cite> above).</li>
-<li>Nargout is automatically inferred by the number of return variables.</li>
 <li>Thread-safety: each Oct2Py object uses an independent Octave session.</li>
 <li>Can be used as a context manager.</li>
 <li>Supports Unicode characters.</li>
