@@ -287,3 +287,6 @@ class TestUsage:
         U, S, V = self.oc.eval('svd(hilb(3))', nout=3)
         assert isinstance(U, np.ndarray)
 
+    def test_no_args_returned(self):
+        # Test a function that only works when nargout=0
+        self.oc.source('roundtrip.m')

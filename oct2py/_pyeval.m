@@ -56,7 +56,14 @@ try
         end
 
     elseif length(req.func_args)
+      try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
+      catch ME
+        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1) 
+          error(ME);
+        end
+          
+      end
 
     else
         [result{1:req.nout}] = feval(req.func_name);

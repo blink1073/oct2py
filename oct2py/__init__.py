@@ -30,7 +30,7 @@ from .demo import demo
 from .speed_check import speed_check
 from .thread_check import thread_check
 
-__version__ = '4.0.0'
+__version__ = '4.0.1'
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'Cell', 'StructArray',
            'demo', 'speed_check', 'thread_check', '__version__', 'get_log']
 

@@ -566,7 +566,7 @@ class Oct2Py(object):
         if resp['err']:
             msg = self._parse_error(resp['err'])
             raise Oct2PyError(msg)
-        
+
         result = resp['result'].ravel().tolist()
         if isinstance(result, list) and len(result) == 1:
             result = result[0]
