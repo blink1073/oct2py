@@ -289,4 +289,5 @@ class TestUsage:
 
     def test_no_args_returned(self):
         # Test a function that only works when nargout=0
-        self.oc.source('roundtrip.m')
+        here = os.path.dirname(__file__)
+        self.oc.source(os.path.join(here, 'roundtrip.m'))

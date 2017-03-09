@@ -39,21 +39,18 @@ try
       req.func_args{ref_index} = evalin('base', var_name);
     end
 
+    assignin('base', 'ans', sentinel);
+
     % Use the `ans` response if no output arguments are expected.
     if req.nout == 0
-        assignin('base', 'ans', sentinel);
-
+        
         if length(req.func_args)
           feval(req.func_name, req.func_args{:});
         else
           feval(req.func_name)
         end
 
-        try
-          [result{1}] = evalin('base', 'ans');
-        catch
-          result = { sentinel };
-        end
+        result = get_ans(sentinel);
 
     elseif length(req.func_args)
       try
@@ -61,6 +58,8 @@ try
       catch ME
         if (strcmp(ME.message, 'element number 1 undefined in return list') != 1) 
           error(ME);
+        else
+          result = get_ans(sentinel);
         end
           
       end
@@ -94,3 +93,12 @@ catch ME
 end 
 
 end  % function
+
+
+function result = get_ans(sentinel)
+    try
+      [result{1}] = evalin('base', 'ans');
+    catch
+      result = { sentinel };
+    end
+end
