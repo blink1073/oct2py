@@ -31,6 +31,7 @@ release: clean gh-pages
 	rm -rf dist
 	python setup.py bdist_wheel --universal
 	python setup.py sdist
+	git commit -a -m "Release $(VERSION)"
 	git tag v$(VERSION)
 	git push origin --all
 	git push origin --tags
