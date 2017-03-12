@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API Reference &#8212; Oct2Py 4.0.2 documentation</title>
+    <title>API Reference &#8212; Oct2Py 4.0.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '4.0.2',
+        VERSION:     '4.0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -55,7 +55,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>4.0.2</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>4.0.3</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -346,6 +346,8 @@ unknown type.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<p>Pointers can be passed to <cite>feval</cite> or dynamic functions as function arguments.  A pointer passed as a nested value will be passed by value instead.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">oct2py</span> <span class="k">import</span> <span class="n">octave</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">octave</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s1">&#39;foo = [1, 2];&#39;</span><span class="p">)</span>
