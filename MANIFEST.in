@@ -11,6 +11,6 @@ recursive-include example *.ipynb
 recursive-include numpydoc *.py
 recursive-include licenses *.txt
 prune .git
-prune docs/build
+prune docs/_build
 prune dist
 prune build

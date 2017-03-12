@@ -219,8 +219,8 @@ class Oct2Py(object):
         >>> x
         2.0
 
-        Notest
-        ------
+        Notes
+        -----
         Pointers can be passed to `feval` or dynamic functions as function arguments.  A pointer passed as a nested value will be passed by value instead.
 
         Raises
