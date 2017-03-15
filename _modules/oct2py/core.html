@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.core &#8212; Oct2Py 4.0.3 documentation</title>
+    <title>oct2py.core &#8212; Oct2Py 4.0.4 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '4.0.3',
+        VERSION:     '4.0.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>4.0.3</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>4.0.4</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -141,7 +141,7 @@
 <span class="kn">from</span> <span class="nn">metakernel.pexpect</span> <span class="k">import</span> <span class="n">EOF</span><span class="p">,</span> <span class="n">TIMEOUT</span>
 <span class="kn">from</span> <span class="nn">octave_kernel.kernel</span> <span class="k">import</span> <span class="n">OctaveEngine</span><span class="p">,</span> <span class="n">STDIN_PROMPT</span>
 
-<span class="kn">from</span> <span class="nn">.io</span> <span class="k">import</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">write_file</span><span class="p">,</span> <span class="n">Cell</span>
+<span class="kn">from</span> <span class="nn">.io</span> <span class="k">import</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">write_file</span><span class="p">,</span> <span class="n">Cell</span><span class="p">,</span> <span class="n">StructArray</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">Oct2PyError</span><span class="p">,</span> <span class="n">get_log</span>
 <span class="kn">from</span> <span class="nn">.compat</span> <span class="k">import</span> <span class="n">unicode</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">string_types</span>
 <span class="kn">from</span> <span class="nn">.dynamic</span> <span class="k">import</span> <span class="p">(</span>
@@ -720,14 +720,17 @@
             <span class="n">err</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;error: &#39;</span> <span class="o">+</span> <span class="n">err</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
         <span class="n">errmsg</span> <span class="o">=</span> <span class="s1">&#39;Octave evaluation error:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">err</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">Oct2PyError</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">StructArray</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">errmsg</span>
 
         <span class="n">errmsg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">error: called from:&#39;</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">stack</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">error:   </span><span class="si">%(name)s</span><span class="s1"> at </span><span class="si">%(line)d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">item</span>
-            <span class="k">if</span> <span class="s1">&#39;column&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
-                <span class="n">errmsg</span> <span class="o">+=</span> <span class="s1">&#39;, column </span><span class="si">%(column)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">item</span>
+            <span class="n">errmsg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    </span><span class="si">%(name)s</span><span class="s1"> at line </span><span class="si">%(line)d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">item</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">errmsg</span> <span class="o">+=</span> <span class="s1">&#39;, column </span><span class="si">%(column)d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">item</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">errmsg</span>
 
     <span class="k">def</span> <span class="nf">_handle_stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Handle a stdin request from the session.&quot;&quot;&quot;</span>
