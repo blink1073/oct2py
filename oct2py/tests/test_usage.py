@@ -291,3 +291,10 @@ class TestUsage:
         # Test a function that only works when nargout=0
         here = os.path.dirname(__file__)
         self.oc.source(os.path.join(here, 'roundtrip.m'))
+
+    def test_script_error(self):
+        here = os.path.dirname(__file__)
+        with pytest.raises(Oct2PyError) as exec_info:
+            self.oc.source(os.path.join(here, 'script_error.m'))
+        msg = str(exec_info.value)
+        assert msg == "Octave evaluation error:\nerror: 'b' undefined near line 2 column 3"

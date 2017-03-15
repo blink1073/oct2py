@@ -13,7 +13,7 @@ import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import OctaveEngine, STDIN_PROMPT
 
-from .io import read_file, write_file, Cell
+from .io import read_file, write_file, Cell, StructArray
 from .utils import Oct2PyError, get_log
 from .compat import unicode, input, string_types
 from .dynamic import (
@@ -592,14 +592,17 @@ class Oct2Py(object):
             err['message'] = 'error: ' + err['message']
         errmsg = 'Octave evaluation error:\n%s' % err['message']
 
-        if not isinstance(stack, list):
-            raise Oct2PyError(errmsg)
+        if not isinstance(stack, StructArray):
+            return errmsg
 
         errmsg += '\nerror: called from:'
         for item in stack[:-1]:
-            errmsg += '\nerror:   %(name)s at %(line)d' % item
-            if 'column' in item:
-                errmsg += ', column %(column)s' % item
+            errmsg += '\n    %(name)s at line %(line)d' % item
+            try:
+                errmsg += ', column %(column)d' % item
+            except Exception:
+                pass
+        return errmsg
 
     def _handle_stdin(self, line):
         """Handle a stdin request from the session."""
