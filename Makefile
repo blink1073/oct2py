@@ -48,6 +48,7 @@ gh-pages:
 	git checkout master
 	git pull origin master
 	cp oct2py/tests/*.m example
+	rm example/script_error.m; true
 	git commit -a -m "Keep examples in sync"; true
 	git push origin; true
 	make docs
