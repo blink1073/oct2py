@@ -25,13 +25,14 @@ cover: clean
 	pip install -q pytest codecov pytest-cov
 	py.test -l --cov-report html --cov=$(NAME)
 
-release: clean gh-pages
+release: clean
 	pip install -q wheel
 	python setup.py register
 	rm -rf dist
 	python setup.py bdist_wheel --universal
 	python setup.py sdist
 	git commit -a -m "Release $(VERSION)"; true
+	make gh-pages
 	git tag v$(VERSION)
 	git push origin --all
 	git push origin --tags
