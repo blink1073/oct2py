@@ -339,7 +339,7 @@ class Oct2Py(object):
             nout = 1
 
         plot_dir = kwargs.get('plot_dir')
-        settings = dict(backend='inline' if plot_dir else 'gnuplot',
+        settings = dict(backend='inline' if plot_dir else None,
                         format=kwargs.get('plot_format'),
                         name=kwargs.get('plot_name'),
                         width=kwargs.get('plot_width'),
