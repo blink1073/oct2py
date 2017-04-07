@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, division
 
 import inspect
 import dis
+import threading
 
 import numpy as np
 from scipy.io import loadmat, savemat
@@ -15,6 +16,9 @@ from scipy.sparse import spmatrix
 from .compat import PY2
 from .dynamic import OctaveVariablePtr, OctaveUserClass, OctaveFunctionPtr
 from .utils import Oct2PyError
+
+
+_WRITE_LOCK = threading.lock()
 
 
 def read_file(path, session=None):
@@ -35,8 +39,11 @@ def write_file(obj, path, oned_as='row', convert_to_float=True):
     """
     data = _encode(obj, convert_to_float)
     try:
-        savemat(path, data, appendmat=False, oned_as=oned_as,
-                long_field_names=True)
+        # scipy.io.savemat is not thread-save.
+        # See https://github.com/scipy/scipy/issues/7260
+        with _WRITE_LOCK:
+            savemat(path, data, appendmat=False, oned_as=oned_as,
+                    long_field_names=True)
     except KeyError:  # pragma: no cover
         raise Exception('could not save mat file')
 
