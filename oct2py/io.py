@@ -18,7 +18,7 @@ from .dynamic import OctaveVariablePtr, OctaveUserClass, OctaveFunctionPtr
 from .utils import Oct2PyError
 
 
-_WRITE_LOCK = threading.lock()
+_WRITE_LOCK = threading.Lock()
 
 
 def read_file(path, session=None):
