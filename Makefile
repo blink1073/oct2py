@@ -27,12 +27,12 @@ cover: clean
 
 release: clean
 	pip install -q wheel
+	git commit -a -m "Release $(VERSION)"; true
+	make gh-pages
 	python setup.py register
 	rm -rf dist
 	python setup.py bdist_wheel --universal
 	python setup.py sdist
-	git commit -a -m "Release $(VERSION)"; true
-	make gh-pages
 	git tag v$(VERSION)
 	git push origin --all
 	git push origin --tags
