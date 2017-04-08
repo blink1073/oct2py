@@ -3,8 +3,8 @@
 Release History
 ---------------
 
-4.0.1
-+++++
+4.0.5 (2017-04-08)
+++++++++++++++++++
 - Fixed a thread safety bug when writing matlab files.
 
 4.0.0 (2017-03-07)
