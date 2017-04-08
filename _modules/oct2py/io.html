@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oct2py.io &#8212; Oct2Py 4.0.5 documentation</title>
+    <title>oct2py.io &#8212; Oct2Py 4.0.6 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '4.0.5',
+        VERSION:     '4.0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -53,7 +53,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Oct2Py</a>
-        <span class="navbar-text navbar-version pull-left"><b>4.0.5</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>4.0.6</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -134,6 +134,7 @@
 
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">dis</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.io</span> <span class="k">import</span> <span class="n">loadmat</span><span class="p">,</span> <span class="n">savemat</span>
@@ -143,6 +144,9 @@
 <span class="kn">from</span> <span class="nn">.compat</span> <span class="k">import</span> <span class="n">PY2</span>
 <span class="kn">from</span> <span class="nn">.dynamic</span> <span class="k">import</span> <span class="n">OctaveVariablePtr</span><span class="p">,</span> <span class="n">OctaveUserClass</span><span class="p">,</span> <span class="n">OctaveFunctionPtr</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">Oct2PyError</span>
+
+
+<span class="n">_WRITE_LOCK</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">session</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -163,8 +167,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_encode</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">convert_to_float</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">savemat</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">appendmat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">oned_as</span><span class="o">=</span><span class="n">oned_as</span><span class="p">,</span>
-                <span class="n">long_field_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># scipy.io.savemat is not thread-save.</span>
+        <span class="c1"># See https://github.com/scipy/scipy/issues/7260</span>
+        <span class="k">with</span> <span class="n">_WRITE_LOCK</span><span class="p">:</span>
+            <span class="n">savemat</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">appendmat</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">oned_as</span><span class="o">=</span><span class="n">oned_as</span><span class="p">,</span>
+                    <span class="n">long_field_names</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;could not save mat file&#39;</span><span class="p">)</span>
 
