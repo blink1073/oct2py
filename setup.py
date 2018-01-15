@@ -27,8 +27,7 @@ License :: OSI Approved :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
 Programming Language :: Python :: 2.7
-Programming Language :: Python :: 3.3
-Programming Language :: Python :: 3.4
+Programming Language :: Python :: 3
 Topic :: Scientific/Engineering
 Topic :: Software Development
 """
@@ -62,6 +61,6 @@ setup(
     long_description=LONG_DESCRIPTION,
     classifiers=list(filter(None, CLASSIFIERS.split('\n'))),
     requires=REQUIRES,
-    install_requires=INSTALL_REQUIRES,
+    install_requires=INSTALL_REQUIRES + REQUIRES,
     extras_require=EXTRAS_REQUIRE
 )
