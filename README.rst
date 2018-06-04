@@ -5,7 +5,11 @@ Oct2Py: Python to GNU Octave Bridge
     :target: http://badge.fury.io/py/oct2py
 
 .. image:: https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=master
-  :target: https://codecov.io/github/blink1073/oct2py?branch=master
+   :target: https://codecov.io/github/blink1073/oct2py?branch=master
+  
+.. image:: http://pepy.tech/badge/oct2py
+   :target: http://pepy.tech/project/oct2py
+   :alt: PyPi Download stats
 
 Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
