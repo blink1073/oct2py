@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+4.1.0 (2019-04-23)
+++++++++++++++++++
+- Add a backend property to specify the graphics toolkit
+
 4.0.5 (2017-04-08)
 ++++++++++++++++++
 - Fixed a thread safety bug when writing matlab files.
@@ -43,12 +47,12 @@ Breaking Changes
 ++++++++++++++++++
 - Fixed error that caused the session to crash on Windows when Octave
   encountered a syntax error.
-- Added separate width and height specifiers to the `%%octave` magic so 
+- Added separate width and height specifiers to the `%%octave` magic so
   the image can be constrained in one dimension while maintaining its
   aspect ratio.
 - Added an `extract_figures` method to the `Oct2Py` class which
   gives back a list of IPython Image or SVG objects for the created figures.
-- Completely rewrote the internal communication to Octave on 
+- Completely rewrote the internal communication to Octave on
   top of the `octave_kernel`, which enabled the Windows crash fix.
 - Removed the internal `_make_figs.m` file, since that functionality
   is now in `octave_kernel`.
