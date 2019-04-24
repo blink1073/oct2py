@@ -54,10 +54,13 @@ class Oct2Py(object):
         a shared memory (tmpfs) path.
     convert_to_float : bool, optional
         If true, convert integer types to float when passing to Octave.
+    backend: string, optional
+        The graphics_toolkit to use for plotting.
     """
 
     def __init__(self, executable=None, logger=None, timeout=None,
-                 oned_as='row', temp_dir=None, convert_to_float=True):
+                 oned_as='row', temp_dir=None, convert_to_float=True,
+                 backend=None):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
@@ -66,6 +69,7 @@ class Oct2Py(object):
         self._logger = None
         self.logger = logger
         self.timeout = timeout
+        self.backend = backend
         self.temp_dir = temp_dir or tempfile.mkdtemp()
         self.convert_to_float = convert_to_float
         self._user_classes = dict()
@@ -300,9 +304,9 @@ class Oct2Py(object):
 
         Notes
         -----
-        The function arguments passed follow Octave calling convention, not 
+        The function arguments passed follow Octave calling convention, not
         Python. That is, all values must be passed as a comma separated list,
-        not using `x=foo` assignment.  
+        not using `x=foo` assignment.
 
         Examples
         --------
@@ -339,7 +343,7 @@ class Oct2Py(object):
             nout = 1
 
         plot_dir = kwargs.get('plot_dir')
-        settings = dict(backend='inline' if plot_dir else None,
+        settings = dict(backend='inline' if plot_dir else self.backend,
                         format=kwargs.get('plot_format'),
                         name=kwargs.get('plot_name'),
                         width=kwargs.get('plot_width'),
@@ -370,7 +374,7 @@ class Oct2Py(object):
 
     def eval(self, cmds, verbose=True, timeout=None, stream_handler=None,
              temp_dir=None, plot_dir=None, plot_name='plot', plot_format='svg',
-             plot_width=None, plot_height=None, plot_res=None, 
+             plot_width=None, plot_height=None, plot_res=None,
              nout=0, **kwargs):
         """
         Evaluate an Octave command or commands.
@@ -572,9 +576,9 @@ class Oct2Py(object):
             result = result[0]
 
         # Check for sentinel value.
-        if (isinstance(result, Cell) and 
+        if (isinstance(result, Cell) and
                 result.size == 1 and
-                isinstance(result[0], string_types) and 
+                isinstance(result[0], string_types) and
                 result[0] == '__no_value__'):
             result = None
 
