@@ -3,6 +3,11 @@
 Release History
 ---------------
 
+4.2.0 (2019-04-28)
+++++++++++++++++++
+- Add support for Pandas DataFrames and Series (#125)
+- Remove unwanted octave-workspace files at exit (#133)
+
 4.1.0 (2019-04-23)
 ++++++++++++++++++
 - Add a backend property to specify the graphics toolkit
