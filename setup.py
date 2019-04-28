@@ -13,7 +13,7 @@ REQUIRES = ["numpy (>= 1.11)", "scipy (>= 0.17)", "octave_kernel (>= 0.25)"]
 INSTALL_REQUIRES = ["octave_kernel >= 0.25"]
 EXTRAS_REQUIRE = {
     'test:python_version == "2.7"': ['mock'],
-    'test': ['pytest'],
+    'test': ['pytest', 'pandas'],
     'docs': ['sphinx', 'sphinx-bootstrap-theme', 'numpydoc']
 }
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,

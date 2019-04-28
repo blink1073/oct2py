@@ -13,6 +13,14 @@ from scipy.io import loadmat, savemat
 from scipy.io.matlab.mio5 import MatlabObject, MatlabFunction
 from scipy.sparse import spmatrix
 
+try:
+    from pandas import Series, DataFrame
+except Exception as e:
+    class Series:
+        pass
+    class DataFrame:
+        pass
+
 from .compat import PY2
 from .dynamic import OctaveVariablePtr, OctaveUserClass, OctaveFunctionPtr
 from .utils import Oct2PyError
@@ -310,6 +318,10 @@ def _encode(data, convert_to_float):
         for name in out.dtype.names:
             out[name] = _encode(view[name], ctf)
         return out
+
+    # Handle pandas series and dataframes
+    if isinstance(data, (DataFrame, Series)):
+        return _encode(data.values, ctf)
 
     # Extract and encode values from dict-like objects.
     if isinstance(data, dict):

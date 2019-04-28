@@ -13,6 +13,7 @@ except ImportError:
     import _thread as thread
 
 import numpy as np
+import pandas as pd
 
 import oct2py
 from oct2py import Oct2Py, Oct2PyError, StructArray, Cell
@@ -133,6 +134,19 @@ class TestMisc:
     def test_trailing_underscore(self):
         x = self.oc.ones_()
         assert np.allclose(x, np.ones(1))
+
+    def test_pandas_series(self):
+        data = [1,2,3,4,5,6]
+        series = pd.Series(data)
+        self.oc.push('x', series)
+        assert np.allclose(data, self.oc.pull('x'))
+    
+    def test_panda_dataframe(self):
+        data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        df = pd.DataFrame(data,
+                     columns=['a', 'b', 'c'])
+        self.oc.push('y', df)
+        assert np.allclose(data, self.oc.pull('y'))
 
     def test_using_exited_session(self):
         with Oct2Py() as oc:

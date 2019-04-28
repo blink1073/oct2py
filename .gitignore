@@ -12,3 +12,5 @@ htmlcov/*
 example/.ipynb_checkpoints/
 .ipynb_checkpoints/
 octave-workspace
+.DS_Store
+.pytest_cache
