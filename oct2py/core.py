@@ -4,8 +4,10 @@
 
 from __future__ import print_function, absolute_import, division
 
+import atexit
 import logging
 import os
+import os.path as osp
 import tempfile
 import warnings
 
@@ -19,6 +21,9 @@ from .compat import unicode, input, string_types
 from .dynamic import (
     _make_function_ptr_instance, _make_variable_ptr_instance,
     _make_user_class, OctavePtr)
+
+
+HERE = osp.realpath(osp.dirname(__file__))
 
 
 class Oct2Py(object):
@@ -75,6 +80,7 @@ class Oct2Py(object):
         self._user_classes = dict()
         self._function_ptrs = dict()
         self.restart()
+        atexit.register(self._cleanup)
 
     @property
     def logger(self):
@@ -351,9 +357,9 @@ class Oct2Py(object):
                         resolution=kwargs.get('plot_res'))
         self._engine.plot_settings = settings
 
-        dname = os.path.dirname(func_path)
-        fname = os.path.basename(func_path)
-        func_name, ext = os.path.splitext(fname)
+        dname = osp.dirname(func_path)
+        fname = osp.basename(func_path)
+        func_name, ext = osp.splitext(fname)
         if ext and not ext == '.m':
             raise TypeError('Need to give path to .m file')
 
@@ -512,8 +518,7 @@ class Oct2Py(object):
                                     logger=self.logger)
 
         # Add local Octave scripts.
-        here = os.path.realpath(os.path.dirname(__file__))
-        self._engine.eval('addpath("%s");' % here.replace(os.path.sep, '/'))
+        self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, '/'))
 
     def _feval(self, func_name, func_args=(), dname='', nout=0,
               timeout=None, stream_handler=None, store_as='', plot_dir=None):
@@ -524,10 +529,10 @@ class Oct2Py(object):
             raise Oct2PyError('Session is closed')
 
         # Set up our mat file paths.
-        out_file = os.path.join(self.temp_dir, 'writer.mat')
-        out_file = out_file.replace(os.path.sep, '/')
-        in_file = os.path.join(self.temp_dir, 'reader.mat')
-        in_file = in_file.replace(os.path.sep, '/')
+        out_file = osp.join(self.temp_dir, 'writer.mat')
+        out_file = out_file.replace(osp.sep, '/')
+        in_file = osp.join(self.temp_dir, 'reader.mat')
+        in_file = in_file.replace(osp.sep, '/')
 
         func_args = list(func_args)
         ref_indices = []
@@ -691,6 +696,14 @@ class Oct2Py(object):
         """Get or create a user class of the given type."""
         self._user_classes.setdefault(name, _make_user_class(self, name))
         return self._user_classes[name]
+
+    def _cleanup(self):
+        """Clean up resources used by the session.
+        """
+        self.exit()
+        workspace = osp.join(os.getcwd(), 'octave-workspace')
+        if osp.exists(workspace):
+            os.remove(workspace)
 
     def __getattr__(self, attr):
         """Automatically creates a wapper to an Octave function or object.
