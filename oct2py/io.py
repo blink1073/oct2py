@@ -120,7 +120,7 @@ class StructArray(np.recarray):
 
     Notes
     =====
-    Accessing a record returns a Cell containing the values.  
+    Accessing a record returns a Cell containing the values.
     This class is not meant to be directly created by the user.  It is
     created automatically for structure array values received from Octave.
     The last axis is squeezed if it is of size 1 to simplify element access.

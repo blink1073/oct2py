@@ -130,7 +130,7 @@ class Oct2Py(object):
         >>> y = [1, 2]
         >>> octave.push('y', y)
         >>> octave.pull('y')
-        array([[ 1.,  2.]])
+        array([[1., 2.]])
         >>> octave.push(['x', 'y'], ['spam', [1, 2, 3, 4]])
         >>> octave.pull(['x', 'y'])  # doctest: +SKIP
         [u'spam', array([[1, 2, 3, 4]])]
@@ -177,7 +177,7 @@ class Oct2Py(object):
           >>> y = [1, 2]
           >>> octave.push('y', y)
           >>> octave.pull('y')
-          array([[ 1.,  2.]])
+          array([[1., 2.]])
           >>> octave.push(['x', 'y'], ['spam', [1, 2, 3, 4]])
           >>> octave.pull(['x', 'y'])  # doctest: +SKIP
           [u'spam', array([[1, 2, 3, 4]])]
@@ -214,7 +214,7 @@ class Oct2Py(object):
         >>> octave.eval('foo = [1, 2];')
         >>> ptr = octave.get_pointer('foo')
         >>> ptr.value
-        array([[ 1.,  2.]])
+        array([[1., 2.]])
         >>> ptr.address
         'foo'
         >>> # Can be passed as an argument
@@ -331,9 +331,9 @@ class Oct2Py(object):
         >>> from oct2py import octave
         >>> x = octave.feval('svd', octave.hilb(3))
         >>> x
-        array([[ 1.40831893],
-               [ 0.12232707],
-               [ 0.00268734]])
+        array([[1.40831893],
+               [0.12232707],
+               [0.00268734]])
         >>> # specify three return values
         >>> (u, v, d) = octave.feval('svd', octave.hilb(3), nout=3)
         >>> u.shape

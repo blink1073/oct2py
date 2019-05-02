@@ -23,6 +23,8 @@ class TestNumpy:
         """Send scalar numpy types and make sure we get the same number back.
         """
         for typecode in self.codes:
+            if typecode == 'V':
+                continue
             outgoing = (np.random.randint(-255, 255) + np.random.rand(1))
             if typecode in 'US':
                 outgoing = np.array('spam').astype(typecode)
@@ -42,6 +44,8 @@ class TestNumpy:
         """Send ndarrays and make sure we get the same array back
         """
         for typecode in self.codes:
+            if typecode == 'V':
+                continue
             for ndims in [2, 3, 4]:
                 size = [np.random.randint(1, 10) for i in range(ndims)]
                 outgoing = (np.random.randint(-255, 255, tuple(size)))
