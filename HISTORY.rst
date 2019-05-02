@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+4.3.0 (2019-05-02)
+++++++++++++++++++
+- Add a plot_backend kwarg for eval and clean up default backend selection.
+
 4.2.0 (2019-04-28)
 ++++++++++++++++++
 - Add support for Pandas DataFrames and Series (#125)

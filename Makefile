@@ -37,8 +37,6 @@ release: clean
 	git push origin --all
 	git push origin --tags
 	twine upload dist/*
-	printf '\nUpgrade oct2py-feedstock with release and sha256 sum:'
-	shasum -a 256 dist/*.tar.gz
 
 docs: clean
 	pip install -q sphinx-bootstrap-theme numpydoc sphinx ghp-import
