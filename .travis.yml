@@ -32,6 +32,7 @@ before_install:
 install:
   - export PYTHONWARNINGS=all
   - pip install -e .[test]
+  - mkdir -p ~/.jupyter
   - echo "c.ExecutePreprocessor.kernel_name='${KERNEL}' > ~/.jupyter/jupyter_nbconvert_config.py
 
 script:
