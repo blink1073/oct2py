@@ -37,7 +37,6 @@ script:
     else
       make test;
     fi
-  - jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=$KERNEL --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
   - make docs
 
 after_success:

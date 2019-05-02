@@ -1,0 +1,9 @@
+name: oct2py_documentation
+channels:
+  - conda-forge
+dependencies:
+- python=3.5
+- sphinx>=1.8
+- sphinx_rtd_theme
+- numpydoc
+- recommonmark

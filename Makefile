@@ -1,10 +1,9 @@
 # Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release gh-pages docs
 
-export NAME=`python setup.py --name 2>/dev/null`
-export VERSION=`python setup.py --version 2>/dev/null`
+export NAME=$(python setup.py --name 2>/dev/null)
+export VERSION=$(python setup.py --version 2>/dev/null)
 export KILL_PROC="from $(NAME) import kill_octave; kill_octave()"
-export GHP_MSG="Generated gh-pages for `git log master -1 --pretty=short --abbrev-commit`"
 
 all: clean
 	python setup.py install
@@ -20,6 +19,7 @@ test: clean
 	pip install -q pytest
 	export PYTHONWARNINGS="all"; py.test
 	make clean
+	jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
 
 cover: clean
 	pip install -q pytest codecov pytest-cov
@@ -28,7 +28,6 @@ cover: clean
 release: clean
 	pip install -q wheel
 	git commit -a -m "Release $(VERSION)"; true
-	make gh-pages
 	python setup.py register
 	rm -rf dist
 	python setup.py bdist_wheel --universal
@@ -39,16 +38,6 @@ release: clean
 	twine upload dist/*
 
 docs: clean
-	pip install -q sphinx-bootstrap-theme numpydoc sphinx ghp-import
+	pip install -q sphinx-bootstrap-theme numpydoc sphinx
 	export SPHINXOPTS=-W; make -C docs html
 	export SPHINXOPTS=-W; make -C docs linkcheck
-
-gh-pages:
-	git checkout master
-	git pull origin master
-	cp oct2py/tests/*.m example
-	rm example/script_error.m; true
-	git commit -a -m "Keep examples in sync"; true
-	git push origin; true
-	make docs
-	ghp-import -n -p -m $(GHP_MSG) docs/_build/html
