@@ -29,8 +29,8 @@ from .utils import get_log, Oct2PyError
 from .demo import demo
 from .speed_check import speed_check
 from .thread_check import thread_check
+from ._version import __version__
 
-__version__ = '4.3.0'
 __all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'Cell', 'StructArray',
            'demo', 'speed_check', 'thread_check', '__version__', 'get_log']
 

@@ -38,17 +38,17 @@ except ImportError:
     from distutils.core import setup
 
 
-with open('oct2py/__init__.py', 'rb') as fid:
-    for line in fid:
-        line = line.decode('utf-8')
-        if line.startswith('__version__'):
-            version = line.strip().split()[-1][1:-1]
-            break
+import os
+_version_py = os.path.join('.', 'oct2py', '_version.py')
+version_ns = {}
+
+with open(_version_py, mode='r') as version_file:
+    exec(version_file.read(), version_ns)
 
 
 setup(
     name=DISTNAME,
-    version=version,
+    version=version_ns['__version__'],
     maintainer=MAINTAINER,
     maintainer_email=MAINTAINER_EMAIL,
     packages=PACKAGES,
