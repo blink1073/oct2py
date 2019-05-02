@@ -58,7 +58,7 @@ Once the dependencies have been installed, run:
 If using conda, it is available on conda-forge:
 
 .. code-block:: bash
-   
+
    $ conda install -c conda-forge oct2py
 
 .. _instructions: http://blink1073.github.io/oct2py/source/installation.html
@@ -71,6 +71,6 @@ Documentation is available online_.
 
 For version information, see the Revision History_.
 
-.. _online: http://blink1073.github.io/oct2py/
+.. _online: https://oct2py.readthedocs.io/en/latest/
 
 .. _History: https://github.com/blink1073/oct2py/blob/master/HISTORY.rst

@@ -3,7 +3,7 @@
 
 export NAME=$(python setup.py --name 2>/dev/null)
 export VERSION=$(python setup.py --version 2>/dev/null)
-export KILL_PROC="from $(NAME) import kill_octave; kill_octave()"
+export KILL_PROC="from ${NAME} import kill_octave; kill_octave()"
 
 all: clean
 	python setup.py install
@@ -23,16 +23,16 @@ test: clean
 
 cover: clean
 	pip install -q pytest codecov pytest-cov
-	py.test -l --cov-report html --cov=$(NAME)
+	py.test -l --cov-report html --cov=${NAME}
 
 release: clean
 	pip install -q wheel
-	git commit -a -m "Release $(VERSION)"; true
+	git commit -a -m "Release ${VERSION}"; true
 	python setup.py register
 	rm -rf dist
 	python setup.py bdist_wheel --universal
 	python setup.py sdist
-	git tag v$(VERSION)
+	git tag v${VERSION}
 	git push origin --all
 	git push origin --tags
 	twine upload dist/*
