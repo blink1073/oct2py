@@ -32,6 +32,7 @@ before_install:
 install:
   - export PYTHONWARNINGS=all
   - pip install -e .[test]
+  - echo "c.ExecutePreprocessor.kernel_name='${KERNEL}' > ~/.jupyter/jupyter_nbconvert_config.py
 
 script:
     # run coverage on py3.5, regular on others
