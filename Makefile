@@ -1,9 +1,9 @@
 # Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release gh-pages docs
 
-export NAME=$(python setup.py --name 2>/dev/null)
-export VERSION=$(python setup.py --version 2>/dev/null)
-export KILL_PROC="from ${NAME} import kill_octave; kill_octave()"
+NAME:=$(shell python setup.py --name 2>/dev/null)
+VERSION:=$(shell python setup.py --version 2>/dev/null)
+KILL_PROC="from ${NAME} import kill_octave; kill_octave()"
 
 all: clean
 	python setup.py install
@@ -38,6 +38,6 @@ release: clean
 	twine upload dist/*
 
 docs: clean
-	pip install -q sphinx-bootstrap-theme numpydoc sphinx
+	pip install -q sphinx-rtd-theme numpydoc sphinx
 	export SPHINXOPTS=-W; make -C docs html
 	export SPHINXOPTS=-W; make -C docs linkcheck
