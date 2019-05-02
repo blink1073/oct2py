@@ -40,7 +40,7 @@ Features
 - Optional timeout command parameter to prevent runaway Octave sessions.
 
 
-.. _OctaveMagic: http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+.. _OctaveMagic: https://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
 
 
 Installation
