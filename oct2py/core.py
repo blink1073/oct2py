@@ -74,7 +74,7 @@ class Oct2Py(object):
         self._logger = None
         self.logger = logger
         self.timeout = timeout
-        self.backend = backend
+        self.backend = backend or 'default'
         self.temp_dir = temp_dir or tempfile.mkdtemp()
         self.convert_to_float = convert_to_float
         self._user_classes = dict()
@@ -297,6 +297,8 @@ class Oct2Py(object):
         plot_dir: str, optional
             If specificed, save the session's plot figures to the plot
             directory instead of displaying the plot window.
+        plot_backend: str, optional
+            The plotting back end to use.
         plot_name : str, optional
             Saved plots will start with `plot_name` and
             end with "_%%.xxx' where %% is the plot number and
@@ -349,7 +351,12 @@ class Oct2Py(object):
             nout = 1
 
         plot_dir = kwargs.get('plot_dir')
-        settings = dict(backend='inline' if plot_dir else self.backend,
+
+        # Choose appropriate plot backend.
+        default_backend = 'inline' if plot_dir else self.backend
+        backend = kwargs.get('plot_backend', default_backend)
+
+        settings = dict(backend=backend,
                         format=kwargs.get('plot_format'),
                         name=kwargs.get('plot_name'),
                         width=kwargs.get('plot_width'),
@@ -379,7 +386,7 @@ class Oct2Py(object):
                           store_as=store_as, plot_dir=plot_dir)
 
     def eval(self, cmds, verbose=True, timeout=None, stream_handler=None,
-             temp_dir=None, plot_dir=None, plot_name='plot', plot_format='svg',
+             temp_dir=None, plot_dir=None, plot_name='plot', plot_format='svg', plot_backend=None,
              plot_width=None, plot_height=None, plot_res=None,
              nout=0, **kwargs):
         """
@@ -417,6 +424,8 @@ class Oct2Py(object):
             The plot with in pixels.
         plot_height: int, optional
             The plot height in pixels.
+        plot_backend: str, optional
+            The plot backend to use.
         plot_res: int, optional
             The plot resolution in pixels per inch.
         **kwargs Deprectated kwargs.
@@ -490,6 +499,7 @@ class Oct2Py(object):
                               stream_handler=stream_handler,
                               verbose=verbose, plot_dir=plot_dir,
                               plot_name=plot_name, plot_format=plot_format,
+                              plot_backend=plot_backend,
                               plot_width=plot_width, plot_height=plot_height,
                               plot_res=plot_res)
             if resp is not None:
