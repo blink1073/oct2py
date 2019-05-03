@@ -45,9 +45,9 @@ Features
 
 Installation
 ------------
-You must have GNU Octave installed and in your ``PATH``.
+You must have GNU Octave installed and in your ``PATH`` environment variable.
 Alternatively, you can set an ``OCTAVE_EXECUTABLE`` or ``OCTAVE`` environment
-variable that points to ``octave-cli``.
+variable that points to ``octave-cli`` executable itself.
 
 You must have the Numpy and Scipy libraries for Python installed.
 See the installation instructions_ for more details.
