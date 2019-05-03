@@ -41,10 +41,6 @@ class Oct2Py(object):
 
     Parameters
     ----------
-    executable : str, optional
-        Name of the Octave executable, can be a system path.  If this is not
-        given, we look for an OCTAVE_EXECUTABLE environmental variable.
-        The fallback is to call "octave-cli" or "octave".
     logger : logging object, optional
         Optional logger to use for Oct2Py session
     timeout : float, optional
@@ -62,13 +58,12 @@ class Oct2Py(object):
         The graphics_toolkit to use for plotting.
     """
 
-    def __init__(self, executable=None, logger=None, timeout=None,
+    def __init__(self, logger=None, timeout=None,
                  oned_as='row', temp_dir=None, convert_to_float=True,
                  backend=None):
         """Start Octave and set up the session.
         """
         self._oned_as = oned_as
-        self._executable = executable
         self._engine = None
         self._logger = None
         self.logger = logger
@@ -516,9 +511,6 @@ class Oct2Py(object):
         if self._engine:
             self._engine.repl.terminate()
 
-        executable = self._executable
-        if executable:
-            os.environ['OCTAVE_EXECUTABLE'] = executable
         if 'OCTAVE_EXECUTABLE' not in os.environ and 'OCTAVE' in os.environ:
             os.environ['OCTAVE_EXECUTABLE'] = os.environ['OCTAVE']
 

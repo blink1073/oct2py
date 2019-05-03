@@ -3,6 +3,12 @@
 Release History
 ---------------
 
+5.0.0 (2019-05-03)
+++++++++++++++++++
+- Removed the ``executable`` argument to ``Oct2Py`` in favor of using
+environment variables because we need to instantiate the ``octave``
+convenience instance at startup.
+
 4.3.0 (2019-05-02)
 ++++++++++++++++++
 - Add a plot_backend kwarg for eval and clean up default backend selection.
