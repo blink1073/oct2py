@@ -4,7 +4,6 @@
 
 from __future__ import print_function, absolute_import, division
 
-import atexit
 import logging
 import os
 import os.path as osp
@@ -80,7 +79,6 @@ class Oct2Py(object):
         self._user_classes = dict()
         self._function_ptrs = dict()
         self.restart()
-        atexit.register(self._cleanup)
 
     @property
     def logger(self):
@@ -706,14 +704,6 @@ class Oct2Py(object):
         """Get or create a user class of the given type."""
         self._user_classes.setdefault(name, _make_user_class(self, name))
         return self._user_classes[name]
-
-    def _cleanup(self):
-        """Clean up resources used by the session.
-        """
-        self.exit()
-        workspace = osp.join(os.getcwd(), 'octave-workspace')
-        if osp.exists(workspace):
-            os.remove(workspace)
 
     def __getattr__(self, attr):
         """Automatically creates a wapper to an Octave function or object.
