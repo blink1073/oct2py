@@ -301,6 +301,7 @@ class TestUsage:
 
     def test_pkg_load(self):
         self.oc.eval('pkg load signal')
-        x = [0.,0,0,0,0,1,1,1,1,0,0,0,0,0]
+        t = np.linspace(0, 1, num=100)
+        x=np.cos(2*np.pi*t*3)
         y = self.oc.sgolayfilt(x, 3, 5)
-        assert y.shape == (1, 14)
+        assert y.shape == (1, 100)

@@ -56,7 +56,7 @@ try
       try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
       catch ME
-        if (index(ME.message, 'nonconformat arguments') == 1)
+        if (index(ME.message, 'nonconformant arguments') != 0)
           args = req.func_args{:};
           [result{1:req.nout}] = feval(req.func_name, args);
         elseif (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
