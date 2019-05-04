@@ -300,7 +300,6 @@ class TestUsage:
         assert msg == "Octave evaluation error:\nerror: 'b' undefined near line 2 column 3"
 
     def test_pkg_load(self):
-        self.oc.eval('pkg install -forge signal')
         self.oc.eval('pkg load signal')
         x = [0.,0,0,0,0,1,1,1,1,0,0,0,0,0]
         y = self.oc.sgolayfilt(x, 3, 5)

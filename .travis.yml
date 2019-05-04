@@ -19,6 +19,10 @@ env:
 before_install:
   - sudo apt-get install -qq octave liboctave-dev;
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+  - wget https://octave.sourceforge.io/download.php?package=control-3.2.0.tar.gz
+  - wget https://octave.sourceforge.io/download.php?package=signal-1.4.1.tar.gz
+  - octave --eval "pkg install control-3.2.0.tar.gz"
+  - octave --eval "pkg install signal-1.4.1.tar.gz"
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
