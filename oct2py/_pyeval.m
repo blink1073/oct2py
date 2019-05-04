@@ -56,15 +56,11 @@ try
       try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
       catch ME
-        if (index(ME.message, 'nonconformat arguments') == 0)
-          args = req.func_args{:};
-          try
-            [result{1:req.nout}] = feval(req.func_name, args);
-          catch ME
-            result = get_ans(sentinel);
-          end
-        elseif (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
+        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
           error(ME);
+        elseif (index(ME.message, 'nonconformat arguments') == 0)
+          args = req.func_args{:};
+          [result{1:req.nout}] = feval(req.func_name, args);
         else
           result = get_ans(sentinel);
         end
