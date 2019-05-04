@@ -566,6 +566,8 @@ class Oct2Py(object):
             stream_handler(engine.repl.interrupt())
             raise Oct2PyError('Timed out, interrupting')
         except EOF:
+            if not self._engine:
+                return
             stream_handler(engine.repl.child.before)
             self.restart()
             raise Oct2PyError('Session died, restarting')
