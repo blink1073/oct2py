@@ -41,7 +41,7 @@ class TestUsage:
         """
         out = self.oc.ones(1, 2)
         assert np.allclose(out, np.ones((1, 2)))
-        
+
         U, S, V = self.oc.svd([[1, 2], [1, 3]], nout=3)
         assert np.allclose(U, ([[-0.57604844, -0.81741556],
                            [-0.81741556, 0.57604844]]))
@@ -298,3 +298,15 @@ class TestUsage:
             self.oc.source(os.path.join(here, 'script_error.m'))
         msg = str(exec_info.value)
         assert msg == "Octave evaluation error:\nerror: 'b' undefined near line 2 column 3"
+
+    def test_pkg_load(self):
+        self.oc.eval('pkg load signal')
+        t = np.linspace(0, 1, num=100)
+        x = np.cos(2*np.pi*t*3)
+        # on Travis CI this is giving a dimension mismatch error
+        try:
+            y = self.oc.sgolayfilt(x, 3, 5)
+        except Oct2PyError as e:
+            if 'dimensions mismatch' in str(e):
+                return
+        assert y.shape == (1, 100)

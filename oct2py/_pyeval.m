@@ -43,7 +43,7 @@ try
 
     % Use the `ans` response if no output arguments are expected.
     if req.nout == 0
-        
+
         if length(req.func_args)
           feval(req.func_name, req.func_args{:});
         else
@@ -56,12 +56,15 @@ try
       try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
       catch ME
-        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1) 
+        if (index(ME.message, 'nonconformant arguments') != 0)
+          args = req.func_args{:};
+          [result{1:req.nout}] = feval(req.func_name, args);
+        elseif (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
           error(ME);
         else
           result = get_ans(sentinel);
         end
-          
+
       end
 
     else
@@ -90,7 +93,7 @@ catch ME
   result = { sentinel };
   err = ME;
   save('-v6', '-mat-binary', output_file, 'result', 'err');
-end 
+end
 
 end  % function
 

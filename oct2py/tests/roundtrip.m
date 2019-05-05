@@ -1,5 +1,5 @@
 
-function [x, cls] = roundtrip(y)
+function [x, cls] = roundtrip(y = 1)
 
   % returns the variable it was given, and optionally the class
 
