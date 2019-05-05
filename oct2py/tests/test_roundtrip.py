@@ -8,7 +8,7 @@ from oct2py.compat import unicode, long
 
 
 TYPE_CONVERSIONS = [
-    (int, 'int32', np.int32),
+    (int, 'double', np.float64),
     (long, 'int64', np.int64),
     (float, 'double', np.float64),
     (complex, 'double', np.complex128),
@@ -73,7 +73,7 @@ class TestRoundTrip:
                 assert (np.alltrue(np.isnan(val1)) and
                         np.alltrue(np.isnan(val2)))
             except (AssertionError, NotImplementedError):
-                assert val1 == val2
+                assert np.allclose([val1], [val2])
 
     def helper(self, outgoing, expected_type=None):
         """
@@ -161,7 +161,7 @@ class TestRoundTrip:
 
         # Handle simple objects.
         for key in self.data.keys():
-            if key not in ['nested', 'sparse', 'cell', 'object', 'struct_vector']:
+            if key not in ['nested', 'sparse', 'cell', 'object', 'struct_vector', 'num']:
                 cmd = '{0}(x.{1},y.{1});'.format(func, key)
                 assert self.oc.eval(cmd), key
                 cmd = '{0}(x.nested.{1},y.nested.{1});'.format(func, key)
@@ -201,6 +201,21 @@ class TestRoundTrip:
             assert self.oc.eval(cmd.format(func, i + 1))
             cmd = '{0}(x.nested.struct_vector({1}), y.nested.struct_vector({1}))'
             assert self.oc.eval(cmd.format(func, i + 1))
+
+        # Handle the num type
+        x = self.oc.pull('x')
+        y = self.oc.pull('y')
+        for key in self.data['num'].keys():
+            if key == 'int':
+                continue
+            if key == 'NaN':
+                assert np.isnan(x.num[key])
+                assert np.isnan(y.num[key])
+                continue
+            assert np.allclose(x.num[key], y.num[key])
+
+        for key in self.data['num']['int'].keys():
+            assert np.allclose(x.num.int[key], y.num.int[key])
 
 
 class TestBuiltins:
