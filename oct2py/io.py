@@ -319,6 +319,10 @@ def _encode(data, convert_to_float):
             out[name] = _encode(view[name], ctf)
         return out
 
+    # Integer objects should be converted to floats
+    if isinstance(data, int):
+        return float(data)
+
     # Handle pandas series and dataframes
     if isinstance(data, (DataFrame, Series)):
         return _encode(data.values, ctf)

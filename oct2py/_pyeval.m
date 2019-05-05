@@ -33,8 +33,8 @@ try
     end
 
     % Replace the names at the specified indices with their values.
-    for index=1:length(req.ref_indices)
-      ref_index = req.ref_indices(index);
+    for idx=1:length(req.ref_indices)
+      ref_index = req.ref_indices(idx);
       var_name = req.func_args{ref_index};
       req.func_args{ref_index} = evalin('base', var_name);
     end
@@ -56,10 +56,7 @@ try
       try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
       catch ME
-        if (index(ME.message, 'nonconformant arguments') != 0)
-          args = req.func_args{:};
-          [result{1:req.nout}] = feval(req.func_name, args);
-        elseif (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
+        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
           error(ME);
         else
           result = get_ans(sentinel);
