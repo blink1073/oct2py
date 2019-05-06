@@ -310,3 +310,14 @@ class TestUsage:
             if 'dimensions mismatch' in str(e):
                 return
         assert y.shape == (1, 100)
+
+    def test_passing_integer_args(self):
+        self.oc.eval("""
+function [res, a, b] = foo(a, b)
+res = a * b;
+end
+""")
+        res, a, b = self.oc.foo(np.nan, 2, nout=3)
+        assert np.isnan(res)
+        assert np.isnan(a)
+        assert b == 2
