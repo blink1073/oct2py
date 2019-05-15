@@ -46,9 +46,5 @@ script:
     fi
   - make docs
 
-notifications:
-  email:
-    - steven.silvester@ieee.org
-
 after_success:
     - codecov
