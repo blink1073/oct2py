@@ -321,3 +321,6 @@ end
         assert np.isnan(res)
         assert np.isnan(a)
         assert b == 2
+
+    def test_carriage_return(self):
+        self.oc.eval(r"disp('hi\rthere')")
