@@ -9,8 +9,8 @@ MAINTAINER = 'Steven Silvester'
 MAINTAINER_EMAIL = 'steven.silvester@ieee.org'
 URL = 'http://github.com/blink1073/oct2py'
 LICENSE = 'MIT'
-REQUIRES = ["numpy (>= 1.12)", "scipy (>= 0.17)", "octave_kernel (>= 0.30.0)"]
-INSTALL_REQUIRES = ["octave_kernel >= 0.30.0", "numpy >= 1.12", "scipy >= 0.17"]
+REQUIRES = ["numpy (>= 1.12)", "scipy (>= 0.17)", "octave_kernel (>= 0.31.0)"]
+INSTALL_REQUIRES = ["octave_kernel >= 0.31.0", "numpy >= 1.12", "scipy >= 0.17"]
 EXTRAS_REQUIRE = {
     'test:python_version == "2.7"': ['mock'],
     'test': ['pytest', 'pandas'],
@@ -60,6 +60,7 @@ setup(
     platforms=["Any"],
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/x-rst',
     classifiers=list(filter(None, CLASSIFIERS.split('\n'))),
     requires=REQUIRES,
     install_requires=INSTALL_REQUIRES,
