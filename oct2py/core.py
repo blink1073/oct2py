@@ -552,7 +552,7 @@ class Oct2Py(object):
                    convert_to_float=self.convert_to_float)
 
         # Set up the engine and evaluate the `_pyeval()` function.
-        engine.stream_handler = stream_handler or self.logger.info
+        engine.line_handler = stream_handler or self.logger.info
         if timeout is None:
             timeout = self.timeout
 
