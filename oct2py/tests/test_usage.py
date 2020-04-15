@@ -297,7 +297,10 @@ class TestUsage:
         with pytest.raises(Oct2PyError) as exec_info:
             self.oc.source(os.path.join(here, 'script_error.m'))
         msg = str(exec_info.value)
-        assert msg == "Octave evaluation error:\nerror: 'b' undefined near line 2 column 3"
+        assert msg == (
+            "Octave evaluation error:\nerror: "
+            "'b' undefined near line 2 column 3\nerror: called from:\n    script_error at line 2, column 2"
+        )
 
     def test_pkg_load(self):
         self.oc.eval('pkg load signal')

@@ -57,7 +57,7 @@ try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
       catch ME
         if (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
-          error(ME);
+          rethrow(ME);
         else
           result = get_ans(sentinel);
         end
