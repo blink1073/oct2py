@@ -80,7 +80,7 @@ class TestUsage:
         with pytest.raises(Oct2PyError):
             self.oc.__getattr__('_foo')
         with pytest.raises(Oct2PyError):
-            self.oc.__getattr__('foo\W')
+            self.oc.__getattr__('foo\\W')
 
     def test_open_close(self):
         """Test opening and closing the Octave session
@@ -301,6 +301,35 @@ class TestUsage:
             "Octave evaluation error:\nerror: "
             "'b' undefined near line 2 column 3\nerror: called from:\n    script_error at line 2, column 2"
         )
+
+    @pytest.mark.parametrize("fn", [
+        "pyeval_like_error%s" % i for i in range(4)
+    ])
+    def test_script_error_like_my_pyeval(self, fn):
+        exp = "element number 1 undefined in return list"
+        here = os.path.dirname(__file__)
+        with pytest.raises(Oct2PyError, match=exp):
+            self.oc.source(os.path.join(here, "%s.m" % fn))
+
+    def test_script_error_like_my_pyeval0(self):
+        exp = "element number 1 undefined in return list"
+        with pytest.raises(Oct2PyError, match=exp):
+            self.oc.pyeval_like_error0()
+
+    def test_script_error_like_my_pyeval1(self):
+        exp = "element number 1 undefined in return list"
+        with pytest.raises(Oct2PyError, match=exp):
+            self.oc.pyeval_like_error1()
+
+    def test_script_error_like_my_pyeval2(self):
+        exp = "element number 1 undefined in return list"
+        with pytest.raises(Oct2PyError, match=exp):
+            self.oc.pyeval_like_error2(1)
+
+    def test_script_error_like_my_pyeval3(self):
+        exp = "element number 1 undefined in return list"
+        with pytest.raises(Oct2PyError, match=exp):
+            self.oc.pyeval_like_error3(1)
 
     def test_pkg_load(self):
         self.oc.eval('pkg load signal')
