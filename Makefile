@@ -47,4 +47,4 @@ release: release_prep
 docs: clean
 	pip install -q sphinx-rtd-theme numpydoc sphinx
 	export SPHINXOPTS=-W; make -C docs html
-	export SPHINXOPTS=-W; make -C docs linkcheck
+	export SPHINXOPTS=-W; make -C docs linkcheck || export SPHINXOPTS=-W; make -C docs linkcheck
