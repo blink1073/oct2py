@@ -37,6 +37,8 @@ jobs:
     - name: Generate Docs
       run: |
         make docs
+    - name: Make sure the package is release-able
+        make release_prep
     - name: Generate coverage report
       run: |
         make cover

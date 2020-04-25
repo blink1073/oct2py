@@ -29,16 +29,17 @@ test: clean
 
 cover: clean
 	pip install -q pytest codecov pytest-cov
-	py.test -l --cov-report html --cov=${NAME}
+	py.test -l --cov-report html --cov-report=xml --cov=${NAME}
 
-release: clean
-	pip install -q wheel
+release_prep: clean
+	pip install -q wheel twine
 	git commit -a -m "Release ${VERSION}"; true
-	python setup.py register
-	rm -rf dist
 	python setup.py bdist_wheel --universal
 	python setup.py sdist
 	git tag v${VERSION}
+	twine check dist/*
+
+release: release_prep
 	git push origin --all
 	git push origin --tags
 	twine upload dist/*

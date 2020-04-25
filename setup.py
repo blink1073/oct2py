@@ -12,7 +12,7 @@ LICENSE = 'MIT'
 REQUIRES = ["numpy (>= 1.12)", "scipy (>= 0.17)", "octave_kernel (>= 0.31.0)"]
 INSTALL_REQUIRES = ["octave_kernel >= 0.31.0", "numpy >= 1.12", "scipy >= 0.17"]
 EXTRAS_REQUIRE = {
-    'test': ['pytest', 'pandas', 'codecov', 'nbconvert'],
+    'test': ['pytest', 'pandas', 'nbconvert'],
     'docs': ['sphinx', 'sphinx-bootstrap-theme', 'numpydoc']
 }
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,
