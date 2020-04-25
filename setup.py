@@ -12,8 +12,7 @@ LICENSE = 'MIT'
 REQUIRES = ["numpy (>= 1.12)", "scipy (>= 0.17)", "octave_kernel (>= 0.31.0)"]
 INSTALL_REQUIRES = ["octave_kernel >= 0.31.0", "numpy >= 1.12", "scipy >= 0.17"]
 EXTRAS_REQUIRE = {
-    'test:python_version == "2.7"': ['mock'],
-    'test': ['pytest', 'pandas'],
+    'test': ['pytest', 'pandas', 'nbconvert'],
     'docs': ['sphinx', 'sphinx-bootstrap-theme', 'numpydoc']
 }
 PACKAGES = [DISTNAME, '%s.tests' % DISTNAME, '%s/ipython' % DISTNAME,
@@ -26,9 +25,7 @@ Intended Audience :: Science/Research
 License :: OSI Approved :: MIT License
 Operating System :: OS Independent
 Programming Language :: Python
-Programming Language :: Python :: 2.7
-Programming Language :: Python :: 3.3
-Programming Language :: Python :: 3.4
+Programming Language :: Python :: 3
 Topic :: Scientific/Engineering
 Topic :: Software Development
 """

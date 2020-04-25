@@ -1,0 +1,61 @@
+
+name: oct2py
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # Run weekly
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 0 * * 0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Octave
+      run: |
+        sudo apt-get install -qq octave octave-signal liboctave-dev
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        make install
+    - name: Run test
+      run: |
+        make test
+    - name: Generate Docs
+      run: |
+        make docs
+    - name: Make sure the package is release-able
+      run: |
+         make release_prep
+    - name: Generate coverage report
+      run: |
+        make cover
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true

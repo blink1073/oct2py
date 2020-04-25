@@ -101,6 +101,7 @@ class TestUsage:
         test.eggs.spam = 'eggs'
         assert test['spam'] == 'eggs'
         assert test['eggs']['spam'] == 'eggs'
+        test["foo"] = Struct()
         test["foo"]["bar"] = 10
         assert test.foo.bar == 10
         p = pickle.dumps(test)
