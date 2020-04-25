@@ -8,6 +8,12 @@ KILL_PROC="from ${NAME} import kill_octave; kill_octave()"
 all: clean
 	python setup.py install
 
+
+install: clean
+	pip install -e .[docs,test]
+	octave --eval "pkg install -forge control"
+	octave --eval "pkg install -forge signal"
+
 clean:
 	rm -rf build
 	rm -rf dist

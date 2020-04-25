@@ -140,7 +140,7 @@ class TestMisc:
         series = pd.Series(data)
         self.oc.push('x', series)
         assert np.allclose(data, self.oc.pull('x'))
-    
+
     def test_panda_dataframe(self):
         data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         df = pd.DataFrame(data,
@@ -186,9 +186,9 @@ class TestMisc:
 
     def test_timeout(self):
         with Oct2Py(timeout=2) as oc:
-            oc.sleep(2.1, timeout=5, nout=0)
+            oc.pause(2.1, timeout=5, nout=0)
             with pytest.raises(Oct2PyError):
-                oc.sleep(3, nout=0)
+                oc.pause(3, nout=0)
 
     def test_call_path(self):
         with Oct2Py() as oc:
