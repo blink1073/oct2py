@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+5.1.0 (2020-04-25)
+++++++++++++++++++
+- FIX: no-OUT-args check was destroying original error location and was hiding similar user-errors (#161)
+
 5.0.0 (2019-05-03)
 ++++++++++++++++++
 - Removed the ``executable`` argument to ``Oct2Py`` in favor of using
