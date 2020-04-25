@@ -36,10 +36,10 @@ release_prep: clean
 	git commit -a -m "Release ${VERSION}"; true
 	python setup.py bdist_wheel --universal
 	python setup.py sdist
-	git tag v${VERSION}
 	twine check dist/*
 
 release: release_prep
+	git tag v${VERSION}
 	git push origin --all
 	git push origin --tags
 	twine upload dist/*
