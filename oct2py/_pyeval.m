@@ -56,8 +56,9 @@ try
       try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
       catch ME
-        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1)
-          error(ME);
+        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1 ||
+            length(ME.stack) != 1)
+          rethrow(ME);
         else
           result = get_ans(sentinel);
         end
@@ -65,7 +66,15 @@ try
       end
 
     else
+      try
         [result{1:req.nout}] = feval(req.func_name);
+      catch ME
+          rethrow(ME);
+        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1 ||
+            length(ME.stack) != 1)
+          rethrow(ME);
+        end
+      end
     end
 
     if req.store_as
