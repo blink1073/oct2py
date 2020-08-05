@@ -14,3 +14,4 @@ example/.ipynb_checkpoints/
 .DS_Store
 .pytest_cache
 coverage.xml
+.vscode/

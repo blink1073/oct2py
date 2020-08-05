@@ -236,6 +236,12 @@ class TestUsage:
         with pytest.raises(Oct2PyError):
             self.oc.get_pointer('foo123')
 
+    def test_get_max_nout(self):
+        self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
+        here = os.path.dirname(__file__)
+        max_nout = self.oc._get_max_nout(os.path.join(here, 'roundtrip.m'))
+        assert max_nout == 2
+
     def test_feval(self):
         self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
         a = self.oc.feval('ones', 3)
