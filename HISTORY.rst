@@ -3,6 +3,10 @@
 Release History
 ---------------
 
+5.2.0 (2020-08-05)
+++++++++++++++++++
+- Add _get_max_nout and alternative nout mode using 'max_nout' (#170)
+
 5.1.0 (2020-04-25)
 ++++++++++++++++++
 - FIX: no-OUT-args check was destroying original error location and was hiding similar user-errors (#161)
