@@ -25,9 +25,37 @@ MAT files.  Usage is as simple as:
      [ 0.  0.  0.]] float64
     ...
 
+To run .m function, you need to explicitly add the path to .m file using:
+
+.. code-block:: python
+
+    >>> from oct2py import import octave
+    >>> # to add a folder use:
+    >>> octave.addpath('/path/to/directory')
+    >>> # to add folder with all subfolder in it use:
+    >>> octave.addpath(octave.genpath('/path/to/directory'))
+    ...
+
+To get the output of .m file after setting the path, use:
+
+.. code-block:: python
+
+    >>> x = np.array([[1, 2], [3, 4]], dtype=float)
+    >>> #use nout='max_nout' to automatically choose max possible nout
+    >>> out, oclass = octave.roundtrip(x,nout=2)
+    >>> import pprint
+    >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])
+    [array([[1., 2.],
+            [3., 4.]]),
+        dtype('float64'),
+        array([[1., 2.],
+            [3., 4.]]),
+        'double',
+        dtype('<f8')]
+    ...
+
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
-
 
 Features
 --------

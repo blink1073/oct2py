@@ -275,8 +275,9 @@ class Oct2Py(object):
             Name of function to run or a path to an m-file.
         func_args: object, optional
             Args to send to the function.
-        nout: int, optional
-            Desired number of return arguments, defaults to 1.
+        nout: int or str, optional. 
+            Desired number of return arguments, defaults to 1. If nout 
+            value is 'max_nout', get_max_nout() will be used.
         store_as: str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
@@ -342,6 +343,8 @@ class Oct2Py(object):
         nout = kwargs.get('nout', None)
         if nout is None:
             nout = 1
+        elif nout == 'max_nout':
+            nout = self._get_max_nout(func_path)
 
         plot_dir = kwargs.get('plot_dir')
 
@@ -743,3 +746,31 @@ class Oct2Py(object):
         setattr(self, attr, obj)
 
         return obj
+
+    def _get_max_nout(self, func_path):
+        """Get or count maximum nout of .m function."""
+        
+        if not osp.isabs(func_path):
+            func_path = self.which(func_path)
+
+        nout = 0
+        status = 'NOT FUNCTION'
+        with open(func_path, encoding='utf8') as f:
+            for l in f: 
+                if l[0] != 'f': #not function
+                    if status == 'NOT FUNCTION':
+                        continue
+                l = l.translate(str.maketrans('', '', '[]()')).split()
+                try:
+                    l.remove('function')
+                except:
+                    pass
+                for s in l:
+                    if s == '...':
+                        status = 'FUNCTION'
+                        continue
+                    if s != '=':
+                        nout += 1
+                    else:
+                        return nout
+        return nout
