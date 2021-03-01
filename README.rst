@@ -29,11 +29,13 @@ To run .m function, you need to explicitly add the path to .m file using:
 
 .. code-block:: python
 
-    >>> from oct2py import import octave
+    >>> from oct2py import octave
     >>> # to add a folder use:
     >>> octave.addpath('/path/to/directory')
     >>> # to add folder with all subfolder in it use:
     >>> octave.addpath(octave.genpath('/path/to/directory'))
+    >>> # to run the .m file :
+    >>> octave.run('fileName.m')
     ...
 
 To get the output of .m file after setting the path, use:
