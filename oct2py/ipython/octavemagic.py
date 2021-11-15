@@ -253,7 +253,7 @@ class OctaveMagics(Magics):
         plot_dir = None if args.gui else tempfile.mkdtemp()
 
         temp_dir = args.temp_dir
-        if not os.path.isdir(temp_dir)
+        if temp_dir is not None and not os.path.isdir(temp_dir):
             temp_dir = None
 
         # match current working directory

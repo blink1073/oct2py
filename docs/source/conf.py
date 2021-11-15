@@ -37,15 +37,12 @@ source_suffix = '.rst'
 # The encoding of source files.
 source_encoding = 'utf-8'
 
-# The master toctree document.
-master_doc = 'index'
-
 # General information about the project.
 project = u'Oct2Py'
 copyright = u'2011 - {today.year}, Oct2Py contributors'.format(today=datetime.date.today())
 
 import os
-_version_py = os.path.join('..', 'oct2py', '_version.py')
+_version_py = os.path.join('..', '..', 'oct2py', '_version.py')
 version_ns = {}
 
 with open(_version_py, mode='r') as version_file:
@@ -119,7 +116,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['source/static']
+html_static_path = ['static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.

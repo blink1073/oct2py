@@ -1,43 +1,43 @@
 
-.. include:: ../README.rst
+.. include:: ../../README.rst
    :end-before:  Installation
-   
+
 .. toctree::
    :hidden:
    :maxdepth: 1
 
-   source/installation
-   source/demo
-   source/examples
-   source/conversions
-   source/api
-   source/info
+   installation
+   demo
+   examples
+   conversions
+   api
+   info
 
-`API Reference <source/api.html>`_
+:doc:`API Reference <./api>`
 ------------------------------------------------
 
 Documentation for the functions included in Oct2Py.
 
 
-`Installation <source/installation.html>`_
+:doc:`Installation <./installation>`
 ------------------------------------------------
 
 How to install Oct2Py.
 
 
-`Examples <source/examples.html>`_
+:doc:`Examples <./examples>`
 ------------------------------------------------
 
 Introductory examples.
-       
-       
-`Type Conversions <source/conversions.html>`_
+
+
+:doc:`Type Conversions <./conversions>`
 ------------------------------------------------
-   
+
 Oct2Py data type conversions.
 
 
-`Information <source/info.html>`_
+:doc:`Information <./info>`
 -----------------------------------------
 
 Other information about Oct2Py.
