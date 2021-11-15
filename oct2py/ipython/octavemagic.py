@@ -254,7 +254,7 @@ class OctaveMagics(Magics):
 
         temp_dir = args.temp_dir
         if not os.path.isdir(temp_dir)
-            temp_dir = tempfile.mkdtemp(prefix="oct2py_temp_dir")
+            temp_dir = None
 
         # match current working directory
         self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
