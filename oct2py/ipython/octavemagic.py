@@ -261,7 +261,7 @@ class OctaveMagics(Magics):
         value = self._oct.eval(code, stream_handler=self._publish,
             plot_dir=plot_dir, plot_width=width, plot_height=height,
             plot_format=args.format, plot_name='__ipy_oct_fig_',
-            resolution=args.resolution,temp_dir=temp_dir)
+            resolution=args.resolution, temp_dir=temp_dir)
 
         # Publish output
         if args.output:
