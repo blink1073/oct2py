@@ -165,6 +165,10 @@ class OctaveMagics(Magics):
         '-r', '--resolution', type=int, action='store',
         help='The resolution of the plot in pixels per inch'
     )
+    @argument(
+        '-t', '--temp_dir', type=str, action='store',
+        help='The directory to write variables for conversion between Octave and Python'
+    )
     @needs_local_scope
     @argument(
         'code',
@@ -248,12 +252,16 @@ class OctaveMagics(Magics):
 
         plot_dir = None if args.gui else tempfile.mkdtemp()
 
+        temp_dir = args.temp_dir
+        if not os.path.isdir(temp_dir)
+            temp_dir = None
+
         # match current working directory
         self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
         value = self._oct.eval(code, stream_handler=self._publish,
             plot_dir=plot_dir, plot_width=width, plot_height=height,
             plot_format=args.format, plot_name='__ipy_oct_fig_',
-            resolution=args.resolution)
+            resolution=args.resolution, temp_dir=temp_dir)
 
         # Publish output
         if args.output:
