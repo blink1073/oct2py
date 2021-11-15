@@ -3,6 +3,13 @@
 Release History
 ---------------
 
+5.3.0 (2021-11-15)
+++++++++++++++++++
+- Update README.rst by @pooyaEst in https://github.com/blink1073/oct2py/pull/181
+- Added the option to specify temp_dir by @adityaapte in https://github.com/blink1073/oct2py/pull/192
+- Update CI by @blink1073 in https://github.com/blink1073/oct2py/pull/193
+- Update docs to fix build by @blink1073 in https://github.com/blink1073/oct2py/pull/194
+
 5.2.0 (2020-08-05)
 ++++++++++++++++++
 - Add _get_max_nout and alternative nout mode using 'max_nout' (#170)
