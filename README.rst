@@ -17,6 +17,7 @@ MAT files.  Usage is as simple as:
 
 .. code-block:: python
 
+    >>> import oct2py
     >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
     >>> print(x, x.dtype)
