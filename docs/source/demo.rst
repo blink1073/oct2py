@@ -18,7 +18,7 @@ To run interactively:
     >>> oc = Oct2Py()
     >>> # basic commands
     >>> print(oc.abs(-1))
-    1
+    1.0
     >>> print(oc.upper('xyz'))
     XYZ
     >>> # plotting
