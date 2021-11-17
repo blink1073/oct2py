@@ -9,9 +9,13 @@ import dis
 import threading
 
 import numpy as np
-from scipy.io import loadmat, savemat
-from scipy.io.matlab.mio5 import MatlabObject, MatlabFunction
-from scipy.sparse import spmatrix
+
+try:
+    from scipy.io import loadmat, savemat
+    from scipy.io.matlab.mio5 import MatlabObject, MatlabFunction
+    from scipy.sparse import spmatrix
+except ImportError:
+    pass
 
 try:
     from pandas import Series, DataFrame

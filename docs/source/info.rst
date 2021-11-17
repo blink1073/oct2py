@@ -12,9 +12,9 @@ functions.  For example:
 
     >>> from oct2py import octave
     >>> octave.ones(3)
-    array([[ 1.,  1.,  1.],
-       [ 1.,  1.,  1.],
-       [ 1.,  1.,  1.]])
+    array([[1.,  1.,  1.],
+       [1.,  1.,  1.],
+       [1.,  1.,  1.]])
 
 
 If you pass keyword arguments to the function, they will be treated as
@@ -26,7 +26,8 @@ Additionally, you can look up the documentation for one of these methods using
 
 .. code-block:: python
 
-    >>> help(octave.ones)
+    >>> from oct2py import octave
+    >>> help(octave.ones)   # doctest: +SKIP
     'ones' is a built-in function
     ...
 
@@ -46,7 +47,7 @@ you were using logging).
     >>> from oct2py import octave
     >>> octave.push('a', 1)
     >>> octave.pull('a')
-    1
+    1.0
 
 
 Using M-Files
@@ -59,12 +60,12 @@ Alternatively, you can call `feval` with the full path.
 .. code-block:: python
 
     >>> from oct2py import octave
-    >>> octave.addpath('/path/to/')
-    >>> octave.myscript(1, 2)
+    >>> octave.addpath('/path/to/')  # doctest: +SKIP
+    >>> octave.myscript(1, 2)  # doctest: +SKIP
     >>> # or
-    >>> octave.eval("myscript(1, 2)")
+    >>> octave.eval("myscript(1, 2)") # doctest: +SKIP
     >>> # as feval
-    >>> octave.feval('/path/to/myscript', 1, 2)
+    >>> octave.feval('/path/to/myscript', 1, 2) # doctest: +SKIP
 
 
 Direct Interaction
@@ -100,7 +101,7 @@ you must add a trailing underscore. For example:
 
     >>> from oct2py import octave
     >>> octave.eval_('a=1')
-    'a =  1'
+    1.0
 
 The methods that shadow Octave builtins are: `exit` and `eval`.
 
@@ -118,8 +119,8 @@ timeout.
 
     >>> from oct2py import octave
     >>> octave.timeout = 3
-    >>> octave.sleep(2)
-    >>> octave.sleep(2, timeout=1)
+    >>> octave.sleep(2)   # doctest: +SKIP
+    >>> octave.sleep(2, timeout=1)   # doctest: +SKIP
     Traceback (most recent call last):
     ...
     oct2py.utils.Oct2PyError: Session timed out
@@ -133,10 +134,10 @@ not to work on some systems.  To change toolkits:
 .. code-block:: python
 
     >>> from oct2py import octave
-    >>> octave.available_graphics_toolkits()
-    [u'fltk', u'gnuplot']
-    >>> octave.graphics_toolkit('fltk')
-
+    >>> octave.available_graphics_toolkits()   # doctest: +SKIP
+    ['fltk', 'gnuplot']
+    >>> octave.graphics_toolkit('fltk')  # doctest: +SKIP
+    'fltk'
 
 Context Manager
 ===============
@@ -146,8 +147,8 @@ temporary m-files will be deleted when the Context Manager exits.
 .. code-block:: python
 
     >>> from oct2py import Oct2Py
-    >>> with Oct2Py() as oc:
-    >>>     oc.ones(10)
+    >>> with Oct2Py() as oc:   # doctest: +SKIP
+    >>>     oc.ones(10)        # doctest: +SKIP
 
 
 Structs
@@ -186,7 +187,7 @@ machine, run:
 .. code-block:: python
 
     >>> import oct2py
-    >>> oct2py.speed_check()
+    >>> oct2py.speed_check()   # doctest: +SKIP
 
 
 Threading

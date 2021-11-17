@@ -17,7 +17,7 @@ if PY2:
     from StringIO import StringIO
     import Queue as queue
     input = raw_input
-    
+
 else:  # pragma : no cover
     unicode = str
     string_types = str
@@ -39,10 +39,13 @@ def handler(sig):
     return 1
 
 # This import installs the fortran ctrl+c handler
-import scipy.stats
-if os.name == 'nt':
-    routine = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)(handler)
-    ctypes.windll.kernel32.SetConsoleCtrlHandler(routine, 1)
+try:
+    import scipy.stats
+    if os.name == 'nt':
+        routine = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)(handler)
+        ctypes.windll.kernel32.SetConsoleCtrlHandler(routine, 1)
+except ImportError:
+    pass
 
 # End override for the ctrl+c handler
 ###########################

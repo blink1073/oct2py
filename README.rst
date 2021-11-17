@@ -17,13 +17,13 @@ MAT files.  Usage is as simple as:
 
 .. code-block:: python
 
+    >>> import oct2py
     >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
     >>> print(x, x.dtype)
-    [[ 0.  0.  0.]
-     [ 0.  0.  0.]
-     [ 0.  0.  0.]] float64
-    ...
+    [[0. 0. 0.]
+     [0. 0. 0.]
+     [0. 0. 0.]] float64
 
 To run .m function, you need to explicitly add the path to .m file using:
 
@@ -31,22 +31,24 @@ To run .m function, you need to explicitly add the path to .m file using:
 
     >>> from oct2py import octave
     >>> # to add a folder use:
-    >>> octave.addpath('/path/to/directory')
+    >>> octave.addpath('/path/to/directory')  # doctest: +SKIP
     >>> # to add folder with all subfolder in it use:
-    >>> octave.addpath(octave.genpath('/path/to/directory'))
+    >>> octave.addpath(octave.genpath('/path/to/directory'))  # doctest: +SKIP
     >>> # to run the .m file :
-    >>> octave.run('fileName.m')
-    ...
+    >>> octave.run('fileName.m')  # doctest: +SKIP
 
 To get the output of .m file after setting the path, use:
 
 .. code-block:: python
 
+    >>> import numpy as np
+    >>> from oct2py import octave
     >>> x = np.array([[1, 2], [3, 4]], dtype=float)
     >>> #use nout='max_nout' to automatically choose max possible nout
-    >>> out, oclass = octave.roundtrip(x,nout=2)
-    >>> import pprint
-    >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])
+    >>> octave.addpath('./example')  # doctest: +SKIP
+    >>> out, oclass = octave.roundtrip(x,nout=2)  # doctest: +SKIP
+    >>> import pprint  # doctest: +SKIP
+    >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])  # doctest: +SKIP
     [array([[1., 2.],
             [3., 4.]]),
         dtype('float64'),
@@ -54,7 +56,6 @@ To get the output of .m file after setting the path, use:
             [3., 4.]]),
         'double',
         dtype('<f8')]
-    ...
 
 If you want to run legacy m-files, do not have MATLAB®, and do not fully
 trust a code translator, this is your library.
@@ -106,8 +107,8 @@ Documentation
 
 Documentation is available online_.
 
-For version information, see the Revision History_.
+For version information, see the Changelog_.
 
 .. _online: https://oct2py.readthedocs.io/en/latest/
 
-.. _History: https://github.com/blink1073/oct2py/blob/master/HISTORY.rst
+.. _Changelog: https://github.com/blink1073/oct2py/blob/master/CHANGELOG.md

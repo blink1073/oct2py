@@ -19,7 +19,7 @@ Octave path, can be called like any other Octave function.
 To explicitly add to the path, use::
 
    >>> from oct2py import octave
-   >>> octave.addpath('/path/to/directory')
+   >>> octave.addpath('/path/to/directory')  # doctest: +SKIP
 
 to add the directory in which your m-file is located to Octave's path.
 
@@ -47,9 +47,9 @@ Python Session
    >>> import numpy as np
    >>> x = np.array([[1, 2], [3, 4]], dtype=float)
    >>> #use nout='max_nout' to automatically choose max possible nout
-   >>> out, oclass = octave.roundtrip(x,nout=2)
-   >>> import pprint
-   >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])
+   >>> out, oclass = octave.roundtrip(x,nout=2)   # doctest: +SKIP
+   >>> import pprint   # doctest: +SKIP
+   >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])   # doctest: +SKIP
    [array([[1., 2.],
           [3., 4.]]),
     dtype('float64'),
@@ -161,9 +161,9 @@ Python Session
 ::
 
    >>> from oct2py import octave
-   >>> out = octave.test_dataypes()
-   >>> import pprint
-   >>> pprint.pprint(out)
+   >>> out = octave.test_dataypes() # doctest: +SKIP
+   >>> import pprint  # doctest: +SKIP
+   >>> pprint.pprint(out)  # doctest: +SKIP
    {'cell': {'array': Cell([array([[ 0.4194,  0.3629, -0.    ],
          [ 0.0376,  0.3306,  0.    ],
          [ 0.    ,  0.    ,  1.    ]]),
