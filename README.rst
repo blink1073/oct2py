@@ -21,9 +21,9 @@ MAT files.  Usage is as simple as:
     >>> oc = oct2py.Oct2Py()
     >>> x = oc.zeros(3,3)
     >>> print(x, x.dtype)
-    [[ 0. 0. 0.]
-     [ 0. 0. 0.]
-     [ 0. 0. 0.]] float64
+    [[0. 0. 0.]
+     [0. 0. 0.]
+     [0. 0. 0.]] float64
     ...
 
 To run .m function, you need to explicitly add the path to .m file using:
