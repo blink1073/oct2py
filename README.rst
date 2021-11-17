@@ -17,9 +17,9 @@ MAT files.  Usage is as simple as:
 
 .. code-block:: python
 
-    >>> oc = oct2py.Oct2Py()  # doctest: +SKIP
-    >>> x = oc.zeros(3,3)  # doctest: +SKIP
-    >>> print(x, x.dtype)  # doctest: +SKIP
+    >>> oc = oct2py.Oct2Py()
+    >>> x = oc.zeros(3,3)
+    >>> print(x, x.dtype)
     [[ 0.  0.  0.]
      [ 0.  0.  0.]
      [ 0.  0.  0.]] float64
@@ -29,24 +29,24 @@ To run .m function, you need to explicitly add the path to .m file using:
 
 .. code-block:: python
 
-    >>> from oct2py import octave  # doctest: +SKIP
+    >>> from oct2py import octave
     >>> # to add a folder use:
-    >>> octave.addpath('/path/to/directory')  # doctest: +SKIP
+    >>> octave.addpath('/path/to/directory')
     >>> # to add folder with all subfolder in it use:
-    >>> octave.addpath(octave.genpath('/path/to/directory'))  # doctest: +SKIP
+    >>> octave.addpath(octave.genpath('/path/to/directory'))
     >>> # to run the .m file :
-    >>> octave.run('fileName.m')  # doctest: +SKIP
+    >>> octave.run('fileName.m')
     ...
 
 To get the output of .m file after setting the path, use:
 
 .. code-block:: python
 
-    >>> x = np.array([[1, 2], [3, 4]], dtype=float)  # doctest: +SKIP
+    >>> x = np.array([[1, 2], [3, 4]], dtype=float)
     >>> #use nout='max_nout' to automatically choose max possible nout
-    >>> out, oclass = octave.roundtrip(x,nout=2)  # doctest: +SKIP
-    >>> import pprint  # doctest: +SKIP
-    >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])  # doctest: +SKIP
+    >>> out, oclass = octave.roundtrip(x,nout=2)
+    >>> import pprint
+    >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])
     [array([[1., 2.],
             [3., 4.]]),
         dtype('float64'),
