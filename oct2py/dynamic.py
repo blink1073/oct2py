@@ -9,7 +9,11 @@ import warnings
 import weakref
 
 import numpy as np
-from scipy.io.matlab.mio5 import MatlabObject
+
+try:
+    from scipy.io.matlab.mio5 import MatlabObject
+except ImportError:
+    pass
 
 from .compat import PY2
 

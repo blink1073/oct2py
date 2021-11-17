@@ -1,6 +1,11 @@
 include *.txt
 include *.rst
 include Makefile
+include *.md
+include *.yml
+include .coveragerc
+include pytest.ini
+
 recursive-include docs *.rst
 recursive-include docs *.png
 recursive-include docs *.py
@@ -10,6 +15,12 @@ recursive-include example *.py
 recursive-include example *.ipynb
 recursive-include numpydoc *.py
 recursive-include licenses *.txt
+recursive-include docs *.bat
+recursive-include docs *.html
+recursive-include docs *.yml
+recursive-include docs Makefile
+recursive-include oct2py *.txt
+
 prune .git
 prune docs/_build
 prune dist
