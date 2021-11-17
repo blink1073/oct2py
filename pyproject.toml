@@ -1,9 +1,12 @@
 [build-system]
-requires = ["setuptools>=46.4.0", "wheel", "packaging", "numpy", "octave_kernel"]
+requires = ["setuptools>=46.4.0", "wheel", "packaging", "numpy", "octave_kernel"ode]
 build-backend = "setuptools.build_meta"
 
 [tool.jupyter-releaser]
 skip = ["check-links"]
+
+[tool.jupyter-releaser.options]
+ignore-glob = ["docs/source/examples.rst"]
 
 [tool.tbump.version]
 current = "5.2.0"
