@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=46.4.0", "wheel", "packaging", "numpy", "octave_kernel"ode]
+requires = ["setuptools>=46.4.0", "wheel", "packaging", "numpy", "octave_kernel"]
 build-backend = "setuptools.build_meta"
 
 [tool.jupyter-releaser]
