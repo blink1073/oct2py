@@ -41,6 +41,8 @@ To get the output of .m file after setting the path, use:
 
 .. code-block:: python
 
+    >>> import numpy as np
+    >>> from oct2py import octave
     >>> x = np.array([[1, 2], [3, 4]], dtype=float)
     >>> #use nout='max_nout' to automatically choose max possible nout
     >>> out, oclass = octave.roundtrip(x,nout=2)

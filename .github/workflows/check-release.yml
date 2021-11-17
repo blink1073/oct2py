@@ -39,9 +39,6 @@ jobs:
           key: ${{ runner.os }}-linkcheck-${{ hashFiles('**/*.md', '**/*.rst') }}-md-links
           restore-keys: |
             ${{ runner.os }}-linkcheck-
-      - name: Install Octave
-        run: |
-          sudo apt-get install -qq octave octave-signal liboctave-dev
       - name: Upgrade packaging dependencies
         run: |
           pip install --upgrade pip setuptools wheel --user
