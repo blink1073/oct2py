@@ -250,7 +250,10 @@ class OctaveMagics(Magics):
         if args.size is not None:
             width, height = [int(s) for s in args.size.split(',')]
 
-        plot_dir = None if args.gui else tempfile.mkdtemp()
+        plot_dir = None
+        if args.gui is not None:
+            plot_dir_obj = tempfile.TemporaryDirectory()
+            plot_dir = plot_dir_obj.name
 
         temp_dir = args.temp_dir
         if temp_dir is not None and not os.path.isdir(temp_dir):

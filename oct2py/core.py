@@ -69,7 +69,11 @@ class Oct2Py(object):
         self.logger = logger
         self.timeout = timeout
         self.backend = backend or 'default'
-        self.temp_dir = temp_dir or tempfile.mkdtemp()
+        if temp_dir is None:
+            self.temp_dir_obj = tempfile.TemporaryDirectory()
+            self.temp_dir = self.temp_dir_obj.name
+        else:
+            self.temp_dir = temp_dir
         self.convert_to_float = convert_to_float
         self._user_classes = dict()
         self._function_ptrs = dict()
