@@ -136,7 +136,7 @@ not to work on some systems.  To change toolkits:
     >>> from oct2py import octave
     >>> octave.available_graphics_toolkits()   # doctest: +SKIP
     ['fltk', 'gnuplot']
-    >>> octave.graphics_toolkit('fltk')
+    >>> octave.graphics_toolkit('fltk')  # doctest: +SKIP
     'fltk'
 
 Context Manager
