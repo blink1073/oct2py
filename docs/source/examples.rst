@@ -161,9 +161,9 @@ Python Session
 ::
 
    >>> from oct2py import octave
-   >>> out = octave.test_dataypes()
-   >>> import pprint
-   >>> pprint.pprint(out)
+   >>> out = octave.test_dataypes() # doctest: +SKIP
+   >>> import pprint  # doctest: +SKIP
+   >>> pprint.pprint(out)  # doctest: +SKIP
    {'cell': {'array': Cell([array([[ 0.4194,  0.3629, -0.    ],
          [ 0.0376,  0.3306,  0.    ],
          [ 0.    ,  0.    ,  1.    ]]),
