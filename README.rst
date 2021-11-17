@@ -45,7 +45,7 @@ To get the output of .m file after setting the path, use:
     >>> from oct2py import octave
     >>> x = np.array([[1, 2], [3, 4]], dtype=float)
     >>> #use nout='max_nout' to automatically choose max possible nout
-    >>> octave.addpath('./example')
+    >>> octave.addpath('./example', quiet=True)
     >>> out, oclass = octave.roundtrip(x,nout=2)
     >>> import pprint
     >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])
