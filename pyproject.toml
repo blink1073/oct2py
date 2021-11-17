@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [tool.jupyter-releaser]
 skip = ["check-links"]
 
+[tool.jupyter-releaser.hooks]
+before-build-python = ["sudo apt-get install -qq octave octave-signal liboctave-dev"]
+
 [tool.jupyter-releaser.options]
 ignore-glob = ["docs/source/*.rst"]
 
