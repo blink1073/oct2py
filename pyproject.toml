@@ -28,6 +28,6 @@ name = "serial"
 default = 0
 
 [tool.pytest.ini_options]
-testpaths = oct2py
-addopts = --doctest-modules
-doctest_optionflags = NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL
+testpaths = "oct2py"
+addopts = "--doctest-modules"
+doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
