@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 skip = ["check-links"]
 
 [tool.jupyter-releaser.options]
-ignore-glob = ["docs/source/examples.rst"]
+ignore-glob = ["docs/source/examples.rst", "docs/source/demo.rst"]
 
 [tool.tbump.version]
 current = "5.2.0"
