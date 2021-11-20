@@ -147,9 +147,10 @@ temporary m-files will be deleted when the Context Manager exits.
 .. code-block:: python
 
     >>> from oct2py import Oct2Py
-    >>> with Oct2Py() as oc:   # doctest: +SKIP
-    >>>     oc.ones(10)        # doctest: +SKIP
-
+    >>> with Oct2Py() as oc:  # doctest:+ELLIPSIS
+    ...     oc.ones(10)
+    array([[1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
+    ...
 
 Structs
 =======
@@ -187,7 +188,9 @@ machine, run:
 .. code-block:: python
 
     >>> import oct2py
-    >>> oct2py.speed_check()   # doctest: +SKIP
+    >>> oct2py.speed_check()  # doctest:+ELLIPSIS
+    Oct2Py speed test
+    ...
 
 
 Threading

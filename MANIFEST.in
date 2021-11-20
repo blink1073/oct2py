@@ -10,9 +10,8 @@ recursive-include docs *.rst
 recursive-include docs *.png
 recursive-include docs *.py
 recursive-include oct2py *.m
-recursive-include example *.m
-recursive-include example *.py
-recursive-include example *.ipynb
+recursive-include oct2py *.py
+recursive-include octpy2 *.ipynb
 recursive-include numpydoc *.py
 recursive-include licenses *.txt
 recursive-include docs *.bat

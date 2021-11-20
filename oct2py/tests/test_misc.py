@@ -251,9 +251,10 @@ class TestMisc:
         self.oc.logger.removeHandler(hdlr)
         assert ans == 4
         lines = text.splitlines()
-        assert lines[-1] == 'ans =  4'
-        assert lines[-2] == 'b =  3'
-        assert lines[-3] == 'a =  1'
+        lines = [l.replace('  ', ' ') for l in lines]
+        assert lines[-1] == 'ans = 4'
+        assert lines[-2] == 'b = 3'
+        assert lines[-3] == 'a = 1'
 
     def test_empty_values(self):
         self.oc.push('a', '')

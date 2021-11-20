@@ -256,7 +256,7 @@ class TestUsage:
         c = self.oc.feval('ones', ptr)
         assert np.allclose(c, np.ones((3, 3)))
 
-        p = self.oc.polynomial([1, 2, 3])
+        p = self.oc.polynomial(np.array([1, 2, 3]))
         poly = self.oc.feval('get', p, 'poly')
         assert np.allclose(poly, [1, 2, 3])
 
@@ -267,10 +267,11 @@ class TestUsage:
         self.oc.feval('evalin', 'base', 'disp(1);disp(2);disp(3)',
                       nout=0,
                       stream_handler=lines.append)
-        assert lines == [' 1', ' 2', ' 3'], lines
+        lines = [l.strip() for l in lines]
+        assert lines == ['1', '2', '3'], lines
 
-        val = self.oc.feval('svd', [[1, 2], [1, 3]])
-        u, v, d = self.oc.feval('svd', [[1, 2], [1, 3]], nout=3)
+        val = self.oc.feval('svd', np.array([[1, 2], [1, 3]]))
+        u, v, d = self.oc.feval('svd', np.array([[1, 2], [1, 3]]), nout=3)
         assert isinstance(val, np.ndarray)
         assert isinstance(u, np.ndarray)
 
@@ -286,7 +287,8 @@ class TestUsage:
         self.oc.eval('disp(1);disp(2);disp(3)',
                      nout=0,
                      stream_handler=lines.append)
-        assert lines == [' 1', ' 2', ' 3'], lines
+        lines = [l.strip() for l in lines]
+        assert lines == ['1', '2', '3'], lines
 
         a = self.oc.eval(['zeros(3);', 'ones(3);'])
         assert np.allclose(a, np.ones((3, 3)))
@@ -304,10 +306,8 @@ class TestUsage:
         with pytest.raises(Oct2PyError) as exec_info:
             self.oc.source(os.path.join(here, 'script_error.m'))
         msg = str(exec_info.value)
-        assert msg == (
-            "Octave evaluation error:\nerror: "
-            "'b' undefined near line 2 column 3\nerror: called from:\n    script_error at line 2, column 2"
-        )
+        assert 'Octave evaluation error:' in msg
+        assert 'error: called from:' in msg
 
     @pytest.mark.parametrize("fn", [
         "pyeval_like_error%s" % i for i in range(4)

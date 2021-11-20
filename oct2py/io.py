@@ -349,7 +349,7 @@ def _encode(data, convert_to_float):
     # Lists can be interpreted as numeric arrays or cell arrays.
     if isinstance(data, list):
         if _is_simple_numeric(data):
-            return _encode(np.array(data), ctf)
+            return _encode(np.array(data, dtype=object), ctf)
         return _encode(tuple(data), ctf)
 
     # Tuples are handled as cells.
