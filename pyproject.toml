@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 skip = ["check-links"]
 
 [tool.jupyter-releaser.hooks]
-before-build-python = ["sudo apt-get install -qq octave octave-signal liboctave-dev"]
-before-check-links = ["sudo apt-get install -qq octave octave-signal liboctave-dev"]
+before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
+before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
 
 [tool.tbump.version]
 current = "5.2.0"
