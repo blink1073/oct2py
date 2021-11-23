@@ -527,11 +527,6 @@ class Oct2Py(object):
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, '/'))
 
-    def add_examples(self):
-        """Add the example functions to the current namespace"""
-        examples = osp.join(HERE, 'examples').replace(os.sep, '/')
-        self._engine.eval('addpath("%s");' % examples)
-
     def _feval(self, func_name, func_args=(), dname='', nout=0,
               timeout=None, stream_handler=None, store_as='', plot_dir=None):
         """Run the given function with the given args.
