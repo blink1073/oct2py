@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.4.1
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.0...9246b150c0682e1a89abbd99f8e811294a901877))
+
+### Bugs fixed
+
+- Fix setup fields [#205](https://github.com/blink1073/oct2py/pull/205) ([@blink1073](https://github.com/blink1073))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-04&to=2022-01-04&type=c))
+
+[@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-01-04..2022-01-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.4.0
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.3.0...e71a6fa46f17ab80f8e52be75d86d90317f14ee4))
@@ -15,8 +31,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2021-11-15&to=2022-01-04&type=c))
 
 [@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2021-11-15..2022-01-04&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.3.0 (2021-11-15)
 
