@@ -23,13 +23,13 @@ clean:
 
 test: clean
 	pip install -q pytest
-	export PYTHONWARNINGS="all"; py.test
+	export PYTHONWARNINGS="all"; py.test --doctest-modules
 	make clean
 	jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
 
 cover: clean
 	pip install -q pytest codecov pytest-cov
-	py.test -l --cov-report html --cov-report=xml --cov=${NAME}
+	py.test --doctest-modules -l --cov-report html --cov-report=xml --cov=${NAME}
 
 release_prep: clean
 	pip install -q wheel twine
