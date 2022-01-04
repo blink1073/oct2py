@@ -43,7 +43,7 @@ jobs:
          make release_prep
     - name: Generate coverage report
       run: |
-        make cover
+        xvfb-run --auto-servernum make cover
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
