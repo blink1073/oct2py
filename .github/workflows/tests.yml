@@ -3,9 +3,9 @@ name: oct2py
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   schedule:
     # Run weekly
     # * is a special character in YAML so you have to quote this string
