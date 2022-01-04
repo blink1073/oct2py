@@ -128,16 +128,15 @@ timeout.
 
 Graphics Toolkit
 ================
-Oct2Py uses the `gnuplot` graphics toolkit by default.  Fltk has been known
-not to work on some systems.  To change toolkits:
+Oct2Py uses the `qt` graphics toolkit by default.  To change toolkits:
 
 .. code-block:: python
 
     >>> from oct2py import octave
     >>> octave.available_graphics_toolkits()   # doctest: +SKIP
-    ['fltk', 'gnuplot']
-    >>> octave.graphics_toolkit('fltk')  # doctest: +SKIP
-    'fltk'
+    ['qt', 'gnuplot']
+    >>> octave.graphics_toolkit('gnuplot')  # doctest: +SKIP
+    'gnuplot'
 
 Context Manager
 ===============
@@ -206,7 +205,7 @@ IPython Notebook
 Oct2Py provides OctaveMagic_ for IPython, including inline plotting in
 notebooks.  This requires IPython >= 1.0.0.
 
-.. _OctaveMagic: http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+.. _OctaveMagic: http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1
 
 
 

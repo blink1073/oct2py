@@ -4,8 +4,8 @@ Oct2Py: Python to GNU Octave Bridge
 .. image:: https://badge.fury.io/py/oct2py.png/
     :target: http://badge.fury.io/py/oct2py
 
-.. image:: https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=master
-  :target: https://codecov.io/github/blink1073/oct2py?branch=master
+.. image:: https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=main
+  :target: https://codecov.io/github/blink1073/oct2py?branch=main
 
 .. image:: http://pepy.tech/badge/oct2py
    :target: http://pepy.tech/project/oct2py
@@ -75,14 +75,14 @@ Features
 - Optional timeout command parameter to prevent runaway Octave sessions.
 
 
-.. _OctaveMagic: https://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+.. _OctaveMagic: https://nbviewer.jupyter.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1
 
 
 Installation
 ------------
 You must have GNU Octave installed and in your ``PATH`` environment variable.
 Alternatively, you can set an ``OCTAVE_EXECUTABLE`` or ``OCTAVE`` environment
-variable that points to ``octave-cli`` executable itself.
+variable that points to ``octave`` executable itself.
 
 You must have the Numpy and Scipy libraries for Python installed.
 See the installation instructions_ for more details.
@@ -111,4 +111,4 @@ For version information, see the Changelog_.
 
 .. _online: https://oct2py.readthedocs.io/en/latest/
 
-.. _Changelog: https://github.com/blink1073/oct2py/blob/master/CHANGELOG.md
+.. _Changelog: https://github.com/blink1073/oct2py/blob/main/CHANGELOG.md

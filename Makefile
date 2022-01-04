@@ -19,17 +19,17 @@ clean:
 	rm -rf dist
 	find . -name "*.pyc" -o -name "*.py,cover"| xargs rm -f
 	python -c $(KILL_PROC); true
-	killall -9 py.test; true
+	killall -9 pytest; true
 
 test: clean
 	pip install -q pytest
-	export PYTHONWARNINGS="all"; py.test
+	export PYTHONWARNINGS="all"; pytest --doctest-modules
 	make clean
 	jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --stdout example/octavemagic_extension.ipynb > /dev/null;
 
 cover: clean
 	pip install -q pytest codecov pytest-cov
-	py.test -l --cov-report html --cov-report=xml --cov=${NAME}
+	pytest --doctest-modules -l --cov-report html --cov-report=xml --cov=${NAME}
 
 release_prep: clean
 	pip install -q wheel twine
