@@ -34,7 +34,7 @@ jobs:
         make install
     - name: Run test
       run: |
-        make test
+        xvfb-run --auto-servernum make test
     - name: Generate Docs
       run: |
         make docs
