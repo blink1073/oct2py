@@ -2,6 +2,16 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.4.0
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.3.0...None))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2021-11-15&to=2022-01-04&type=c))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.3.0 (2021-11-15)
 
 -   Update README.rst by \@pooyaEst in
@@ -12,8 +22,6 @@
     [#193](https://github.com/blink1073/oct2py/pull/193)
 -   Update docs to fix build by \@blink1073 in
     [#194](https://github.com/blink1073/oct2py/pull/194)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.2.0 (2020-08-05)
 
