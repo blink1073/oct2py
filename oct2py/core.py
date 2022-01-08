@@ -405,7 +405,7 @@ class Oct2Py(object):
         timeout : float, optional
             Time to wait for response from Octave (per line).  If not given,
             the instance `timeout` is used.
-        nout : or str, optional.
+        nout : int or str, optional.
             The desired number of returned values, defaults to 0.  If nout
             is 0, the `ans` will be returned as the return value. If nout
             value is 'max_nout', _get_max_nout() will be used.
