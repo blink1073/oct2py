@@ -626,6 +626,22 @@ class Oct2Py(object):
         """Handle a stdin request from the session."""
         return input(line.replace(STDIN_PROMPT, ''))
 
+    def _print_doc(self, name):
+        """
+        Print the documentation of an Octave procedure or object.
+
+        Parameters
+        ----------
+        name : str
+            Function name to search for.
+
+        Returns
+        -------
+        out : None
+
+        """
+        print(self._get_doc(name))
+
     def _get_doc(self, name):
         """
         Get the documentation of an Octave procedure or object.
