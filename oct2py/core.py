@@ -759,9 +759,9 @@ class Oct2Py(object):
         if not osp.isabs(func_path):
             func_path = self.which(func_path)
 
-        nout = 0
+        nout = 0 # default nout of eval
         status = 'NOT FUNCTION'
-        if func_path: # only if `func_path` can be retrieved from cmd
+        if func_path.endswith('.m'): # only if `func_path` is .m file
             with open(func_path, encoding='utf8') as f:
                 for l in f:
                     if l[0] != 'f': # not function
