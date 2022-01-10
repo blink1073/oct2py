@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.4.2
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.1...09d3ee077bd62c2d0d279b311a8f74bedf97429d))
+
+### Enhancements made
+
+- Add _print_doc convenience function [#209](https://github.com/blink1073/oct2py/pull/209) ([@yasirroni](https://github.com/yasirroni))
+
+### Bugs fixed
+
+- Clean up handling of nout in feval [#208](https://github.com/blink1073/oct2py/pull/208) ([@yasirroni](https://github.com/yasirroni))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-04&to=2022-01-10&type=c))
+
+[@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2022-01-04..2022-01-10&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.4.1
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.0...9246b150c0682e1a89abbd99f8e811294a901877))
@@ -15,8 +35,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-04&to=2022-01-04&type=c))
 
 [@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-01-04..2022-01-04&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.4.0
 
