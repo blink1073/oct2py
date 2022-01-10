@@ -280,8 +280,8 @@ class Oct2Py(object):
         func_args: object, optional
             Args to send to the function.
         nout: int or str, optional.
-            Desired number of return arguments, defaults to 1. If nout
-            value is 'max_nout', get_max_nout() will be used.
+            The desired number of returned values, defaults to 1. If nout
+            value is 'max_nout', _get_max_nout() will be used.
         store_as: str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
@@ -344,6 +344,7 @@ class Oct2Py(object):
         if not self._engine:
             raise Oct2PyError('Session is not open')
 
+        # nout handler
         nout = kwargs.get('nout', None)
         if nout is None:
             nout = 1
@@ -404,9 +405,10 @@ class Oct2Py(object):
         timeout : float, optional
             Time to wait for response from Octave (per line).  If not given,
             the instance `timeout` is used.
-        nout : int, optional.
+        nout : int or str, optional.
             The desired number of returned values, defaults to 0.  If nout
-            is 0, the `ans` will be returned as the return value.
+            is 0, the `ans` will be returned as the return value. If nout
+            value is 'max_nout', _get_max_nout() will be used.
         temp_dir: str, optional
             If specified, the session's MAT files will be created in the
             directory, otherwise a the instance `temp_dir` is used.
@@ -757,24 +759,26 @@ class Oct2Py(object):
         if not osp.isabs(func_path):
             func_path = self.which(func_path)
 
-        nout = 0
+        nout = 0 # default nout of eval
         status = 'NOT FUNCTION'
-        with open(func_path, encoding='utf8') as f:
-            for l in f:
-                if l[0] != 'f': #not function
-                    if status == 'NOT FUNCTION':
-                        continue
-                l = l.translate(str.maketrans('', '', '[]()')).split()
-                try:
-                    l.remove('function')
-                except:
-                    pass
-                for s in l:
-                    if s == '...':
-                        status = 'FUNCTION'
-                        continue
-                    if s != '=':
-                        nout += 1
-                    else:
-                        return nout
+        if func_path.endswith('.m'): # only if `func_path` is .m file
+            with open(func_path, encoding='utf8') as f:
+                for l in f:
+                    if l[0] != 'f': # not function
+                        if status == 'NOT FUNCTION':
+                            continue
+                    l = l.translate(str.maketrans('', '', '[]()')).split()
+                    try:
+                        l.remove('function')
+                    except:
+                        pass
+                    for s in l:
+                        if s == '...':
+                            status = 'FUNCTION'
+                            continue
+                        if s != '=':
+                            nout += 1
+                        else:
+                            return nout
+        
         return nout
