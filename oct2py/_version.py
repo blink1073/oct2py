@@ -11,7 +11,7 @@ VersionInfo = namedtuple('VersionInfo', [
     'serial'
 ])
 
-version_info = VersionInfo(5, 4, 1, "final", 0)
+version_info = VersionInfo(5, 4, 2, "final", 0)
 
 __version__ = '{}.{}.{}'.format(
     version_info.major,
