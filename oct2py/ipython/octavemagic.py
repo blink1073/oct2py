@@ -40,7 +40,7 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 #-----------------------------------------------------------------------------
 
 import os
-import tempfile
+import shutil
 
 import oct2py
 
@@ -246,14 +246,21 @@ class OctaveMagics(Magics):
         if args.size is not None:
             width, height = [int(s) for s in args.size.split(',')]
 
-        plot_dir_obj = tempfile.TemporaryDirectory()
-        plot_dir = plot_dir_obj.name
-
+        # Handle the temporary directory, defaulting to the Oct2Py instance's
+        # temp dir.
         temp_dir = args.temp_dir
-        if temp_dir is not None and not os.path.isdir(temp_dir):
+        if temp_dir and not os.path.isdir(temp_dir):
             temp_dir = None
+        temp_dir = temp_dir or self._oct.temp_dir
 
-        # match current working directory
+        # Put the plots in the temp directory so we don't have to make another
+        # temporary directory.
+        plot_dir = os.path.join(temp_dir, 'plots')
+        if os.path.exists(plot_dir):
+            shutil.rmtree(plot_dir)
+        os.makedirs(plot_dir)
+
+        # Match current working directory.
         self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
         value = self._oct.eval(code, stream_handler=self._publish,
             plot_dir=plot_dir, plot_width=width, plot_height=height,
