@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.4.3
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.2...793fb0f3ad49f25e70ed7d6ab95d7e1f29941403))
+
+### Bugs fixed
+
+- Clean up plot dir handling [#216](https://github.com/blink1073/oct2py/pull/216) ([@blink1073](https://github.com/blink1073))
+
+### Maintenance and upkeep improvements
+
+- Clean up CI [#213](https://github.com/blink1073/oct2py/pull/213) ([@blink1073](https://github.com/blink1073))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-10&to=2022-01-24&type=c))
+
+[@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-01-10..2022-01-24&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.4.2
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.1...09d3ee077bd62c2d0d279b311a8f74bedf97429d))
@@ -19,8 +39,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-04&to=2022-01-10&type=c))
 
 [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2022-01-04..2022-01-10&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.4.1
 
