@@ -43,7 +43,6 @@ try
 
     % Use the `ans` response if no output arguments are expected.
     if req.nout == 0
-
         if length(req.func_args)
           feval(req.func_name, req.func_args{:});
         else
@@ -89,6 +88,12 @@ try
 
 catch ME
     err = ME;
+end
+
+
+% If we end up with a simple cell array, squeeze it
+if size_equal(result, cell(1,1))
+  result = squeeze(result)
 end
 
 
