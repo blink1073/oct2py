@@ -356,7 +356,6 @@ class Oct2Py(object):
         # Choose appropriate plot backend.
         default_backend = 'inline' if plot_dir else self.backend
         backend = kwargs.get('plot_backend', default_backend)
-
         settings = dict(backend=backend,
                         format=kwargs.get('plot_format'),
                         name=kwargs.get('plot_name'),

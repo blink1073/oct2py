@@ -91,12 +91,6 @@ catch ME
 end
 
 
-% If we end up with a simple cell array, squeeze it
-if size_equal(result, cell(1,1))
-  result = squeeze(result)
-end
-
-
 % Save the output to a file.
 try
   save('-v6', '-mat-binary', output_file, 'result', 'err');
