@@ -220,10 +220,9 @@ class Cell(np.ndarray):
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
         value = np.asarray(value, dtype=object)
-        # Squeeze the last element if it is 1
-        if (value.shape[value.ndim - 1] == 1):
-            value = value.squeeze(axis=value.ndim - 1)
-        value = np.atleast_1d(value)
+
+        # Use atleast_2d to preserve equality between Octave size() and Python numpy.shape()
+        value = np.atleast_2d(value)
 
         if not session:
             return value.view(cls)
