@@ -128,6 +128,17 @@ class TestConversions:
         types = [Cell for i in range(len(keys))]
         self.helper(self.data.cell, keys, types)
 
+    def test_cells_push_pull(self):
+        cell_dims = [(1,3), (3,1), (1,1), (1,1,1), (3,1,1,1), (1,3,1,1), (2,2,2)]
+        for cell_dim in cell_dims:
+            self.oc.eval(f"x = cell{cell_dims};")
+            x_ = self.oc.pull('x')
+            assert np.shape(x_) == cell_dims
+
+            self.oc.push('x', x_)
+            x_ = self.oc.pull('x')
+            assert np.shape(x_) == cell_dims
+
     def test_python_conversions(self):
         """Test roundtrip python type conversions
         """
