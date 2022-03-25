@@ -129,15 +129,18 @@ class TestConversions:
         self.helper(self.data.cell, keys, types)
 
     def test_cells_push_pull(self):
-        cell_dims = [(1,3), (3,1), (1,1), (1,1,1), (3,1,1,1), (1,3,1,1), (2,2,2)]
+        cell_dims = [(1,1), (1,3), (3,1), (1,1,1), (3,1,1,1), (1,3,1,1), (2,2,2)]
         for cell_dim in cell_dims:
-            self.oc.eval(f"x = cell{cell_dims};")
+            print(f"Start testing {cell_dim}")
+            self.oc.eval(f"x = cell{cell_dim};")
             x_ = self.oc.pull('x')
-            assert np.shape(x_) == cell_dims
+            print(np.shape(x_))
+            assert np.array_equal(np.atleast_2d(np.shape(x_)).astype(float), self.oc.eval('size(x)', verbose=False))
 
             self.oc.push('x', x_)
             x_ = self.oc.pull('x')
-            assert np.shape(x_) == cell_dims
+            print(np.shape(x_))
+            assert np.array_equal(np.atleast_2d(np.shape(x_)).astype(float), self.oc.eval('size(x)', verbose=False))
 
     def test_python_conversions(self):
         """Test roundtrip python type conversions
