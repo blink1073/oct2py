@@ -222,10 +222,7 @@ class Cell(np.ndarray):
     [1.0, 1.0]
     """
     def __new__(cls, value, session=None):
-        """Create a cell array from a value and optional Octave session.
-        
-        See: https://github.com/yasirroni/PyMatType/pymattype/matlab_like.py
-        """
+        """Create a cell array from a value and optional Octave session."""
         # Use atleast_2d to preserve Octave size()
         value = np.atleast_2d(np.asarray(value, dtype=object))
 
@@ -238,23 +235,7 @@ class Cell(np.ndarray):
             obj[i] = _extract(item, session)
         obj = obj.reshape(value.shape)
 
-        # Add the matlab index attribute
-        obj._matlab_array_index = None # _matlab_array_index is lazyly created
         return obj
-
-    def __array_finalize__(self, obj):
-        if obj is None:
-            return
-        
-        self._matlab_array_index = getattr(obj,'_matlab_array_index', None)
-
-    def __getitem__(self, key):
-        if isinstance(key, int) or isinstance(key, float):
-            if self._matlab_array_index is None:
-                self._make_matlab_array_index()
-            key = tuple(self._matlab_array_index[int(key)])
-        
-        return super().__getitem__(key)
 
     def __repr__(self):
         shape = self.shape
@@ -264,14 +245,12 @@ class Cell(np.ndarray):
         msg = msg.replace('array', 'Cell', 1)
         return msg.replace(', dtype=object', '', 1)
 
-    def _make_matlab_array_index(self):
-        idx = np.indices(self.shape).reshape((self.ndim, -1)).T
-        idx = idx[idx[:,0].argsort()]
-        for i in range(1,len(self.shape),1):
-            idx = idx[idx[:,i].argsort(kind='mergesort')]
-
-        self._matlab_array_index = idx
-
+    def __getitem__(self, key):
+        if key is 0 and self.size==1:
+            # Note: 
+            # Can't use `return super().ravel()[0]` here
+            key = tuple([0] * self.ndim)
+        return super().__getitem__(key)
 
 def _extract(data, session=None):
     """Convert the Octave values to values suitable for Python.
