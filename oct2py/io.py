@@ -49,7 +49,11 @@ def read_file(path, session=None):
 def write_file(obj, path, oned_as='row', convert_to_float=True):
     """Save a Python object to an Octave file on the given path.
     """
+    # print(obj)
+    # print(type(obj))
     data = _encode(obj, convert_to_float)
+    # print(data)
+    # print(type(data))
     try:
         # scipy.io.savemat is not thread-save.
         # See https://github.com/scipy/scipy/issues/7260
@@ -393,12 +397,15 @@ def _encode(data, convert_to_float):
     # Extract and encode data from object-like arrays.
     if data.dtype.kind in 'OV':
         out = np.empty(data.size, dtype=data.dtype)
-        for (i, item) in enumerate(data.ravel()):
-            if data.dtype.names:
-                for name in data.dtype.names:
-                    out[i][name] = _encode(item[name], ctf)
-            else:
-                out[i] = _encode(item, ctf)
+        if data.size > 1:
+            for (i, item) in enumerate(data.ravel()):
+                if data.dtype.names:
+                    for name in data.dtype.names:
+                        out[i][name] = _encode(item[name], ctf)
+                else:
+                    out[i] = _encode(item, ctf)
+        else:
+            out[0] = _encode(data[0], ctf)
         return out.reshape(data.shape)
 
     # Complex 128 is the highest supported by savemat.
