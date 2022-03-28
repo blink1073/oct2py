@@ -113,16 +113,6 @@ class TestNumpy:
                            incoming[np.isfinite(incoming)])
         assert type_ == 'double'
 
-    def test_mat(self):
-        '''Verify support for matrix type
-        '''
-        test = np.random.rand(1000)
-        test = np.mat(test)
-        incoming, type_ = self.oc.roundtrip(test, nout=2)
-        assert np.allclose(test, incoming)
-        assert test.dtype == incoming.dtype
-        assert type_ == 'double'
-
     def test_masked(self):
         '''Test support for masked arrays
         '''
