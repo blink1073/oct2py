@@ -219,10 +219,8 @@ class Cell(np.ndarray):
     """
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
-        value = np.asarray(value, dtype=object)
-
         # Use atleast_2d to preserve equality between Octave size() and Python numpy.shape()
-        value = np.atleast_2d(value)
+        value = np.atleast_2d(np.asarray(value, dtype=object))
 
         if not session:
             return value.view(cls)
@@ -231,7 +229,25 @@ class Cell(np.ndarray):
         obj = np.empty(value.size, dtype=object).view(cls)
         for (i, item) in enumerate(value.ravel()):
             obj[i] = _extract(item, session)
-        return obj.reshape(value.shape)
+        obj = obj.reshape(value.shape)
+
+        # Add the matlab index attribute
+        obj._matlab_array_index = None # _matlab_array_index is lazyly created
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        
+        self._matlab_array_index = getattr(obj,'_matlab_array_index', None)
+
+    def __getitem__(self, key):
+        if isinstance(key, int) or isinstance(key, float):
+            if self._matlab_array_index is None:
+                self._make_matlab_array_index()
+            key = tuple(self._matlab_array_index[int(key)])
+        
+        return super().__getitem__(key)
 
     def __repr__(self):
         shape = self.shape
@@ -240,6 +256,14 @@ class Cell(np.ndarray):
         msg = self.view(np.ndarray).__repr__()
         msg = msg.replace('array', 'Cell', 1)
         return msg.replace(', dtype=object', '', 1)
+
+    def _make_matlab_array_index(self):
+        idx = np.indices(self.shape).reshape((self.ndim, -1)).T
+        idx = idx[idx[:,0].argsort()]
+        for i in range(1,len(self.shape),1):
+            idx = idx[idx[:,i].argsort(kind='mergesort')]
+
+        self._matlab_array_index = idx
 
 
 def _extract(data, session=None):
