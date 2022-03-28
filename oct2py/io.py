@@ -392,11 +392,19 @@ def _encode(data, convert_to_float):
 
 def _is_simple_numeric(data):
     """Test if a list contains simple numeric data."""
+    item_len = None
     for item in data:
         if isinstance(item, set):
             item = list(item)
         if isinstance(item, list):
             if not _is_simple_numeric(item):
+                return False
+            # Numpy does not support creating an ndarray from
+            # ragged nested sequences
+            # (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes
+            if item_len is None:
+                item_len = len(item)
+            if len(item) != item_len:
                 return False
         elif not isinstance(item, (int, float, complex)):
             return False

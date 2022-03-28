@@ -4,9 +4,11 @@
 
 from __future__ import print_function, absolute_import, division
 
+import atexit
 import logging
 import os
 import os.path as osp
+import shutil
 import tempfile
 import warnings
 
@@ -70,8 +72,9 @@ class Oct2Py(object):
         self.timeout = timeout
         self.backend = backend or 'default'
         if temp_dir is None:
-            self.temp_dir_obj = tempfile.TemporaryDirectory()
-            self.temp_dir = self.temp_dir_obj.name
+            temp_dir_obj = tempfile.mkdtemp()
+            self.temp_dir = temp_dir_obj
+            atexit.register(shutil.rmtree, self.temp_dir)
         else:
             self.temp_dir = temp_dir
         self.convert_to_float = convert_to_float
