@@ -379,16 +379,12 @@ def _encode(data, convert_to_float):
     # Extract and encode data from object-like arrays.
     if data.dtype.kind in 'OV':
         out = np.empty(data.size, dtype=data.dtype)
-        if data.size == 1:
-            out[0] = _encode(data[0], ctf)
-        else:
+        for (i, item) in enumerate(data.ravel()):
             if data.dtype.names:
-                for (i, item) in enumerate(data.ravel()):
-                    for name in data.dtype.names:
-                        out[i][name] = _encode(item[name], ctf)
+                for name in data.dtype.names:
+                    out[i][name] = _encode(item[name], ctf)
             else:
-                for (i, item) in enumerate(data.ravel()):
-                    out[i] = _encode(item, ctf)
+                out[i] = _encode(item, ctf)
         return out.reshape(data.shape)
 
     # Complex 128 is the highest supported by savemat.
