@@ -222,8 +222,11 @@ class Cell(np.ndarray):
     [1.0, 1.0]
     """
     def __new__(cls, value, session=None):
-        """Create a cell array from a value and optional Octave session."""
-        # Use atleast_2d to preserve equality between Octave size() and Python numpy.shape()
+        """Create a cell array from a value and optional Octave session.
+        
+        See: https://github.com/yasirroni/PyMatType/pymattype/matlab_like.py
+        """
+        # Use atleast_2d to preserve Octave size()
         value = np.atleast_2d(np.asarray(value, dtype=object))
 
         if not session:
