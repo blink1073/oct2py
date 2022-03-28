@@ -130,10 +130,10 @@ class TestConversions:
 
     def test_cells_push_pull(self):
         cell_dims = [
-            # (1,1), # error single value: Could not convert None (type <class 'NoneType'>) to array from scipy
+            (1,1),
             (1,3),
             (3,1),
-            # (1,1,1), # error single value: Could not convert None (type <class 'NoneType'>) to array from scipy
+            (1,1,1),
             (3,1,1,1),
             (1,3,1,1),
             (2,2,2)
