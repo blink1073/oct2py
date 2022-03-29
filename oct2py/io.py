@@ -12,10 +12,14 @@ import numpy as np
 
 try:
     from scipy.io import loadmat, savemat
-    from scipy.io.matlab.mio5 import MatlabObject, MatlabFunction
     from scipy.sparse import spmatrix
+    from scipy.io.matlab import MatlabObject, MatlabFunction
 except ImportError:
-    pass
+    try:
+        from scipy.io.mio5 import MatlabObject, MatlabFunction
+    except ImportError:
+        pass
+
 
 try:
     from pandas import Series, DataFrame

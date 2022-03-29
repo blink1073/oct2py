@@ -44,7 +44,7 @@ import shutil
 
 import oct2py
 
-from IPython.core.display import publish_display_data, display
+from IPython.display import publish_display_data, display
 from IPython.core.magic import (Magics, magics_class, line_magic,
                                 line_cell_magic, needs_local_scope)
 from IPython.testing.skipdoctest import skip_doctest

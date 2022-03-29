@@ -11,9 +11,12 @@ import weakref
 import numpy as np
 
 try:
-    from scipy.io.matlab.mio5 import MatlabObject
+    from scipy.io.matlab import MatlabObject
 except ImportError:
-    pass
+    try:
+        from scipy.io.matlab.mio5 import MatlabObject
+    except ImportError:
+        pass
 
 from .compat import PY2
 
