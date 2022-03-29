@@ -2,7 +2,6 @@
 
 [run]
 branch = True
-include = */oct2py/*
 omit =
     */setup.py
     oct2py/compat.py
