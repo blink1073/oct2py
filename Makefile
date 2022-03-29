@@ -11,6 +11,7 @@ all: clean
 
 install: clean
 	pip install -e .[docs,test]
+	pre-commit install
 	octave --eval "pkg install -forge control"
 	octave --eval "pkg install -forge signal"
 

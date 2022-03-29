@@ -82,4 +82,3 @@ logical              ndarray (of uint8)
 sparse               sparse
 user defined object  Oct2Py object pointer
 ===================  ======================
-

@@ -44,7 +44,7 @@ def read_file(path, session=None):
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e))
-    out = dict()
+    out = {}
     for (key, value) in data.items():
         out[key] = _extract(value, session)
     return out
@@ -337,7 +337,7 @@ def _encode(data, convert_to_float):
 
     # Extract and encode values from dict-like objects.
     if isinstance(data, dict):
-        out = dict()
+        out = {}
         for (key, value) in data.items():
             out[key] = _encode(value, ctf)
         return out

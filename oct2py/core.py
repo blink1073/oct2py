@@ -78,8 +78,8 @@ class Oct2Py(object):
         else:
             self.temp_dir = temp_dir
         self.convert_to_float = convert_to_float
-        self._user_classes = dict()
-        self._function_ptrs = dict()
+        self._user_classes = {}
+        self._function_ptrs = {}
         self.restart()
 
     @property
