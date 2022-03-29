@@ -24,7 +24,7 @@ class OctaveMagicTest(unittest.TestCase):
         cls.ip = get_ipython()
         # This is just to get a minimally modified version of the changes
         # working
-        cls.ip.run_line_magic('load_ext oct2py.ipython')
+        cls.ip.run_line_magic('load_ext', 'oct2py.ipython')
         cls.ip.ex('import numpy as np')
         cls.svgs_generated = 0
 
@@ -68,7 +68,7 @@ class OctaveMagicTest(unittest.TestCase):
         try:
             self.ip.run_cell_magic('octave', '', "a='1")
         except Oct2PyError:
-            self.ip.run_line_magic('reload_ext oct2py.ipython')
+            self.ip.run_line_magic('reload_ext', 'oct2py.ipython')
 
     def test_octave_error(self):
         self.assertRaises(Oct2PyError, self.ip.run_cell_magic,
