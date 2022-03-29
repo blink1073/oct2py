@@ -16,7 +16,7 @@ try:
     from scipy.io.matlab import MatlabObject, MatlabFunction
 except ImportError:
     try:
-        from scipy.io.mio5 import MatlabObject, MatlabFunction
+        from scipy.io.matlab.mio5 import MatlabObject, MatlabFunction
     except ImportError:
         pass
 
