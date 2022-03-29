@@ -30,7 +30,7 @@ test: clean
 
 cover: clean
 	pip install -q pytest codecov pytest-cov
-	pytest --doctest-modules -l --cov-report html --cov-report=xml --cov=${NAME}
+	pytest --doctest-modules -l --cov-report html --cov-report=xml
 
 release_prep: clean
 	pip install -q wheel twine
