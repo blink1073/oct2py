@@ -139,16 +139,12 @@ class TestConversions:
             (2,2,2)
             ]
         for cell_dim in cell_dims:
-            # print(f"Start testing {cell_dim}")
             self.oc.eval(f"x = cell{cell_dim}; x(:)=1;")
             x_ = self.oc.pull('x')
-            # print(np.shape(x_))
             assert np.allclose(np.atleast_2d(np.shape(x_)), self.oc.eval('size(x)', verbose=False))
 
-            # print(x_)
             self.oc.push('x', x_)
             x_ = self.oc.pull('x')
-            # print(np.shape(x_))
             assert np.allclose(np.atleast_2d(np.shape(x_)), self.oc.eval('size(x)', verbose=False))
 
     def test_python_conversions(self):

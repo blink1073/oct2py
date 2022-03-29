@@ -49,11 +49,7 @@ def read_file(path, session=None):
 def write_file(obj, path, oned_as='row', convert_to_float=True):
     """Save a Python object to an Octave file on the given path.
     """
-    # print(obj)
-    # print(type(obj))
     data = _encode(obj, convert_to_float)
-    # print(data)
-    # print(type(data))
     try:
         # scipy.io.savemat is not thread-save.
         # See https://github.com/scipy/scipy/issues/7260
