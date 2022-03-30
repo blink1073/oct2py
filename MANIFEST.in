@@ -25,3 +25,5 @@ prune .git
 prune docs/_build
 prune dist
 prune build
+
+exclude .pre-commit-config.yaml
