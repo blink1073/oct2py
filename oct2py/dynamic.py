@@ -11,9 +11,12 @@ import weakref
 import numpy as np
 
 try:
-    from scipy.io.matlab.mio5 import MatlabObject
+    from scipy.io.matlab import MatlabObject
 except ImportError:
-    pass
+    try:
+        from scipy.io.matlab.mio5 import MatlabObject
+    except ImportError:
+        pass
 
 from .compat import PY2
 
@@ -191,7 +194,7 @@ class OctaveUserClass(object):
     def to_value(cls, instance):
         """Convert to a value to send to Octave."""
         if not isinstance(instance, OctaveUserClass) or not instance._attrs:
-            return dict()
+            return {}
         # Bootstrap a MatlabObject from scipy.io
         # From https://github.com/scipy/scipy/blob/93a0ea9e5d4aba1f661b6bb0e18f9c2d1fce436a/scipy/io/matlab/mio5.py#L435-L443
         # and https://github.com/scipy/scipy/blob/93a0ea9e5d4aba1f661b6bb0e18f9c2d1fce436a/scipy/io/matlab/mio5_params.py#L224

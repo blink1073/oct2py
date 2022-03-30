@@ -47,7 +47,7 @@ class TestMisc:
     def test_singleton_sparses(self):
         '''Make sure a singleton sparse matrix works'''
         import scipy.sparse
-        data = scipy.sparse.csc.csc_matrix(1)
+        data = scipy.sparse.csc_matrix(1)
         self.oc.push('x', data)
         assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
         self.oc.push('y', [data])
