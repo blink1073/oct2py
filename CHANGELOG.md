@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.5.1
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.5.0...d1a6e0e27bcb999668f4bb2da44358e36688fd04))
+
+### Bugs fixed
+
+- Properly Close Octave Sessions [#230](https://github.com/blink1073/oct2py/pull/230) ([@yasirroni](https://github.com/yasirroni))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-03-30&to=2022-03-30&type=c))
+
+[@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2022-03-30..2022-03-30&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.5.0
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.3...bf2d0ea55b24005781d6d6a15e7b956e37f8456d))
@@ -20,8 +36,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-24&to=2022-03-30&type=c))
 
 [@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-01-24..2022-03-30&type=Issues) | [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2022-01-24..2022-03-30&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.4.3
 
