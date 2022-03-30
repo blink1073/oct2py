@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.5.0
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.3...bf2d0ea55b24005781d6d6a15e7b956e37f8456d))
+
+### Bugs fixed
+
+- Fix column vector [#225](https://github.com/blink1073/oct2py/pull/225) ([@yasirroni](https://github.com/yasirroni))
+
+### Maintenance and upkeep improvements
+
+- Handle warnings [#226](https://github.com/blink1073/oct2py/pull/226) ([@blink1073](https://github.com/blink1073))
+- Test with warning and fix resourcewarning [#224](https://github.com/blink1073/oct2py/pull/224) ([@blink1073](https://github.com/blink1073))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-24&to=2022-03-30&type=c))
+
+[@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-01-24..2022-03-30&type=Issues) | [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2022-01-24..2022-03-30&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.4.3
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.4.2...793fb0f3ad49f25e70ed7d6ab95d7e1f29941403))
@@ -19,8 +40,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-01-10&to=2022-01-24&type=c))
 
 [@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-01-10..2022-01-24&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.4.2
 
