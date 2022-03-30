@@ -223,11 +223,8 @@ class Cell(np.ndarray):
     """
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
-        value = np.asarray(value, dtype=object)
-        # Squeeze the last element if it is 1
-        if (value.shape[value.ndim - 1] == 1):
-            value = value.squeeze(axis=value.ndim - 1)
-        value = np.atleast_1d(value)
+        # Use atleast_2d to preserve Octave size()
+        value = np.atleast_2d(np.asarray(value, dtype=object))
 
         if not session:
             return value.view(cls)
@@ -236,7 +233,9 @@ class Cell(np.ndarray):
         obj = np.empty(value.size, dtype=object).view(cls)
         for (i, item) in enumerate(value.ravel()):
             obj[i] = _extract(item, session)
-        return obj.reshape(value.shape)
+        obj = obj.reshape(value.shape)
+
+        return obj
 
     def __repr__(self):
         shape = self.shape
@@ -246,6 +245,12 @@ class Cell(np.ndarray):
         msg = msg.replace('array', 'Cell', 1)
         return msg.replace(', dtype=object', '', 1)
 
+    def __getitem__(self, key):
+        if key is 0 and self.size==1:
+            # Note: 
+            # Can't use `return super().ravel()[0]` here
+            key = tuple([0] * self.ndim)
+        return super().__getitem__(key)
 
 def _extract(data, session=None):
     """Convert the Octave values to values suitable for Python.
