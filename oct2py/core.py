@@ -100,6 +100,10 @@ class Oct2Py(object):
         """Close session"""
         self.exit()
 
+    def __del__(self):
+        """Delete session"""
+        self.exit()
+
     def exit(self):
         """Quits this octave session and cleans up.
         """
