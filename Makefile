@@ -46,6 +46,6 @@ release: release_prep
 	twine upload dist/*
 
 docs: clean
-	pip install -q sphinx-rtd-theme numpydoc sphinx myst-parser
+	pip install -q sphinx-rtd-theme sphinx myst-parser
 	export SPHINXOPTS=-W; make -C docs html
 	export SPHINXOPTS=-W; make -C docs linkcheck || export SPHINXOPTS=-W; make -C docs linkcheck

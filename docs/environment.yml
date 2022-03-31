@@ -5,5 +5,4 @@ dependencies:
   - python=3.9
   - sphinx>=1.8
   - sphinx_rtd_theme
-  - numpydoc
   - myst-parser
