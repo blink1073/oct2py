@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import os
 
 import numpy as np
@@ -177,9 +175,9 @@ class TestRoundTrip:
         assert self.oc.eval(cmd)
 
         # Handle sparse type.
-        cmd = "{0}(full(x.sparse), full(y.sparse))".format(func)
+        cmd = f"{func}(full(x.sparse), full(y.sparse))"
         assert self.oc.eval(cmd)
-        cmd = "{0}(full(x.nested.sparse), full(y.nested.sparse))".format(func)
+        cmd = f"{func}(full(x.nested.sparse), full(y.nested.sparse))"
         assert self.oc.eval(cmd)
 
         # Handle struct vector type.
@@ -272,12 +270,12 @@ class TestBuiltins:
 
     def test_set(self):
         """Test python set type"""
-        test = set((1, 2, 3, 3))
+        test = {1, 2, 3, 3}
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
         assert isinstance(incoming, np.ndarray)
 
-        test = [set((1, 2))]
+        test = [{1, 2}]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, np.ndarray)
         assert np.allclose(incoming.tolist(), [1, 2])

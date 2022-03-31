@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 

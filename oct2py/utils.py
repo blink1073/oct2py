@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, division, print_function
 
 import dis
 import inspect

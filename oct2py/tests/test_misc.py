@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 import glob
 import logging
 import os
@@ -308,6 +306,6 @@ class TestMisc:
     def test_struct_array(self):
         self.oc.eval('x = struct("y", {1, 2}, "z", {3, 4});')
         x = self.oc.pull("x")
-        assert set(x.fieldnames) == set(("y", "z"))
+        assert set(x.fieldnames) == {"y", "z"}
         other = StructArray(x)
         assert other.shape == x.shape

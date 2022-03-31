@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, division, print_function
 
 import types
 import warnings
@@ -21,7 +19,7 @@ except ImportError:
 from .compat import PY2
 
 
-class OctavePtr(object):
+class OctavePtr:
     """A pointer to an Octave workspace value."""
 
     def __init__(self, session_weakref, name, address):
@@ -40,7 +38,7 @@ class OctavePtr(object):
         return self._address
 
 
-class _DocDescriptor(object):
+class _DocDescriptor:
     """An object that dynamically fetches the documentation
     for an Octave value.
     """
@@ -78,7 +76,7 @@ class OctaveFunctionPtr(OctavePtr):
 
     def __init__(self, session_weakref, name):
         address = "@%s" % name
-        super(OctaveFunctionPtr, self).__init__(session_weakref, name, address)
+        super().__init__(session_weakref, name, address)
 
     def __call__(self, *inputs, **kwargs):
         # Check for allowed keyword arguments
@@ -129,7 +127,7 @@ class OctaveUserClassAttr(OctavePtr):
         instance._ref().feval("set", pointer, self.address, value, store_as=pointer.address)
 
 
-class _MethodDocDescriptor(object):
+class _MethodDocDescriptor:
     """An object that dynamically fetches the documentation
     for an Octave user class method.
     """
@@ -146,7 +144,7 @@ class _MethodDocDescriptor(object):
         session = self.ref()
         class_name = self.class_name
         method = self.name
-        doc = session._get_doc("@%s/%s" % (class_name, method))
+        doc = session._get_doc(f"@{class_name}/{method}")
         self.doc = doc or session._get_doc(method)
         return self.doc
 
@@ -170,15 +168,15 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
         self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):
-        return '"%s" Octave method for object' % (self.name, self.class_name)
+        return f'"{self.name}" Octave method for object'
 
 
-class OctaveUserClass(object):
+class OctaveUserClass:
     """A wrapper for an Octave user class."""
 
     def __init__(self, *inputs, **kwargs):
         """Create a new instance with the user class constructor."""
-        addr = self._address = "%s_%s" % (self._name, id(self))
+        addr = self._address = f"{self._name}_{id(self)}"
         self._ref().feval(self._name, *inputs, store_as=addr, **kwargs)
 
     @classmethod
@@ -187,7 +185,7 @@ class OctaveUserClass(object):
         MatlabObject from a MAT file.
         """
         instance = OctaveUserClass.__new__(cls)
-        instance._address = "%s_%s" % (instance._name, id(instance))
+        instance._address = f"{instance._name}_{id(instance)}"
         instance._ref().push(instance._address, value)
         return instance
 
@@ -224,7 +222,7 @@ def _make_user_class(session, name):
 
     for method in methods:
         doc = _MethodDocDescriptor(ref, name, method)
-        cls_name = "%s_%s" % (name, method)
+        cls_name = f"{name}_{method}"
         method_values = dict(__doc__=doc)
         method_cls = type(str(cls_name), (OctaveUserClassMethod,), method_values)
         values[method] = method_cls(ref, method, name)

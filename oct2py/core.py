@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, division, print_function
 
 import atexit
 import logging
@@ -29,7 +27,7 @@ from .utils import Oct2PyError, get_log
 HERE = osp.realpath(osp.dirname(__file__))
 
 
-class Oct2Py(object):
+class Oct2Py:
 
     """Manages an Octave session.
 
@@ -422,7 +420,7 @@ class Oct2Py(object):
         plot_height=None,
         plot_res=None,
         nout=0,
-        **kwargs
+        **kwargs,
     ):
         """
         Evaluate an Octave command or commands.
@@ -617,7 +615,7 @@ class Oct2Py(object):
             timeout = self.timeout
 
         try:
-            engine.eval('_pyeval("%s", "%s");' % (out_file, in_file), timeout=timeout)
+            engine.eval(f'_pyeval("{out_file}", "{in_file}");', timeout=timeout)
         except KeyboardInterrupt as e:
             stream_handler(engine.repl.interrupt())
             raise
@@ -787,7 +785,7 @@ class Oct2Py(object):
         """
         # needed for help(Oct2Py())
         if attr.startswith("__"):
-            return super(Oct2Py, self).__getattr__(attr)
+            return super().__getattr__(attr)
 
         # close_ -> close
         if attr[-1] == "_":

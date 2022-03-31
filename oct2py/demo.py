@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, print_function
 
 import time
 
@@ -68,7 +66,7 @@ def demo(delay=1, interactive=True):
         line = line.strip()
         if not "input(" in line:
             time.sleep(delay)
-            print(">>> {0}".format(line))
+            print(f">>> {line}")
             time.sleep(delay)
         if not interactive:
             if "plot" in line or "surf" in line or "input(" in line:

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, print_function
 
 import time
 import timeit
@@ -12,7 +10,7 @@ import numpy as np
 from . import Oct2Py
 
 
-class SpeedCheck(object):
+class SpeedCheck:
     """Checks the speed penalty of the Python to Octave bridge.
 
     Uses timeit to test the raw execution of a Octave command,
@@ -50,18 +48,18 @@ class SpeedCheck(object):
 
         print("Raw speed: ")
         avg = timeit.timeit(self.raw_speed, number=10) / 10
-        print("    {0:0.01f} usec per loop".format(avg * 1e6))
+        print(f"    {avg * 1e6:0.01f} usec per loop")
         sides = [1, 10, 100, 1000]
         runs = [10, 10, 10, 5]
         for (side, nruns) in zip(sides, runs):
             self.array = np.reshape(np.arange(side**2), (-1))
-            print("Put {0}x{1}: ".format(side, side))
+            print(f"Put {side}x{side}: ")
             avg = timeit.timeit(self.large_array_put, number=nruns) / nruns
-            print("    {0:0.01f} msec".format(avg * 1e3))
+            print(f"    {avg * 1e3:0.01f} msec")
 
-            print("Get {0}x{1}: ".format(side, side))
+            print(f"Get {side}x{side}: ")
             avg = timeit.timeit(self.large_array_get, number=nruns) / nruns
-            print("    {0:0.01f} msec".format(avg * 1e3))
+            print(f"    {avg * 1e3:0.01f} msec")
 
         self.octave.exit()
         print("*" * 20)

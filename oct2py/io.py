@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, division, print_function
 
 import dis
 import inspect
@@ -244,7 +242,7 @@ class Cell(np.ndarray):
         return msg.replace(", dtype=object", "", 1)
 
     def __getitem__(self, key):
-        if key is 0 and self.size == 1:
+        if key == 0 and self.size == 1:
             # Note:
             # Can't use `return super().ravel()[0]` here
             key = tuple([0] * self.ndim)

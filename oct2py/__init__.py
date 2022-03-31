@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
@@ -21,7 +20,6 @@ MAT files.  Usage is as simple as:
 If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
 """
-from __future__ import absolute_import, division, print_function
 
 from ._version import __version__
 from .core import Oct2Py

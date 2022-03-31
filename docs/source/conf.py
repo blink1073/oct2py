@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Oct2Py documentation build configuration file, created by
 # sphinx-quickstart on Wed Dec 26 00:11:34 2012.
@@ -46,14 +45,14 @@ source_encoding = "utf-8"
 
 # General information about the project.
 project = "Oct2Py"
-copyright = "2011 - {today.year}, Oct2Py contributors".format(today=datetime.date.today())
+copyright = f"2011 - {datetime.date.today().year}, Oct2Py contributors"
 
 import os
 
 _version_py = os.path.join("..", "..", "oct2py", "_version.py")
 version_ns = {}
 
-with open(_version_py, mode="r") as version_file:
+with open(_version_py) as version_file:
     exec(version_file.read(), version_ns)
 
 # The short X.Y version.

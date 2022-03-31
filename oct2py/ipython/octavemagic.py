@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 ===========
 octavemagic
@@ -70,7 +69,7 @@ class OctaveMagics(Magics):
         shell : IPython shell
 
         """
-        super(OctaveMagics, self).__init__(shell)
+        super().__init__(shell)
         self._oct = oct2py.octave
 
         # Allow display to be overridden for
@@ -244,7 +243,7 @@ class OctaveMagics(Magics):
         height = args.height
 
         if args.size is not None:
-            width, height = [int(s) for s in args.size.split(",")]
+            width, height = (int(s) for s in args.size.split(","))
 
         # Handle the temporary directory, defaulting to the Oct2Py instance's
         # temp dir.
