@@ -63,7 +63,7 @@ tag_template = "v{new_version}"
 
 [[tool.tbump.file]]
 src = "pyproject.toml"
-version_template = '({major}, {minor}, {micro}, "{releaselevel}", {serial})'
+version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
 
 [[tool.tbump.file]]
 src = "oct2py/_version.py"
@@ -71,11 +71,11 @@ version_template = '({major}, {minor}, {micro}, "{releaselevel}", {serial})'
 
 [[tool.tbump.file]]
 src = "docs/source/conf.py"
-version_template = '({major}, {minor}, {micro}, "{releaselevel}", {serial})'
+version_template = '{major}{minor}{micro}{releaselevel}{serial}'
 
 [[tool.tbump.field]]
 name = "releaselevel"
-default = "final"
+default = ""
 
 [[tool.tbump.field]]
 name = "serial"
