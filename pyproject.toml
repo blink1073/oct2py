@@ -54,7 +54,7 @@ before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave oc
 [tool.tbump.version]
 current = "5.5.1"
 regex = '''
-  (?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)(?P<releaselevel>[a-z]+)?(?P<serial>\d+)?
+  (?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)(?P<releaselevel>[a-z]+)?(?P<serial>[a-z]+)?
 '''
 
 [tool.tbump.git]
@@ -67,11 +67,11 @@ version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
 
 [[tool.tbump.file]]
 src = "oct2py/_version.py"
-version_template = '({major}, {minor}, {micro}, "{releaselevel}", {serial})'
+version_template = '({major}, {minor}, {micro}, "{releaselevel}", "{serial}")'
 
 [[tool.tbump.file]]
 src = "docs/source/conf.py"
-version_template = '{major}{minor}{micro}{releaselevel}{serial}'
+version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
 
 [[tool.tbump.field]]
 name = "releaselevel"
@@ -79,7 +79,7 @@ default = ""
 
 [[tool.tbump.field]]
 name = "serial"
-default = 0
+default = ""
 
 [tool.pytest.ini_options]
 testpaths = "oct2py"
