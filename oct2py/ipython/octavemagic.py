@@ -32,34 +32,36 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 
 """
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #  Copyright (C) 2012 The IPython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING, distributed as part of this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import os
 import shutil
 
-import oct2py
-
-from IPython.display import publish_display_data, display
-from IPython.core.magic import (Magics, magics_class, line_magic,
-                                line_cell_magic, needs_local_scope)
-from IPython.testing.skipdoctest import skip_doctest
-from IPython.core.magic_arguments import (
-    argument, magic_arguments, parse_argstring
+from IPython.core.magic import (
+    Magics,
+    line_cell_magic,
+    line_magic,
+    magics_class,
+    needs_local_scope,
 )
+from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
+from IPython.display import display, publish_display_data
+from IPython.testing.skipdoctest import skip_doctest
 from IPython.utils.py3compat import unicode_to_str
 from IPython.utils.text import dedent
+
+import oct2py
 
 
 @magics_class
 class OctaveMagics(Magics):
 
-    """A set of magics useful for interactive work with Octave via oct2py.
-    """
+    """A set of magics useful for interactive work with Octave via oct2py."""
 
     def __init__(self, shell):
         """
@@ -78,7 +80,7 @@ class OctaveMagics(Magics):
     @skip_doctest
     @line_magic
     def octave_push(self, line):
-        '''
+        """
         Line-level magic that pushes a variable to Octave.
 
         `line` should be made up of whitespace separated variable names in the
@@ -96,8 +98,8 @@ class OctaveMagics(Magics):
             In [11]: %octave mean(X)
             Out[11]: 2.0
 
-        '''
-        inputs = line.split(' ')
+        """
+        inputs = line.split(" ")
         for input in inputs:
             input = unicode_to_str(input)
             self._oct.push(input, self.shell.user_ns[input])
@@ -105,7 +107,7 @@ class OctaveMagics(Magics):
     @skip_doctest
     @line_magic
     def octave_pull(self, line):
-        '''
+        """
         Line-level magic that pulls a variable from Octave.
 
         ::
@@ -122,8 +124,8 @@ class OctaveMagics(Magics):
             In [21]: y
             Out[21]: 'hello'
 
-        '''
-        outputs = line.split(' ')
+        """
+        outputs = line.split(" ")
         for output in outputs:
             output = unicode_to_str(output)
             self.shell.push({output: self._oct.pull(output)})
@@ -131,48 +133,46 @@ class OctaveMagics(Magics):
     @skip_doctest
     @magic_arguments()
     @argument(
-        '-i', '--input', action='append',
-        help='Names of input variables to be pushed to Octave. Multiple names '
-             'can be passed, separated by commas with no whitespace.'
+        "-i",
+        "--input",
+        action="append",
+        help="Names of input variables to be pushed to Octave. Multiple names "
+        "can be passed, separated by commas with no whitespace.",
     )
     @argument(
-        '-o', '--output', action='append',
-        help='Names of variables to be pulled from Octave after executing cell '
-             'body. Multiple names can be passed, separated by commas with no '
-             'whitespace.'
+        "-o",
+        "--output",
+        action="append",
+        help="Names of variables to be pulled from Octave after executing cell "
+        "body. Multiple names can be passed, separated by commas with no "
+        "whitespace.",
+    )
+    @argument("-s", "--size", action="store", help='Pixel size of plots, "width,height".')
+    @argument("-f", "--format", action="store", help="Plot format (png, svg or jpg).")
+    @argument("-w", "--width", type=int, action="store", help="The width of the plot in pixels")
+    @argument("-h", "--height", type=int, action="store", help="The height of the plot in pixels")
+    @argument(
+        "-r",
+        "--resolution",
+        type=int,
+        action="store",
+        help="The resolution of the plot in pixels per inch",
     )
     @argument(
-        '-s', '--size', action='store',
-        help='Pixel size of plots, "width,height".'
-    )
-    @argument(
-        '-f', '--format', action='store',
-        help='Plot format (png, svg or jpg).'
-    )
-    @argument(
-        '-w', '--width', type=int, action='store',
-        help='The width of the plot in pixels'
-    )
-    @argument(
-        '-h', '--height', type=int, action='store',
-        help='The height of the plot in pixels'
-    )
-    @argument(
-        '-r', '--resolution', type=int, action='store',
-        help='The resolution of the plot in pixels per inch'
-    )
-    @argument(
-        '-t', '--temp_dir', type=str, action='store',
-        help='The directory to write variables for conversion between Octave and Python'
+        "-t",
+        "--temp_dir",
+        type=str,
+        action="store",
+        help="The directory to write variables for conversion between Octave and Python",
     )
     @needs_local_scope
     @argument(
-        'code',
-        nargs='*',
+        "code",
+        nargs="*",
     )
     @line_cell_magic
     def octave(self, line, cell=None, local_ns=None):
-        '''
+        """
         Execute code in Octave, and pull some of the results back into the
         Python namespace::
 
@@ -214,25 +214,25 @@ class OctaveMagics(Magics):
             In [18]: %%octave -s 600,800 -f svg
                 ...: plot([1, 2, 3]);
 
-        '''
+        """
         args = parse_argstring(self.octave, line)
 
         # arguments 'code' in line are prepended to the cell lines
         if cell is None:
-            code = ''
+            code = ""
             return_output = True
         else:
             code = cell
             return_output = False
 
-        code = ' '.join(args.code) + code
+        code = " ".join(args.code) + code
 
         # if there is no local namespace then default to an empty dict
         if local_ns is None:
             local_ns = {}
 
         if args.input:
-            for input in ','.join(args.input).split(','):
+            for input in ",".join(args.input).split(","):
                 input = unicode_to_str(input)
                 try:
                     val = local_ns[input]
@@ -244,7 +244,7 @@ class OctaveMagics(Magics):
         height = args.height
 
         if args.size is not None:
-            width, height = [int(s) for s in args.size.split(',')]
+            width, height = [int(s) for s in args.size.split(",")]
 
         # Handle the temporary directory, defaulting to the Oct2Py instance's
         # temp dir.
@@ -255,21 +255,28 @@ class OctaveMagics(Magics):
 
         # Put the plots in the temp directory so we don't have to make another
         # temporary directory.
-        plot_dir = os.path.join(temp_dir, 'plots')
+        plot_dir = os.path.join(temp_dir, "plots")
         if os.path.exists(plot_dir):
             shutil.rmtree(plot_dir)
         os.makedirs(plot_dir)
 
         # Match current working directory.
-        self._oct.cd(os.getcwd().replace(os.path.sep, '/'))
-        value = self._oct.eval(code, stream_handler=self._publish,
-            plot_dir=plot_dir, plot_width=width, plot_height=height,
-            plot_format=args.format, plot_name='__ipy_oct_fig_',
-            resolution=args.resolution, temp_dir=temp_dir)
+        self._oct.cd(os.getcwd().replace(os.path.sep, "/"))
+        value = self._oct.eval(
+            code,
+            stream_handler=self._publish,
+            plot_dir=plot_dir,
+            plot_width=width,
+            plot_height=height,
+            plot_format=args.format,
+            plot_name="__ipy_oct_fig_",
+            resolution=args.resolution,
+            temp_dir=temp_dir,
+        )
 
         # Publish output
         if args.output:
-            for output in ','.join(args.output).split(','):
+            for output in ",".join(args.output).split(","):
                 output = unicode_to_str(output)
                 self.shell.push({output: self._oct.pull(output)})
 
@@ -282,13 +289,13 @@ class OctaveMagics(Magics):
             return value
 
     def _publish(self, line):
-        publish_display_data({'text/plain': line})
+        publish_display_data({"text/plain": line})
 
 
 __doc__ = __doc__.format(
     OCTAVE_DOC=dedent(OctaveMagics.octave.__doc__),
     OCTAVE_PUSH_DOC=dedent(OctaveMagics.octave_push.__doc__),
-    OCTAVE_PULL_DOC=dedent(OctaveMagics.octave_pull.__doc__)
+    OCTAVE_PULL_DOC=dedent(OctaveMagics.octave_pull.__doc__),
 )
 
 

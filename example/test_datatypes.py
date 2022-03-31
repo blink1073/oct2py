@@ -2,7 +2,8 @@
 """
 from oct2py import octave
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     out = octave.test_datatypes()
     import pprint
+
     pprint.pprint(out)

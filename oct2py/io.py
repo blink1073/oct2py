@@ -2,44 +2,45 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, print_function, division
+from __future__ import absolute_import, division, print_function
 
-import inspect
 import dis
+import inspect
 import threading
 
 import numpy as np
 
 try:
     from scipy.io import loadmat, savemat
+    from scipy.io.matlab import MatlabFunction, MatlabObject
     from scipy.sparse import spmatrix
-    from scipy.io.matlab import MatlabObject, MatlabFunction
 except ImportError:
     try:
-        from scipy.io.matlab.mio5 import MatlabObject, MatlabFunction
+        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject
     except ImportError:
         pass
 
 
 try:
-    from pandas import Series, DataFrame
+    from pandas import DataFrame, Series
 except Exception as e:
+
     class Series:
         pass
+
     class DataFrame:
         pass
 
-from .compat import PY2
-from .dynamic import OctaveVariablePtr, OctaveUserClass, OctaveFunctionPtr
-from .utils import Oct2PyError
 
+from .compat import PY2
+from .dynamic import OctaveFunctionPtr, OctaveUserClass, OctaveVariablePtr
+from .utils import Oct2PyError
 
 _WRITE_LOCK = threading.Lock()
 
 
 def read_file(path, session=None):
-    """Read the data from the given file path.
-    """
+    """Read the data from the given file path."""
     try:
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
@@ -50,18 +51,16 @@ def read_file(path, session=None):
     return out
 
 
-def write_file(obj, path, oned_as='row', convert_to_float=True):
-    """Save a Python object to an Octave file on the given path.
-    """
+def write_file(obj, path, oned_as="row", convert_to_float=True):
+    """Save a Python object to an Octave file on the given path."""
     data = _encode(obj, convert_to_float)
     try:
         # scipy.io.savemat is not thread-save.
         # See https://github.com/scipy/scipy/issues/7260
         with _WRITE_LOCK:
-            savemat(path, data, appendmat=False, oned_as=oned_as,
-                    long_field_names=True)
+            savemat(path, data, appendmat=False, oned_as=oned_as, long_field_names=True)
     except KeyError:  # pragma: no cover
-        raise Exception('could not save mat file')
+        raise Exception("could not save mat file")
 
 
 class Struct(dict):
@@ -95,7 +94,7 @@ class Struct(dict):
     def __getitem__(self, attr):
         # Get a dict value; create a Struct if requesting a Struct member.
         # Do not create a key if the attribute starts with an underscore.
-        if attr in self.keys() or attr.startswith('_'):
+        if attr in self.keys() or attr.startswith("_"):
             return dict.__getitem__(self, attr)
         frame = inspect.currentframe()
         # step into the function that called us
@@ -107,8 +106,7 @@ class Struct(dict):
 
     def _is_allowed(self, frame):
         # Check for allowed op code in the calling frame.
-        allowed = [dis.opmap['STORE_ATTR'], dis.opmap['LOAD_CONST'],
-                   dis.opmap.get('STOP_CODE', 0)]
+        allowed = [dis.opmap["STORE_ATTR"], dis.opmap["LOAD_CONST"], dis.opmap.get("STOP_CODE", 0)]
         bytecode = frame.f_code.co_code
         instruction = bytecode[frame.f_lasti + 3]
         instruction = ord(instruction) if PY2 else instruction
@@ -148,11 +146,12 @@ class StructArray(np.recarray):
     >>> x[0, 1].z
     4.0
     """
+
     def __new__(cls, value, session=None):
         """Create a struct array from a value and optional Octave session."""
         value = np.asarray(value)
         # Squeeze the last element if it is 1
-        if (value.shape[value.ndim - 1] == 1):
+        if value.shape[value.ndim - 1] == 1:
             value = value.squeeze(axis=value.ndim - 1)
         value = np.atleast_1d(value)
 
@@ -172,18 +171,16 @@ class StructArray(np.recarray):
         return self.dtype.names
 
     def __getattribute__(self, attr):
-        """Return object arrays as cells and all other values unchanged.
-        """
+        """Return object arrays as cells and all other values unchanged."""
         attr = np.recarray.__getattribute__(self, attr)
-        if isinstance(attr, np.ndarray) and attr.dtype.kind == 'O':
+        if isinstance(attr, np.ndarray) and attr.dtype.kind == "O":
             return Cell(attr)
         return attr
 
     def __getitem__(self, item):
-        """Return object arrays as cells and all other values unchanged.
-        """
+        """Return object arrays as cells and all other values unchanged."""
         item = np.recarray.__getitem__(self, item)
-        if isinstance(item, np.ndarray) and item.dtype.kind == 'O':
+        if isinstance(item, np.ndarray) and item.dtype.kind == "O":
             return Cell(item)
         return item
 
@@ -191,10 +188,10 @@ class StructArray(np.recarray):
         shape = self.shape
         if len(shape) == 1:
             shape = (shape[0], 1)
-        msg = 'x'.join(str(i) for i in shape)
-        msg += ' StructArray containing the fields:'
+        msg = "x".join(str(i) for i in shape)
+        msg += " StructArray containing the fields:"
         for key in self.fieldnames:
-            msg += '\n    %s' % key
+            msg += "\n    %s" % key
         return msg
 
 
@@ -221,6 +218,7 @@ class Cell(np.ndarray):
     >>> x[0].tolist()
     [1.0, 1.0]
     """
+
     def __new__(cls, value, session=None):
         """Create a cell array from a value and optional Octave session."""
         # Use atleast_2d to preserve Octave size()
@@ -242,19 +240,19 @@ class Cell(np.ndarray):
         if len(shape) == 1:
             shape = (shape[0], 1)
         msg = self.view(np.ndarray).__repr__()
-        msg = msg.replace('array', 'Cell', 1)
-        return msg.replace(', dtype=object', '', 1)
+        msg = msg.replace("array", "Cell", 1)
+        return msg.replace(", dtype=object", "", 1)
 
     def __getitem__(self, key):
-        if key is 0 and self.size==1:
-            # Note: 
+        if key is 0 and self.size == 1:
+            # Note:
             # Can't use `return super().ravel()[0]` here
             key = tuple([0] * self.ndim)
         return super().__getitem__(key)
 
+
 def _extract(data, session=None):
-    """Convert the Octave values to values suitable for Python.
-    """
+    """Convert the Octave values to values suitable for Python."""
     # Extract each item of a list.
     if isinstance(data, list):
         return [_extract(d, session) for d in data]
@@ -277,7 +275,7 @@ def _extract(data, session=None):
         return StructArray(data, session)
 
     # Extract cells.
-    if data.dtype.kind == 'O':
+    if data.dtype.kind == "O":
         return Cell(data, session)
 
     # Compress singleton values.
@@ -286,8 +284,8 @@ def _extract(data, session=None):
 
     # Compress empty values.
     if data.size == 0:
-        if data.dtype.kind in 'US':
-            return ''
+        if data.dtype.kind in "US":
+            return ""
         return []
 
     # Return standard array.
@@ -295,21 +293,19 @@ def _extract(data, session=None):
 
 
 def _create_struct(data, session):
-    """Create a struct from session data.
-    """
+    """Create a struct from session data."""
     out = Struct()
     for name in data.dtype.names:
         item = data[name]
         # Extract values that are cells (they are doubly wrapped).
-        if isinstance(item, np.ndarray) and item.dtype.kind == 'O':
+        if isinstance(item, np.ndarray) and item.dtype.kind == "O":
             item = item.squeeze().tolist()
         out[name] = _extract(item, session)
     return out
 
 
 def _encode(data, convert_to_float):
-    """Convert the Python values to values suitable to send to Octave.
-    """
+    """Convert the Python values to values suitable to send to Octave."""
     ctf = convert_to_float
 
     # Handle variable pointer.
@@ -322,7 +318,7 @@ def _encode(data, convert_to_float):
 
     # Handle a function pointer.
     if isinstance(data, (OctaveFunctionPtr, MatlabFunction)):
-        raise Oct2PyError('Cannot write Octave functions')
+        raise Oct2PyError("Cannot write Octave functions")
 
     # Handle matlab objects.
     if isinstance(data, MatlabObject):
@@ -377,7 +373,7 @@ def _encode(data, convert_to_float):
         return data
 
     # Extract and encode data from object-like arrays.
-    if data.dtype.kind in 'OV':
+    if data.dtype.kind in "OV":
         out = np.empty(data.size, dtype=data.dtype)
         for (i, item) in enumerate(data.ravel()):
             if data.dtype.names:
@@ -388,11 +384,11 @@ def _encode(data, convert_to_float):
         return out.reshape(data.shape)
 
     # Complex 128 is the highest supported by savemat.
-    if data.dtype.name == 'complex256':
+    if data.dtype.name == "complex256":
         return data.astype(np.complex128)
 
     # Convert to float if applicable.
-    if ctf and data.dtype.kind in 'ui':
+    if ctf and data.dtype.kind in "ui":
         return data.astype(np.float64)
 
     # Return standard array.

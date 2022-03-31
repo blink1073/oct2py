@@ -1,4 +1,5 @@
 from __future__ import absolute_import, print_function
+
 import glob
 import logging
 import os
@@ -16,12 +17,11 @@ import numpy as np
 import pandas as pd
 
 import oct2py
-from oct2py import Oct2Py, Oct2PyError, StructArray, Cell
+from oct2py import Cell, Oct2Py, Oct2PyError, StructArray
 from oct2py.compat import StringIO
 
 
 class TestMisc:
-
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
@@ -32,11 +32,11 @@ class TestMisc:
         cls.oc.exit()
 
     def test_unicode_docstring(self):
-        '''Make sure unicode docstrings in Octave functions work'''
+        """Make sure unicode docstrings in Octave functions work"""
         help(self.oc.test_datatypes)
 
     def test_context_manager(self):
-        '''Make sure oct2py works within a context manager'''
+        """Make sure oct2py works within a context manager"""
         with Oct2Py() as oc1:
             ones = oc1.ones(1)
         assert ones == np.ones(1)
@@ -45,13 +45,14 @@ class TestMisc:
         assert ones == np.ones(1)
 
     def test_singleton_sparses(self):
-        '''Make sure a singleton sparse matrix works'''
+        """Make sure a singleton sparse matrix works"""
         import scipy.sparse
+
         data = scipy.sparse.csc_matrix(1)
-        self.oc.push('x', data)
-        assert np.allclose(data.toarray(), self.oc.pull('x').toarray())
-        self.oc.push('y', [data])
-        y = self.oc.pull('y')
+        self.oc.push("x", data)
+        assert np.allclose(data.toarray(), self.oc.pull("x").toarray())
+        self.oc.push("y", [data])
+        y = self.oc.pull("y")
         assert np.allclose(data.toarray(), y[0].toarray())
 
     def test_logging(self):
@@ -61,6 +62,7 @@ class TestMisc:
             hdlr = logging.StreamHandler(sobj)
             hdlr.setLevel(logging.DEBUG)
             return hdlr
+
         hdlr = get_handler()
         self.oc.logger.addHandler(hdlr)
 
@@ -71,14 +73,14 @@ class TestMisc:
         self.oc.zeros(1)
 
         # check the output
-        lines = hdlr.stream.getvalue().strip().split('\n')
-        resp = '\n'.join(lines)
+        lines = hdlr.stream.getvalue().strip().split("\n")
+        resp = "\n".join(lines)
         assert 'exist("zeros")' in resp
         assert 'exist("ones")' not in resp
-        assert '_pyeval(' in resp
+        assert "_pyeval(" in resp
 
         # now make an object with a desired logger
-        logger = oct2py.get_log('test')
+        logger = oct2py.get_log("test")
         hdlr = get_handler()
         logger.addHandler(hdlr)
         logger.setLevel(logging.INFO)
@@ -89,14 +91,15 @@ class TestMisc:
             oc2.zeros(1)
 
         # check the output
-        lines = hdlr.stream.getvalue().strip().split('\n')
-        resp = '\n'.join(lines)
+        lines = hdlr.stream.getvalue().strip().split("\n")
+        resp = "\n".join(lines)
         assert 'exist("zeros")' in resp
         assert 'exist("ones")' not in resp
-        assert '_pyeval(' in resp
+        assert "_pyeval(" in resp
 
     def test_demo(self):
         from oct2py import demo
+
         try:
             demo.demo(0.01, interactive=False)
         except AttributeError:
@@ -104,6 +107,7 @@ class TestMisc:
 
     def test_threads(self):
         from oct2py import thread_check
+
         try:
             thread_check()
         except TypeError:
@@ -111,13 +115,14 @@ class TestMisc:
 
     def test_speed_check(self):
         from oct2py import speed_check
+
         try:
             speed_check()
         except TypeError:
             speed_check.speed_check()
 
     def test_plot(self):
-        plot_dir = tempfile.mkdtemp().replace('\\', '/')
+        plot_dir = tempfile.mkdtemp().replace("\\", "/")
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
@@ -136,17 +141,16 @@ class TestMisc:
         assert np.allclose(x, np.ones(1))
 
     def test_pandas_series(self):
-        data = [1,2,3,4,5,6]
+        data = [1, 2, 3, 4, 5, 6]
         series = pd.Series(data)
-        self.oc.push('x', series)
-        assert np.allclose(data, self.oc.pull('x'))
+        self.oc.push("x", series)
+        assert np.allclose(data, self.oc.pull("x"))
 
     def test_panda_dataframe(self):
         data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        df = pd.DataFrame(data,
-                     columns=['a', 'b', 'c'])
-        self.oc.push('y', df)
-        assert np.allclose(data, self.oc.pull('y'))
+        df = pd.DataFrame(data, columns=["a", "b", "c"])
+        self.oc.push("y", df)
+        assert np.allclose(data, self.oc.pull("y"))
 
     def test_using_exited_session(self):
         with Oct2Py() as oc:
@@ -177,7 +181,7 @@ class TestMisc:
     def test_func_without_docstring(self):
         out = self.oc.test_nodocstring(5)
         assert out == 5
-        assert 'user-defined function' in self.oc.test_nodocstring.__doc__
+        assert "user-defined function" in self.oc.test_nodocstring.__doc__
         assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
 
     def test_func_noexist(self):
@@ -194,10 +198,10 @@ class TestMisc:
         with Oct2Py() as oc:
             oc.addpath(os.path.dirname(__file__))
             DATA = oc.test_datatypes()
-        assert DATA.string.basic == 'spam'
+        assert DATA.string.basic == "spam"
 
     def test_long_variable_name(self):
-        name = 'this_variable_name_is_over_32_char'
+        name = "this_variable_name_is_over_32_char"
         self.oc.push(name, 1)
         x = self.oc.pull(name)
         assert x == 1
@@ -205,34 +209,34 @@ class TestMisc:
     def test_syntax_error_embedded(self):
         with pytest.raises(Oct2PyError):
             self.oc.eval("""eval("a='1")""")
-        self.oc.push('b', 1)
-        x = self.oc.pull('b')
+        self.oc.push("b", 1)
+        x = self.oc.pull("b")
         assert x == 1
 
     def test_oned_as(self):
         x = np.ones(10)
-        self.oc.push('x', x)
-        assert self.oc.pull('x').shape == x[:, np.newaxis].T.shape
-        oc = Oct2Py(oned_as='column')
-        oc.push('x', x)
-        assert oc.pull('x').shape == x[:, np.newaxis].shape
+        self.oc.push("x", x)
+        assert self.oc.pull("x").shape == x[:, np.newaxis].T.shape
+        oc = Oct2Py(oned_as="column")
+        oc.push("x", x)
+        assert oc.pull("x").shape == x[:, np.newaxis].shape
         oc.exit()
 
     def test_temp_dir(self):
         temp_dir = tempfile.mkdtemp()
         oc = Oct2Py(temp_dir=temp_dir)
-        oc.push('a', 1)
+        oc.push("a", 1)
         assert len(os.listdir(temp_dir))
         shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
 
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""
-        self.oc.eval('clear()')
+        self.oc.eval("clear()")
         with pytest.raises(Oct2PyError):
-            self.oc.__getattr__('clear')
+            self.oc.__getattr__("clear")
         with pytest.raises(Oct2PyError):
-            self.oc.feval('clear')
+            self.oc.feval("clear")
 
     def test_multiline_statement(self):
         sobj = StringIO()
@@ -242,29 +246,31 @@ class TestMisc:
 
         self.oc.logger.setLevel(logging.DEBUG)
 
-        ans = self.oc.eval("""
+        ans = self.oc.eval(
+            """
     a =1
     a + 1;
     b = 3
-    b + 1""")
+    b + 1"""
+        )
         text = hdlr.stream.getvalue().strip()
         self.oc.logger.removeHandler(hdlr)
         assert ans == 4
         lines = text.splitlines()
-        lines = [l.replace('  ', ' ') for l in lines]
-        assert lines[-1] == 'ans = 4'
-        assert lines[-2] == 'b = 3'
-        assert lines[-3] == 'a = 1'
+        lines = [l.replace("  ", " ") for l in lines]
+        assert lines[-1] == "ans = 4"
+        assert lines[-2] == "b = 3"
+        assert lines[-3] == "a = 1"
 
     def test_empty_values(self):
-        self.oc.push('a', '')
-        assert self.oc.pull('a') == ''
+        self.oc.push("a", "")
+        assert self.oc.pull("a") == ""
 
-        self.oc.push('a', [])
-        assert self.oc.pull('a') == []
+        self.oc.push("a", [])
+        assert self.oc.pull("a") == []
 
-        self.oc.push('a', None)
-        assert np.isnan(self.oc.pull('a'))
+        self.oc.push("a", None)
+        assert np.isnan(self.oc.pull("a"))
 
         assert self.oc.struct() == [None]
 
@@ -281,18 +287,17 @@ class TestMisc:
         self.oc.logger.removeHandler(hdlr)
 
     def test_deprecated_return_both(self):
-        text, value = self.oc.eval(['disp("hi")', 'ones(3);'],
-                                   return_both=True)
-        assert text.strip() == 'hi'
+        text, value = self.oc.eval(['disp("hi")', "ones(3);"], return_both=True)
+        assert text.strip() == "hi"
         assert np.allclose(value, np.ones((3, 3)))
 
         lines = []
-        text, value = self.oc.eval(['disp("hi")', 'ones(3);'],
-                                   return_both=True,
-                                   stream_handler=lines.append)
-        assert text == ''
+        text, value = self.oc.eval(
+            ['disp("hi")', "ones(3);"], return_both=True, stream_handler=lines.append
+        )
+        assert text == ""
         assert np.allclose(value, np.ones((3, 3)))
-        assert lines[0].strip() == 'hi'
+        assert lines[0].strip() == "hi"
 
     def test_logger(self):
         logger = self.oc.logger
@@ -302,7 +307,7 @@ class TestMisc:
 
     def test_struct_array(self):
         self.oc.eval('x = struct("y", {1, 2}, "z", {3, 4});')
-        x = self.oc.pull('x')
-        assert set(x.fieldnames) == set(('y', 'z'))
+        x = self.oc.pull("x")
+        assert set(x.fieldnames) == set(("y", "z"))
         other = StructArray(x)
         assert other.shape == x.shape

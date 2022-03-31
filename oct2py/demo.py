@@ -2,8 +2,10 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import, print_function
+
 import time
+
 from .compat import PY2
 
 
@@ -60,18 +62,19 @@ def demo(delay=1, interactive=True):
     #########################
     """
     if not PY2:
-        script = script.replace('raw_input', 'input')
+        script = script.replace("raw_input", "input")
 
-    for line in script.strip().split('\n'):
+    for line in script.strip().split("\n"):
         line = line.strip()
-        if not 'input(' in line:
+        if not "input(" in line:
             time.sleep(delay)
             print(">>> {0}".format(line))
             time.sleep(delay)
         if not interactive:
-            if 'plot' in line or 'surf' in line or 'input(' in line:
-                line = 'print()'
+            if "plot" in line or "surf" in line or "input(" in line:
+                line = "print()"
         exec(line)
 
-if __name__ == '__main__':  # pragma: no cover
+
+if __name__ == "__main__":  # pragma: no cover
     demo(delay=0.25)

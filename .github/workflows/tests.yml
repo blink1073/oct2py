@@ -1,60 +1,59 @@
-
 name: oct2py
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
     # Run weekly
     # * is a special character in YAML so you have to quote this string
-    - cron:  '0 0 * * 0'
+    - cron: "0 0 * * 0"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, '3.10']
+        python-version: [3.7, 3.8, 3.9, "3.10"]
       fail-fast: false
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Base Setup
-      uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-    - name: Install Octave
-      run: |
-        sudo apt-get update
-        sudo apt-get install -qq octave octave-signal liboctave-dev
-    - name: Install dependencies
-      run: |
-        make install
-    - name: Run test
-      run: |
-        xvfb-run --auto-servernum make test
-    - name: Generate Docs
-      run: |
-        make docs
-    - name: Make sure the package is release-able
-      run: |
-         make release_prep
-    - name: Generate coverage report
-      run: |
-        xvfb-run --auto-servernum make cover
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
+      - uses: actions/checkout@v2
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - name: Install Octave
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq octave octave-signal liboctave-dev
+      - name: Install dependencies
+        run: |
+          make install
+      - name: Run test
+        run: |
+          xvfb-run --auto-servernum make test
+      - name: Generate Docs
+        run: |
+          make docs
+      - name: Make sure the package is release-able
+        run: |
+          make release_prep
+      - name: Generate coverage report
+        run: |
+          xvfb-run --auto-servernum make cover
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true

@@ -1,7 +1,7 @@
 
 function test = test_datatypes()
 % Test of returning a structure with multiple
-% nesting and multiple return types 
+% nesting and multiple return types
 % Add a UTF char for test: 猫
 
 %%%%%%%%%%%%%%%
