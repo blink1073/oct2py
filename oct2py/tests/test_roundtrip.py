@@ -2,12 +2,11 @@ import os
 
 import numpy as np
 
-from oct2py import Cell, Oct2Py, Oct2PyError, Struct, StructArray
-from oct2py.compat import long, unicode
+from oct2py import Cell, Oct2Py, Oct2PyError, Struct
 
 TYPE_CONVERSIONS = [
     (int, "double", np.float64),
-    (long, "int64", np.int64),
+    (int, "int64", np.int64),
     (float, "double", np.float64),
     (complex, "double", np.complex128),
     (str, "char", str),
@@ -62,7 +61,7 @@ class TestRoundTrip:
                     assert subval1 == subval2
         elif isinstance(val1, np.ndarray):
             np.allclose(val1, np.array(val2))
-        elif isinstance(val1, (str, unicode)):
+        elif isinstance(val1, str):
             assert val1 == val2
         else:
             try:
@@ -317,13 +316,12 @@ class TestBuiltins:
         """Test python numeric types"""
         test = np.random.randint(1000)
         self.helper(int(test))
-        self.helper(long(test))
         self.helper(float(test))
         self.helper(complex(1, 2))
 
     def test_simple_string(self):
-        """Test python str and unicode types"""
-        tests = ["spam", unicode("eggs")]
+        """Test python str types"""
+        tests = ["spam", "eggs"]
         for t in tests:
             self.helper(t)
 

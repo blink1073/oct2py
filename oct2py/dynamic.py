@@ -16,8 +16,6 @@ except ImportError:
     except ImportError:
         pass
 
-from .compat import PY2
-
 
 class OctavePtr:
     """A pointer to an Octave workspace value."""
@@ -95,7 +93,7 @@ class OctaveFunctionPtr(OctavePtr):
         ]
 
         extras = {}
-        for (key, value) in kwargs.copy().items():
+        for (key, _) in kwargs.copy().items():
             if key not in allowed:
                 extras[key] = kwargs.pop(key)
 
@@ -158,8 +156,6 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
 
     def __get__(self, instance, owner=None):
         # Bind to the instance.
-        if PY2:
-            return types.MethodType(self, instance, owner)
         return types.MethodType(self, instance)
 
     def __call__(self, instance, *inputs, **kwargs):

@@ -3,20 +3,14 @@ import logging
 import os
 import shutil
 import tempfile
-
-import pytest
-
-try:
-    import thread
-except ImportError:
-    import _thread as thread
+from io import StringIO
 
 import numpy as np
 import pandas as pd
+import pytest
 
 import oct2py
-from oct2py import Cell, Oct2Py, Oct2PyError, StructArray
-from oct2py.compat import StringIO
+from oct2py import Oct2Py, Oct2PyError, StructArray
 
 
 class TestMisc:
@@ -255,7 +249,7 @@ class TestMisc:
         self.oc.logger.removeHandler(hdlr)
         assert ans == 4
         lines = text.splitlines()
-        lines = [l.replace("  ", " ") for l in lines]
+        lines = [line.replace("  ", " ") for line in lines]
         assert lines[-1] == "ans = 4"
         assert lines[-2] == "b = 3"
         assert lines[-3] == "a = 1"

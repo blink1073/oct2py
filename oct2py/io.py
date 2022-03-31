@@ -22,7 +22,7 @@ except ImportError:
 
 try:
     from pandas import DataFrame, Series
-except Exception as e:
+except Exception:
 
     class Series:
         pass
@@ -31,7 +31,6 @@ except Exception as e:
         pass
 
 
-from .compat import PY2
 from .dynamic import OctaveFunctionPtr, OctaveUserClass, OctaveVariablePtr
 from .utils import Oct2PyError
 
@@ -108,7 +107,6 @@ class Struct(dict):
         allowed = [dis.opmap["STORE_ATTR"], dis.opmap["LOAD_CONST"], dis.opmap.get("STOP_CODE", 0)]
         bytecode = frame.f_code.co_code
         instruction = bytecode[frame.f_lasti + 3]
-        instruction = ord(instruction) if PY2 else instruction
         return instruction in allowed
 
     __setattr__ = dict.__setitem__

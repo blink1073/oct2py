@@ -14,7 +14,6 @@ import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
 
-from .compat import input, string_types, unicode
 from .dynamic import (
     OctavePtr,
     _make_function_ptr_instance,
@@ -149,7 +148,7 @@ class Oct2Py:
         unless `convert_to_float=False`.
 
         """
-        if isinstance(name, (str, unicode)):
+        if isinstance(name, str):
             name = [name]
             var = [var]
 
@@ -190,7 +189,7 @@ class Oct2Py:
           [u'spam', array([[1, 2, 3, 4]])]
 
         """
-        if isinstance(var, (str, unicode)):
+        if isinstance(var, str):
             var = [var]
         outputs = []
         for name in var:
@@ -383,9 +382,7 @@ class Oct2Py:
             raise TypeError("Need to give path to .m file")
 
         if func_name == "clear":
-            raise Oct2PyError(
-                "Cannot use `clear` command directly, use" + ' eval("clear(var1, var2)")'
-            )
+            raise Oct2PyError('Cannot use `clear` command directly, use eval("clear(var1, var2)")')
 
         stream_handler = kwargs.get("stream_handler")
         verbose = kwargs.get("verbose", True)
@@ -505,7 +502,7 @@ class Oct2Py:
         Oct2PyError
             If the command(s) fail.
         """
-        if isinstance(cmds, (str, unicode)):
+        if isinstance(cmds, str):
             cmds = [cmds]
 
         prev_temp_dir = self.temp_dir
@@ -616,7 +613,7 @@ class Oct2Py:
 
         try:
             engine.eval(f'_pyeval("{out_file}", "{in_file}");', timeout=timeout)
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             stream_handler(engine.repl.interrupt())
             raise
         except TIMEOUT:
@@ -643,7 +640,7 @@ class Oct2Py:
         if (
             isinstance(result, Cell)
             and result.size == 1
-            and isinstance(result[0], string_types)
+            and isinstance(result[0], str)
             and result[0] == "__no_value__"
         ):
             result = None
@@ -805,7 +802,7 @@ class Oct2Py:
 
         if name == "clear":
             raise Oct2PyError(
-                "Cannot use `clear` command directly, use" + ' `eval("clear(var1, var2)")`'
+                'Cannot use `clear` command directly, use `eval("clear(var1, var2)")`'
             )
 
         # Check for user defined class.
@@ -828,21 +825,21 @@ class Oct2Py:
         nout = 0  # default nout of eval
         status = "NOT FUNCTION"
         if func_path.endswith(".m"):  # only if `func_path` is .m file
-            with open(func_path, encoding="utf8") as f:
-                for l in f:
-                    if l[0] != "f":  # not function
+            with open(func_path, encoding="utf8") as fid:
+                for line in fid:
+                    if line[0] != "f":  # not function
                         if status == "NOT FUNCTION":
                             continue
-                    l = l.translate(str.maketrans("", "", "[]()")).split()
+                    line = line.translate(str.maketrans("", "", "[]()")).split()
                     try:
-                        l.remove("function")
-                    except:
+                        line.remove("function")
+                    except Exception:
                         pass
-                    for s in l:
-                        if s == "...":
+                    for char in line:
+                        if char == "...":
                             status = "FUNCTION"
                             continue
-                        if s != "=":
+                        if char != "=":
                             nout += 1
                         else:
                             return nout

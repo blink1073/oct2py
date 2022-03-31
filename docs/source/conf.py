@@ -12,7 +12,6 @@
 
 import datetime
 import os
-import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -46,8 +45,6 @@ source_encoding = "utf-8"
 # General information about the project.
 project = "Oct2Py"
 copyright = f"2011 - {datetime.date.today().year}, Oct2Py contributors"
-
-import os
 
 _version_py = os.path.join("..", "..", "oct2py", "_version.py")
 version_ns = {}
@@ -179,14 +176,7 @@ htmlhelp_basename = "Oct2Pydoc"
 
 # -- Options for LaTeX output --------------------------------------------------
 
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #'papersize': 'letterpaper',
-    # The font size ('10pt', '11pt' or '12pt').
-    #'pointsize': '10pt',
-    # Additional stuff for the LaTeX preamble.
-    #'preamble': '',
-}
+latex_elements = {}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
