@@ -52,7 +52,7 @@ def thread_check(nthreads=3):
     """
     print(f"Starting {nthreads} threads at {datetime.datetime.now()}")
     threads = []
-    for i in range(nthreads):
+    for _ in range(nthreads):
         thread = ThreadClass()
         thread.daemon = True
         thread.start()

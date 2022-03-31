@@ -2,13 +2,13 @@ import logging
 import os
 import pickle
 import tempfile
+from io import StringIO
 
 import numpy as np
 import pytest
-from IPython.display import SVG, Image
+from IPython.display import SVG
 
-from oct2py import Cell, Oct2Py, Oct2PyError, Struct
-from oct2py.compat import StringIO
+from oct2py import Oct2Py, Oct2PyError, Struct
 from oct2py.io import MatlabFunction
 
 
@@ -256,7 +256,7 @@ class TestUsage:
         self.oc.feval(
             "evalin", "base", "disp(1);disp(2);disp(3)", nout=0, stream_handler=lines.append
         )
-        lines = [l.strip() for l in lines]
+        lines = [line.strip() for line in lines]
         assert lines == ["1", "2", "3"], lines
 
         val = self.oc.feval("svd", np.array([[1, 2], [1, 3]]))
@@ -274,7 +274,7 @@ class TestUsage:
 
         lines = []
         self.oc.eval("disp(1);disp(2);disp(3)", nout=0, stream_handler=lines.append)
-        lines = [l.strip() for l in lines]
+        lines = [line.strip() for line in lines]
         assert lines == ["1", "2", "3"], lines
 
         a = self.oc.eval(["zeros(3);", "ones(3);"])

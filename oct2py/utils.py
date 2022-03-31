@@ -1,13 +1,8 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-
-import dis
-import inspect
 import logging
 import sys
-
-from .compat import PY2
 
 
 class Oct2PyError(Exception):

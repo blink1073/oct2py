@@ -2,12 +2,11 @@ import os
 
 import numpy as np
 
-from oct2py import Cell, Oct2Py, Struct, StructArray
-from oct2py.compat import long, unicode
+from oct2py import Cell, Oct2Py, Struct
 
 TYPE_CONVERSIONS = [
     (int, "int32", np.int32),
-    (long, "int64", np.int64),
+    (int, "int64", np.int64),
     (float, "double", np.float64),
     (complex, "double", np.complex128),
     (str, "char", str),

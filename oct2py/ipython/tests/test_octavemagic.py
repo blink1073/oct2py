@@ -8,7 +8,6 @@ from IPython.display import SVG
 from IPython.testing.globalipapp import get_ipython
 
 from oct2py import Oct2PyError
-from oct2py.ipython import octavemagic
 
 
 class OctaveMagicTest(unittest.TestCase):

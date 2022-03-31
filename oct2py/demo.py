@@ -4,8 +4,6 @@
 
 import time
 
-from .compat import PY2
-
 
 def demo(delay=1, interactive=True):
     """
@@ -59,12 +57,11 @@ def demo(delay=1, interactive=True):
     # Demo Complete!
     #########################
     """
-    if not PY2:
-        script = script.replace("raw_input", "input")
+    script = script.replace("raw_input", "input")
 
     for line in script.strip().split("\n"):
         line = line.strip()
-        if not "input(" in line:
+        if "input(" not in line:
             time.sleep(delay)
             print(f">>> {line}")
             time.sleep(delay)

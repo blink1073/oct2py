@@ -51,7 +51,6 @@ from IPython.core.magic import (
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
 from IPython.display import display, publish_display_data
 from IPython.testing.skipdoctest import skip_doctest
-from IPython.utils.py3compat import unicode_to_str
 from IPython.utils.text import dedent
 
 import oct2py
@@ -100,7 +99,6 @@ class OctaveMagics(Magics):
         """
         inputs = line.split(" ")
         for input in inputs:
-            input = unicode_to_str(input)
             self._oct.push(input, self.shell.user_ns[input])
 
     @skip_doctest
@@ -126,7 +124,6 @@ class OctaveMagics(Magics):
         """
         outputs = line.split(" ")
         for output in outputs:
-            output = unicode_to_str(output)
             self.shell.push({output: self._oct.pull(output)})
 
     @skip_doctest
@@ -232,7 +229,6 @@ class OctaveMagics(Magics):
 
         if args.input:
             for input in ",".join(args.input).split(","):
-                input = unicode_to_str(input)
                 try:
                     val = local_ns[input]
                 except KeyError:
@@ -276,7 +272,6 @@ class OctaveMagics(Magics):
         # Publish output
         if args.output:
             for output in ",".join(args.output).split(","):
-                output = unicode_to_str(output)
                 self.shell.push({output: self._oct.pull(output)})
 
         # Publish images
