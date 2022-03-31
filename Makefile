@@ -33,10 +33,9 @@ cover: clean
 	pytest --doctest-modules -l --cov-report html --cov-report=xml --cov=${NAME}
 
 release_prep: clean
-	pip install -q wheel twine
+	pip install -q build twine
 	git commit -a -m "Release ${VERSION}"; true
-	python setup.py bdist_wheel --universal
-	python setup.py sdist
+	python -m build .
 	twine check dist/*
 
 release: release_prep

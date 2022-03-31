@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Install Oct2py
-        run: make install
+        run: pip install .
       - name: Generate Docs
         run: make docs
 
@@ -56,6 +56,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Install Oct2py
-        run: make install
+        run: pip install .
       - name: Make sure the package is release-able
         run: make release_prep
