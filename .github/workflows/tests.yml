@@ -20,8 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Base Setup
-        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Install Octave
         run: |
           sudo apt-get update
@@ -29,15 +28,6 @@ jobs:
       - name: Install dependencies
         run: |
           make install
-      - name: Run test
-        run: |
-          xvfb-run --auto-servernum make test
-      - name: Generate Docs
-        run: |
-          make docs
-      - name: Make sure the package is release-able
-        run: |
-          make release_prep
       - name: Generate coverage report
         run: |
           xvfb-run --auto-servernum make cover
@@ -49,11 +39,19 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: true
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - name: Generate Docs
+        run: make docs
+
+  release_prep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - name: Make sure the package is release-able
+        run: make release_prep
