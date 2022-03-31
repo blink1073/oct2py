@@ -10,8 +10,9 @@ import numpy as np
 
 try:
     from scipy.io import loadmat, savemat
-    from scipy.io.matlab import MatlabFunction, MatlabObject
-    from scipy.sparse import spmatrix
+
+    from scipy.sparse import spmatrix  # isort:skip
+    from scipy.io.matlab import MatlabFunction, MatlabObject  # isort:skip
 except ImportError:
     try:
         from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject
