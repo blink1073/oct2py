@@ -21,12 +21,6 @@ def get_log(name=None):
     ----------
     name : str
         Name of the log.
-
-    References
-    ----------
-    .. [1] Logging facility for Python,
-           http://docs.python.org/library/logging.html
-
     """
     if name is None:
         name = "oct2py"

@@ -1,9 +1,53 @@
 [build-system]
-requires = ["setuptools>=46.4.0", "wheel", "packaging", "numpy", "octave_kernel"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "oct2py"
+version = "5.5.1"
+description = "'Python to GNU Octave bridge --> run m-files from python.'"
+license = {text = "MIT"}
+authors = [{name = "Steven Silvester", email = "steven.silvester@ieee.org"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "numpy >=1.12",
+    "scipy >=0.17",
+    "octave_kernel >= 0.34.0",
+]
+readme = "README.rst"
+
+[project.urls]
+homepage = "https://github.com/blink1073/oct2py"
+documentation = "https://blink1073.github.io/oct2py"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pandas",
+    "nbconvert",
+    "pytest-timeout",
+    "pre-commit",
+]
+docs = [
+    "sphinx",
+    "sphinx-bootstrap-theme",
+    "myst-parser",
+    "sphinx_rtd_theme"
+]
 
 [tool.jupyter-releaser]
-skip = ["check-links"]
+skip = ["check-links", "check-manifest"]
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
@@ -12,7 +56,7 @@ before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave oc
 [tool.tbump.version]
 current = "5.5.1"
 regex = '''
-  (?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)(?P<releaselevel>[a-z]+)?(?P<serial>\d+)?
+  (?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)(?P<releaselevel>[a-z]+)?(?P<serial>[a-z]+)?
 '''
 
 [tool.tbump.git]
@@ -20,16 +64,28 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [[tool.tbump.file]]
+src = "pyproject.toml"
+version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
+
+[[tool.tbump.file]]
 src = "oct2py/_version.py"
-version_template = '({major}, {minor}, {micro}, "{releaselevel}", {serial})'
+version_template = '({major}, {minor}, {micro}, "{releaselevel}", "{serial}")'
+
+[[tool.tbump.file]]
+src = "docs/source/conf.py"
+version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
+
+[[tool.tbump.file]]
+src = "Makefile"
+version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
 
 [[tool.tbump.field]]
 name = "releaselevel"
-default = "final"
+default = ""
 
 [[tool.tbump.field]]
 name = "serial"
-default = 0
+default = ""
 
 [tool.pytest.ini_options]
 testpaths = "oct2py"

@@ -1,16 +1,15 @@
 # Note: This is meant for Oct2Py developer use only
-.PHONY: all clean test cover release gh-pages docs
+.PHONY: all clean test cover release docs
 
-NAME:=$(shell python setup.py --name 2>/dev/null)
-VERSION:=$(shell python setup.py --version 2>/dev/null)
+NAME:="oct2py"
+VERSION:="5.5.1"
 KILL_PROC="from ${NAME} import kill_octave; kill_octave()"
 
 all: clean
-	python setup.py install
-
+	pip install -e ".[docs,test]"
 
 install: clean
-	pip install -e .[docs,test]
+	pip install -e ".[docs,test]"
 	pre-commit install
 	octave --eval "pkg install -forge control"
 	octave --eval "pkg install -forge signal"
@@ -33,10 +32,9 @@ cover: clean
 	pytest --doctest-modules -l --cov-report html --cov-report=xml --cov=${NAME}
 
 release_prep: clean
-	pip install -q wheel twine
+	pip install -q build twine
 	git commit -a -m "Release ${VERSION}"; true
-	python setup.py bdist_wheel --universal
-	python setup.py sdist
+	python -m build .
 	twine check dist/*
 
 release: release_prep
@@ -46,6 +44,6 @@ release: release_prep
 	twine upload dist/*
 
 docs: clean
-	pip install -q sphinx-rtd-theme numpydoc sphinx
+	pip install -e ".[docs]"
 	export SPHINXOPTS=-W; make -C docs html
 	export SPHINXOPTS=-W; make -C docs linkcheck || export SPHINXOPTS=-W; make -C docs linkcheck

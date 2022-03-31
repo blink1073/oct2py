@@ -559,7 +559,10 @@ class Oct2Py:
         if "OCTAVE_EXECUTABLE" not in os.environ and "OCTAVE" in os.environ:
             os.environ["OCTAVE_EXECUTABLE"] = os.environ["OCTAVE"]
 
-        self._engine = OctaveEngine(stdin_handler=self._handle_stdin, logger=self.logger)
+        try:
+            self._engine = OctaveEngine(stdin_handler=self._handle_stdin, logger=self.logger)
+        except Exception as e:
+            raise Oct2PyError(str(e))
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
