@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import absolute_import, print_function, division
 
 import types
 import warnings
@@ -21,15 +19,14 @@ except ImportError:
 from .compat import PY2
 
 
-class OctavePtr(object):
-    """A pointer to an Octave workspace value.
-    """
+class OctavePtr:
+    """A pointer to an Octave workspace value."""
 
     def __init__(self, session_weakref, name, address):
         self._name = name
         self._address = address
         self._ref = session_weakref
-        self.__module__ = 'oct2py.dynamic'
+        self.__module__ = "oct2py.dynamic"
         self.__name__ = name
 
     @property
@@ -41,7 +38,7 @@ class OctavePtr(object):
         return self._address
 
 
-class _DocDescriptor(object):
+class _DocDescriptor:
     """An object that dynamically fetches the documentation
     for an Octave value.
     """
@@ -59,11 +56,11 @@ class _DocDescriptor(object):
 
 
 class OctaveVariablePtr(OctavePtr):
-    """An object that acts as a pointer to an Octave value.
-    """
+    """An object that acts as a pointer to an Octave value."""
+
     @property
     def __doc__(self):
-        return '%s is a variable' % self.name
+        return "%s is a variable" % self.name
 
     @property
     def value(self):
@@ -75,18 +72,27 @@ class OctaveVariablePtr(OctavePtr):
 
 
 class OctaveFunctionPtr(OctavePtr):
-    """An object that acts as a pointer to an Octave function.
-    """
+    """An object that acts as a pointer to an Octave function."""
 
     def __init__(self, session_weakref, name):
-        address = '@%s' % name
-        super(OctaveFunctionPtr, self).__init__(session_weakref, name, address)
+        address = "@%s" % name
+        super().__init__(session_weakref, name, address)
 
     def __call__(self, *inputs, **kwargs):
         # Check for allowed keyword arguments
-        allowed = ['verbose', 'store_as', 'timeout', 'stream_handler',
-                   'plot_dir', 'plot_name', 'plot_format', 'plot_width',
-                   'plot_height', 'plot_res', 'nout']
+        allowed = [
+            "verbose",
+            "store_as",
+            "timeout",
+            "stream_handler",
+            "plot_dir",
+            "plot_name",
+            "plot_format",
+            "plot_width",
+            "plot_height",
+            "plot_res",
+            "nout",
+        ]
 
         extras = {}
         for (key, value) in kwargs.copy().items():
@@ -94,11 +100,9 @@ class OctaveFunctionPtr(OctavePtr):
                 extras[key] = kwargs.pop(key)
 
         if extras:
-            warnings.warn('Key - value pairs are deprecated, use `func_args`',
-                          stacklevel=2)
+            warnings.warn("Key - value pairs are deprecated, use `func_args`", stacklevel=2)
 
-        inputs += tuple(item for pair in zip(extras.keys(), extras.values())
-                        for item in pair)
+        inputs += tuple(item for pair in zip(extras.keys(), extras.values()) for item in pair)
 
         return self._ref().feval(self.name, *inputs, **kwargs)
 
@@ -107,25 +111,23 @@ class OctaveFunctionPtr(OctavePtr):
 
 
 class OctaveUserClassAttr(OctavePtr):
-    """An attribute associated with an Octave user class instance.
-    """
+    """An attribute associated with an Octave user class instance."""
 
     def __get__(self, instance, owner=None):
         if instance is None:
-            return 'dynamic attribute'
+            return "dynamic attribute"
         pointer = OctaveUserClass.to_pointer(instance)
-        return instance._ref().feval('get', pointer, self.address)
+        return instance._ref().feval("get", pointer, self.address)
 
     def __set__(self, instance, value):
         if instance is None:
             return
         pointer = OctaveUserClass.to_pointer(instance)
         # The set function returns a new struct, so we have to store_as.
-        instance._ref().feval('set', pointer, self.address, value,
-                              store_as=pointer.address)
+        instance._ref().feval("set", pointer, self.address, value, store_as=pointer.address)
 
 
-class _MethodDocDescriptor(object):
+class _MethodDocDescriptor:
     """An object that dynamically fetches the documentation
     for an Octave user class method.
     """
@@ -142,14 +144,13 @@ class _MethodDocDescriptor(object):
         session = self.ref()
         class_name = self.class_name
         method = self.name
-        doc = session._get_doc('@%s/%s' % (class_name, method))
+        doc = session._get_doc(f"@{class_name}/{method}")
         self.doc = doc or session._get_doc(method)
         return self.doc
 
 
 class OctaveUserClassMethod(OctaveFunctionPtr):
-    """A method for a user defined Octave class.
-    """
+    """A method for a user defined Octave class."""
 
     def __init__(self, session_weakref, name, class_name):
         OctaveFunctionPtr.__init__(self, session_weakref, name)
@@ -167,26 +168,24 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
         self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):
-        return '"%s" Octave method for object' % (self.name,
-                                                  self.class_name)
+        return f'"{self.name}" Octave method for object'
 
 
-class OctaveUserClass(object):
-    """A wrapper for an Octave user class.
-    """
+class OctaveUserClass:
+    """A wrapper for an Octave user class."""
 
     def __init__(self, *inputs, **kwargs):
         """Create a new instance with the user class constructor."""
-        addr = self._address = '%s_%s' % (self._name, id(self))
+        addr = self._address = f"{self._name}_{id(self)}"
         self._ref().feval(self._name, *inputs, store_as=addr, **kwargs)
 
     @classmethod
     def from_value(cls, value):
         """This is how an instance is created when we read a
-           MatlabObject from a MAT file.
+        MatlabObject from a MAT file.
         """
         instance = OctaveUserClass.__new__(cls)
-        instance._address = '%s_%s' % (instance._name, id(instance))
+        instance._address = f"{instance._name}_{id(instance)}"
         instance._ref().push(instance._address, value)
         return instance
 
@@ -208,27 +207,24 @@ class OctaveUserClass(object):
 
     @classmethod
     def to_pointer(cls, instance):
-        """Get a pointer to the private object.
-        """
+        """Get a pointer to the private object."""
         return OctavePtr(instance._ref, instance._name, instance._address)
 
 
 def _make_user_class(session, name):
     """Make an Octave class for a given class name"""
-    attrs = session.eval('fieldnames(%s);' % name, nout=1).ravel().tolist()
-    methods = session.eval('methods(%s);' % name, nout=1).ravel().tolist()
+    attrs = session.eval("fieldnames(%s);" % name, nout=1).ravel().tolist()
+    methods = session.eval("methods(%s);" % name, nout=1).ravel().tolist()
     ref = weakref.ref(session)
 
     doc = _DocDescriptor(ref, name)
-    values = dict(__doc__=doc, _name=name, _ref=ref, _attrs=attrs,
-                  __module__='oct2py.dynamic')
+    values = dict(__doc__=doc, _name=name, _ref=ref, _attrs=attrs, __module__="oct2py.dynamic")
 
     for method in methods:
         doc = _MethodDocDescriptor(ref, name, method)
-        cls_name = '%s_%s' % (name, method)
+        cls_name = f"{name}_{method}"
         method_values = dict(__doc__=doc)
-        method_cls = type(str(cls_name),
-                          (OctaveUserClassMethod,), method_values)
+        method_cls = type(str(cls_name), (OctaveUserClassMethod,), method_values)
         values[method] = method_cls(ref, method, name)
 
     for attr in attrs:
@@ -245,6 +241,5 @@ def _make_function_ptr_instance(session, name):
 
 
 def _make_variable_ptr_instance(session, name):
-    """Make a pointer instance for a given variable by name.
-    """
+    """Make a pointer instance for a given variable by name."""
     return OctaveVariablePtr(weakref.ref(session), name, name)

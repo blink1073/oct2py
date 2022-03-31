@@ -35,7 +35,8 @@ GNU Octave Installation
   is *NOT* supported.
   The MinGW version requires the 7zip_ program for installation.
   Make sure to install gnuplot if prompted.
-  Finally, to add Octave to your path. You can do so from the Environmental Variables dialog for your version of Windows, or set from the command prompt::
+  Finally, to add Octave to your path. You can do so from the Environmental
+  Variables dialog for your version of Windows, or set from the command prompt::
 
       setx PATH "%PATH%;<path-to-octave-dir>
 
@@ -44,11 +45,11 @@ GNU Octave Installation
   It means your PATH variable is too long.  You'll have to manually trim in in the Windows
   Environmental Variables editor.
 
-- To test, open a command window (or terminal) and type: `octave`.  If Octave starts, you should
-   be good to go.
+- To test, open a command window (or terminal) and type: `octave`.
+  If Octave starts, you should be good to go.
 
-- Alternatively, you can specify the path to your Octave executable by creating an `OCTAVE_EXECUTABLE` environmental variable.
-
+- Alternatively, you can specify the path to your Octave executable by
+  creating an `OCTAVE_EXECUTABLE` environmental variable.
 
 .. _Anaconda: https://conda.io/projects/conda/en/latest/user-guide/install/index.html
 .. _pip: http://www.pip-installer.org/en/latest/installing.html

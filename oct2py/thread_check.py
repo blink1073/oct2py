@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-from __future__ import print_function, absolute_import
-import threading
+
 import datetime
+import threading
+
 from . import Oct2Py, Oct2PyError
 
 
 class ThreadClass(threading.Thread):
-    """Octave instance thread
-    """
+    """Octave instance thread"""
 
     def run(self):
         """
@@ -24,15 +23,15 @@ class ThreadClass(threading.Thread):
         """
         octave = Oct2Py()
         # write the same variable name in each thread and read it back
-        octave.push('name', self.name)
-        name = octave.pull('name')
+        octave.push("name", self.name)
+        name = octave.pull("name")
         now = datetime.datetime.now()
-        print("{0} got '{1}' at {2}".format(self.name, name, now))
+        print(f"{self.name} got '{name}' at {now}")
         octave.exit()
         try:
             assert self.name == name
         except AssertionError:  # pragma: no cover
-            raise Oct2PyError('Thread collision detected')
+            raise Oct2PyError("Thread collision detected")
         return
 
 
@@ -51,8 +50,7 @@ def thread_check(nthreads=3):
         If the thread does not sucessfully demonstrate independence.
 
     """
-    print("Starting {0} threads at {1}".format(nthreads,
-                                               datetime.datetime.now()))
+    print(f"Starting {nthreads} threads at {datetime.datetime.now()}")
     threads = []
     for i in range(nthreads):
         thread = ThreadClass()
@@ -61,8 +59,8 @@ def thread_check(nthreads=3):
         threads.append(thread)
     for thread in threads:
         thread.join()
-    print('All threads closed at {0}'.format(datetime.datetime.now()))
+    print(f"All threads closed at {datetime.datetime.now()}")
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     thread_check()

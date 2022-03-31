@@ -3,20 +3,11 @@
 
 from collections import namedtuple
 
-VersionInfo = namedtuple('VersionInfo', [
-    'major',
-    'minor',
-    'micro',
-    'releaselevel',
-    'serial'
-])
+VersionInfo = namedtuple("VersionInfo", ["major", "minor", "micro", "releaselevel", "serial"])
 
 version_info = VersionInfo(5, 5, 1, "final", 0)
 
-__version__ = '{}.{}.{}'.format(
-    version_info.major,
-    version_info.minor,
-    version_info.micro)
+__version__ = f"{version_info.major}.{version_info.minor}.{version_info.micro}"
 
-if version_info.releaselevel != 'final':
-    __version__ += '{}{}'.format(version_info.releaselevel, version_info.serial)
+if version_info.releaselevel != "final":
+    __version__ += f"{version_info.releaselevel}{version_info.serial}"

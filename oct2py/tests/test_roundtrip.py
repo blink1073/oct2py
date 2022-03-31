@@ -1,35 +1,33 @@
-from __future__ import absolute_import, print_function
 import os
 
 import numpy as np
 
-from oct2py import Oct2Py, Oct2PyError, Struct, Cell, StructArray
-from oct2py.compat import unicode, long
-
+from oct2py import Cell, Oct2Py, Oct2PyError, Struct, StructArray
+from oct2py.compat import long, unicode
 
 TYPE_CONVERSIONS = [
-    (int, 'double', np.float64),
-    (long, 'int64', np.int64),
-    (float, 'double', np.float64),
-    (complex, 'double', np.complex128),
-    (str, 'char', str),
-    (bool, 'logical', bool),
-    (None, 'double', np.nan),
-    (dict, 'struct', Struct),
-    (np.int8, 'int8', np.int8),
-    (np.int16, 'int16', np.int16),
-    (np.int32, 'int32', np.int32),
-    (np.int64, 'int64', np.int64),
-    (np.uint8, 'uint8', np.uint8),
-    (np.uint16, 'uint16', np.uint16),
-    (np.uint32, 'uint32', np.uint32),
-    (np.uint64, 'uint64', np.uint64),
-    (np.float16, 'double', np.float64),
-    (np.float32, 'double', np.float64),
-    (np.float64, 'double', np.float64),
-    (np.double, 'double', np.float64),
-    (np.complex64, 'double', np.complex128),
-    (np.complex128, 'double', np.complex128),
+    (int, "double", np.float64),
+    (long, "int64", np.int64),
+    (float, "double", np.float64),
+    (complex, "double", np.complex128),
+    (str, "char", str),
+    (bool, "logical", bool),
+    (None, "double", np.nan),
+    (dict, "struct", Struct),
+    (np.int8, "int8", np.int8),
+    (np.int16, "int16", np.int16),
+    (np.int32, "int32", np.int32),
+    (np.int64, "int64", np.int64),
+    (np.uint8, "uint8", np.uint8),
+    (np.uint16, "uint16", np.uint16),
+    (np.uint32, "uint32", np.uint32),
+    (np.uint64, "uint64", np.uint64),
+    (np.float16, "double", np.float64),
+    (np.float32, "double", np.float64),
+    (np.float64, "double", np.float64),
+    (np.double, "double", np.float64),
+    (np.complex64, "double", np.complex128),
+    (np.complex128, "double", np.complex128),
 ]
 
 
@@ -41,6 +39,7 @@ class TestRoundTrip:
         making sure the value and the type are preserved.
 
     """
+
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
@@ -52,8 +51,7 @@ class TestRoundTrip:
         cls.oc.exit()
 
     def nested_equal(self, val1, val2):
-        """Test for equality in a nested list or ndarray
-        """
+        """Test for equality in a nested list or ndarray"""
         if isinstance(val1, list):
             for (subval1, subval2) in zip(val1, val2):
                 if isinstance(subval1, list):
@@ -68,8 +66,7 @@ class TestRoundTrip:
             assert val1 == val2
         else:
             try:
-                assert (np.alltrue(np.isnan(val1)) and
-                        np.alltrue(np.isnan(val2)))
+                assert np.alltrue(np.isnan(val1)) and np.alltrue(np.isnan(val2))
             except (AssertionError, NotImplementedError):
                 assert np.allclose([val1], [val2])
 
@@ -94,88 +91,78 @@ class TestRoundTrip:
                 pass
 
     def test_int(self):
-        """Test roundtrip value and type preservation for integer types
-        """
-        for key in ['int8', 'int16', 'int32', 'int64',
-                    'uint8', 'uint16', 'uint32', 'uint64']:
+        """Test roundtrip value and type preservation for integer types"""
+        for key in ["int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"]:
             self.helper(self.data.num.int[key])
 
     def test_float(self):
-        """Test roundtrip value and type preservation for float types
-        """
-        for key in ['float64', 'complex', 'complex_matrix']:
+        """Test roundtrip value and type preservation for float types"""
+        for key in ["float64", "complex", "complex_matrix"]:
             self.helper(self.data.num[key])
-        self.helper(self.data.num['float32'], float)
+        self.helper(self.data.num["float32"], float)
 
     def test_misc_num(self):
-        """Test roundtrip value and type preservation for misc numeric types
-        """
-        for key in ['inf', 'NaN', 'matrix', 'vector', 'column_vector',
-                    'matrix3d', 'matrix5d']:
+        """Test roundtrip value and type preservation for misc numeric types"""
+        for key in ["inf", "NaN", "matrix", "vector", "column_vector", "matrix3d", "matrix5d"]:
             self.helper(self.data.num[key])
 
     def test_logical(self):
-        """Test roundtrip value and type preservation for logical type
-        """
+        """Test roundtrip value and type preservation for logical type"""
         self.helper(self.data.logical)
 
     def test_string(self):
-        """Test roundtrip value and type preservation for string types
-        """
-        self.helper(self.data.string['basic'], str)
-        data = self.data.string['cell_array']
+        """Test roundtrip value and type preservation for string types"""
+        self.helper(self.data.string["basic"], str)
+        data = self.data.string["cell_array"]
         incoming = self.oc.roundtrip(data)
         assert isinstance(incoming, Cell)
         assert incoming.tolist() == data.tolist()
 
     def test_struct_array(self):
-        """Test roundtrip value and type preservation for struct array types
-        """
+        """Test roundtrip value and type preservation for struct array types"""
         data = self.data.struct_array
         incoming = self.oc.roundtrip(data)
         assert incoming.name.tolist() == data.name.tolist()
         assert incoming.age.tolist() == data.age.tolist()
 
     def test_cell_array(self):
-        """Test roundtrip value and type preservation for cell array types
-        """
-        for key in ['vector', 'matrix', 'array']:
+        """Test roundtrip value and type preservation for cell array types"""
+        for key in ["vector", "matrix", "array"]:
             data = self.data.cell[key]
             incoming = self.oc.roundtrip(data)
             assert isinstance(incoming, Cell), type(incoming)
             assert incoming.squeeze().shape == data.squeeze().shape
 
     def test_octave_origin(self):
-        '''Test all of the types, originating in octave, and returning
-        '''
-        self.oc.eval('x = test_datatypes();')
-        assert self.oc.pull('x') is not None
-        self.oc.push('y', self.data)
+        """Test all of the types, originating in octave, and returning"""
+        self.oc.eval("x = test_datatypes();")
+        assert self.oc.pull("x") is not None
+        self.oc.push("y", self.data)
         try:
             self.oc.isequaln
-            func = 'isequaln'
+            func = "isequaln"
         except Oct2PyError:
-            func = 'isequalwithequalnans'
+            func = "isequalwithequalnans"
 
         # Handle simple objects.
         for key in self.data.keys():
-            if key not in ['nested', 'sparse', 'cell', 'object', 'struct_vector', 'num']:
-                cmd = '{0}(x.{1},y.{1});'.format(func, key)
+            if key not in ["nested", "sparse", "cell", "object", "struct_vector", "num"]:
+                cmd = "{0}(x.{1},y.{1});".format(func, key)
                 assert self.oc.eval(cmd), key
-                cmd = '{0}(x.nested.{1},y.nested.{1});'.format(func, key)
+                cmd = "{0}(x.nested.{1},y.nested.{1});".format(func, key)
                 assert self.oc.eval(cmd), key
 
         # Handle cell type.
-        for key in self.data['cell'].keys():
-            if key in ['empty', 'array']:
+        for key in self.data["cell"].keys():
+            if key in ["empty", "array"]:
                 continue
-            cmd = '{0}(x.cell.{1},y.cell.{1});'.format(func, key)
+            cmd = "{0}(x.cell.{1},y.cell.{1});".format(func, key)
             assert self.oc.eval(cmd), key
-            cmd = '{0}(x.nested.cell.{1},y.nested.cell.{1});'.format(func, key)
+            cmd = "{0}(x.nested.cell.{1},y.nested.cell.{1});".format(func, key)
             assert self.oc.eval(cmd), key
         for i in [1, 2]:
-            cmd = '{0}(x.cell.{1}({2}),y.cell.{1}({2}))'
-            cmd = cmd.format(func, 'array', i)
+            cmd = "{0}(x.cell.{1}({2}),y.cell.{1}({2}))"
+            cmd = cmd.format(func, "array", i)
             assert self.oc.eval(cmd, key)
 
         # Handle object type.
@@ -188,31 +175,31 @@ class TestRoundTrip:
         assert self.oc.eval(cmd)
 
         # Handle sparse type.
-        cmd = '{0}(full(x.sparse), full(y.sparse))'.format(func)
+        cmd = f"{func}(full(x.sparse), full(y.sparse))"
         assert self.oc.eval(cmd)
-        cmd = '{0}(full(x.nested.sparse), full(y.nested.sparse))'.format(func)
+        cmd = f"{func}(full(x.nested.sparse), full(y.nested.sparse))"
         assert self.oc.eval(cmd)
 
         # Handle struct vector type.
         for i in range(self.data.struct_vector.size):
-            cmd = '{0}(x.struct_vector({1}), y.struct_vector({1}))'
+            cmd = "{0}(x.struct_vector({1}), y.struct_vector({1}))"
             assert self.oc.eval(cmd.format(func, i + 1))
-            cmd = '{0}(x.nested.struct_vector({1}), y.nested.struct_vector({1}))'
+            cmd = "{0}(x.nested.struct_vector({1}), y.nested.struct_vector({1}))"
             assert self.oc.eval(cmd.format(func, i + 1))
 
         # Handle the num type
-        x = self.oc.pull('x')
-        y = self.oc.pull('y')
-        for key in self.data['num'].keys():
-            if key == 'int':
+        x = self.oc.pull("x")
+        y = self.oc.pull("y")
+        for key in self.data["num"].keys():
+            if key == "int":
                 continue
-            if key == 'NaN':
+            if key == "NaN":
                 assert np.isnan(x.num[key])
                 assert np.isnan(y.num[key])
                 continue
             assert np.allclose(x.num[key], y.num[key])
 
-        for key in self.data['num']['int'].keys():
+        for key in self.data["num"]["int"].keys():
             assert np.allclose(x.num.int[key], y.num.int[key])
 
 
@@ -223,6 +210,7 @@ class TestBuiltins:
     were brought in properly.
 
     """
+
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
@@ -262,17 +250,15 @@ class TestBuiltins:
             assert expected_type(incoming) == incoming
 
     def test_dict(self):
-        """Test python dictionary
-        """
-        test = dict(x='spam', y=[1, 2, 3])
+        """Test python dictionary"""
+        test = dict(x="spam", y=[1, 2, 3])
         incoming = self.oc.roundtrip(test)
         for key in incoming:
             self.helper(test[key], incoming[key])
 
     def test_nested_dict(self):
-        """Test nested python dictionary
-        """
-        test = dict(x=dict(y=1e3, z=[1, 2]), y='spam')
+        """Test nested python dictionary"""
+        test = dict(x=dict(y=1e3, z=[1, 2]), y="spam")
         incoming = self.oc.roundtrip(test)
         incoming = dict(incoming)
         for key in test:
@@ -283,21 +269,19 @@ class TestBuiltins:
                 self.helper(test[key], incoming[key])
 
     def test_set(self):
-        """Test python set type
-        """
-        test = set((1, 2, 3, 3))
+        """Test python set type"""
+        test = {1, 2, 3, 3}
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
         assert isinstance(incoming, np.ndarray)
 
-        test = [set((1, 2))]
+        test = [{1, 2}]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, np.ndarray)
         assert np.allclose(incoming.tolist(), [1, 2])
 
     def test_tuple(self):
-        """Test python tuple type
-        """
+        """Test python tuple type"""
         test = tuple((1, 2, 3))
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
@@ -313,17 +297,15 @@ class TestBuiltins:
         assert incoming[1].squeeze().tolist() == list(test[1])
 
     def test_list(self):
-        """Test python list type
-        """
+        """Test python list type"""
         incoming = self.oc.roundtrip([1, 2])
         assert np.allclose(incoming, [1, 2])
-        incoming = self.oc.roundtrip(['a', 'b'])
+        incoming = self.oc.roundtrip(["a", "b"])
         assert isinstance(incoming, Cell)
-        assert incoming.squeeze().tolist() == ['a', 'b']
+        assert incoming.squeeze().tolist() == ["a", "b"]
 
     def test_list_of_tuples(self):
-        """Test python list of tuples
-        """
+        """Test python list of tuples"""
         test = [(1, 2), (1.5, 3.2)]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
@@ -332,8 +314,7 @@ class TestBuiltins:
         assert incoming[1].squeeze().tolist() == list(test[1])
 
     def test_numeric(self):
-        """Test python numeric types
-        """
+        """Test python numeric types"""
         test = np.random.randint(1000)
         self.helper(int(test))
         self.helper(long(test))
@@ -341,20 +322,18 @@ class TestBuiltins:
         self.helper(complex(1, 2))
 
     def test_simple_string(self):
-        """Test python str and unicode types
-        """
-        tests = ['spam', unicode('eggs')]
+        """Test python str and unicode types"""
+        tests = ["spam", unicode("eggs")]
         for t in tests:
             self.helper(t)
 
     def test_nested_list(self):
-        """Test python nested lists
-        """
-        test = [['spam', 'eggs', 'baz'], ['foo ', 'bar ', 'baz ']]
+        """Test python nested lists"""
+        test = [["spam", "eggs", "baz"], ["foo ", "bar ", "baz "]]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
 
-        assert incoming[0, 0][0, 0] == 'spam'
+        assert incoming[0, 0][0, 0] == "spam"
         assert incoming.shape == (1, 2)
 
         test = [[1, 2], [3, 4]]
@@ -368,8 +347,7 @@ class TestBuiltins:
         assert incoming.shape == (1, 2)
 
     def test_bool(self):
-        """Test boolean values
-        """
+        """Test boolean values"""
         tests = (True, False)
         for t in tests:
             incoming = self.oc.roundtrip(t)
@@ -380,7 +358,6 @@ class TestBuiltins:
             self.oc.convert_to_float = True
 
     def test_none(self):
-        """Test sending None type
-        """
+        """Test sending None type"""
         incoming = self.oc.roundtrip(None)
         assert np.isnan(incoming)

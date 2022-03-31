@@ -6,7 +6,7 @@ Python to Octave Types
 ----------------------
 
 Shows the round-trip data types, originating in Python.
-Lists and sets will be converted to a numeric array if possible, falling back 
+Lists and sets will be converted to a numeric array if possible, falling back
 on cells.  If an Octave cell consisting of numbers is desired, use a tuple.
 Cell, Struct, StructArray are Oct2Py convenience classes.
 
@@ -33,7 +33,7 @@ StructArray     struct array      StructArray
 Numpy to Octave Types
 ---------------------
 
-Note that when `convert_to_float` is set (default is True), 
+Note that when `convert_to_float` is set (default is True),
 integer types are converted to floating point before sending them
 to Octave.
 

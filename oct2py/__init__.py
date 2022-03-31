@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
@@ -21,18 +20,29 @@ MAT files.  Usage is as simple as:
 If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
 """
-from __future__ import absolute_import, print_function, division
 
+from .utils import Oct2PyError, get_log  # isort:skip
+
+from ._version import __version__
 from .core import Oct2Py
-from .io import Struct, Cell, StructArray
-from .utils import get_log, Oct2PyError
 from .demo import demo
+from .io import Cell, Struct, StructArray
 from .speed_check import speed_check
 from .thread_check import thread_check
-from ._version import __version__
 
-__all__ = ['Oct2Py', 'Oct2PyError', 'octave', 'Struct', 'Cell', 'StructArray',
-           'demo', 'speed_check', 'thread_check', '__version__', 'get_log']
+__all__ = [
+    "Oct2Py",
+    "Oct2PyError",
+    "octave",
+    "Struct",
+    "Cell",
+    "StructArray",
+    "demo",
+    "speed_check",
+    "thread_check",
+    "__version__",
+    "get_log",
+]
 
 try:
     octave = Oct2Py()
@@ -47,9 +57,10 @@ def kill_octave():
     Any other Oct2Py objects, you must restart them.
     """
     import os
-    if os.name == 'nt':
-        os.system('taskkill /im octave /f')
+
+    if os.name == "nt":
+        os.system("taskkill /im octave /f")
     else:
-        os.system('killall -9 octave')
-        os.system('killall -9 octave-cli')
+        os.system("killall -9 octave")
+        os.system("killall -9 octave-cli")
     octave.restart()
