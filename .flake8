@@ -4,8 +4,7 @@ builtins = "c, get_config"
 exclude = [
     .cache,
     .github,
-    docs,
-    setup.py
+    docs
 ]
 enable-extensions = "G"
 extend-ignore = [

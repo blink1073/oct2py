@@ -1,16 +1,15 @@
 # Note: This is meant for Oct2Py developer use only
 .PHONY: all clean test cover release docs
 
-NAME:=$(shell python setup.py --name 2>/dev/null)
-VERSION:=$(shell python setup.py --version 2>/dev/null)
+NAME:="oct2py"
+VERSION:="5.5.1"
 KILL_PROC="from ${NAME} import kill_octave; kill_octave()"
 
 all: clean
-	python setup.py install
-
+	pip install -e ".[docs,test]"
 
 install: clean
-	pip install -e .[docs,test]
+	pip install -e ".[docs,test]"
 	pre-commit install
 	octave --eval "pkg install -forge control"
 	octave --eval "pkg install -forge signal"
@@ -45,6 +44,6 @@ release: release_prep
 	twine upload dist/*
 
 docs: clean
-	pip install -q sphinx-rtd-theme sphinx myst-parser
+	pip install -e ".[docs]"
 	export SPHINXOPTS=-W; make -C docs html
 	export SPHINXOPTS=-W; make -C docs linkcheck || export SPHINXOPTS=-W; make -C docs linkcheck

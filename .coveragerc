@@ -3,8 +3,6 @@
 [run]
 branch = True
 omit =
-    */setup.py
-    oct2py/compat.py
     oct2py/tests/*
     oct2py/ipython/tests/*
 
