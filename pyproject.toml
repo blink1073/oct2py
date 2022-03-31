@@ -1,9 +1,51 @@
 [build-system]
-requires = ["setuptools>=46.4.0", "wheel", "packaging", "numpy", "octave_kernel"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "oct2py"
+description = "'Python to GNU Octave bridge --> run m-files from python.'"
+license = {text = "MIT"}
+authors = [{name = "Steven Silvester", email = "steven.silvester@ieee.org"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "numpy >=1.12",
+    "scipy >=0.17",
+    "octave_kernel >= 0.34.0",
+]
+dynamic = ["version"]
+readme = "README.rst"
+
+[project.urls]
+Home = "http://github.com/blink1073/oct2py"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pandas",
+    "nbconvert",
+    "pytest-timeout",
+    "pre-commit",
+]
+docs = [
+    "sphinx",
+    "sphinx-bootstrap-theme",
+    "numpydoc",
+]
 
 [tool.jupyter-releaser]
-skip = ["check-links"]
+skip = ["check-links", "check-manifest"]
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]

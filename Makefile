@@ -1,5 +1,5 @@
 # Note: This is meant for Oct2Py developer use only
-.PHONY: all clean test cover release gh-pages docs
+.PHONY: all clean test cover release docs
 
 NAME:=$(shell python setup.py --name 2>/dev/null)
 VERSION:=$(shell python setup.py --version 2>/dev/null)
