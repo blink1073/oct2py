@@ -42,6 +42,7 @@ docs = [
     "sphinx",
     "sphinx-bootstrap-theme",
     "myst-parser",
+    "sphinx_rtd_theme"
 ]
 
 [tool.jupyter-releaser]
