@@ -28,7 +28,8 @@ dependencies = [
 readme = "README.rst"
 
 [project.urls]
-Home = "http://github.com/blink1073/oct2py"
+homepage = "https://github.com/blink1073/oct2py"
+documentation = "https://blink1073.github.io/oct2py"
 
 [project.optional-dependencies]
 test = [
