@@ -21,13 +21,14 @@ If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
 """
 
+from .utils import Oct2PyError, get_log  # isort:skip
+
 from ._version import __version__
 from .core import Oct2Py
 from .demo import demo
 from .io import Cell, Struct, StructArray
 from .speed_check import speed_check
 from .thread_check import thread_check
-from .utils import Oct2PyError, get_log
 
 __all__ = [
     "Oct2Py",
