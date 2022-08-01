@@ -19,7 +19,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.37.2
+    rev: v2.37.3
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -38,7 +38,7 @@ repos:
         args: [--profile=black]
 
   - repo: https://github.com/PyCQA/doc8
-    rev: 0.11.2
+    rev: v1.0.0
     hooks:
       - id: doc8
         args: [--max-line-length=100]
@@ -49,7 +49,7 @@ repos:
       - id: prettier
 
   - repo: https://github.com/pycqa/flake8
-    rev: 4.0.1
+    rev: 5.0.2
     hooks:
       - id: flake8
         additional_dependencies:
