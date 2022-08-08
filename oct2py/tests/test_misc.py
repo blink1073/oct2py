@@ -294,8 +294,8 @@ class TestMisc:
     def test_logger(self):
         logger = self.oc.logger
         self.oc.logger = None
-        assert self.oc.logger
-        self.oc.logger == logger
+        assert self.oc.logger is not None
+        assert self.oc.logger == logger
 
     def test_struct_array(self):
         self.oc.eval('x = struct("y", {1, 2}, "z", {3, 4});')
