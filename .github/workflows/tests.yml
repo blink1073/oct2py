@@ -79,3 +79,11 @@ jobs:
           echo "    pre-commit run"
           echo "or after-the-fact on already committed files with"
           echo "    pre-commit run --all-files --hook-stage=manual"
+
+  check_links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1
