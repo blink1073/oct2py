@@ -42,7 +42,7 @@ test = [
 docs = [
     "sphinx",
     "sphinx-bootstrap-theme",
-    "myst-parser",
+    "myst_parser",
     "sphinx_rtd_theme"
 ]
 
