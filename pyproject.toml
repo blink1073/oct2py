@@ -67,12 +67,12 @@ features = ["test"]
 test = "python -m pytest -vv {args}"
 nowarn = "python -m pytest -vv -W default {args}"
 
-[tool.hatch.envs.cov]
+[tool.hatch.envs.cover]
 features = ["test"]
 dependencies = ["coverage", "pytest-cov"]
-[tool.hatch.envs.cov.env-vars]
+[tool.hatch.envs.cover.env-vars]
 ARGS = "-vv --cov oct2py --cov-branch --cov-report term-missing:skip-covered"
-[tool.hatch.envs.cov.scripts]
+[tool.hatch.envs.cover.scripts]
 test = "python -m pytest $ARGS --cov-fail-under 70 {args}"
 
 [tool.pytest.ini_options]
