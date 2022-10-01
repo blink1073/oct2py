@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "oct2py"
-version = "5.5.1"
+dynamic = ["version"]
 description = "'Python to GNU Octave bridge --> run m-files from python.'"
 license = {text = "MIT"}
 authors = [{name = "Steven Silvester", email = "steven.silvester@ieee.org"}]
@@ -42,50 +42,38 @@ test = [
 docs = [
     "sphinx",
     "sphinx-bootstrap-theme",
-    "myst-parser",
+    "myst_parser",
     "sphinx_rtd_theme"
 ]
-
-[tool.jupyter-releaser]
-skip = ["check-links"]
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
 before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
 
-[tool.tbump.version]
-current = "5.5.1"
-regex = '''
-  (?P<major>\d+)\.(?P<minor>\d+)\.(?P<micro>\d+)(?P<releaselevel>[a-z]+)?(?P<serial>[a-z]+)?
-'''
+[tool.jupyter-releaser]
+skip = ["check-links"]
 
-[tool.tbump.git]
-message_template = "Bump to {new_version}"
-tag_template = "v{new_version}"
+[tool.hatch.version]
+path = "oct2py/_version.py"
 
-[[tool.tbump.file]]
-src = "pyproject.toml"
-version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
+[tool.hatch.envs.docs]
+features = ["docs"]
+[tool.hatch.envs.docs.scripts]
+build = "make -C docs html SPHINXOPTS='-W'"
 
-[[tool.tbump.file]]
-src = "oct2py/_version.py"
-version_template = '({major}, {minor}, {micro}, "{releaselevel}", "{serial}")'
+[tool.hatch.envs.test]
+features = ["test"]
+[tool.hatch.envs.test.scripts]
+test = "python -m pytest -vv {args}"
+nowarn = "python -m pytest -vv -W default {args}"
 
-[[tool.tbump.file]]
-src = "docs/source/conf.py"
-version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
-
-[[tool.tbump.file]]
-src = "Makefile"
-version_template = '{major}.{minor}.{micro}{releaselevel}{serial}'
-
-[[tool.tbump.field]]
-name = "releaselevel"
-default = ""
-
-[[tool.tbump.field]]
-name = "serial"
-default = ""
+[tool.hatch.envs.cover]
+features = ["test"]
+dependencies = ["coverage", "pytest-cov"]
+[tool.hatch.envs.cover.env-vars]
+ARGS = "--doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py -vv"
+[tool.hatch.envs.cover.scripts]
+test = "python -m pytest $ARGS --cov-fail-under 90 {args}"
 
 [tool.pytest.ini_options]
 testpaths = "oct2py"
@@ -97,10 +85,6 @@ timeout = 300
 filterwarnings= [
   # Fail on warnings
   "error",
-  # Ignore imp deprecation warnings from ipykernel
-  "ignore:the imp module is deprecated:DeprecationWarning",
-  # Ignore imp distutils warnings from ipykernel
-  "ignore:the distutils package is deprecated:DeprecationWarning",
   # Ignore our own user warnings
   "ignore:Using deprecated:UserWarning:oct2py",
   "ignore:Key - value pairs:UserWarning:oct2py",
