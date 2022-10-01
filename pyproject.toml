@@ -71,9 +71,9 @@ nowarn = "python -m pytest -vv -W default {args}"
 features = ["test"]
 dependencies = ["coverage", "pytest-cov"]
 [tool.hatch.envs.cover.env-vars]
-ARGS = "-vv --cov oct2py --cov-branch --cov-report term-missing:skip-covered"
+ARGS = "--doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py -vv"
 [tool.hatch.envs.cover.scripts]
-test = "python -m pytest $ARGS --cov-fail-under 70 {args}"
+test = "python -m pytest $ARGS --cov-fail-under 90 {args}"
 
 [tool.pytest.ini_options]
 testpaths = "oct2py"
