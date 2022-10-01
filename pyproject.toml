@@ -50,6 +50,9 @@ docs = [
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
 before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
 
+[tool.jupyter-releaser]
+skip = ["check-links"]
+
 [tool.hatch.version]
 path = "oct2py/_version.py"
 
