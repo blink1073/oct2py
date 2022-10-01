@@ -6,9 +6,8 @@ Installation and Test
 
 To install and run tests locally, run::
 
-    make install
-    make test
-
+    pip install -e ".[test]"
+    pytest .
 
 Linters
 -------

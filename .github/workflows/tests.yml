@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
   schedule:
     # Run weekly
     # * is a special character in YAML so you have to quote this string
@@ -15,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11b0 - 3.11"]
       fail-fast: false
 
     steps:
@@ -25,12 +24,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -qq octave octave-signal liboctave-dev
-      - name: Install dependencies
-        run: |
-          make install
       - name: Generate coverage report
         run: |
-          xvfb-run --auto-servernum make cover
+          pip install hatch; xvfb-run --auto-servernum hatch run cover:test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
@@ -45,20 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      - name: Install Oct2py
-        run: make
-      - name: Generate Docs
-        run: make docs
-
-  release_prep:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      - name: Install Oct2py
-        run: make
-      - name: Make sure the package is release-able
-        run: make release_prep
+      - run: pip install hatch; hatch run docs:build
 
   pre-commit:
     name: pre-commit

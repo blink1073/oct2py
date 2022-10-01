@@ -11,6 +11,9 @@
 # serve to show the default.
 
 import datetime
+import os
+from pathlib import Path
+from typing import Any, Dict
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -46,10 +49,14 @@ source_encoding = "utf-8"
 project = "Oct2Py"
 copyright = f"2011 - {datetime.date.today().year}, Oct2Py contributors"
 
-version = "5.5.1"
+version_ns: Dict[str, Any] = {}
+root = Path(__file__).parent.parent.parent
+version_py = os.path.join(root, "oct2py", "_version.py")
+with open(version_py) as f:
+    exec(compile(f.read(), version_py, "exec"), version_ns)
 
 # The short X.Y version.
-version = ".".join(version.split(".")[:2])
+version = ".".join(version_py.split(".")[:2])
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -254,24 +261,3 @@ autodoc_default_flags = []
 # Numpy extensions
 # -----------------------------------------------------------------------------
 numpydoc_show_class_members = False
-
-# -----------------------------------------------------------------------------
-# intersphinx
-# -----------------------------------------------------------------------------
-_python_doc_base = "https://docs.python.org/3.5"
-intersphinx_mapping = {
-    _python_doc_base: None,
-}
-
-
-# remove non-local uri warning
-import sphinx.environment  # noqa
-from docutils.utils import get_source_line  # noqa
-
-
-def _warn_node(self, msg, node, **kwargs):
-    if not msg.startswith("nonlocal image URI found:"):
-        self._warnfunc(msg, "%s:%s" % get_source_line(node))
-
-
-sphinx.environment.BuildEnvironment.warn_node = _warn_node

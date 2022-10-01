@@ -1,13 +1,21 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
+import re
 from collections import namedtuple
+from typing import List
 
 VersionInfo = namedtuple("VersionInfo", ["major", "minor", "micro", "releaselevel", "serial"])
 
-version_info = VersionInfo(5, 5, 1, "", "")
+# Version string must appear intact for hatch versioning
+__version__ = "5.5.1"
 
-__version__ = f"{version_info.major}.{version_info.minor}.{version_info.micro}"
+# Build up version_info tuple for backwards compatibility
+pattern = r"(?P<major>\d+).(?P<minor>\d+).(?P<micro>\d+)(?P<releaselevel>.*?)(?P<serial>\d*)"
+match = re.match(pattern, __version__)
+assert match is not None
+parts: List[object] = [int(match[part]) for part in ["major", "minor", "micro"]]
+parts.append(match["releaselevel"] or "")
+parts.append(match["serial"] or "")
 
-if version_info.releaselevel:
-    __version__ += f"{version_info.releaselevel}{version_info.serial}"
+version_info = VersionInfo(*parts)

@@ -1,2 +1,8 @@
-conda:
-  file: docs/environment.yml
+python:
+  version: 3.8
+  install:
+    # install itself with pip install .
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
