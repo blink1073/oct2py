@@ -103,24 +103,24 @@
 
 ## 5.3.0 (2021-11-15)
 
-- Update README.rst by \@pooyaEst in
-  [#181[(https://github.com/blink1073/oct2py/pull/181)
-- Added the option to specify temp_dir by \@adityaapte in
+- Update README.rst by @pooyaEst in
+  \[#181\[(https://github.com/blink1073/oct2py/pull/181)
+- Added the option to specify temp_dir by @adityaapte in
   [#192](https://github.com/blink1073/oct2py/pull/192)
-- Update CI by \@blink1073 in
+- Update CI by @blink1073 in
   [#193](https://github.com/blink1073/oct2py/pull/193)
-- Update docs to fix build by \@blink1073 in
+- Update docs to fix build by @blink1073 in
   [#194](https://github.com/blink1073/oct2py/pull/194)
 
 ## 5.2.0 (2020-08-05)
 
-- Add \_get_max_nout and alternative nout mode using \'max_nout\'
-  (\#170)
+- Add \_get_max_nout and alternative nout mode using 'max_nout'
+  (#170)
 
 ## 5.1.0 (2020-04-25)
 
 - FIX: no-OUT-args check was destroying original error location and
-  was hiding similar user-errors (\#161)
+  was hiding similar user-errors (#161)
 
 ## 5.0.0 (2019-05-03)
 
@@ -135,8 +135,8 @@ convenience instance at startup.
 
 ## 4.2.0 (2019-04-28)
 
-- Add support for Pandas DataFrames and Series (\#125)
-- Remove unwanted octave-workspace files at exit (\#133)
+- Add support for Pandas DataFrames and Series (#125)
+- Remove unwanted octave-workspace files at exit (#133)
 
 ## 4.1.0 (2019-04-23)
 
@@ -179,37 +179,37 @@ convenience instance at startup.
   previously handled as uint8 when sending to Octave.
 - Deprecated the use of keyword arguments to Octave function calls,
   use standard Octave calling conventions.
-- Deprecated the `log` and [return_both]{.title-ref} keyword arguments
+- Deprecated the `log` and \[return_both\]{.title-ref} keyword arguments
   to `eval()`. See docs on `Oct2Py.eval()` for more information.
 - Oct2Py will no longer create dynamic functions for values that are
-  not Octave functions - use [get_pointer]{.title-ref} or `pull`
+  not Octave functions - use \[get_pointer\]{.title-ref} or `pull`
   instead.
 
 ## 3.9.0 (2017-01-28)
 
-- Added support for Python 3.6 and Octave [input()]{.title-ref}
+- Added support for Python 3.6 and Octave \[input()\]{.title-ref}
   functions.
 
 ## 3.8.0 (2016-12-25)
 
 - Added support for Octave class objects and clean up repr() and
-  help() for dynamic Octave methods, (PR \#104)
+  help() for dynamic Octave methods, (PR #104)
 
 ## 3.7.0 (2016-12-24)
 
 - Fixed error that caused the session to crash on Windows when Octave
   encountered a syntax error.
 - Added separate width and height specifiers to the
-  [%%octave]{.title-ref} magic so the image can be constrained in one
+  \[%%octave\]{.title-ref} magic so the image can be constrained in one
   dimension while maintaining its aspect ratio.
-- Added an [extract_figures]{.title-ref} method to the
-  [Oct2Py]{.title-ref} class which gives back a list of IPython Image
+- Added an \[extract_figures\]{.title-ref} method to the
+  \[Oct2Py\]{.title-ref} class which gives back a list of IPython Image
   or SVG objects for the created figures.
 - Completely rewrote the internal communication to Octave on top of
-  the [octave_kernel]{.title-ref}, which enabled the Windows crash
+  the \[octave_kernel\]{.title-ref}, which enabled the Windows crash
   fix.
-- Removed the internal [\_make_figs.m]{.title-ref} file, since that
-  functionality is now in [octave_kernel]{.title-ref}.
+- Removed the internal \[\_make_figs.m\]{.title-ref} file, since that
+  functionality is now in \[octave_kernel\]{.title-ref}.
 
 ## 3.6.1 (2016-11-20)
 
@@ -221,7 +221,7 @@ convenience instance at startup.
 
 ## 3.5.0 (2016-01-23)
 
-- Disable \--braindead Octave argument.
+- Disable --braindead Octave argument.
 
 ## 3.4.0 (2016-01-09)
 
@@ -244,8 +244,8 @@ convenience instance at startup.
 
 ## 3.0.0 (2015-01-10)
 
-- Add [convert_to_float]{.title-ref} property that is True by default.
-- Suppress output in dynamic function calls (using \';\')
+- Add \[convert_to_float\]{.title-ref} property that is True by default.
+- Suppress output in dynamic function calls (using ';')
 
 ## 2.4.2 (2014-12-19)
 
@@ -257,10 +257,10 @@ convenience instance at startup.
 
 ## 2.4.0 (2014-09-27)
 
-- Make [eval]{.title-ref} output match Octave session output. If
-  verbose=True, print all Octave output. Return the last \"ans\" from
+- Make \[eval\]{.title-ref} output match Octave session output. If
+  verbose=True, print all Octave output. Return the last "ans" from
   Octave, if available. If you need the response, use
-  [return_both]{.title-ref} to get the [(resp, ans)]{.title-ref} pair
+  \[return_both\]{.title-ref} to get the \[(resp, ans)\]{.title-ref} pair
   back
 - As a result of the previous, Syntax Errors in Octave code will now
   result in a closed session on Windows.
@@ -279,28 +279,28 @@ convenience instance at startup.
 
 ## 2.1.0 (2014-08-23)
 
-- Allow keyword arguments in functions: [octave.plot(\[1,2,3\],
-  linewidth=2))]{.title-ref} These are translated to (\"prop\", value)
+- Allow keyword arguments in functions: \[octave.plot(\[1,2,3\],
+  linewidth=2))\]{.title-ref} These are translated to ("prop", value)
   arguments to the function.
-- Add option to show plotting gui with [-g]{.title-ref} flag in
+- Add option to show plotting gui with \[-g\]{.title-ref} flag in
   OctaveMagic.
 - Add ability to specify the Octave executable as a keyword argument
   to the Oct2Py object.
   - Add specifications for plot saving instead of displaying plots
-    to [eval]{.title-ref} and dynamic functions.
+    to \[eval\]{.title-ref} and dynamic functions.
 
 ## 2.0.0 (2014-08-14)
 
 \- **Breaking changes**
 
-: \-- Removed methods: [run]{.title-ref}, [call]{.title-ref},
-[lookfor]{.title-ref} \-- Renamed methods: [\_eval]{.title-ref} -\>
-[eval]{.title-ref}, [get]{.title-ref} -\> [pull]{.title-ref},
-[put]{.title-ref} -\> [push]{.title-ref}, [close]{.title-ref} -\>
-[exit]{.title-ref} \-- Removed run and call in favor of using eval
-dynamic functions. \-- Renamed methods to avoid overshadowing Octave
-builtins and for clarity. \-- When a command results in \"ans\", the
-value of \"ans\" is returned instead of the printed string.
+: -- Removed methods: \[run\]{.title-ref}, \[call\]{.title-ref},
+\[lookfor\]{.title-ref} -- Renamed methods: \[\_eval\]{.title-ref} ->
+\[eval\]{.title-ref}, \[get\]{.title-ref} -> \[pull\]{.title-ref},
+\[put\]{.title-ref} -> \[push\]{.title-ref}, \[close\]{.title-ref} ->
+\[exit\]{.title-ref} -- Removed run and call in favor of using eval
+dynamic functions. -- Renamed methods to avoid overshadowing Octave
+builtins and for clarity. -- When a command results in "ans", the
+value of "ans" is returned instead of the printed string.
 
 - Syntax Errors on Windows no longer crash the session.
 - Added ability to interrupt commands with CTRL+C.
@@ -308,10 +308,10 @@ value of \"ans\" is returned instead of the printed string.
 
 ## 1.6.0 (2014-07-26)
 
-- Added \'temp_dir\' argument to Oct2Py constructor (\#50)
-- Added \'kill_octave\' convenience method to kill zombies (\#46)
-- Improved Octave shutdown handling (\#45, \#46)
-- Added \'oned_as\' argument to Oct2Py constructor (\#49)
+- Added 'temp_dir' argument to Oct2Py constructor (#50)
+- Added 'kill_octave' convenience method to kill zombies (#46)
+- Improved Octave shutdown handling (#45, #46)
+- Added 'oned_as' argument to Oct2Py constructor (#49)
 
 ## 1.5.0 (2014-07-01)
 
@@ -353,7 +353,7 @@ value of \"ans\" is returned instead of the printed string.
 - Improved test coverage and added badge.
 - Supports Python 2 and 3 from a single code base.
 - Fixed: Allow help(Oct2Py()) and tab completion on REPL
-- Fixed: Allow tab completion for Oct2Py().\<TAB\> in REPL
+- Fixed: Allow tab completion for Oct2Py().\<TAB> in REPL
 
 ## 1.0.0 (2013-10-4)
 
