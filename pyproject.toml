@@ -50,9 +50,6 @@ docs = [
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
 before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
 
-[tool.jupyter-releaser]
-skip = ["check-links"]
-
 [tool.hatch.version]
 path = "oct2py/_version.py"
 
@@ -88,4 +85,27 @@ filterwarnings= [
   # Ignore our own user warnings
   "ignore:Using deprecated:UserWarning:oct2py",
   "ignore:Key - value pairs:UserWarning:oct2py",
+]
+
+[tool.flake8]
+ignore = "E501, W503, E402"
+builtins = "\"c, get_config\""
+exclude = [
+    ".cache",
+    ".github",
+    "docs",
+]
+enable-extensions = "\"G\""
+extend-ignore = [
+    "G001",
+    "G002",
+    "G004",
+    "G200",
+    "G201",
+    "G202",
+    "E203",
+]
+per-file-ignores = [
+    "tests/*: B011",
+    "F841",
 ]
