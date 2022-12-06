@@ -2,6 +2,32 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.6.0
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.5.1...6debc3e927329d4b540258f83b7a5d49225eb43a))
+
+### Maintenance and upkeep improvements
+
+- Bump actions/checkout from 2 to 3 [#273](https://github.com/blink1073/oct2py/pull/273) ([@dependabot](https://github.com/dependabot))
+- Bump codecov/codecov-action from 1 to 3 [#272](https://github.com/blink1073/oct2py/pull/272) ([@dependabot](https://github.com/dependabot))
+- Add dependabot [#271](https://github.com/blink1073/oct2py/pull/271) ([@blink1073](https://github.com/blink1073))
+- Bump to Python 3.8+ [#270](https://github.com/blink1073/oct2py/pull/270) ([@blink1073](https://github.com/blink1073))
+- Maintenance cleanup [#267](https://github.com/blink1073/oct2py/pull/267) ([@blink1073](https://github.com/blink1073))
+- Clean up precommit [#265](https://github.com/blink1073/oct2py/pull/265) ([@blink1073](https://github.com/blink1073))
+- Maintenance cleanup [#263](https://github.com/blink1073/oct2py/pull/263) ([@blink1073](https://github.com/blink1073))
+- Clean up pyproject and ci [#261](https://github.com/blink1073/oct2py/pull/261) ([@blink1073](https://github.com/blink1073))
+- Clean up handling of flake8 [#258](https://github.com/blink1073/oct2py/pull/258) ([@blink1073](https://github.com/blink1073))
+- Switch to flit backend [#234](https://github.com/blink1073/oct2py/pull/234) ([@blink1073](https://github.com/blink1073))
+- Add flake8 and remove py2 compat [#233](https://github.com/blink1073/oct2py/pull/233) ([@blink1073](https://github.com/blink1073))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-03-30&to=2022-12-06&type=c))
+
+[@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-03-30..2022-12-06&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Adependabot+updated%3A2022-03-30..2022-12-06&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Apre-commit-ci+updated%3A2022-03-30..2022-12-06&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.5.1
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.5.0...d1a6e0e27bcb999668f4bb2da44358e36688fd04))
@@ -15,8 +41,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-03-30&to=2022-03-30&type=c))
 
 [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2022-03-30..2022-03-30&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.5.0
 
