@@ -8,6 +8,7 @@ from oct2py import Oct2Py
 class TestNumpy:
     """Check value and type preservation of Numpy arrays"""
 
+    oc: Oct2Py
     codes = np.typecodes["All"]
 
     @classmethod
@@ -15,7 +16,7 @@ class TestNumpy:
         cls.oc = Oct2Py()
         cls.oc.addpath(os.path.dirname(__file__))
 
-    def teardown_class(cls):
+    def teardown_class(cls):  # noqa
         cls.oc.exit()
 
     def test_scalars(self):
@@ -49,7 +50,7 @@ class TestNumpy:
                 except TypeError:  # pragma: no cover
                     outgoing += np.random.rand(*size).astype(outgoing.dtype)
                 if typecode in ["U", "S"]:
-                    outgoing = [
+                    outgoing = [  # type:ignore
                         [["spam", "eggs", "hash"], ["spam", "eggs", "hash"]],
                         [["spam", "eggs", "hash"], ["spam", "eggs", "hash"]],
                     ]
@@ -82,7 +83,7 @@ class TestNumpy:
 
     def test_sparse(self):
         """Test roundtrip sparse matrices"""
-        from scipy.sparse import csr_matrix, identity
+        from scipy.sparse import csr_matrix, identity  # type:ignore
 
         rand = np.random.rand(100, 100)
         rand = csr_matrix(rand)

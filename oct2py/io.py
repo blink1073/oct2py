@@ -9,25 +9,24 @@ import threading
 import numpy as np
 
 try:
-    from scipy.io import loadmat, savemat
-
-    from scipy.sparse import spmatrix  # isort:skip
-    from scipy.io.matlab import MatlabFunction, MatlabObject  # isort:skip
+    from scipy.io import loadmat, savemat  # type:ignore
+    from scipy.io.matlab import MatlabFunction, MatlabObject  # type:ignore
+    from scipy.sparse import spmatrix  # type:ignore
 except ImportError:
     try:
-        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject
+        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore
     except ImportError:
         pass
 
 
 try:
-    from pandas import DataFrame, Series
+    from pandas import DataFrame, Series  # type:ignore
 except Exception:
 
-    class Series:
+    class Series:  # type:ignore
         pass
 
-    class DataFrame:
+    class DataFrame:  # type:ignore
         pass
 
 
@@ -42,7 +41,7 @@ def read_file(path, session=None):
     try:
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
-        raise Oct2PyError(str(e))
+        raise Oct2PyError(str(e)) from None
     out = {}
     for (key, value) in data.items():
         out[key] = _extract(value, session)
@@ -58,7 +57,7 @@ def write_file(obj, path, oned_as="row", convert_to_float=True):
         with _WRITE_LOCK:
             savemat(path, data, appendmat=False, oned_as=oned_as, long_field_names=True)
     except KeyError:  # pragma: no cover
-        raise Exception("could not save mat file")
+        raise Exception("could not save mat file") from None
 
 
 class Struct(dict):
@@ -87,7 +86,7 @@ class Struct(dict):
             return self[attr]
         except KeyError:
             msg = "'Struct' object has no attribute %s" % attr
-            raise AttributeError(msg)
+            raise AttributeError(msg) from None
 
     def __getitem__(self, attr):
         # Get a dict value; create a Struct if requesting a Struct member.
@@ -95,6 +94,8 @@ class Struct(dict):
         if attr in self.keys() or attr.startswith("_"):
             return dict.__getitem__(self, attr)
         frame = inspect.currentframe()
+        if frame is None or frame.f_back is None:
+            return None
         # step into the function that called us
         if frame.f_back.f_back and self._is_allowed(frame.f_back.f_back):
             dict.__setitem__(self, attr, Struct())
@@ -109,8 +110,8 @@ class Struct(dict):
         instruction = bytecode[frame.f_lasti + 3]
         return instruction in allowed
 
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+    __setattr__ = dict.__setitem__  # type:ignore
+    __delattr__ = dict.__delitem__  # type:ignore
 
     @property
     def __dict__(self):
@@ -228,7 +229,7 @@ class Cell(np.ndarray):
         obj = np.empty(value.size, dtype=object).view(cls)
         for (i, item) in enumerate(value.ravel()):
             obj[i] = _extract(item, session)
-        obj = obj.reshape(value.shape)
+        obj = obj.reshape(value.shape)  # type:ignore
 
         return obj
 
@@ -403,7 +404,8 @@ def _is_simple_numeric(data):
                 return False
             # Numpy does not support creating an ndarray from
             # ragged nested sequences
-            # (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes
+            # (which is a list-or-tuple of lists-or-tuples-or ndarrays with
+            # different lengths or shapes
             if item_len is None:
                 item_len = len(item)
             if len(item) != item_len:

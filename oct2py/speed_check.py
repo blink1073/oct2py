@@ -7,7 +7,7 @@ import timeit
 
 import numpy as np
 
-from . import Oct2Py
+from . import Oct2Py, get_log
 
 
 class SpeedCheck:
@@ -42,28 +42,29 @@ class SpeedCheck:
         Then tests progressively larger array passing.
 
         """
-        print("Oct2Py speed test")
-        print("*" * 20)
+        log = get_log()
+        log.info("Oct2Py speed test")
+        log.info("*" * 20)
         time.sleep(1)
 
-        print("Raw speed: ")
+        log.info("Raw speed: ")
         avg = timeit.timeit(self.raw_speed, number=10) / 10
-        print(f"    {avg * 1e6:0.01f} usec per loop")
+        log.info(f"    {avg * 1e6:0.01f} usec per loop")
         sides = [1, 10, 100, 1000]
         runs = [10, 10, 10, 5]
         for (side, nruns) in zip(sides, runs):
-            self.array = np.reshape(np.arange(side**2), (-1))
-            print(f"Put {side}x{side}: ")
+            self.array = np.reshape(np.arange(side**2), (-1))  # type:ignore
+            log.info(f"Put {side}x{side}: ")
             avg = timeit.timeit(self.large_array_put, number=nruns) / nruns
-            print(f"    {avg * 1e3:0.01f} msec")
+            log.info(f"    {avg * 1e3:0.01f} msec")
 
-            print(f"Get {side}x{side}: ")
+            log.info(f"Get {side}x{side}: ")
             avg = timeit.timeit(self.large_array_get, number=nruns) / nruns
-            print(f"    {avg * 1e3:0.01f} msec")
+            log.info(f"    {avg * 1e3:0.01f} msec")
 
         self.octave.exit()
-        print("*" * 20)
-        print("Test complete!")
+        log.info("*" * 20)
+        log.info("Test complete!")
 
 
 def speed_check():

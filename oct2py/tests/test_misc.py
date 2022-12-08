@@ -6,7 +6,7 @@ import tempfile
 from io import StringIO
 
 import numpy as np
-import pandas as pd
+import pandas as pd  # type:ignore
 import pytest
 
 import oct2py
@@ -14,6 +14,8 @@ from oct2py import Oct2Py, Oct2PyError, StructArray
 
 
 class TestMisc:
+    oc: Oct2Py
+
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
@@ -38,7 +40,7 @@ class TestMisc:
 
     def test_singleton_sparses(self):
         """Make sure a singleton sparse matrix works"""
-        import scipy.sparse
+        import scipy.sparse  # type:ignore
 
         data = scipy.sparse.csc_matrix(1)
         self.oc.push("x", data)
@@ -93,7 +95,7 @@ class TestMisc:
         from oct2py import demo
 
         try:
-            demo.demo(0.01, interactive=False)
+            demo.demo(0.01, interactive=False)  # type:ignore
         except AttributeError:
             demo(0.01, interactive=False)
 
@@ -103,7 +105,7 @@ class TestMisc:
         try:
             thread_check()
         except TypeError:
-            thread_check.thread_check()
+            thread_check.thread_check()  # type:ignore
 
     def test_speed_check(self):
         from oct2py import speed_check
@@ -111,7 +113,7 @@ class TestMisc:
         try:
             speed_check()
         except TypeError:
-            speed_check.speed_check()
+            speed_check.speed_check()  # type:ignore
 
     def test_plot(self):
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
@@ -283,7 +285,7 @@ class TestMisc:
         assert text.strip() == "hi"
         assert np.allclose(value, np.ones((3, 3)))
 
-        lines = []
+        lines: list = []
         text, value = self.oc.eval(
             ['disp("hi")', "ones(3);"], return_both=True, stream_handler=lines.append
         )

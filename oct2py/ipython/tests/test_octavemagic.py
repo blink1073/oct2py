@@ -2,15 +2,18 @@
 import codecs
 import sys
 import unittest
+from typing import Any
 
 import numpy as np
-from IPython.display import SVG
-from IPython.testing.globalipapp import get_ipython
+from IPython.display import SVG  # type:ignore
+from IPython.testing.globalipapp import get_ipython  # type:ignore
 
 from oct2py import Oct2PyError
 
 
 class OctaveMagicTest(unittest.TestCase):
+    ip: Any
+
     @classmethod
     def setUpClass(cls):
         """Set up an IPython session just once.
@@ -19,13 +22,13 @@ class OctaveMagicTest(unittest.TestCase):
         """
         if not sys.stdin.encoding:
             # needed for py.test
-            sys.stdin = codecs.getreader("utf-8")(sys.stdin)
+            sys.stdin = codecs.getreader("utf-8")(sys.stdin)  # type:ignore
         cls.ip = get_ipython()
         # This is just to get a minimally modified version of the changes
         # working
         cls.ip.run_line_magic("load_ext", "oct2py.ipython")
         cls.ip.ex("import numpy as np")
-        cls.svgs_generated = 0
+        cls.svgs_generated = 0  # type:ignore
 
     def test_octave_inline(self):
         result = self.ip.run_line_magic("octave", "[1, 2, 3] + 1;")
@@ -53,7 +56,7 @@ class OctaveMagicTest(unittest.TestCase):
         self.ip.run_cell_magic(
             "octave", "-f svg -s 400,500", "plot([1, 2, 3]); figure; plot([4, 5, 6]);"
         )
-        assert self.svgs_generated == 2
+        assert self.svgs_generated == 2  # type:ignore
 
     def _verify_display(self, obj):
         if isinstance(obj, SVG):
@@ -61,7 +64,7 @@ class OctaveMagicTest(unittest.TestCase):
             assert 'height="500px"' in svg, svg
             assert 'width="400px"' in svg, svg
 
-            self.svgs_generated += 1
+            self.svgs_generated += 1  # type:ignore
 
     def test_octave_syntax_error(self):
         try:

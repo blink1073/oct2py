@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import numpy as np
 
@@ -38,6 +39,9 @@ class TestRoundTrip:
         making sure the value and the type are preserved.
 
     """
+
+    oc: Oct2Py
+    data: Any
 
     @classmethod
     def setup_class(cls):
@@ -210,6 +214,8 @@ class TestBuiltins:
 
     """
 
+    oc: Oct2Py
+
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
@@ -263,13 +269,13 @@ class TestBuiltins:
         for key in test:
             if isinstance(test[key], dict):
                 for subkey in test[key]:
-                    self.helper(test[key][subkey], incoming[key][subkey])
+                    self.helper(test[key][subkey], incoming[key][subkey])  # type:ignore
             else:
                 self.helper(test[key], incoming[key])
 
     def test_set(self):
         """Test python set type"""
-        test = {1, 2, 3, 3}
+        test: Any = {1, 2, 3, 3}
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
         assert isinstance(incoming, np.ndarray)
@@ -327,7 +333,7 @@ class TestBuiltins:
 
     def test_nested_list(self):
         """Test python nested lists"""
-        test = [["spam", "eggs", "baz"], ["foo ", "bar ", "baz "]]
+        test: list = [["spam", "eggs", "baz"], ["foo ", "bar ", "baz "]]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
 

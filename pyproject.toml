@@ -45,6 +45,13 @@ docs = [
     "myst_parser",
     "sphinx_rtd_theme"
 ]
+lint = [
+  "black[jupyter]>=22.6.0",
+  "mdformat>0.7",
+  "mdformat-gfm>=0.3.5",
+  "ruff>=0.0.156"
+]
+typing = ["mypy>=0.990"]
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
@@ -72,6 +79,25 @@ ARGS = "--doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py -vv
 [tool.hatch.envs.cover.scripts]
 test = "python -m pytest $ARGS --cov-fail-under 90 {args}"
 
+[tool.hatch.envs.typing]
+features = ["typing", "test"]
+[tool.hatch.envs.typing.scripts]
+test = "mypy --install-types --non-interactive {args:oct2py}"
+
+[tool.hatch.envs.lint]
+features = ["lint"]
+[tool.hatch.envs.lint.scripts]
+style = [
+  "ruff {args:.}",
+  "black --check --diff --color {args:.}",
+  "mdformat --check {args:docs *.md}"
+]
+fmt = [
+  "black {args:.}",
+  "ruff --fix {args:.}",
+  "mdformat {args:docs *.md}"
+]
+
 [tool.pytest.ini_options]
 testpaths = "oct2py"
 addopts= "-raXs  --durations 10 --color=yes --doctest-modules"
@@ -88,25 +114,53 @@ filterwarnings= [
   "module:Jupyter is migrating its paths:DeprecationWarning",
 ]
 
-[tool.flake8]
-ignore = "E501, W503, E402"
-builtins = "\"c, get_config\""
-exclude = [
-    ".cache",
-    ".github",
-    "docs",
+[tool.mypy]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+no_implicit_reexport = false
+pretty = true
+show_error_context = true
+show_error_codes = true
+strict_equality = true
+strict_optional = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
 ]
-enable-extensions = "\"G\""
-extend-ignore = [
-    "G001",
-    "G002",
-    "G004",
-    "G200",
-    "G201",
-    "G202",
-    "E203",
+ignore_missing_imports = true
+
+[tool.black]
+line-length = 100
+target-version = ["py37"]
+skip-string-normalization = true
+
+
+[tool.ruff]
+target-version = "py37"
+line-length = 100
+select = [
+  "A", "B", "C", "E", "F", "FBT", "I", "N", "Q", "RUF", "S", "T",
+  "UP", "W", "YTT",
 ]
-per-file-ignores = [
-    "tests/*: B011",
-    "F841",
+ignore = [
+# Q000 Single quotes found but double quotes preferred
+"Q000",
+# FBT001 Boolean positional arg in function definition
+"FBT001", "FBT002", "FBT003",
+# C901 `async_setup_kernel` is too complex (12)
+"C901",
+# C408 Unnecessary `dict` call (rewrite as a literal)
+"C408", "C409"
 ]
+
+[tool.ruff.per-file-ignores]
+# S101 Use of `assert` detected
+# N806 Variable `V` in function should be lowercase
+"oct2py/tests/*" = ["S101", "N806"]
+"oct2py/ipython/tests/*" = ["S101", "N806"]
