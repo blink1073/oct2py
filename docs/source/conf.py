@@ -47,13 +47,13 @@ source_encoding = "utf-8"
 
 # General information about the project.
 project = "Oct2Py"
-copyright = f"2011 - {datetime.date.today().year}, Oct2Py contributors"
+copyright = f"2011 - {datetime.date.today().year}, Oct2Py contributors"  # noqa
 
 version_ns: Dict[str, Any] = {}
 root = Path(__file__).parent.parent.parent
 version_py = os.path.join(root, "oct2py", "_version.py")
 with open(version_py) as f:
-    exec(compile(f.read(), version_py, "exec"), version_ns)
+    exec(compile(f.read(), version_py, "exec"), version_ns)  # noqa
 
 # The short X.Y version.
 version = ".".join(version_py.split(".")[:2])

@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import numpy as np
 
@@ -39,6 +40,9 @@ class TestConversions:
         brought in properly.
 
     """
+
+    oc: Oct2Py
+    data: Any
 
     @classmethod
     def setup_class(cls):
@@ -156,4 +160,4 @@ class TestConversions:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
                 else:
-                    assert in_type(incoming) == incoming
+                    assert in_type(incoming) == incoming  # type:ignore

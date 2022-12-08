@@ -21,7 +21,7 @@ If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
 """
 
-from .utils import Oct2PyError, get_log  # isort:skip
+from .utils import Oct2PyError, get_log  # noqa
 
 from ._version import __version__
 from .core import Oct2Py
@@ -47,7 +47,7 @@ __all__ = [
 try:
     octave = Oct2Py()
 except Oct2PyError as e:
-    print(e)
+    print(e)  # noqa
 
 
 def kill_octave():

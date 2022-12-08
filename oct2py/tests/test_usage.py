@@ -6,7 +6,7 @@ from io import StringIO
 
 import numpy as np
 import pytest
-from IPython.display import SVG
+from IPython.display import SVG  # type:ignore
 
 from oct2py import Oct2Py, Oct2PyError, Struct
 from oct2py.io import MatlabFunction
@@ -14,6 +14,8 @@ from oct2py.io import MatlabFunction
 
 class TestUsage:
     """Excercise the basic interface of the package"""
+
+    oc: Oct2Py
 
     @classmethod
     def setup_class(cls):
@@ -87,7 +89,7 @@ class TestUsage:
     def test_struct(self):
         """Test Struct construct"""
         test = Struct()
-        test.spam = "eggs"
+        test.spam = "eggs"  # type:ignore
         test.eggs.spam = "eggs"
         assert test["spam"] == "eggs"
         assert test["eggs"]["spam"] == "eggs"
@@ -252,7 +254,7 @@ class TestUsage:
         val = self.oc.feval("disp", self.oc.zeros)
         assert val.strip() == "@zeros"
 
-        lines = []
+        lines: list = []
         self.oc.feval(
             "evalin", "base", "disp(1);disp(2);disp(3)", nout=0, stream_handler=lines.append
         )
@@ -272,7 +274,7 @@ class TestUsage:
         a = self.oc.eval("ones(3);")
         assert np.allclose(a, np.ones((3, 3)))
 
-        lines = []
+        lines: list = []
         self.oc.eval("disp(1);disp(2);disp(3)", nout=0, stream_handler=lines.append)
         lines = [line.strip() for line in lines]
         assert lines == ["1", "2", "3"], lines

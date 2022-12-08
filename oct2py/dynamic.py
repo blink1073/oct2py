@@ -5,14 +5,15 @@
 import types
 import warnings
 import weakref
+from typing import Any, Dict
 
 import numpy as np
 
 try:
-    from scipy.io.matlab import MatlabObject
+    from scipy.io.matlab import MatlabObject  # type:ignore
 except ImportError:
     try:
-        from scipy.io.matlab.mio5 import MatlabObject
+        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore
     except ImportError:
         pass
 
@@ -57,7 +58,7 @@ class OctaveVariablePtr(OctavePtr):
     """An object that acts as a pointer to an Octave value."""
 
     @property
-    def __doc__(self):
+    def __doc__(self):  # noqa
         return "%s is a variable" % self.name
 
     @property
@@ -158,9 +159,9 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
         # Bind to the instance.
         return types.MethodType(self, instance)
 
-    def __call__(self, instance, *inputs, **kwargs):
+    def __call__(self, instance: "OctaveUserClass", *inputs: Any, **kwargs: Any) -> Any:
         pointer = OctaveUserClass.to_pointer(instance)
-        inputs = [pointer] + list(inputs)
+        inputs = (pointer,) + inputs
         self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):
@@ -169,6 +170,10 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
 
 class OctaveUserClass:
     """A wrapper for an Octave user class."""
+
+    _name: str
+    _attrs: Dict[str, OctaveUserClassAttr]
+    _ref: Any
 
     def __init__(self, *inputs, **kwargs):
         """Create a new instance with the user class constructor."""
@@ -186,7 +191,7 @@ class OctaveUserClass:
         return instance
 
     @classmethod
-    def to_value(cls, instance):
+    def to_value(cls, instance: "OctaveUserClass") -> MatlabObject:
         """Convert to a value to send to Octave."""
         if not isinstance(instance, OctaveUserClass) or not instance._attrs:
             return {}
@@ -217,7 +222,7 @@ def _make_user_class(session, name):
     values = dict(__doc__=doc, _name=name, _ref=ref, _attrs=attrs, __module__="oct2py.dynamic")
 
     for method in methods:
-        doc = _MethodDocDescriptor(ref, name, method)
+        doc = _MethodDocDescriptor(ref, name, method)  # type:ignore
         cls_name = f"{name}_{method}"
         method_values = dict(__doc__=doc)
         method_cls = type(str(cls_name), (OctaveUserClassMethod,), method_values)

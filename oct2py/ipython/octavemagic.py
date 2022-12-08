@@ -41,17 +41,17 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 import os
 import shutil
 
-from IPython.core.magic import (
+from IPython.core.magic import (  # type:ignore
     Magics,
     line_cell_magic,
     line_magic,
     magics_class,
     needs_local_scope,
 )
-from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
-from IPython.display import display, publish_display_data
-from IPython.testing.skipdoctest import skip_doctest
-from IPython.utils.text import dedent
+from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring  # type:ignore
+from IPython.display import display, publish_display_data  # type:ignore
+from IPython.testing.skipdoctest import skip_doctest  # type:ignore
+from IPython.utils.text import dedent  # type:ignore
 
 import oct2py
 
@@ -98,8 +98,8 @@ class OctaveMagics(Magics):
 
         """
         inputs = line.split(" ")
-        for input in inputs:
-            self._oct.push(input, self.shell.user_ns[input])
+        for _input in inputs:
+            self._oct.push(_input, self.shell.user_ns[_input])
 
     @skip_doctest
     @line_magic
@@ -228,12 +228,12 @@ class OctaveMagics(Magics):
             local_ns = {}
 
         if args.input:
-            for input in ",".join(args.input).split(","):
+            for _input in ",".join(args.input).split(","):
                 try:
-                    val = local_ns[input]
+                    val = local_ns[_input]
                 except KeyError:
-                    val = self.shell.user_ns[input]
-                self._oct.push(input, val)
+                    val = self.shell.user_ns[_input]
+                self._oct.push(_input, val)
 
         width = args.width
         height = args.height
@@ -286,7 +286,7 @@ class OctaveMagics(Magics):
         publish_display_data({"text/plain": line})
 
 
-__doc__ = __doc__.format(
+__doc__ = __doc__.format(  # noqa
     OCTAVE_DOC=dedent(OctaveMagics.octave.__doc__),
     OCTAVE_PUSH_DOC=dedent(OctaveMagics.octave_push.__doc__),
     OCTAVE_PULL_DOC=dedent(OctaveMagics.octave_pull.__doc__),

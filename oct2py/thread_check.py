@@ -5,7 +5,7 @@
 import datetime
 import threading
 
-from . import Oct2Py, Oct2PyError
+from . import Oct2Py, Oct2PyError, get_log
 
 
 class ThreadClass(threading.Thread):
@@ -26,11 +26,10 @@ class ThreadClass(threading.Thread):
         octave.push("name", self.name)
         name = octave.pull("name")
         now = datetime.datetime.now()
-        print(f"{self.name} got '{name}' at {now}")
+        logger = get_log()
+        logger.info(f"{self.name} got '{name}' at {now}")
         octave.exit()
-        try:
-            assert self.name == name
-        except AssertionError:  # pragma: no cover
+        if self.name != name:
             raise Oct2PyError("Thread collision detected")
         return
 
@@ -50,7 +49,8 @@ def thread_check(nthreads=3):
         If the thread does not sucessfully demonstrate independence.
 
     """
-    print(f"Starting {nthreads} threads at {datetime.datetime.now()}")
+    logger = get_log()
+    logger.info(f"Starting {nthreads} threads at {datetime.datetime.now()}")
     threads = []
     for _ in range(nthreads):
         thread = ThreadClass()
@@ -59,7 +59,7 @@ def thread_check(nthreads=3):
         threads.append(thread)
     for thread in threads:
         thread.join()
-    print(f"All threads closed at {datetime.datetime.now()}")
+    logger.info(f"All threads closed at {datetime.datetime.now()}")
 
 
 if __name__ == "__main__":  # pragma: no cover

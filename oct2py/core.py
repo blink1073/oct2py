@@ -11,8 +11,8 @@ import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import EOF, TIMEOUT
-from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
+from metakernel.pexpect import EOF, TIMEOUT  # type:ignore
+from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore
 
 from .dynamic import (
     OctavePtr,
@@ -103,7 +103,7 @@ class Oct2Py:
             self.restart()
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type_, value, traceback):
         """Close session"""
         self.exit()
 
@@ -111,7 +111,7 @@ class Oct2Py:
         """Delete session"""
         self.exit()
 
-    def exit(self):
+    def exit(self):  # noqa
         """Quits this octave session and cleans up."""
         if self._engine:
             self._engine.repl.terminate()
@@ -236,7 +236,9 @@ class Oct2Py:
 
         Notes
         -----
-        Pointers can be passed to `feval` or dynamic functions as function arguments.  A pointer passed as a nested value will be passed by value instead.
+        Pointers can be passed to `feval` or dynamic functions as function
+        arguments.  A pointer passed as a nested value will be passed by value
+        instead.
 
         Raises
         ------
@@ -275,6 +277,8 @@ class Oct2Py:
         remove: bool, optional.
             Whether to remove the plot directory after saving.
         """
+        if not self._engine:
+            raise Oct2PyError("Session is not open")
         figures = self._engine.extract_figures(plot_dir, remove)
         return figures
 
@@ -402,7 +406,7 @@ class Oct2Py:
             plot_dir=plot_dir,
         )
 
-    def eval(
+    def eval(  # noqa
         self,
         cmds,
         verbose=True,
@@ -519,7 +523,7 @@ class Oct2Py:
             warnings.warn(msg % name, stacklevel=2)
 
         return_both = kwargs.pop("return_both", False)
-        lines = []
+        lines: list = []
         if return_both and not stream_handler:
             stream_handler = lines.append
 
@@ -562,7 +566,7 @@ class Oct2Py:
         try:
             self._engine = OctaveEngine(stdin_handler=self._handle_stdin, logger=self.logger)
         except Exception as e:
-            raise Oct2PyError(str(e))
+            raise Oct2PyError(str(e)) from None
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
@@ -595,7 +599,7 @@ class Oct2Py:
             if isinstance(value, OctavePtr):
                 ref_indices.append(i + 1)
                 func_args[i] = value.address
-        ref_indices = np.array(ref_indices)
+        ref_arr = np.array(ref_indices)
 
         # Save the request data to the output file.
         req = dict(
@@ -604,7 +608,7 @@ class Oct2Py:
             dname=dname or "",
             nout=nout,
             store_as=store_as or "",
-            ref_indices=ref_indices,
+            ref_indices=ref_arr,
         )
 
         write_file(req, out_file, oned_as=self._oned_as, convert_to_float=self.convert_to_float)
@@ -621,13 +625,13 @@ class Oct2Py:
             raise
         except TIMEOUT:
             stream_handler(engine.repl.interrupt())
-            raise Oct2PyError("Timed out, interrupting")
+            raise Oct2PyError("Timed out, interrupting") from None
         except EOF:
             if not self._engine:
                 return
             stream_handler(engine.repl.child.before)
             self.restart()
-            raise Oct2PyError("Session died, restarting")
+            raise Oct2PyError("Session died, restarting") from None
 
         # Read in the output.
         resp = read_file(in_file, self)
@@ -649,7 +653,7 @@ class Oct2Py:
             result = None
 
         if plot_dir:
-            self._engine.make_figures(plot_dir)
+            engine.make_figures(plot_dir)
 
         return result
 
@@ -691,7 +695,7 @@ class Oct2Py:
         out : None
 
         """
-        print(self._get_doc(name))
+        print(self._get_doc(name))  # noqa
 
     def _get_doc(self, name):
         """
@@ -716,7 +720,8 @@ class Oct2Py:
         doc = "No documentation for %s" % name
 
         engine = self._engine
-
+        if not engine:
+            raise Oct2PyError("Session is not open")
         doc = engine.eval('help("%s")' % name, silent=True)
 
         if "syntax error:" in doc.lower():
@@ -727,7 +732,7 @@ class Oct2Py:
             doc = "\n".join(doc.splitlines()[:3])
 
         default = self.feval.__doc__
-        default = "        " + default[default.find("func_args:") :]
+        default = "        " + default[default.find("func_args:") :]  # type:ignore
         default = "\n".join([line[8:] for line in default.splitlines()])
 
         doc = "\n".join(doc.splitlines())
@@ -747,6 +752,8 @@ class Oct2Py:
         Raises an error when the name does not exist.
         """
         cmd = 'exist("%s")' % name
+        if not self._engine:
+            raise Oct2PyError("Session is not open")
         resp = self._engine.eval(cmd, silent=True).strip()
         exist = int(resp.split()[-1])
         if exist == 0:
@@ -764,6 +771,8 @@ class Oct2Py:
         if exist in [2, 5]:
             return False
         cmd = "isobject(%s)" % name
+        if not self._engine:
+            raise Oct2PyError("Session is not open")
         resp = self._engine.eval(cmd, silent=True).strip()
         return resp == "ans =  1"
 
@@ -785,7 +794,7 @@ class Oct2Py:
         """
         # needed for help(Oct2Py())
         if attr.startswith("__"):
-            return super().__getattr__(attr)
+            return super().__getattr__(attr)  # type:ignore
 
         # close_ -> close
         if attr[-1] == "_":
@@ -833,9 +842,9 @@ class Oct2Py:
                     if line[0] != "f":  # not function
                         if status == "NOT FUNCTION":
                             continue
-                    line = line.translate(str.maketrans("", "", "[]()")).split()
+                    line = line.translate(str.maketrans("", "", "[]()")).split()  # type:ignore
                     try:
-                        line.remove("function")
+                        line.remove("function")  # type:ignore
                     except Exception:
                         pass
                     for char in line:
