@@ -46,11 +46,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   docs:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      - run: pip install hatch; hatch run docs:build
+      - run: hatch run docs:build
 
   test_lint:
     name: Test Lint
@@ -62,7 +62,7 @@ jobs:
          run: |
           hatch run typing:test
           hatch run lint:style
-          pipx run 'validate-pyproject[all]' pyproject.toml
+          pipx run interrogate -v .
           pipx run doc8 --max-line-length=200 docs/source *.md
 
   check_links:

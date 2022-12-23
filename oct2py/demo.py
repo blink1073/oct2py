@@ -1,3 +1,4 @@
+"""oct2py demo."""
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 

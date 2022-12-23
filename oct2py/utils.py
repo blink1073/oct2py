@@ -1,3 +1,4 @@
+"""oct2py general utils."""
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
