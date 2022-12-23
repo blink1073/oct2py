@@ -1,3 +1,4 @@
+"""dynamic value handling."""
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
@@ -22,6 +23,7 @@ class OctavePtr:
     """A pointer to an Octave workspace value."""
 
     def __init__(self, session_weakref, name, address):
+        """Initialize the pointer."""
         self._name = name
         self._address = address
         self._ref = session_weakref
@@ -43,6 +45,7 @@ class _DocDescriptor:
     """
 
     def __init__(self, session_weakref, name):
+        """Initialize the descriptor."""
         self.ref = session_weakref
         self.name = name
         self.doc = None
@@ -74,10 +77,12 @@ class OctaveFunctionPtr(OctavePtr):
     """An object that acts as a pointer to an Octave function."""
 
     def __init__(self, session_weakref, name):
+        """Initialize the pointer."""
         address = "@%s" % name
         super().__init__(session_weakref, name, address)
 
     def __call__(self, *inputs, **kwargs):
+        """Call the function."""
         # Check for allowed keyword arguments
         allowed = [
             "verbose",
@@ -106,6 +111,7 @@ class OctaveFunctionPtr(OctavePtr):
         return self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):
+        """A string repr of the pointer."""
         return '"%s" Octave function' % self.name
 
 
@@ -113,12 +119,14 @@ class OctaveUserClassAttr(OctavePtr):
     """An attribute associated with an Octave user class instance."""
 
     def __get__(self, instance, owner=None):
+        """Get a method or property on the class."""
         if instance is None:
             return "dynamic attribute"
         pointer = OctaveUserClass.to_pointer(instance)
         return instance._ref().feval("get", pointer, self.address)
 
     def __set__(self, instance, value):
+        """Set a method or property on the class."""
         if instance is None:
             return
         pointer = OctaveUserClass.to_pointer(instance)
@@ -132,12 +140,14 @@ class _MethodDocDescriptor:
     """
 
     def __init__(self, session_weakref, class_name, name):
+        """Initialize the descriptor."""
         self.ref = session_weakref
         self.class_name = class_name
         self.name = name
         self.doc = None
 
     def __get__(self, instance, owner=None):
+        """Get the documentation."""
         if self.doc is not None:
             return self.doc
         session = self.ref()
@@ -152,19 +162,22 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
     """A method for a user defined Octave class."""
 
     def __init__(self, session_weakref, name, class_name):
+        """Initialize the pointer."""
         OctaveFunctionPtr.__init__(self, session_weakref, name)
         self.class_name = class_name
 
     def __get__(self, instance, owner=None):
-        # Bind to the instance.
+        """Bind to the instance."""
         return types.MethodType(self, instance)
 
     def __call__(self, instance: "OctaveUserClass", *inputs: Any, **kwargs: Any) -> Any:
+        """Call the class method."""
         pointer = OctaveUserClass.to_pointer(instance)
         inputs = (pointer,) + inputs
         self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):
+        """Str repr of the pointer."""
         return f'"{self.name}" Octave method for object'
 
 

@@ -1,3 +1,4 @@
+"""io handling."""
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
@@ -24,9 +25,13 @@ try:
 except Exception:
 
     class Series:  # type:ignore
+        """placeholder."""
+
         pass
 
     class DataFrame:  # type:ignore
+        """placeholder."""
+
         pass
 
 
@@ -81,7 +86,7 @@ class Struct(dict):
     """
 
     def __getattr__(self, attr):
-        # Access the dictionary keys for unknown attributes.
+        """Access the dictionary keys for unknown attributes."""
         try:
             return self[attr]
         except KeyError:
@@ -89,7 +94,7 @@ class Struct(dict):
             raise AttributeError(msg) from None
 
     def __getitem__(self, attr):
-        # Get a dict value; create a Struct if requesting a Struct member.
+        """Get a dict value; create a Struct if requesting a Struct member."""
         # Do not create a key if the attribute starts with an underscore.
         if attr in self.keys() or attr.startswith("_"):
             return dict.__getitem__(self, attr)
@@ -183,6 +188,7 @@ class StructArray(np.recarray):
         return item
 
     def __repr__(self):
+        """A str repr for the struct array."""
         shape = self.shape
         if len(shape) == 1:
             shape = (shape[0], 1)
@@ -234,6 +240,7 @@ class Cell(np.ndarray):
         return obj
 
     def __repr__(self):
+        """A string repr for the cell array."""
         shape = self.shape
         if len(shape) == 1:
             shape = (shape[0], 1)
@@ -242,6 +249,7 @@ class Cell(np.ndarray):
         return msg.replace(", dtype=object", "", 1)
 
     def __getitem__(self, key):
+        """Get an element of the array."""
         if key == 0 and self.size == 1:
             # Note:
             # Can't use `return super().ravel()[0]` here

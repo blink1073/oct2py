@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import numpy as np
 
@@ -27,10 +28,12 @@ class TestNumpy:
             outgoing = np.random.randint(-255, 255) + np.random.rand(1)
             if typecode in "US":
                 outgoing = np.array("spam").astype(typecode)
-            try:
-                outgoing = outgoing.astype(typecode)
-            except TypeError:
-                continue
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                try:
+                    outgoing = outgoing.astype(typecode)
+                except TypeError:
+                    continue
             incoming = self.oc.roundtrip(outgoing)
             try:
                 assert np.allclose(incoming, outgoing)
@@ -60,7 +63,9 @@ class TestNumpy:
                         outgoing = outgoing.astype(typecode)
                     except TypeError:
                         continue
-                incoming = self.oc.roundtrip(outgoing)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", FutureWarning)
+                    incoming = self.oc.roundtrip(outgoing)
                 incoming = np.array(incoming)
                 if outgoing.size == 1:
                     outgoing = outgoing.squeeze()

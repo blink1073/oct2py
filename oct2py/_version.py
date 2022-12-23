@@ -1,6 +1,4 @@
-# Copyright (c) Jupyter Development Team.
-# Distributed under the terms of the Modified BSD License.
-
+"""Version info."""
 import re
 from collections import namedtuple
 from typing import List

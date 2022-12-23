@@ -46,11 +46,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   docs:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      - run: pip install hatch; hatch run docs:build
+      - run: hatch run docs:build
 
   test_lint:
     name: Test Lint
@@ -62,7 +62,7 @@ jobs:
          run: |
           hatch run typing:test
           hatch run lint:style
-          pipx run 'validate-pyproject[all]' pyproject.toml
+          pipx run interrogate -v .
           pipx run doc8 --max-line-length=200 docs/source *.md
 
   check_links:
@@ -72,3 +72,19 @@ jobs:
       - uses: actions/checkout@v3
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - uses: jupyterlab/maintainer-tools/.github/actions/check-links@v1
+
+
+  tests_check: # This job does nothing and is only used for the branch protection
+    if: always()
+    needs:
+      - build
+      - test_lint
+      - docs
+      - check_links
+      - check_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
