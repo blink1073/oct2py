@@ -80,8 +80,6 @@ jobs:
       - build
       - test_lint
       - docs
-      - test_minimum_versions
-      - test_prereleases
       - check_links
       - check_release
     runs-on: ubuntu-latest
