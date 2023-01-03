@@ -98,6 +98,7 @@ class OctaveMagics(Magics):
 
         """
         inputs = line.split(" ")
+        assert self.shell is not None  # noqa[S101]
         for _input in inputs:
             self._oct.push(_input, self.shell.user_ns[_input])
 
@@ -228,6 +229,7 @@ class OctaveMagics(Magics):
         if local_ns is None:
             local_ns = {}
 
+        assert self.shell is not None  # noqa[S101]
         if args.input:
             for _input in ",".join(args.input).split(","):
                 try:
@@ -272,7 +274,6 @@ class OctaveMagics(Magics):
 
         # Publish output
         if args.output:
-            assert self.shell is not None  # noqa[S101]
             for output in ",".join(args.output).split(","):
                 self.shell.push({output: self._oct.pull(output)})
 
