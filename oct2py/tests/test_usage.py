@@ -6,7 +6,7 @@ from io import StringIO
 
 import numpy as np
 import pytest
-from IPython.display import SVG  # type:ignore
+from IPython.display import SVG
 
 from oct2py import Oct2Py, Oct2PyError, Struct
 from oct2py.io import MatlabFunction
