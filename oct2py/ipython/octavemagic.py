@@ -123,7 +123,7 @@ class OctaveMagics(Magics):
 
         """
         outputs = line.split(" ")
-        assert self.shell is not None
+        assert self.shell is not None  # noqa[S101]
         for output in outputs:
             self.shell.push({output: self._oct.pull(output)})
 
@@ -272,7 +272,7 @@ class OctaveMagics(Magics):
 
         # Publish output
         if args.output:
-            assert self.shell is not None
+            assert self.shell is not None  # noqa[S101]
             for output in ",".join(args.output).split(","):
                 self.shell.push({output: self._oct.pull(output)})
 
