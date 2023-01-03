@@ -41,17 +41,17 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 import os
 import shutil
 
-from IPython.core.magic import (  # type:ignore
+from IPython.core.magic import ( 
     Magics,
     line_cell_magic,
     line_magic,
     magics_class,
     needs_local_scope,
 )
-from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring  # type:ignore
-from IPython.display import display, publish_display_data  # type:ignore
-from IPython.testing.skipdoctest import skip_doctest  # type:ignore
-from IPython.utils.text import dedent  # type:ignore
+from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring  
+from IPython.display import display, publish_display_data  
+from IPython.testing.skipdoctest import skip_doctest  
+from IPython.utils.text import dedent  
 
 import oct2py
 
@@ -123,6 +123,7 @@ class OctaveMagics(Magics):
 
         """
         outputs = line.split(" ")
+        assert self.shell is not None
         for output in outputs:
             self.shell.push({output: self._oct.pull(output)})
 
@@ -271,6 +272,7 @@ class OctaveMagics(Magics):
 
         # Publish output
         if args.output:
+            assert self.shell is not None
             for output in ",".join(args.output).split(","):
                 self.shell.push({output: self._oct.pull(output)})
 

@@ -5,8 +5,8 @@ import unittest
 from typing import Any
 
 import numpy as np
-from IPython.display import SVG  # type:ignore
-from IPython.testing.globalipapp import get_ipython  # type:ignore
+from IPython.display import SVG 
+from IPython.testing.globalipapp import get_ipython 
 
 from oct2py import Oct2PyError
 
