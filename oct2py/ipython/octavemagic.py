@@ -41,17 +41,17 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 import os
 import shutil
 
-from IPython.core.magic import ( 
+from IPython.core.magic import (
     Magics,
     line_cell_magic,
     line_magic,
     magics_class,
     needs_local_scope,
 )
-from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring  
-from IPython.display import display, publish_display_data  
-from IPython.testing.skipdoctest import skip_doctest  
-from IPython.utils.text import dedent  
+from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
+from IPython.display import display, publish_display_data
+from IPython.testing.skipdoctest import skip_doctest
+from IPython.utils.text import dedent
 
 import oct2py
 
