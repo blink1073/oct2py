@@ -23,10 +23,7 @@ def get_log(name=None):
     name : str
         Name of the log.
     """
-    if name is None:
-        name = "oct2py"
-    else:
-        name = "oct2py." + name
+    name = "oct2py" if name is None else "oct2py." + name
 
     log = logging.getLogger(name)
     log.setLevel(logging.INFO)

@@ -148,7 +148,7 @@ class TestRoundTrip:
             func = "isequalwithequalnans"
 
         # Handle simple objects.
-        for key in self.data.keys():
+        for key in self.data:
             if key not in ["nested", "sparse", "cell", "object", "struct_vector", "num"]:
                 cmd = "{0}(x.{1},y.{1});".format(func, key)
                 assert self.oc.eval(cmd), key
@@ -156,7 +156,7 @@ class TestRoundTrip:
                 assert self.oc.eval(cmd), key
 
         # Handle cell type.
-        for key in self.data["cell"].keys():
+        for key in self.data["cell"]:
             if key in ["empty", "array"]:
                 continue
             cmd = "{0}(x.cell.{1},y.cell.{1});".format(func, key)
@@ -193,7 +193,7 @@ class TestRoundTrip:
         # Handle the num type
         x = self.oc.pull("x")
         y = self.oc.pull("y")
-        for key in self.data["num"].keys():
+        for key in self.data["num"]:
             if key == "int":
                 continue
             if key == "NaN":
@@ -202,7 +202,7 @@ class TestRoundTrip:
                 continue
             assert np.allclose(x.num[key], y.num[key])
 
-        for key in self.data["num"]["int"].keys():
+        for key in self.data["num"]["int"]:
             assert np.allclose(x.num.int[key], y.num.int[key])
 
 

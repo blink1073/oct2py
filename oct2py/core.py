@@ -279,7 +279,8 @@ class Oct2Py:
             Whether to remove the plot directory after saving.
         """
         if not self._engine:
-            raise Oct2PyError("Session is not open")
+            msg = "Session is not open"
+            raise Oct2PyError(msg)
         figures = self._engine.extract_figures(plot_dir, remove)
         return figures
 
@@ -355,7 +356,8 @@ class Oct2Py:
         The Python value(s) returned by the Octave function call.
         """
         if not self._engine:
-            raise Oct2PyError("Session is not open")
+            msg = "Session is not open"
+            raise Oct2PyError(msg)
 
         # nout handler
         nout = kwargs.get("nout", None)
@@ -383,11 +385,13 @@ class Oct2Py:
         dname = osp.dirname(func_path)
         fname = osp.basename(func_path)
         func_name, ext = osp.splitext(fname)
-        if ext and not ext == ".m":
-            raise TypeError("Need to give path to .m file")
+        if ext and ext != ".m":
+            msg = "Need to give path to .m file"
+            raise TypeError(msg)
 
         if func_name == "clear":
-            raise Oct2PyError('Cannot use `clear` command directly, use eval("clear(var1, var2)")')
+            msg = 'Cannot use `clear` command directly, use eval("clear(var1, var2)")'
+            raise Oct2PyError(msg)
 
         stream_handler = kwargs.get("stream_handler")
         verbose = kwargs.get("verbose", True)
@@ -586,7 +590,8 @@ class Oct2Py:
         """Run the given function with the given args."""
         engine = self._engine
         if engine is None:
-            raise Oct2PyError("Session is closed")
+            msg = "Session is closed"
+            raise Oct2PyError(msg)
 
         # Set up our mat file paths.
         out_file = osp.join(self.temp_dir, "writer.mat")
@@ -626,13 +631,15 @@ class Oct2Py:
             raise
         except TIMEOUT:
             stream_handler(engine.repl.interrupt())
-            raise Oct2PyError("Timed out, interrupting") from None
+            msg = "Timed out, interrupting"
+            raise Oct2PyError(msg) from None
         except EOF:
             if not self._engine:
                 return
             stream_handler(engine.repl.child.before)
             self.restart()
-            raise Oct2PyError("Session died, restarting") from None
+            msg = "Session died, restarting"
+            raise Oct2PyError(msg) from None
 
         # Read in the output.
         resp = read_file(in_file, self)
@@ -672,10 +679,10 @@ class Oct2Py:
         errmsg += "\nerror: called from:"
         for item in stack[:-1]:
             errmsg += "\n    %(name)s at line %(line)d" % item
-            try:
+            try:  # noqa
                 errmsg += ", column %(column)d" % item
             except Exception:
-                pass
+                pass  # noqa
         return errmsg
 
     def _handle_stdin(self, line):
@@ -722,7 +729,8 @@ class Oct2Py:
 
         engine = self._engine
         if not engine:
-            raise Oct2PyError("Session is not open")
+            msg = "Session is not open"
+            raise Oct2PyError(msg)
         doc = engine.eval('help("%s")' % name, silent=True)
 
         if "syntax error:" in doc.lower():
@@ -754,7 +762,8 @@ class Oct2Py:
         """
         cmd = 'exist("%s")' % name
         if not self._engine:
-            raise Oct2PyError("Session is not open")
+            msg = "Session is not open"
+            raise Oct2PyError(msg)
         resp = self._engine.eval(cmd, silent=True).strip()
         exist = int(resp.split()[-1])
         if exist == 0:
@@ -773,7 +782,8 @@ class Oct2Py:
             return False
         cmd = "isobject(%s)" % name
         if not self._engine:
-            raise Oct2PyError("Session is not open")
+            msg = "Session is not open"
+            raise Oct2PyError(msg)
         resp = self._engine.eval(cmd, silent=True).strip()
         return resp == "ans =  1"
 
@@ -798,13 +808,11 @@ class Oct2Py:
             return super().__getattr__(attr)  # type:ignore
 
         # close_ -> close
-        if attr[-1] == "_":
-            name = attr[:-1]
-        else:
-            name = attr
+        name = attr[:-1] if attr[-1] == "_" else attr
 
         if self._engine is None:
-            raise Oct2PyError("Session is closed")
+            msg = "Session is closed"
+            raise Oct2PyError(msg)
 
         # Make sure the name exists.
         exist = self._exist(name)
@@ -814,9 +822,8 @@ class Oct2Py:
             raise Oct2PyError(msg % name)
 
         if name == "clear":
-            raise Oct2PyError(
-                'Cannot use `clear` command directly, use `eval("clear(var1, var2)")`'
-            )
+            msg = 'Cannot use `clear` command directly, use `eval("clear(var1, var2)")`'
+            raise Oct2PyError(msg)
 
         # Check for user defined class.
         if self._isobject(name, exist):
@@ -840,14 +847,14 @@ class Oct2Py:
         if func_path.endswith(".m"):  # only if `func_path` is .m file
             with open(func_path, encoding="utf8") as fid:
                 for line in fid:
-                    if line[0] != "f":  # not function
+                    if line[0] != "f":  # noqa # not function
                         if status == "NOT FUNCTION":
                             continue
                     line = line.translate(str.maketrans("", "", "[]()")).split()  # type:ignore
-                    try:
+                    try:  # noqa
                         line.remove("function")  # type:ignore
                     except Exception:
-                        pass
+                        pass  # noqa
                     for char in line:
                         if char == "...":
                             status = "FUNCTION"

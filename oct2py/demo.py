@@ -66,9 +66,8 @@ def demo(delay=1, interactive=True):
             time.sleep(delay)
             print(f">>> {line}")  # noqa
             time.sleep(delay)
-        if not interactive:
-            if "plot" in line or "surf" in line or "input(" in line:
-                line = "print()"
+        if not interactive and ("plot" in line or "surf" in line or "input(" in line):
+            line = "print()"
         exec(line)  # noqa
 
 

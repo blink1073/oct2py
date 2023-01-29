@@ -56,7 +56,7 @@ class OctaveMagicTest(unittest.TestCase):
         self.ip.run_cell_magic(
             "octave", "-f svg -s 400,500", "plot([1, 2, 3]); figure; plot([4, 5, 6]);"
         )
-        assert self.svgs_generated == 2  # type:ignore
+        assert self.svgs_generated == 2  # type:ignore  # noqa
 
     def _verify_display(self, obj):
         if isinstance(obj, SVG):

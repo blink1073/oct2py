@@ -14,7 +14,7 @@ try:
     from scipy.io.matlab import MatlabFunction, MatlabObject  # type:ignore
     from scipy.sparse import spmatrix  # type:ignore
 except ImportError:
-    try:
+    try:  # noqa
         from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore
     except ImportError:
         pass
@@ -62,7 +62,8 @@ def write_file(obj, path, oned_as="row", convert_to_float=True):
         with _WRITE_LOCK:
             savemat(path, data, appendmat=False, oned_as=oned_as, long_field_names=True)
     except KeyError:  # pragma: no cover
-        raise Exception("could not save mat file") from None
+        msg = "could not save mat file"
+        raise Exception(msg) from None
 
 
 class Struct(dict):
@@ -96,7 +97,7 @@ class Struct(dict):
     def __getitem__(self, attr):
         """Get a dict value; create a Struct if requesting a Struct member."""
         # Do not create a key if the attribute starts with an underscore.
-        if attr in self.keys() or attr.startswith("_"):
+        if attr in self or attr.startswith("_"):
             return dict.__getitem__(self, attr)
         frame = inspect.currentframe()
         if frame is None or frame.f_back is None:
@@ -324,7 +325,8 @@ def _encode(data, convert_to_float):
 
     # Handle a function pointer.
     if isinstance(data, (OctaveFunctionPtr, MatlabFunction)):
-        raise Oct2PyError("Cannot write Octave functions")
+        msg = "Cannot write Octave functions"
+        raise Oct2PyError(msg)
 
     # Handle matlab objects.
     if isinstance(data, MatlabObject):
