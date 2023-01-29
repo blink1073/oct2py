@@ -84,7 +84,7 @@ dependencies = [
   "black[jupyter]==22.12.0",
   "mdformat>0.7",
   "mdformat-gfm>=0.3.5",
-  "ruff==0.0.206"
+  "ruff==0.0.237"
 ]
 detached = true
 [tool.hatch.envs.lint.scripts]
@@ -146,8 +146,9 @@ skip-string-normalization = true
 target-version = "py37"
 line-length = 100
 select = [
-  "A", "B", "C", "E", "F", "FBT", "I", "N", "Q", "RUF", "S", "T",
-  "UP", "W", "YTT",
+  "A", "B", "C", "DTZ", "E", "EM", "F", "FBT", "I", "ICN", "ISC", "N",
+  "PLC", "PLE", "PLR", "PLW", "Q", "RUF", "S", "SIM", "T", "TID", "UP",
+  "W", "YTT",
 ]
 ignore = [
 # Q000 Single quotes found but double quotes preferred
@@ -163,7 +164,8 @@ ignore = [
 [tool.ruff.per-file-ignores]
 # S101 Use of `assert` detected
 # N806 Variable `V` in function should be lowercase
-"oct2py/tests/*" = ["S101", "N806"]
+# PLR2004 Magic value used in comparison
+"oct2py/tests/*" = ["S101", "N806", "PLR2004"]
 "oct2py/ipython/tests/*" = ["S101", "N806"]
 
 [tool.interrogate]

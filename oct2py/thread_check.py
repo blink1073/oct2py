@@ -26,12 +26,13 @@ class ThreadClass(threading.Thread):
         # write the same variable name in each thread and read it back
         octave.push("name", self.name)
         name = octave.pull("name")
-        now = datetime.datetime.now()
+        now = datetime.datetime.now()  # noqa
         logger = get_log()
         logger.info(f"{self.name} got '{name}' at {now}")
         octave.exit()
         if self.name != name:
-            raise Oct2PyError("Thread collision detected")
+            msg = "Thread collision detected"
+            raise Oct2PyError(msg)
         return
 
 
@@ -51,7 +52,7 @@ def thread_check(nthreads=3):
 
     """
     logger = get_log()
-    logger.info(f"Starting {nthreads} threads at {datetime.datetime.now()}")
+    logger.info(f"Starting {nthreads} threads at {datetime.datetime.now()}")  # noqa
     threads = []
     for _ in range(nthreads):
         thread = ThreadClass()
@@ -60,7 +61,7 @@ def thread_check(nthreads=3):
         threads.append(thread)
     for thread in threads:
         thread.join()
-    logger.info(f"All threads closed at {datetime.datetime.now()}")
+    logger.info(f"All threads closed at {datetime.datetime.now()}")  # noqa
 
 
 if __name__ == "__main__":  # pragma: no cover

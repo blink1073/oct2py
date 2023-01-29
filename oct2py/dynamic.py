@@ -13,7 +13,7 @@ import numpy as np
 try:
     from scipy.io.matlab import MatlabObject  # type:ignore
 except ImportError:
-    try:
+    try:  # noqa
         from scipy.io.matlab.mio5 import MatlabObject  # type:ignore
     except ImportError:
         pass
@@ -173,7 +173,7 @@ class OctaveUserClassMethod(OctaveFunctionPtr):
     def __call__(self, instance: "OctaveUserClass", *inputs: Any, **kwargs: Any) -> Any:
         """Call the class method."""
         pointer = OctaveUserClass.to_pointer(instance)
-        inputs = (pointer,) + inputs
+        inputs = (pointer, *inputs)
         self._ref().feval(self.name, *inputs, **kwargs)
 
     def __repr__(self):

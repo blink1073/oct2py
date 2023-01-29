@@ -69,7 +69,7 @@ class TestConversions:
 
         """
         for key, type_ in zip(keys, types):
-            if not type(base[key]) == type_:
+            if type(base[key]) != type_:
                 try:
                     assert type_(base[key]) == base[key], key
                 except ValueError:
