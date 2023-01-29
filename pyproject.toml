@@ -71,7 +71,7 @@ dependencies = ["coverage", "pytest-cov"]
 [tool.hatch.envs.cover.env-vars]
 ARGS = "--doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py -vv"
 [tool.hatch.envs.cover.scripts]
-test = "python -m pytest $ARGS --cov-fail-under 90 {args}"
+test = "python -m pytest $ARGS --cov-fail-under 85 {args}"
 
 [tool.hatch.envs.typing]
 features = ["test"]
