@@ -48,7 +48,7 @@ def read_file(path, session=None):
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e)) from None
     out = {}
-    for (key, value) in data.items():
+    for key, value in data.items():
         out[key] = _extract(value, session)
     return out
 
@@ -164,7 +164,7 @@ class StructArray(np.recarray):
 
         # Extract the values.
         obj = np.empty(value.size, dtype=value.dtype).view(cls)
-        for (i, item) in enumerate(value.ravel()):
+        for i, item in enumerate(value.ravel()):
             for name in value.dtype.names:
                 obj[i][name] = _extract(item[name], session)
         return obj.reshape(value.shape)
@@ -234,7 +234,7 @@ class Cell(np.ndarray):
 
         # Extract the values.
         obj = np.empty(value.size, dtype=object).view(cls)
-        for (i, item) in enumerate(value.ravel()):
+        for i, item in enumerate(value.ravel()):
             obj[i] = _extract(item, session)
         obj = obj.reshape(value.shape)  # type:ignore
 
@@ -347,7 +347,7 @@ def _encode(data, convert_to_float):
     # Extract and encode values from dict-like objects.
     if isinstance(data, dict):
         out = {}
-        for (key, value) in data.items():
+        for key, value in data.items():
             out[key] = _encode(value, ctf)
         return out
 
@@ -368,7 +368,7 @@ def _encode(data, convert_to_float):
     # Tuples are handled as cells.
     if isinstance(data, tuple):
         obj = np.empty(len(data), dtype=object)
-        for (i, item) in enumerate(data):
+        for i, item in enumerate(data):
             obj[i] = _encode(item, ctf)
         return obj
 
@@ -383,7 +383,7 @@ def _encode(data, convert_to_float):
     # Extract and encode data from object-like arrays.
     if data.dtype.kind in "OV":
         out = np.empty(data.size, dtype=data.dtype)
-        for (i, item) in enumerate(data.ravel()):
+        for i, item in enumerate(data.ravel()):
             if data.dtype.names:
                 for name in data.dtype.names:
                     out[i][name] = _encode(item[name], ctf)

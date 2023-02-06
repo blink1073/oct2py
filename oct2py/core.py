@@ -60,7 +60,7 @@ class Oct2Py:
         The graphics_toolkit to use for plotting.
     """
 
-    def __init__(
+    def __init__(  # noqa
         self,
         logger=None,
         timeout=None,
@@ -153,7 +153,7 @@ class Oct2Py:
             name = [name]
             var = [var]
 
-        for (n, v) in zip(name, var):
+        for n, v in zip(name, var):
             self.feval("assignin", "base", n, v, nout=0, timeout=timeout, verbose=verbose)
 
     def pull(self, var, timeout=None, verbose=True):
@@ -576,7 +576,7 @@ class Oct2Py:
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
 
-    def _feval(
+    def _feval(  # noqa
         self,
         func_name,
         func_args=(),
@@ -601,7 +601,7 @@ class Oct2Py:
 
         func_args = list(func_args)
         ref_indices = []
-        for (i, value) in enumerate(func_args):
+        for i, value in enumerate(func_args):
             if isinstance(value, OctavePtr):
                 ref_indices.append(i + 1)
                 func_args[i] = value.address

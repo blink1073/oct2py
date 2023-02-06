@@ -56,7 +56,7 @@ class TestRoundTrip:
     def nested_equal(self, val1, val2):
         """Test for equality in a nested list or ndarray"""
         if isinstance(val1, list):
-            for (subval1, subval2) in zip(val1, val2):
+            for subval1, subval2 in zip(val1, val2):
                 if isinstance(subval1, list):
                     self.nested_equal(subval1, subval2)
                 elif isinstance(subval1, np.ndarray):
