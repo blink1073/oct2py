@@ -60,7 +60,7 @@ class Oct2Py:
         The graphics_toolkit to use for plotting.
     """
 
-    def __init__(
+    def __init__(  # noqa
         self,
         logger=None,
         timeout=None,
@@ -576,7 +576,7 @@ class Oct2Py:
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
 
-    def _feval(
+    def _feval(  # noqa
         self,
         func_name,
         func_args=(),
