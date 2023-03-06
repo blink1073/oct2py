@@ -6,4 +6,4 @@ if __name__ == "__main__":
     out = octave.test_datatypes()
     import pprint
 
-    pprint.pprint(out)
+    pprint.pprint(out)  # noqa

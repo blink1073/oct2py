@@ -681,7 +681,7 @@ class Oct2Py:
             errmsg += "\n    %(name)s at line %(line)d" % item
             try:  # noqa
                 errmsg += ", column %(column)d" % item
-            except Exception:
+            except Exception:  # noqa
                 pass
         return errmsg
 
@@ -703,7 +703,7 @@ class Oct2Py:
         out : None
 
         """
-        print(self._get_doc(name))
+        print(self._get_doc(name))  # noqa
 
     def _get_doc(self, name):
         """
@@ -853,7 +853,7 @@ class Oct2Py:
                     line = line.translate(str.maketrans("", "", "[]()")).split()  # type:ignore
                     try:  # noqa
                         line.remove("function")  # type:ignore
-                    except Exception:
+                    except Exception:  # noqa
                         pass
                     for char in line:
                         if char == "...":
