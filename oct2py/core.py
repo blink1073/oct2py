@@ -850,7 +850,7 @@ class Oct2Py:
                     if line[0] != "f":  # noqa # not function
                         if status == "NOT FUNCTION":
                             continue
-                    line = line.translate(str.maketrans("", "", "[]()")).split()  # type:ignore
+                    line = line.translate(str.maketrans("", "", "[]()")).split()  # type:ignore  noqa
                     try:  # noqa
                         line.remove("function")  # type:ignore
                     except Exception:  # noqa
