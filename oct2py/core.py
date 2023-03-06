@@ -682,7 +682,7 @@ class Oct2Py:
             try:  # noqa
                 errmsg += ", column %(column)d" % item
             except Exception:
-                pass  # noqa
+                pass
         return errmsg
 
     def _handle_stdin(self, line):
@@ -703,7 +703,7 @@ class Oct2Py:
         out : None
 
         """
-        print(self._get_doc(name))  # noqa
+        print(self._get_doc(name))
 
     def _get_doc(self, name):
         """
@@ -854,7 +854,7 @@ class Oct2Py:
                     try:  # noqa
                         line.remove("function")  # type:ignore
                     except Exception:
-                        pass  # noqa
+                        pass
                     for char in line:
                         if char == "...":
                             status = "FUNCTION"
