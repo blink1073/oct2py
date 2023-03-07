@@ -10,4 +10,4 @@ if __name__ == "__main__":
     out, oclass = octave.roundtrip(x, nout=2)
     import pprint
 
-    pprint.pprint([x, x.dtype, out, oclass, out.dtype])  # noqa
+    pprint.pprint([x, x.dtype, out, oclass, out.dtype])

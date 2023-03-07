@@ -103,7 +103,7 @@ class Struct(dict):
         if frame is None or frame.f_back is None:
             return None
         # step into the function that called us
-        if frame.f_back.f_back and self._is_allowed(frame.f_back.f_back):
+        if frame.f_back.f_back and self._is_allowed(frame.f_back.f_back):  # noqa
             dict.__setitem__(self, attr, Struct())
         elif self._is_allowed(frame.f_back):
             dict.__setitem__(self, attr, Struct())
@@ -258,7 +258,7 @@ class Cell(np.ndarray):
         return super().__getitem__(key)
 
 
-def _extract(data, session=None):
+def _extract(data, session=None):  # noqa
     """Convert the Octave values to values suitable for Python."""
     # Extract each item of a list.
     if isinstance(data, list):
@@ -311,7 +311,7 @@ def _create_struct(data, session):
     return out
 
 
-def _encode(data, convert_to_float):
+def _encode(data, convert_to_float):  # noqa
     """Convert the Python values to values suitable to send to Octave."""
     ctf = convert_to_float
 
@@ -408,7 +408,7 @@ def _is_simple_numeric(data):
     item_len = None
     for item in data:
         if isinstance(item, set):
-            item = list(item)
+            item = list(item)  # noqa
         if isinstance(item, list):
             if not _is_simple_numeric(item):
                 return False

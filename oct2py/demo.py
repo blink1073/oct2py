@@ -61,13 +61,13 @@ def demo(delay=1, interactive=True):
     script = script.replace("raw_input", "input")
 
     for line in script.strip().split("\n"):
-        line = line.strip()
+        line = line.strip()  # noqa
         if "input(" not in line:
             time.sleep(delay)
-            print(f">>> {line}")  # noqa
+            print(f">>> {line}")
             time.sleep(delay)
         if not interactive and ("plot" in line or "surf" in line or "input(" in line):
-            line = "print()"
+            line = "print()"  # noqa
         exec(line)  # noqa
 
 

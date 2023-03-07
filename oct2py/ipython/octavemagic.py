@@ -169,7 +169,7 @@ class OctaveMagics(Magics):
         nargs="*",
     )
     @line_cell_magic
-    def octave(self, line, cell=None, local_ns=None):
+    def octave(self, line, cell=None, local_ns=None):  # noqa
         """
         Execute code in Octave, and pull some of the results back into the
         Python namespace::
