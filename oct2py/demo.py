@@ -64,7 +64,7 @@ def demo(delay=1, interactive=True):
         line = line.strip()  # noqa
         if "input(" not in line:
             time.sleep(delay)
-            print(f">>> {line}")
+            print(f">>> {line}")  # noqa
             time.sleep(delay)
         if not interactive and ("plot" in line or "surf" in line or "input(" in line):
             line = "print()"  # noqa

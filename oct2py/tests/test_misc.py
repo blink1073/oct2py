@@ -258,7 +258,7 @@ class TestMisc:
 
     def test_empty_values(self):
         self.oc.push("a", "")
-        assert self.oc.pull("a") == ""
+        assert not self.oc.pull("a")
 
         self.oc.push("a", [])
         assert self.oc.pull("a") == []
@@ -289,7 +289,7 @@ class TestMisc:
         text, value = self.oc.eval(
             ['disp("hi")', "ones(3);"], return_both=True, stream_handler=lines.append
         )
-        assert text == ""
+        assert not text
         assert np.allclose(value, np.ones((3, 3)))
         assert lines[0].strip() == "hi"
 

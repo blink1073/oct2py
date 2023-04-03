@@ -33,7 +33,6 @@ class ThreadClass(threading.Thread):
         if self.name != name:
             msg = "Thread collision detected"
             raise Oct2PyError(msg)
-        return
 
 
 def thread_check(nthreads=3):

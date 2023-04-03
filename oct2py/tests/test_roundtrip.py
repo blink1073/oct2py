@@ -142,7 +142,7 @@ class TestRoundTrip:
         assert self.oc.pull("x") is not None
         self.oc.push("y", self.data)
         try:
-            self.oc.isequaln
+            self.oc.isequaln  # noqa
             func = "isequaln"
         except Oct2PyError:
             func = "isequalwithequalnans"

@@ -97,7 +97,7 @@ class TestUsage:
         test["foo"]["bar"] = 10
         assert test.foo.bar == 10
         p = pickle.dumps(test)
-        test2 = pickle.loads(p)
+        test2 = pickle.loads(p)  # noqa
         assert test2["spam"] == "eggs"
         assert test2["eggs"]["spam"] == "eggs"
         assert test2.foo.bar == 10
