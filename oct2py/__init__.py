@@ -47,7 +47,7 @@ __all__ = [
 try:
     octave = Oct2Py()
 except Oct2PyError as e:
-    print(e)
+    print(e)  # noqa
 
 
 def kill_octave():

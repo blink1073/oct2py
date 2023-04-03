@@ -703,7 +703,7 @@ class Oct2Py:
         out : None
 
         """
-        print(self._get_doc(name))
+        print(self._get_doc(name))  # noqa
 
     def _get_doc(self, name):
         """
