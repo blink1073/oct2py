@@ -21,7 +21,7 @@ except ImportError:
 
 
 try:
-    from pandas import DataFrame, Series  # type:ignore
+    from pandas import DataFrame, Series
 except Exception:
 
     class Series:  # type:ignore
