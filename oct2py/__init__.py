@@ -59,8 +59,8 @@ def kill_octave():
     import os
 
     if os.name == "nt":
-        os.system("taskkill /im octave /f")
+        os.system("taskkill /im octave /f")  # noqa
     else:
-        os.system("killall -9 octave")
-        os.system("killall -9 octave-cli")
+        os.system("killall -9 octave")  # noqa
+        os.system("killall -9 octave-cli")  # noqa
     octave.restart()
