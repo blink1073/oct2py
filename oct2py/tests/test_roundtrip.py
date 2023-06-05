@@ -275,7 +275,7 @@ class TestBuiltins:
 
     def test_set(self):
         """Test python set type"""
-        test: Any = {1, 2, 3, 3}
+        test: Any = {1, 2, 3}
         incoming = self.oc.roundtrip(test)
         assert np.allclose(tuple(test), incoming)
         assert isinstance(incoming, np.ndarray)
