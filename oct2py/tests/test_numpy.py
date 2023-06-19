@@ -38,7 +38,7 @@ class TestNumpy:
             try:
                 assert np.allclose(incoming, outgoing)
             except (ValueError, TypeError, NotImplementedError, AssertionError):
-                assert np.alltrue(np.array(incoming).astype(typecode) == outgoing)
+                assert np.all(np.array(incoming).astype(typecode) == outgoing)
 
     def test_ndarrays(self):
         """Send ndarrays and make sure we get the same array back"""
@@ -84,7 +84,7 @@ class TestNumpy:
                     if "c" in incoming.dtype.str:
                         incoming = np.abs(incoming)
                         outgoing = np.abs(outgoing)
-                    assert np.alltrue(np.array(incoming).astype(typecode) == outgoing)
+                    assert np.all(np.array(incoming).astype(typecode) == outgoing)
 
     def test_sparse(self):
         """Test roundtrip sparse matrices"""

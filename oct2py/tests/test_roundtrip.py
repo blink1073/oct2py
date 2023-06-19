@@ -69,7 +69,7 @@ class TestRoundTrip:
             assert val1 == val2
         else:
             try:
-                assert np.alltrue(np.isnan(val1)) and np.alltrue(np.isnan(val2))
+                assert np.all(np.isnan(val1)) and np.all(np.isnan(val2))
             except (AssertionError, NotImplementedError):
                 assert np.allclose([val1], [val2])
 
