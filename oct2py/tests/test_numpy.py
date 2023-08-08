@@ -99,7 +99,7 @@ class TestNumpy:
             assert item.nnz == incoming.nnz
             assert np.allclose(item.todense(), incoming.todense())
             assert item.dtype == incoming.dtype
-            assert type_ == "double" or type_ == "cell"
+            assert type_ in ("double", "cell")
 
     def test_empty(self):
         """Test roundtrip empty matrices"""
