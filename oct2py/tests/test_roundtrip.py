@@ -150,18 +150,18 @@ class TestRoundTrip:
         # Handle simple objects.
         for key in self.data:
             if key not in ["nested", "sparse", "cell", "object", "struct_vector", "num"]:
-                cmd = "{0}(x.{1},y.{1});".format(func, key)
+                cmd = f"{func}(x.{key},y.{key});"
                 assert self.oc.eval(cmd), key
-                cmd = "{0}(x.nested.{1},y.nested.{1});".format(func, key)
+                cmd = f"{func}(x.nested.{key},y.nested.{key});"
                 assert self.oc.eval(cmd), key
 
         # Handle cell type.
         for key in self.data["cell"]:
             if key in ["empty", "array"]:
                 continue
-            cmd = "{0}(x.cell.{1},y.cell.{1});".format(func, key)
+            cmd = f"{func}(x.cell.{key},y.cell.{key});"
             assert self.oc.eval(cmd), key
-            cmd = "{0}(x.nested.cell.{1},y.nested.cell.{1});".format(func, key)
+            cmd = f"{func}(x.nested.cell.{key},y.nested.cell.{key});"
             assert self.oc.eval(cmd), key
         for i in [1, 2]:
             cmd = "{0}(x.cell.{1}({2}),y.cell.{1}({2}))"
