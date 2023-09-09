@@ -10,12 +10,12 @@ import threading
 import numpy as np
 
 try:
-    from scipy.io import loadmat, savemat  # type:ignore
-    from scipy.io.matlab import MatlabFunction, MatlabObject  # type:ignore
-    from scipy.sparse import spmatrix  # type:ignore
+    from scipy.io import loadmat, savemat  # type:ignore[import]
+    from scipy.io.matlab import MatlabFunction, MatlabObject  # type:ignore[import]
+    from scipy.sparse import spmatrix  # type:ignore[import]
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore
+        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore[import]
     except ImportError:
         pass
 
@@ -24,12 +24,12 @@ try:
     from pandas import DataFrame, Series
 except Exception:
 
-    class Series:  # type:ignore
+    class Series:  # type:ignore[no-redef]
         """placeholder."""
 
         pass
 
-    class DataFrame:  # type:ignore
+    class DataFrame:  # type:ignore[no-redef]
         """placeholder."""
 
         pass
@@ -116,8 +116,8 @@ class Struct(dict):
         instruction = bytecode[frame.f_lasti + 3]
         return instruction in allowed
 
-    __setattr__ = dict.__setitem__  # type:ignore
-    __delattr__ = dict.__delitem__  # type:ignore
+    __setattr__ = dict.__setitem__  # type:ignore[assignment]
+    __delattr__ = dict.__delitem__  # type:ignore[assignment]
 
     @property
     def __dict__(self):
@@ -236,7 +236,7 @@ class Cell(np.ndarray):
         obj = np.empty(value.size, dtype=object).view(cls)
         for i, item in enumerate(value.ravel()):
             obj[i] = _extract(item, session)
-        obj = obj.reshape(value.shape)  # type:ignore
+        obj = obj.reshape(value.shape)  # type:ignore[assignment]
 
         return obj
 
@@ -329,7 +329,7 @@ def _encode(data, convert_to_float):  # noqa
         raise Oct2PyError(msg)
 
     # Handle matlab objects.
-    if isinstance(data, MatlabObject):
+    if isinstance(data, MatlabObject):  # type:ignore[unreachable]
         view = data.view(np.ndarray)
         out = MatlabObject(data, data.classname)
         for name in out.dtype.names:

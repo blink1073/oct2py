@@ -12,8 +12,8 @@ import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import EOF, TIMEOUT  # type:ignore
-from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore
+from metakernel.pexpect import EOF, TIMEOUT  # type:ignore[import]
+from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore[import]
 
 from .dynamic import (
     OctavePtr,
@@ -211,7 +211,7 @@ class Oct2Py:
         ----------
         name: str
             The name of the object in the Octave workspace.
-        timemout: float, optional.
+        timeout: float, optional.
             Time to wait for response from Octave (per line).
 
         Examples
@@ -307,7 +307,7 @@ class Oct2Py:
         timeout: float, optional
             The timeout in seconds for the call.
         plot_dir: str, optional
-            If specificed, save the session's plot figures to the plot
+            If specified, save the session's plot figures to the plot
             directory instead of displaying the plot window.
         plot_backend: str, optional
             The plotting back end to use.
@@ -452,7 +452,7 @@ class Oct2Py:
             directory, otherwise a the instance `temp_dir` is used.
             a shared memory (tmpfs) path.
         plot_dir: str, optional
-            If specificed, save the session's plot figures to the plot
+            If specified, save the session's plot figures to the plot
             directory instead of displaying the plot window.
         plot_name : str, optional
             Saved plots will start with `plot_name` and
@@ -468,7 +468,7 @@ class Oct2Py:
             The plot backend to use.
         plot_res: int, optional
             The plot resolution in pixels per inch.
-        **kwargs Deprectated kwargs.
+        **kwargs Deprecated kwargs.
 
         Examples
         --------
@@ -504,7 +504,7 @@ class Oct2Py:
         The deprecated `return_both` kwarg will still work, but the preferred
         method is to use the `stream_handler`.  If `stream_handler` is given,
         the `return_both` kwarg will be honored but will give an empty string
-        as the reponse.
+        as the response.
 
         Raises
         ------
@@ -741,7 +741,9 @@ class Oct2Py:
             doc = "\n".join(doc.splitlines()[:3])
 
         default = self.feval.__doc__
-        default = "        " + default[default.find("func_args:") :]  # type:ignore
+        default = (
+            "        " + default[default.find("func_args:") :]
+        )  # type:ignore[index,union-attr]
         default = "\n".join([line[8:] for line in default.splitlines()])
 
         doc = "\n".join(doc.splitlines())
@@ -805,7 +807,7 @@ class Oct2Py:
         """
         # needed for help(Oct2Py())
         if attr.startswith("__"):
-            return super().__getattr__(attr)  # type:ignore
+            return super().__getattr__(attr)  # type:ignore[misc]
 
         # close_ -> close
         name = attr[:-1] if attr[-1] == "_" else attr
@@ -852,9 +854,9 @@ class Oct2Py:
                             continue
                     line = line.translate(  # noqa
                         str.maketrans("", "", "[]()")
-                    ).split()  # type:ignore
+                    ).split()  # type:ignore[assignment]
                     try:  # noqa
-                        line.remove("function")  # type:ignore
+                        line.remove("function")  # type:ignore[attr-defined]
                     except Exception:  # noqa
                         pass
                     for char in line:

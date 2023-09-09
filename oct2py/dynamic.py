@@ -11,10 +11,10 @@ from typing import Any, Dict
 import numpy as np
 
 try:
-    from scipy.io.matlab import MatlabObject  # type:ignore
+    from scipy.io.matlab import MatlabObject  # type:ignore[import]
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore
+        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore[import]
     except ImportError:
         pass
 
@@ -206,7 +206,9 @@ class OctaveUserClass:
     @classmethod
     def to_value(cls, instance: "OctaveUserClass") -> MatlabObject:
         """Convert to a value to send to Octave."""
-        if not isinstance(instance, OctaveUserClass) or not instance._attrs:
+        if (
+            not isinstance(instance, OctaveUserClass) or not instance._attrs
+        ):  # type:ignore[redundant-expr]
             return {}
         # Bootstrap a MatlabObject from scipy.io
         # From https://github.com/scipy/scipy/blob/93a0ea9e5d4aba1f661b6bb0e18f9c2d1fce436a/scipy/io/matlab/mio5.py#L435-L443
@@ -235,7 +237,7 @@ def _make_user_class(session, name):
     values = dict(__doc__=doc, _name=name, _ref=ref, _attrs=attrs, __module__="oct2py.dynamic")
 
     for method in methods:
-        doc = _MethodDocDescriptor(ref, name, method)  # type:ignore
+        doc = _MethodDocDescriptor(ref, name, method)  # type:ignore[assignment]
         cls_name = f"{name}_{method}"
         method_values = dict(__doc__=doc)
         method_cls = type(str(cls_name), (OctaveUserClassMethod,), method_values)
