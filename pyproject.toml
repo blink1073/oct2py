@@ -106,7 +106,7 @@ addopts = [
   "-raXs", "--durations=10", "--color=yes", "--doctest-modules",
    "--showlocals", "--strict-markers", "--strict-config"
 ]
-testpaths = "oct2py"
+testpaths = ["tests", "tests/ipython"]
 doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
 timeout = 300
 # Restore this setting to debug failures
