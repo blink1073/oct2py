@@ -13,7 +13,7 @@ from oct2py.io import MatlabFunction
 
 
 class TestUsage:
-    """Excercise the basic interface of the package"""
+    """Exercise the basic interface of the package"""
 
     oc: Oct2Py
 
