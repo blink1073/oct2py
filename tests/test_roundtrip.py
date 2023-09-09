@@ -234,7 +234,7 @@ class TestBuiltins:
         outgoing : object
             Object to send to Octave
         incoming : object, optional
-            Object already retreived from Octave
+            Object already retrieved from Octave
 
         """
         if incoming is None:

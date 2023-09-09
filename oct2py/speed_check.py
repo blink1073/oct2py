@@ -54,7 +54,7 @@ class SpeedCheck:
         sides = [1, 10, 100, 1000]
         runs = [10, 10, 10, 5]
         for side, nruns in zip(sides, runs):
-            self.array = np.reshape(np.arange(side**2), (-1))  # type:ignore
+            self.array = np.reshape(np.arange(side**2), (-1))  # type:ignore[assignment]
             log.info(f"Put {side}x{side}: ")
             avg = timeit.timeit(self.large_array_put, number=nruns) / nruns
             log.info(f"    {avg * 1e3:0.01f} msec")

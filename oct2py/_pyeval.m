@@ -11,7 +11,7 @@ function _pyeval(input_file, output_file)
 %       ref_indices: The indices of in the func_args that should
 %         be replaced by the value represented by their name.
 %       store_as: Optional name to store the return value in the base
-%         workspace, instead of returing a value.
+%         workspace, instead of returning a value.
 %
 %   Should save a file containing the result object.
 %

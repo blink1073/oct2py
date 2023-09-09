@@ -35,7 +35,7 @@ def _setup_log():
     try:
         handler = logging.StreamHandler(stream=sys.stdout)
     except TypeError:  # pragma: no cover
-        handler = logging.StreamHandler(strm=sys.stdout)  # type:ignore
+        handler = logging.StreamHandler(strm=sys.stdout)  # type:ignore[call-overload]
 
     log = get_log()
     log.addHandler(handler)

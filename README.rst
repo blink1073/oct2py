@@ -15,11 +15,11 @@ Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> import oct2py
     >>> oc = oct2py.Oct2Py()
-    >>> x = oc.zeros(3,3)
+    >>> x = oc.zeros(3, 3)
     >>> print(x, x.dtype)
     [[0. 0. 0.]
      [0. 0. 0.]
@@ -27,26 +27,26 @@ MAT files.  Usage is as simple as:
 
 To run .m function, you need to explicitly add the path to .m file using:
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> from oct2py import octave
     >>> # to add a folder use:
-    >>> octave.addpath('/path/to/directory')  # doctest: +SKIP
+    >>> octave.addpath("/path/to/directory")  # doctest: +SKIP
     >>> # to add folder with all subfolder in it use:
-    >>> octave.addpath(octave.genpath('/path/to/directory'))  # doctest: +SKIP
+    >>> octave.addpath(octave.genpath("/path/to/directory"))  # doctest: +SKIP
     >>> # to run the .m file :
-    >>> octave.run('fileName.m')  # doctest: +SKIP
+    >>> octave.run("fileName.m")  # doctest: +SKIP
 
 To get the output of .m file after setting the path, use:
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> import numpy as np
     >>> from oct2py import octave
     >>> x = np.array([[1, 2], [3, 4]], dtype=float)
-    >>> #use nout='max_nout' to automatically choose max possible nout
-    >>> octave.addpath('./example')  # doctest: +SKIP
-    >>> out, oclass = octave.roundtrip(x,nout=2)  # doctest: +SKIP
+    >>> # use nout='max_nout' to automatically choose max possible nout
+    >>> octave.addpath("./example")  # doctest: +SKIP
+    >>> out, oclass = octave.roundtrip(x, nout=2)  # doctest: +SKIP
     >>> import pprint  # doctest: +SKIP
     >>> pprint.pprint([x, x.dtype, out, oclass, out.dtype])  # doctest: +SKIP
     [array([[1., 2.],
@@ -67,7 +67,7 @@ Features
 - Provides OctaveMagic_ for IPython, including inline plotting in notebooks.
 - Supports cell arrays and structs/struct arrays with arbitrary nesting.
 - Supports sparse matrices.
-- Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
+- Builds methods on the fly linked to Octave commands (e.g. ``zeros`` above).
 - Thread-safety: each Oct2Py object uses an independent Octave session.
 - Can be used as a context manager.
 - Supports Unicode characters.
