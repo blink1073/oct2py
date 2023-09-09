@@ -120,6 +120,13 @@ filterwarnings= [
   "module:Jupyter is migrating its paths:DeprecationWarning",
 ]
 
+[tool.coverage.run]
+relative_files = true
+source = ["oct2py"]
+omit = [
+  "tests/*",
+]
+
 [tool.mypy]
 check_untyped_defs = true
 disallow_incomplete_defs = true
