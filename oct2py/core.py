@@ -742,8 +742,8 @@ class Oct2Py:
 
         default = self.feval.__doc__
         default = (
-            "        " + default[default.find("func_args:") :]
-        )  # type:ignore[index,union-attr]
+            "        " + default[default.find("func_args:") :]  # type:ignore[index,union-attr]
+        )
         default = "\n".join([line[8:] for line in default.splitlines()])
 
         doc = "\n".join(doc.splitlines())

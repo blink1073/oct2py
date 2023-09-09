@@ -207,8 +207,9 @@ class OctaveUserClass:
     def to_value(cls, instance: "OctaveUserClass") -> MatlabObject:
         """Convert to a value to send to Octave."""
         if (
-            not isinstance(instance, OctaveUserClass) or not instance._attrs
-        ):  # type:ignore[redundant-expr]
+            not isinstance(instance, OctaveUserClass)
+            or not instance._attrs  # type:ignore[redundant-expr]
+        ):
             return {}
         # Bootstrap a MatlabObject from scipy.io
         # From https://github.com/scipy/scipy/blob/93a0ea9e5d4aba1f661b6bb0e18f9c2d1fce436a/scipy/io/matlab/mio5.py#L435-L443
