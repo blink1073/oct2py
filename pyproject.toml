@@ -190,4 +190,4 @@ exclude = ["tests", "docs"]
 ignore = ["PY007", "PP308", "GH102", "PC140", "MY101"]
 
 [tool.codespell]
-ignore-words-list = "ans"
+ignore-words-list = "ans,te"

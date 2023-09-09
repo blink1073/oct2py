@@ -33,7 +33,7 @@ StructArray     struct array      StructArray
 Numpy to Octave Types
 ---------------------
 
-Note that when `convert_to_float` is set (default is True),
+Note that when ``convert_to_float`` is set (default is True),
 integer types are converted to floating point before sending them
 to Octave.
 

@@ -19,7 +19,7 @@ class ThreadClass(threading.Thread):
         Raises
         ======
         Oct2PyError
-            If the thread does not sucessfully demonstrate independence
+            If the thread does not successfully demonstrate independence
 
         """
         octave = Oct2Py()
@@ -47,7 +47,7 @@ def thread_check(nthreads=3):
     Raises
     ======
     Oct2PyError
-        If the thread does not sucessfully demonstrate independence.
+        If the thread does not successfully demonstrate independence.
 
     """
     logger = get_log()

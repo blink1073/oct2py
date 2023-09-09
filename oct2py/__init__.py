@@ -7,11 +7,11 @@ Python.
 It manages the Octave session for you, sharing data behind the scenes using
 MAT files.  Usage is as simple as:
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> import oct2py
     >>> oc = oct2py.Oct2Py()
-    >>> x = oc.zeros(3,3)
+    >>> x = oc.zeros(3, 3)
     >>> print(x, x.dtype.str)  # doctest: +SKIP
     [[ 0.  0.  0.]
      [ 0.  0.  0.]
