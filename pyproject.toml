@@ -115,8 +115,8 @@ filterwarnings= [
   # Fail on warnings
   "error",
   # Ignore our own user warnings
-  "ignore:Using deprecated:UserWarning:oct2py",
-  "ignore:Key - value pairs:UserWarning:oct2py",
+  "ignore:Using deprecated:UserWarning:tests",
+  "ignore:Key - value pairs:UserWarning:tests",
   "module:Jupyter is migrating its paths:DeprecationWarning",
 ]
 
