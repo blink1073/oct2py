@@ -1,6 +1,7 @@
 """oct2py general utils."""
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
+from __future__ import annotations
 
 import logging
 import sys
@@ -12,7 +13,7 @@ class Oct2PyError(Exception):
     pass
 
 
-def get_log(name=None):
+def get_log(name: str | None = None) -> logging.Logger:
     """Return a console logger.
 
     Output may be sent to the logger using the `debug`, `info`, `warning`,
@@ -30,7 +31,7 @@ def get_log(name=None):
     return log
 
 
-def _setup_log():
+def _setup_log() -> None:
     """Configure root logger."""
     try:
         handler = logging.StreamHandler(stream=sys.stdout)

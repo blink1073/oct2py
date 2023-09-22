@@ -6,7 +6,7 @@
 import time
 
 
-def demo(delay=1, interactive=True):
+def demo(delay: float = 1, interactive: bool = True) -> None:
     """
     Play a demo script showing most of the oct2py api features.
 

@@ -5,6 +5,7 @@
 
 import time
 import timeit
+from typing import Any, List
 
 import numpy as np
 
@@ -19,24 +20,24 @@ class SpeedCheck:
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create our Octave instance and initialize the data array"""
         self.octave = Oct2Py()
-        self.array = []
+        self.array: List[Any] = []
 
-    def raw_speed(self):
+    def raw_speed(self) -> None:
         """Run a fast Octave command and see how long it takes."""
         self.octave.eval("x = 1")
 
-    def large_array_put(self):
+    def large_array_put(self) -> None:
         """Create a large matrix and load it into the octave session."""
         self.octave.push("x", self.array)
 
-    def large_array_get(self):
+    def large_array_get(self) -> None:
         """Retrieve the large matrix from the octave session"""
         self.octave.pull("x")
 
-    def run(self):
+    def run(self) -> None:
         """Perform the Oct2Py speed analysis.
 
         Uses timeit to test the raw execution of an Octave command,
@@ -68,7 +69,7 @@ class SpeedCheck:
         log.info("Test complete!")
 
 
-def speed_check():
+def speed_check() -> None:
     """Checks the speed penalty of the Python to Octave bridge.
 
     Uses timeit to test the raw execution of a Octave command,

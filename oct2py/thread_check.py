@@ -12,7 +12,7 @@ from . import Oct2Py, Oct2PyError, get_log
 class ThreadClass(threading.Thread):
     """Octave instance thread"""
 
-    def run(self):
+    def run(self) -> None:
         """
         Create a unique instance of Octave and verify namespace uniqueness.
 
@@ -35,7 +35,7 @@ class ThreadClass(threading.Thread):
             raise Oct2PyError(msg)
 
 
-def thread_check(nthreads=3):
+def thread_check(nthreads: int = 3) -> None:
     """
     Start a number of threads and verify each has a unique Octave session.
 

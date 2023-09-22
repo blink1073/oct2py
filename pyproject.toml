@@ -76,7 +76,7 @@ test = "python -m pytest $ARGS --cov-fail-under 85 {args}"
 features = ["test"]
 dependencies = ["mypy>=1.5.1"]
 [tool.hatch.envs.typing.scripts]
-test = "mypy --install-types --non-interactive {args:oct2py}"
+test = "mypy --install-types --non-interactive {args}"
 
 [tool.hatch.envs.lint]
 dependencies = [
@@ -128,36 +128,21 @@ omit = [
 ]
 
 [tool.mypy]
-check_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_decorators = true
-enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
-no_implicit_optional = true
-no_implicit_reexport = false
-pretty = true
-show_error_context = true
+files = "oct2py"
+python_version = "3.8"
+strict = true
 show_error_codes = true
-strict_equality = true
-strict_optional = true
-warn_unused_configs = true
-warn_redundant_casts = true
-warn_return_any = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 warn_unreachable = true
-warn_unused_ignores = true
-
-[[tool.mypy.overrides]]
-module = [
-]
-ignore_missing_imports = true
 
 [tool.black]
 line-length = 100
-target-version = ["py37"]
+target-version = ["py38"]
 skip-string-normalization = true
 
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 line-length = 100
 select = [
   "A", "B", "C", "DTZ", "E", "EM", "F", "FBT", "I", "ICN", "ISC", "N",
@@ -194,7 +179,7 @@ fail-under=100
 exclude = ["tests", "docs"]
 
 [tool.repo-review]
-ignore = ["PY007", "PP308", "GH102", "PC140", "MY101"]
+ignore = ["PY007", "PP308", "GH102", "PC140"]
 
 [tool.codespell]
 ignore-words-list = "ans,te"

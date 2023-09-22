@@ -40,6 +40,7 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 
 import os
 import shutil
+import typing as t
 
 from IPython.core.magic import (
     Magics,
@@ -55,13 +56,15 @@ from IPython.utils.text import dedent
 
 import oct2py
 
+# mypy: disable-error-code="no-untyped-call,misc"
+
 
 @magics_class
 class OctaveMagics(Magics):
 
     """A set of magics useful for interactive work with Octave via oct2py."""
 
-    def __init__(self, shell):
+    def __init__(self, shell: t.Any) -> None:
         """
         Parameters
         ----------
@@ -77,7 +80,7 @@ class OctaveMagics(Magics):
 
     @skip_doctest
     @line_magic
-    def octave_push(self, line):
+    def octave_push(self, line: str) -> None:
         """
         Line-level magic that pushes a variable to Octave.
 
@@ -104,7 +107,7 @@ class OctaveMagics(Magics):
 
     @skip_doctest
     @line_magic
-    def octave_pull(self, line):
+    def octave_pull(self, line: str) -> None:
         """
         Line-level magic that pulls a variable from Octave.
 
@@ -169,7 +172,9 @@ class OctaveMagics(Magics):
         nargs="*",
     )
     @line_cell_magic
-    def octave(self, line, cell=None, local_ns=None):  # noqa
+    def octave(  # noqa: PLR0912
+        self, line: str, cell: t.Optional[str] = None, local_ns: t.Optional[t.Any] = None
+    ) -> t.Any:
         """
         Execute code in Octave, and pull some of the results back into the
         Python namespace::
@@ -285,7 +290,7 @@ class OctaveMagics(Magics):
         if return_output:
             return value
 
-    def _publish(self, line):
+    def _publish(self, line: str) -> None:
         publish_display_data({"text/plain": line})
 
 
@@ -296,6 +301,6 @@ __doc__ = __doc__.format(  # noqa
 )
 
 
-def load_ipython_extension(ip):
+def load_ipython_extension(ip: t.Any) -> None:
     """Load the extension in IPython."""
     ip.register_magics(OctaveMagics)

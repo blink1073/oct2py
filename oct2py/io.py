@@ -1,11 +1,12 @@
 """io handling."""
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import dis
 import inspect
 import threading
+import typing as t
 
 import numpy as np
 
@@ -38,10 +39,13 @@ except Exception:
 from .dynamic import OctaveFunctionPtr, OctaveUserClass, OctaveVariablePtr
 from .utils import Oct2PyError
 
+if t.TYPE_CHECKING:
+    from oct2py import Oct2Py
+
 _WRITE_LOCK = threading.Lock()
 
 
-def read_file(path, session=None):
+def read_file(path: str, session: Oct2Py | None = None) -> dict[str, t.Any]:
     """Read the data from the given file path."""
     try:
         data = loadmat(path, struct_as_record=True)
@@ -53,7 +57,7 @@ def read_file(path, session=None):
     return out
 
 
-def write_file(obj, path, oned_as="row", convert_to_float=True):
+def write_file(obj: t.Any, path: str, oned_as: str = "row", convert_to_float: bool = True) -> None:
     """Save a Python object to an Octave file on the given path."""
     data = _encode(obj, convert_to_float)
     try:
@@ -66,7 +70,7 @@ def write_file(obj, path, oned_as="row", convert_to_float=True):
         raise Exception(msg) from None
 
 
-class Struct(dict):
+class Struct(t.Dict[t.Any, t.Any]):
     """
     Octave style struct, enhanced.
 
@@ -86,7 +90,7 @@ class Struct(dict):
     {'b': 'spam', 'c': {'d': 'eggs'}}
     """
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> t.Any:
         """Access the dictionary keys for unknown attributes."""
         try:
             return self[attr]
@@ -94,7 +98,7 @@ class Struct(dict):
             msg = "'Struct' object has no attribute %s" % attr
             raise AttributeError(msg) from None
 
-    def __getitem__(self, attr):
+    def __getitem__(self, attr: t.Any) -> t.Any:
         """Get a dict value; create a Struct if requesting a Struct member."""
         # Do not create a key if the attribute starts with an underscore.
         if attr in self or attr.startswith("_"):
@@ -109,7 +113,7 @@ class Struct(dict):
             dict.__setitem__(self, attr, Struct())
         return dict.__getitem__(self, attr)
 
-    def _is_allowed(self, frame):
+    def _is_allowed(self, frame: t.Any) -> bool:
         # Check for allowed op code in the calling frame.
         allowed = [dis.opmap["STORE_ATTR"], dis.opmap["LOAD_CONST"], dis.opmap.get("STOP_CODE", 0)]
         bytecode = frame.f_code.co_code
@@ -120,12 +124,12 @@ class Struct(dict):
     __delattr__ = dict.__delitem__  # type:ignore[assignment]
 
     @property
-    def __dict__(self):
+    def __dict__(self) -> dict[str, t.Any]:  # type:ignore[override]
         # Allow for code completion in a REPL.
         return self.copy()
 
 
-class StructArray(np.recarray):
+class StructArray(np.recarray[t.Any, t.Any]):
     """A Python representation of an Octave structure array.
 
     Notes
@@ -151,7 +155,7 @@ class StructArray(np.recarray):
     4.0
     """
 
-    def __new__(cls, value, session=None):
+    def __new__(cls, value: t.Any, session: Oct2Py | None = None) -> t.Any:
         """Create a struct array from a value and optional Octave session."""
         value = np.asarray(value)
         # Squeeze the last element if it is 1
@@ -170,25 +174,25 @@ class StructArray(np.recarray):
         return obj.reshape(value.shape)
 
     @property
-    def fieldnames(self):
+    def fieldnames(self) -> t.Any:
         """The field names of the struct array."""
         return self.dtype.names
 
-    def __getattribute__(self, attr):
+    def __getattribute__(self, attr: str) -> t.Any:
         """Return object arrays as cells and all other values unchanged."""
         attr = np.recarray.__getattribute__(self, attr)
-        if isinstance(attr, np.ndarray) and attr.dtype.kind == "O":
-            return Cell(attr)
+        if isinstance(attr, np.ndarray) and attr.dtype.kind == "O":  # type:ignore[unreachable]
+            return Cell(attr)  # type:ignore[unreachable]
         return attr
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: t.Any) -> t.Any:
         """Return object arrays as cells and all other values unchanged."""
         item = np.recarray.__getitem__(self, item)
         if isinstance(item, np.ndarray) and item.dtype.kind == "O":
             return Cell(item)
         return item
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """A str repr for the struct array."""
         shape = self.shape
         if len(shape) == 1:
@@ -200,7 +204,7 @@ class StructArray(np.recarray):
         return msg
 
 
-class Cell(np.ndarray):
+class Cell(np.ndarray[t.Any, t.Any]):
     """A Python representation of an Octave cell array.
 
     Notes
@@ -224,7 +228,7 @@ class Cell(np.ndarray):
     [1.0, 1.0]
     """
 
-    def __new__(cls, value, session=None):
+    def __new__(cls, value: t.Any, session: Oct2Py | None = None) -> t.Any:
         """Create a cell array from a value and optional Octave session."""
         # Use atleast_2d to preserve Octave size()
         value = np.atleast_2d(np.asarray(value, dtype=object))
@@ -240,7 +244,7 @@ class Cell(np.ndarray):
 
         return obj
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """A string repr for the cell array."""
         shape = self.shape
         if len(shape) == 1:
@@ -249,7 +253,7 @@ class Cell(np.ndarray):
         msg = msg.replace("array", "Cell", 1)
         return msg.replace(", dtype=object", "", 1)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: t.Any) -> t.Any:
         """Get an element of the array."""
         if key == 0 and self.size == 1:
             # Note:
@@ -258,7 +262,7 @@ class Cell(np.ndarray):
         return super().__getitem__(key)
 
 
-def _extract(data, session=None):  # noqa
+def _extract(data: t.Any, session: Oct2Py | None = None) -> t.Any:  # noqa
     """Convert the Octave values to values suitable for Python."""
     # Extract each item of a list.
     if isinstance(data, list):
@@ -270,6 +274,9 @@ def _extract(data, session=None):  # noqa
 
     # Extract user defined classes.
     if isinstance(data, MatlabObject):
+        if session is None:
+            msg = "Cannot extract MatlabObject without session"
+            raise RuntimeError(msg)
         cls = session._get_user_class(data.classname)
         return cls.from_value(data)
 
@@ -299,7 +306,7 @@ def _extract(data, session=None):  # noqa
     return data
 
 
-def _create_struct(data, session):
+def _create_struct(data: t.Any, session: Oct2Py | None) -> Struct:
     """Create a struct from session data."""
     out = Struct()
     for name in data.dtype.names:
@@ -311,7 +318,7 @@ def _create_struct(data, session):
     return out
 
 
-def _encode(data, convert_to_float):  # noqa
+def _encode(data: t.Any, convert_to_float: bool) -> t.Any:  # noqa
     """Convert the Python values to values suitable to send to Octave."""
     ctf = convert_to_float
 
@@ -403,7 +410,7 @@ def _encode(data, convert_to_float):  # noqa
     return data
 
 
-def _is_simple_numeric(data):
+def _is_simple_numeric(data: t.Any) -> bool:
     """Test if a list contains simple numeric data."""
     item_len = None
     for item in data:

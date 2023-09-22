@@ -1,7 +1,7 @@
 """Core oct2py functionality."""
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
-
+from __future__ import annotations
 
 import atexit
 import logging
@@ -9,6 +9,7 @@ import os
 import os.path as osp
 import shutil
 import tempfile
+import typing as t
 import warnings
 
 import numpy as np
@@ -16,7 +17,9 @@ from metakernel.pexpect import EOF, TIMEOUT  # type:ignore[import]
 from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore[import]
 
 from .dynamic import (
+    OctaveFunctionPtr,
     OctavePtr,
+    OctaveUserClass,
     _make_function_ptr_instance,
     _make_user_class,
     _make_variable_ptr_instance,
@@ -62,18 +65,17 @@ class Oct2Py:
 
     def __init__(  # noqa
         self,
-        logger=None,
-        timeout=None,
-        oned_as="row",
-        temp_dir=None,
-        convert_to_float=True,
-        backend=None,
-    ):
+        logger: logging.Logger | None = None,
+        timeout: float | None = None,
+        oned_as: str = "row",
+        temp_dir: str | None = None,
+        convert_to_float: bool = True,
+        backend: str | None = None,
+    ) -> None:
         """Start Octave and set up the session."""
         self._oned_as = oned_as
-        self._engine = None
-        self._logger = None
-        self.logger = logger
+        self._engine: OctaveEngine | None = None
+        self._logger: logging.Logger = logger or get_log()
         self.timeout = timeout
         self.backend = backend or "default"
         if temp_dir is None:
@@ -83,42 +85,44 @@ class Oct2Py:
         else:
             self.temp_dir = temp_dir
         self.convert_to_float = convert_to_float
-        self._user_classes = {}
-        self._function_ptrs = {}
+        self._user_classes: dict[str, type[OctaveUserClass]] = {}
+        self._function_ptrs: dict[str, OctaveFunctionPtr] = {}
         self.restart()
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """The logging instance used by the session."""
         return self._logger
 
     @logger.setter
-    def logger(self, value):
+    def logger(self, value: t.Any) -> None:
         self._logger = value or get_log()
         if self._engine:
             self._engine.logger = self._logger
 
-    def __enter__(self):
+    def __enter__(self) -> Oct2Py:
         """Return octave object, restart session if necessary"""
         if not self._engine:
             self.restart()
         return self
 
-    def __exit__(self, type_, value, traceback):
+    def __exit__(self, type_: t.Any, value: t.Any, traceback: t.Any) -> None:
         """Close session"""
         self.exit()
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Delete session"""
         self.exit()
 
-    def exit(self):  # noqa
+    def exit(self) -> None:  # noqa
         """Quits this octave session and cleans up."""
         if self._engine:
             self._engine.repl.terminate()
         self._engine = None
 
-    def push(self, name, var, timeout=None, verbose=True):
+    def push(
+        self, name: str | list[str], var: t.Any, timeout: float | None = None, verbose: bool = True
+    ) -> None:
         """
         Put a variable or variables into the Octave session.
 
@@ -156,7 +160,9 @@ class Oct2Py:
         for n, v in zip(name, var):
             self.feval("assignin", "base", n, v, nout=0, timeout=timeout, verbose=verbose)
 
-    def pull(self, var, timeout=None, verbose=True):
+    def pull(
+        self, var: str | list[str], timeout: float | None = None, verbose: bool = True
+    ) -> t.Any:
         """
         Retrieve a value or values from the Octave session.
 
@@ -204,7 +210,9 @@ class Oct2Py:
             return outputs[0]
         return outputs
 
-    def get_pointer(self, name, timeout=None):
+    def get_pointer(
+        self, name: str, timeout: float | None = None
+    ) -> OctavePtr | type[OctaveUserClass]:
         """Get a pointer to a named object in the Octave workspace.
 
         Parameters
@@ -268,7 +276,7 @@ class Oct2Py:
 
         raise Oct2PyError('Unknown type for object "%s"' % name)
 
-    def extract_figures(self, plot_dir, remove=False):
+    def extract_figures(self, plot_dir: str, remove: bool = False) -> t.Any:
         """Extract the figures in the directory to IPython display objects.
 
         Parameters
@@ -284,7 +292,7 @@ class Oct2Py:
         figures = self._engine.extract_figures(plot_dir, remove)
         return figures
 
-    def feval(self, func_path, *func_args, **kwargs):
+    def feval(self, func_path: str, *func_args: t.Any, **kwargs: t.Any) -> t.Any:
         """Run a function in Octave and return the result.
 
         Parameters
@@ -413,21 +421,21 @@ class Oct2Py:
 
     def eval(  # noqa
         self,
-        cmds,
-        verbose=True,
-        timeout=None,
-        stream_handler=None,
-        temp_dir=None,
-        plot_dir=None,
-        plot_name="plot",
-        plot_format="svg",
-        plot_backend=None,
-        plot_width=None,
-        plot_height=None,
-        plot_res=None,
-        nout=0,
-        **kwargs,
-    ):
+        cmds: str | list[str],
+        verbose: bool = True,
+        timeout: float | None = None,
+        stream_handler: t.Callable[..., None] | None = None,
+        temp_dir: str | None = None,
+        plot_dir: str | None = None,
+        plot_name: str = "plot",
+        plot_format: str = "svg",
+        plot_backend: str | None = None,
+        plot_width: int | None = None,
+        plot_height: int | None = None,
+        plot_res: int | None = None,
+        nout: int = 0,
+        **kwargs: t.Any,
+    ) -> t.Any:
         """
         Evaluate an Octave command or commands.
 
@@ -528,7 +536,7 @@ class Oct2Py:
             warnings.warn(msg % name, stacklevel=2)
 
         return_both = kwargs.pop("return_both", False)
-        lines: list = []
+        lines: list[str] = []
         if return_both and not stream_handler:
             stream_handler = lines.append
 
@@ -560,7 +568,7 @@ class Oct2Py:
             return "\n".join(lines), ans
         return ans
 
-    def restart(self):
+    def restart(self) -> None:
         """Restart an Octave session in a clean state"""
         if self._engine:
             self._engine.repl.terminate()
@@ -578,15 +586,15 @@ class Oct2Py:
 
     def _feval(  # noqa
         self,
-        func_name,
-        func_args=(),
-        dname="",
-        nout=0,
-        timeout=None,
-        stream_handler=None,
-        store_as="",
-        plot_dir=None,
-    ):
+        func_name: str,
+        func_args: t.Sequence[t.Any] = (),
+        dname: str = "",
+        nout: int = 0,
+        timeout: float | None = None,
+        stream_handler: t.Callable[..., None] | None = None,
+        store_as: str = "",
+        plot_dir: str | None = None,
+    ) -> t.Any:
         """Run the given function with the given args."""
         engine = self._engine
         if engine is None:
@@ -620,7 +628,8 @@ class Oct2Py:
         write_file(req, out_file, oned_as=self._oned_as, convert_to_float=self.convert_to_float)
 
         # Set up the engine and evaluate the `_pyeval()` function.
-        engine.line_handler = stream_handler or self.logger.info
+        stream_handler = stream_handler or self.logger.info
+        engine.line_handler = stream_handler
         if timeout is None:
             timeout = self.timeout
 
@@ -665,7 +674,7 @@ class Oct2Py:
 
         return result
 
-    def _parse_error(self, err):
+    def _parse_error(self, err: t.Any) -> str:
         """Create a traceback for an Octave evaluation error."""
         self.logger.debug(err)
         stack = err.get("stack", [])
@@ -685,11 +694,11 @@ class Oct2Py:
                 pass
         return errmsg
 
-    def _handle_stdin(self, line):
+    def _handle_stdin(self, line: str) -> str:
         """Handle a stdin request from the session."""
         return input(line.replace(STDIN_PROMPT, ""))
 
-    def _print_doc(self, name):
+    def _print_doc(self, name: str) -> None:
         """
         Print the documentation of an Octave procedure or object.
 
@@ -705,7 +714,7 @@ class Oct2Py:
         """
         print(self._get_doc(name))  # noqa
 
-    def _get_doc(self, name):
+    def _get_doc(self, name: str) -> str:
         """
         Get the documentation of an Octave procedure or object.
 
@@ -757,7 +766,7 @@ class Oct2Py:
         doc += "`func_args` directly for key - value pairs."
         return doc
 
-    def _exist(self, name):
+    def _exist(self, name: str) -> int:
         """Test whether a name exists and return the name code.
 
         Raises an error when the name does not exist.
@@ -778,7 +787,7 @@ class Oct2Py:
                 exist = 2
         return exist
 
-    def _isobject(self, name, exist):
+    def _isobject(self, name: str, exist: int) -> bool:
         """Test whether the name is an object."""
         if exist in [2, 5]:
             return False
@@ -787,20 +796,20 @@ class Oct2Py:
             msg = "Session is not open"
             raise Oct2PyError(msg)
         resp = self._engine.eval(cmd, silent=True).strip()
-        return resp == "ans =  1"
+        return bool(resp == "ans =  1")
 
-    def _get_function_ptr(self, name):
+    def _get_function_ptr(self, name: str) -> OctaveFunctionPtr:
         """Get or create a function pointer of the given name."""
         func = _make_function_ptr_instance
         self._function_ptrs.setdefault(name, func(self, name))
         return self._function_ptrs[name]
 
-    def _get_user_class(self, name):
+    def _get_user_class(self, name: str) -> type[OctaveUserClass]:
         """Get or create a user class of the given type."""
         self._user_classes.setdefault(name, _make_user_class(self, name))
         return self._user_classes[name]
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> t.Any:
         """Automatically creates a wapper to an Octave function or object.
 
         Adapted from the mlabwrap project.
@@ -831,14 +840,14 @@ class Oct2Py:
         if self._isobject(name, exist):
             obj = self._get_user_class(name)
         else:
-            obj = self._get_function_ptr(name)
+            obj = self._get_function_ptr(name)  # type:ignore[assignment]
 
         # !!! attr, *not* name, because we might have python keyword name!
         setattr(self, attr, obj)
 
         return obj
 
-    def _get_max_nout(self, func_path):
+    def _get_max_nout(self, func_path: str) -> int:
         """Get or count maximum nout of .m function."""
 
         if not osp.isabs(func_path):

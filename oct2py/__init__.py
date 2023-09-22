@@ -50,7 +50,7 @@ except Oct2PyError as e:
     print(e)  # noqa
 
 
-def kill_octave():
+def kill_octave() -> None:
     """Kill all octave instances (cross-platform).
 
     This will restart the "octave" instance.  If you have instantiated
