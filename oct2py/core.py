@@ -801,7 +801,7 @@ class Oct2Py:
         return self._user_classes[name]
 
     def __getattr__(self, attr):
-        """Automatically creates a wapper to an Octave function or object.
+        """Automatically creates a wrapper to an Octave function or object.
 
         Adapted from the mlabwrap project.
         """
