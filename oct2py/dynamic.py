@@ -11,10 +11,10 @@ from typing import Any, Dict
 import numpy as np
 
 try:
-    from scipy.io.matlab import MatlabObject  # type:ignore[import]
+    from scipy.io.matlab import MatlabObject  # type:ignore[import-untyped]
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore[import]
+        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore[import-untyped]
     except ImportError:
         pass
 
