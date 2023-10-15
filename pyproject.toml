@@ -74,7 +74,7 @@ test = "python -m pytest $ARGS --cov-fail-under 85 {args}"
 
 [tool.hatch.envs.typing]
 features = ["test"]
-dependencies = ["mypy>=1.5.1"]
+dependencies = ["mypy==1.6.0"]
 [tool.hatch.envs.typing.scripts]
 test = "mypy --install-types --non-interactive {args:oct2py}"
 

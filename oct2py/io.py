@@ -10,12 +10,12 @@ import threading
 import numpy as np
 
 try:
-    from scipy.io import loadmat, savemat  # type:ignore[import]
-    from scipy.io.matlab import MatlabFunction, MatlabObject  # type:ignore[import]
-    from scipy.sparse import spmatrix  # type:ignore[import]
+    from scipy.io import loadmat, savemat  # type:ignore[import-untyped]
+    from scipy.io.matlab import MatlabFunction, MatlabObject  # type:ignore[import-untyped]
+    from scipy.sparse import spmatrix  # type:ignore[import-untyped]
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore[import]
+        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore[import-untyped]
     except ImportError:
         pass
 
