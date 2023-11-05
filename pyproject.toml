@@ -114,22 +114,13 @@ omit = [
 ]
 
 [tool.mypy]
-check_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_decorators = true
+strict = true
+disable_error_code = ["no-untyped-call", "no-untyped-def"]
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
-no_implicit_optional = true
-no_implicit_reexport = false
 pretty = true
 show_error_context = true
 show_error_codes = true
-strict_equality = true
-strict_optional = true
-warn_unused_configs = true
-warn_redundant_casts = true
-warn_return_any = true
 warn_unreachable = true
-warn_unused_ignores = true
 
 [tool.ruff]
 target-version = "py38"

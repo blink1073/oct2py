@@ -528,7 +528,7 @@ class Oct2Py:
             warnings.warn(msg % name, stacklevel=2)
 
         return_both = kwargs.pop("return_both", False)
-        lines: list = []
+        lines: list[str] = []
         if return_both and not stream_handler:
             stream_handler = lines.append
 
