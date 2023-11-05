@@ -1,6 +1,7 @@
 ci:
   autoupdate_schedule: monthly
   autoupdate_commit_msg: "chore: update pre-commit hooks"
+  skip: [mypy]
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
