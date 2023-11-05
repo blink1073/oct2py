@@ -104,6 +104,7 @@ filterwarnings= [
   "ignore:Using deprecated:UserWarning:tests",
   "ignore:Key - value pairs:UserWarning:tests",
   "module:Jupyter is migrating its paths:DeprecationWarning",
+  "module:datetime.datetime.utcf:DeprecationWarning",
 ]
 
 [tool.coverage.run]
