@@ -66,7 +66,7 @@ def write_file(obj, path, oned_as="row", convert_to_float=True):
         raise Exception(msg) from None
 
 
-class Struct(dict):
+class Struct(dict):  # type:ignore[type-arg]
     """
     Octave style struct, enhanced.
 
@@ -125,7 +125,7 @@ class Struct(dict):
         return self.copy()
 
 
-class StructArray(np.recarray):
+class StructArray(np.recarray):  # type:ignore[type-arg]
     """A Python representation of an Octave structure array.
 
     Notes
@@ -200,7 +200,7 @@ class StructArray(np.recarray):
         return msg
 
 
-class Cell(np.ndarray):
+class Cell(np.ndarray):  # type:ignore[type-arg]
     """A Python representation of an Octave cell array.
 
     Notes
