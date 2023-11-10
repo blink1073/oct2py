@@ -153,6 +153,7 @@ ignore = [
 # SIM114 Combine `if` branches
 # PLR0912 Too many branches
 "tests/*" = ["S101", "N806", "PLR2004", "SIM114", "PLR0912"]
+"*.ipynb" = ["B018", "T201", "F821"]
 
 [tool.interrogate]
 ignore-init-module=true
