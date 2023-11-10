@@ -76,7 +76,10 @@ test = "python -m pytest $ARGS --cov-fail-under 85 {args}"
 detached = true
 dependencies = ["pre-commit"]
 [tool.hatch.envs.lint.scripts]
-build = "pre-commit run --all-files ruff"
+build = [
+  "pre-commit run --all-files ruff",
+  "pre-commit run --all-files ruff-format"
+]
 
 [tool.hatch.envs.typing]
 dependencies = [ "pre-commit"]
@@ -124,7 +127,6 @@ show_error_codes = true
 warn_unreachable = true
 
 [tool.ruff]
-target-version = "py38"
 line-length = 100
 
 [tool.ruff.lint]
