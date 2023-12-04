@@ -10,6 +10,10 @@ on:
     # * is a special character in YAML so you have to quote this string
     - cron: "0 0 * * 0"
 
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest

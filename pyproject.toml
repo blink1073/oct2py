@@ -123,7 +123,6 @@ disable_error_code = ["no-untyped-call", "no-untyped-def"]
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 pretty = true
 show_error_context = true
-show_error_codes = true
 warn_unreachable = true
 
 [tool.ruff]
@@ -166,4 +165,4 @@ fail-under=100
 exclude = ["tests", "docs"]
 
 [tool.repo-review]
-ignore = ["PY007", "GH102", "MY101"]
+ignore = ["PY007", "GH102"]
