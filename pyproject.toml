@@ -108,6 +108,7 @@ filterwarnings= [
   "ignore:Key - value pairs:UserWarning:tests",
   "module:Jupyter is migrating its paths:DeprecationWarning",
   "module:datetime.datetime.utcf:DeprecationWarning",
+  "ignore:(?s).*Pyarrow will become a required dependency of pandas:DeprecationWarning",  # pandas pyarrow (pandas<3.0),
 ]
 
 [tool.coverage.run]
