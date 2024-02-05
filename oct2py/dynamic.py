@@ -61,7 +61,7 @@ class OctaveVariablePtr(OctavePtr):
     """An object that acts as a pointer to an Octave value."""
 
     @property
-    def __doc__(self):  # noqa
+    def __doc__(self):
         return "%s is a variable" % self.name
 
     @property
@@ -106,7 +106,7 @@ class OctaveFunctionPtr(OctavePtr):
         if extras:
             warnings.warn("Key - value pairs are deprecated, use `func_args`", stacklevel=2)
 
-        inputs += tuple(item for pair in zip(extras.keys(), extras.values()) for item in pair)
+        inputs += tuple(item for pair in extras.items() for item in pair)
 
         return self._ref().feval(self.name, *inputs, **kwargs)
 
