@@ -112,7 +112,7 @@ class Oct2Py:
         """Delete session"""
         self.exit()
 
-    def exit(self):  # noqa
+    def exit(self):
         """Quits this octave session and cleans up."""
         if self._engine:
             self._engine.repl.terminate()

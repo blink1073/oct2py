@@ -33,7 +33,7 @@ documentation = "https://blink1073.github.io/oct2py"
 
 [project.optional-dependencies]
 test = [
-    "pytest",
+    "pytest<8",
     "pandas",
     "nbconvert",
     "pytest-timeout",
