@@ -32,14 +32,6 @@ jobs:
       - name: Generate coverage report
         run: |
           pip install hatch; xvfb-run --auto-servernum hatch run cover:test
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: true
 
   check_release:
     runs-on: ubuntu-latest
