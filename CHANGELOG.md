@@ -2,6 +2,39 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.6.1
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.6.0...e1573c7f699f5dee9c0bbd3bbf0a8c94cd8f47d3))
+
+### Maintenance and upkeep improvements
+
+- Add Release Scripts [#318](https://github.com/blink1073/oct2py/pull/318) ([@blink1073](https://github.com/blink1073))
+- chore: update pre-commit hooks [#313](https://github.com/blink1073/oct2py/pull/313) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Handle pandas deprecation [#312](https://github.com/blink1073/oct2py/pull/312) ([@blink1073](https://github.com/blink1073))
+- chore: update pre-commit hooks [#311](https://github.com/blink1073/oct2py/pull/311) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- chore: update pre-commit hooks [#309](https://github.com/blink1073/oct2py/pull/309) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Update ruff config [#307](https://github.com/blink1073/oct2py/pull/307) ([@blink1073](https://github.com/blink1073))
+- chore: update pre-commit hooks [#306](https://github.com/blink1073/oct2py/pull/306) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Clean up lint handling and mypy config [#305](https://github.com/blink1073/oct2py/pull/305) ([@blink1073](https://github.com/blink1073))
+- Adopt ruff format [#304](https://github.com/blink1073/oct2py/pull/304) ([@blink1073](https://github.com/blink1073))
+- Update typings for mypy 1.6.0 [#302](https://github.com/blink1073/oct2py/pull/302) ([@blink1073](https://github.com/blink1073))
+- chore: update pre-commit hooks [#301](https://github.com/blink1073/oct2py/pull/301) ([@pre-commit-ci](https://github.com/pre-commit-ci))
+- Adopt sp-repo-review [#299](https://github.com/blink1073/oct2py/pull/299) ([@blink1073](https://github.com/blink1073))
+- Bump actions/checkout from 3 to 4 [#297](https://github.com/blink1073/oct2py/pull/297) ([@dependabot](https://github.com/dependabot))
+- Fix numpy warnings [#293](https://github.com/blink1073/oct2py/pull/293) ([@blink1073](https://github.com/blink1073))
+- Fix typings [#288](https://github.com/blink1073/oct2py/pull/288) ([@blink1073](https://github.com/blink1073))
+- Add more lint checks [#282](https://github.com/blink1073/oct2py/pull/282) ([@blink1073](https://github.com/blink1073))
+- Add spelling and docstring enforcement [#280](https://github.com/blink1073/oct2py/pull/280) ([@blink1073](https://github.com/blink1073))
+- Adopt ruff and typing [#279](https://github.com/blink1073/oct2py/pull/279) ([@blink1073](https://github.com/blink1073))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-12-06&to=2024-03-12&type=c))
+
+[@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-12-06..2024-03-12&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Adependabot+updated%3A2022-12-06..2024-03-12&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Apre-commit-ci+updated%3A2022-12-06..2024-03-12&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.6.0
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.5.1...6debc3e927329d4b540258f83b7a5d49225eb43a))
@@ -25,8 +58,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-03-30&to=2022-12-06&type=c))
 
 [@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-03-30..2022-12-06&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Adependabot+updated%3A2022-03-30..2022-12-06&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Apre-commit-ci+updated%3A2022-03-30..2022-12-06&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.5.1
 
