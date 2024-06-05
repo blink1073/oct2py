@@ -116,26 +116,53 @@ function save_safe_struct(output_file, result, err)
     % NOTE: result is cell{1,1} containing other data
     % warning('off', 'Octave:classdef-to-struct');
     try
-      save('-v6', '-mat-binary', output_file, 'result', 'err');
+        save('-v6', '-mat-binary', output_file, 'result', 'err');
     catch ME
-      % handle failure in passing user defined object 
-      acceptable_types = {'double', 'char', 'logical', 'cell', 'struct', 'sparse'};
-      if isstruct(result{1,1})
-          fields = fieldnames(result{1,1});
-          for i = 1:numel(fields)
-              field_value = result{1,1}.(fields{i});
-              if ~is_acceptable_type(field_value, acceptable_types)
-                  warning('Skipping field "%s" as it is not an acceptable type.', fields{i});
-                  result{1,1} = rmfield(result{1,1}, fields{i});
-              end
-          end
-      end
-      save('-v6', '-mat-binary', output_file, 'result', 'err');
+        % handle failure in passing user defined object
+        acceptable_types = {'double', 'char', 'logical', 'sparse'};
+        if isstruct(result{1,1})
+            result{1,1} = clean_struct(result{1,1}, acceptable_types);
+        elseif iscell(result{1,1})
+            result{1,1} = clean_cell(result{1,1}, acceptable_types);
+        end
+        save('-v6', '-mat-binary', output_file, 'result', 'err');
+    end
+end
+
+function struct_out = clean_struct(struct_in, acceptable_types)
+    fields = fieldnames(struct_in);
+    struct_out = struct_in;
+    for i = 1:numel(fields)
+        field_value = struct_in.(fields{i});
+        if ~is_acceptable_type(field_value, acceptable_types)
+            warning('Skipping field "%s" as it is not an acceptable type.', fields{i});
+            struct_out = rmfield(struct_out, fields{i});
+        elseif isstruct(field_value)
+            struct_out.(fields{i}) = clean_struct(field_value, acceptable_types);
+        elseif iscell(field_value)
+            struct_out.(fields{i}) = clean_cell(field_value, acceptable_types);
+        end
+    end
+end
+
+function cell_out = clean_cell(cell_in, acceptable_types)
+    cell_out = cell_in;
+    for i = 1:numel(cell_in)
+        if ~is_acceptable_type(cell_in{i}, acceptable_types)
+            warning('Skipping cell content at index {%d} as it is not an acceptable type.', i);
+            cell_out{i} = [];
+        elseif isstruct(cell_in{i})
+            cell_out{i} = clean_struct(cell_in{i}, acceptable_types);
+        elseif iscell(cell_in{i})
+            cell_out{i} = clean_cell(cell_in{i}, acceptable_types);
+        end
     end
 end
 
 function result = is_acceptable_type(value, acceptable_types)
-    if iscell(value)
+    if isstruct(value)
+        result = all(structfun(@(v) is_acceptable_type(v, acceptable_types), value));
+    elseif iscell(value)
         result = all(cellfun(@(v) is_acceptable_type(v, acceptable_types), value));
     else
         result = any(strcmp(class(value), acceptable_types));
