@@ -94,7 +94,7 @@ end
 
 % Save the output to a file.
 try
-  save('-v6', '-mat-binary', output_file, 'result', 'err');
+  save_safe_struct(output_file, result, err);
 catch ME
   result = { sentinel };
   err = ME;
@@ -109,5 +109,35 @@ function result = get_ans(sentinel)
       [result{1}] = evalin('base', 'ans');
     catch
       result = { sentinel };
+    end
+end
+
+function save_safe_struct(output_file, result, err)
+    % NOTE: result is cell{1,1} containing other data
+    % warning('off', 'Octave:classdef-to-struct');
+    try
+      save('-v6', '-mat-binary', output_file, 'result', 'err');
+    catch ME
+      % handle failure in passing user defined object 
+      acceptable_types = {'double', 'char', 'logical', 'cell', 'struct', 'sparse'};
+      if isstruct(result{1,1})
+          fields = fieldnames(result{1,1});
+          for i = 1:numel(fields)
+              field_value = result{1,1}.(fields{i});
+              if ~is_acceptable_type(field_value, acceptable_types)
+                  warning('Skipping field "%s" as it is not an acceptable type.', fields{i});
+                  result{1,1} = rmfield(result{1,1}, fields{i});
+              end
+          end
+      end
+      save('-v6', '-mat-binary', output_file, 'result', 'err');
+    end
+end
+
+function result = is_acceptable_type(value, acceptable_types)
+    if iscell(value)
+        result = all(cellfun(@(v) is_acceptable_type(v, acceptable_types), value));
+    else
+        result = any(strcmp(class(value), acceptable_types));
     end
 end
