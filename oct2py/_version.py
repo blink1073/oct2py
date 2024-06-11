@@ -6,7 +6,7 @@ from typing import List
 VersionInfo = namedtuple("VersionInfo", ["major", "minor", "micro", "releaselevel", "serial"])
 
 # Version string must appear intact for hatch versioning
-__version__ = "5.6.1"
+__version__ = "5.7.0"
 
 # Build up version_info tuple for backwards compatibility
 pattern = r"(?P<major>\d+).(?P<minor>\d+).(?P<micro>\d+)(?P<releaselevel>.*?)(?P<serial>\d*)"

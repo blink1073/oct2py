@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.7.0
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.6.1...e27d7cc8f58034874a1222d5792afb63706efbdb))
+
+### Enhancements made
+
+- Skip unsavable [#321](https://github.com/blink1073/oct2py/pull/321) ([@yasirroni](https://github.com/yasirroni))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-03-12&to=2024-06-11&type=c))
+
+[@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2024-03-12..2024-06-11&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.6.1
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.6.0...e1573c7f699f5dee9c0bbd3bbf0a8c94cd8f47d3))
@@ -32,8 +48,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2022-12-06&to=2024-03-12&type=c))
 
 [@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2022-12-06..2024-03-12&type=Issues) | [@dependabot](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Adependabot+updated%3A2022-12-06..2024-03-12&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Apre-commit-ci+updated%3A2022-12-06..2024-03-12&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.6.0
 
