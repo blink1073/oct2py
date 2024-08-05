@@ -116,8 +116,11 @@ function save_safe_struct(output_file, result, err)
     % NOTE: result is cell{1,1} containing other data
     % warning('off', 'Octave:classdef-to-struct');
     try
+        warn_state = warning('off', 'all');
         save('-v6', '-mat-binary', output_file, 'result', 'err');
+        warning(warn_state);
     catch ME
+        warning(warn_state);
         % handle failure in passing user defined object
         acceptable_types = {'double', 'char', 'logical', 'sparse'};
         if isstruct(result{1,1})
@@ -135,7 +138,11 @@ function struct_out = clean_struct(struct_in, acceptable_types)
     for i = 1:numel(fields)
         field_value = struct_in.(fields{i});
         if ~is_acceptable_type(field_value, acceptable_types)
-            warning('Skipping field "%s" as it is not an acceptable type.', fields{i});
+            warning(...
+                'oct2py:pyeval:save_safe_struct:UnacceptableType', ...
+                'Skipping field "%s" as it is not an acceptable type.', ...
+                fields{i} ...
+            );
             struct_out = rmfield(struct_out, fields{i});
         elseif isstruct(field_value)
             struct_out.(fields{i}) = clean_struct(field_value, acceptable_types);
@@ -149,7 +156,11 @@ function cell_out = clean_cell(cell_in, acceptable_types)
     cell_out = cell_in;
     for i = 1:numel(cell_in)
         if ~is_acceptable_type(cell_in{i}, acceptable_types)
-            warning('Skipping cell content at index {%d} as it is not an acceptable type.', i);
+            warning(...
+              'oct2py:pyeval:save_safe_struct:UnacceptableType', ...
+              'Skipping cell content at index {%d} as it is not an acceptable type.', ...
+              i ...
+            );
             cell_out{i} = [];
         elseif isstruct(cell_in{i})
             cell_out{i} = clean_struct(cell_in{i}, acceptable_types);
