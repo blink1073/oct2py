@@ -31,7 +31,8 @@ jobs:
           sudo apt-get install -qq octave octave-signal liboctave-dev
       - name: Generate coverage report
         run: |
-          pip install hatch; xvfb-run --auto-servernum hatch run cover:test
+          pip install -q hatch
+          hatch run cover:test
 
   check_release:
     runs-on: ubuntu-latest
@@ -43,7 +44,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   docs:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
