@@ -28,9 +28,10 @@ jobs:
       - name: Install Octave
         run: |
           sudo apt-get update
-          sudo apt-get install -qq octave octave-signal liboctave-dev xcb
+          sudo apt-get install -qq octave octave-signal liboctave-dev
       - name: Generate coverage report
         run: |
+          export QT_DEBUG_PLUGINS=1
           pip install hatch; xvfb-run --auto-servernum hatch run cover:test
 
   check_release:
