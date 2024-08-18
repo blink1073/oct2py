@@ -353,7 +353,7 @@ def _encode(data, convert_to_float):  # noqa
 
     # Send None as nan.
     if data is None:
-        return np.NaN
+        return np.nan
 
     # Sets are treated like lists.
     if isinstance(data, set):
