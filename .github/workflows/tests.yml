@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
@@ -28,7 +28,7 @@ jobs:
       - name: Install Octave
         run: |
           sudo apt-get update
-          sudo apt-get install -qq octave octave-signal liboctave-dev
+          sudo apt-get install -qq octave octave-signal liboctave-dev xcb
       - name: Generate coverage report
         run: |
           pip install hatch; xvfb-run --auto-servernum hatch run cover:test
