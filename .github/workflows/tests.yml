@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
@@ -27,12 +27,12 @@ jobs:
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Install Octave
         run: |
-          sudo apt-get update
-          sudo apt-get install -qq octave octave-signal liboctave-dev
+          brew install octave
+          octave-cli --eval "pkg install -forge signal"
       - name: Generate coverage report
         run: |
-          export QT_OFFSCREEN=1
-          pip install hatch; xvfb-run --auto-servernum hatch run cover:test
+          pip install -q hatch
+          hatch run cover:test
 
   check_release:
     runs-on: ubuntu-latest
