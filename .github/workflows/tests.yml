@@ -27,7 +27,9 @@ jobs:
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Install Octave
         run: |
-          brew install octave gcc
+          brew install octave
+          brew reinstall gcc
+          which gfortran
           octave-cli --eval "pkg install -forge control"
           octave-cli --eval "pkg install -forge signal"
       - name: Generate coverage report
