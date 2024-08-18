@@ -28,6 +28,7 @@ jobs:
       - name: Install Octave
         run: |
           brew install octave
+          octave-cli --eval "pkg install -forge control"
           octave-cli --eval "pkg install -forge signal"
       - name: Generate coverage report
         run: |
