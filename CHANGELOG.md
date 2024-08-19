@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.7.2
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.7.1...7b9400f72a7cf61a31ce0296ca73bec6a523996d))
+
+### Bugs fixed
+
+- add id warning on save_safe_struct [#327](https://github.com/blink1073/oct2py/pull/327) ([@yasirroni](https://github.com/yasirroni))
+
+### Maintenance and upkeep improvements
+
+- Fix CI failures [#329](https://github.com/blink1073/oct2py/pull/329) ([@blink1073](https://github.com/blink1073))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-08-12&to=2024-08-19&type=c))
+
+[@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2024-08-12..2024-08-19&type=Issues) | [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2024-08-12..2024-08-19&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.7.1
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.7.0))
@@ -9,8 +29,6 @@
 ### Contributors to this release
 
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-06-11&to=2024-08-12&type=c))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.7.0
 
