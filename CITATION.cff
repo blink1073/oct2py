@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: "Oct2Py: Python to GNU Octave Bridge"
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Silvester"
+    given-names: "Steven"
+keywords:
+  - "Python"
+  - "Octave"
+  - "Oct2Py"
+repository-code: "https://github.com/blink1073/oct2py"
+license: "MIT"
