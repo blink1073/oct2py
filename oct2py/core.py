@@ -58,6 +58,8 @@ class Oct2Py:
         If true, convert integer types to float when passing to Octave.
     backend: string, optional
         The graphics_toolkit to use for plotting.
+    keep_matlab_shapes: bool, optional
+        If true, matlab shapes will be preserved (scalars as (1,1) etc)
     """
 
     def __init__(  # noqa
@@ -68,6 +70,7 @@ class Oct2Py:
         temp_dir=None,
         convert_to_float=True,
         backend=None,
+        keep_matlab_shapes=False,
     ):
         """Start Octave and set up the session."""
         self._oned_as = oned_as
@@ -76,6 +79,7 @@ class Oct2Py:
         self.logger = logger
         self.timeout = timeout
         self.backend = backend or "default"
+        self.keep_matlab_shapes = keep_matlab_shapes
         if temp_dir is None:
             temp_dir_obj = tempfile.mkdtemp()
             self.temp_dir = temp_dir_obj

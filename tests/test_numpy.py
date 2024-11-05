@@ -117,3 +117,11 @@ class TestNumpy:
         assert np.allclose(test, incoming)
         assert test.dtype == incoming.dtype
         assert type_ == "double"
+
+    def test_shaped_but_zero_sized(self):
+        """Test support for shaped but zero-sized arrays"""
+        test = np.zeros((0, 1, 2))
+        incoming, type_ = self.oc.roundtrip(test, nout=2)
+        assert test.shape == incoming.shape
+        assert test.dtype == incoming.dtype
+        assert type_ == "double"
