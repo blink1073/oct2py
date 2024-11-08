@@ -41,7 +41,7 @@ from .utils import Oct2PyError
 _WRITE_LOCK = threading.Lock()
 
 
-def read_file(path, session=None, keep_maptlab_shapes=False):
+def read_file(path, session=None, keep_matlab_shapes=False):
     """Read the data from the given file path."""
     if session:
         keep_matlab_shapes = keep_matlab_shapes or session.keep_matlab_shapes
