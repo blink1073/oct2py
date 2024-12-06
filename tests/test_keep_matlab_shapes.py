@@ -128,16 +128,17 @@ class TestNumpy:
 
     def test_keep_matlab_shape(self):
         """Test support for keep_matlab_shape"""
-        tests = [((1,), (1, 1)),
-                 ((2,), (1, 2)),
-                 ((1, 1), (1, 1)),
-                 ((1, 2), (1, 2)),
-                 ((2, 1), (2, 1)),
-                 ((2, 2), (2, 2)),
-                 ((1, 2, 3), (1, 2, 3)),
-                 ((2, 1, 1), (2, 1))
-                 ]
-        for (test_out_shape, test_in_shape) in tests:
+        tests = [
+            ((1,), (1, 1)),
+            ((2,), (1, 2)),
+            ((1, 1), (1, 1)),
+            ((1, 2), (1, 2)),
+            ((2, 1), (2, 1)),
+            ((2, 2), (2, 2)),
+            ((1, 2, 3), (1, 2, 3)),
+            ((2, 1, 1), (2, 1)),
+        ]
+        for test_out_shape, test_in_shape in tests:
             outgoing = np.zeros(test_out_shape)
             incoming, type_ = self.oc.roundtrip(outgoing, nout=2)
             assert incoming.shape == test_in_shape
