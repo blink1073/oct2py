@@ -232,8 +232,7 @@ class Cell(np.ndarray):  # type:ignore[type-arg]
         obj = np.empty(value.size, dtype=object).view(cls)
         for i, item in enumerate(value.ravel()):
             obj[i] = _extract(item, session, keep_matlab_shapes)
-        obj = obj.reshape(value.shape)  # type:ignore[assignment]
-
+        obj = obj.reshape(value.shape)
         return obj
 
     def __repr__(self):
