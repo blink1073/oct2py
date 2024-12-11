@@ -41,15 +41,17 @@ from .utils import Oct2PyError
 _WRITE_LOCK = threading.Lock()
 
 
-def read_file(path, session=None):
+def read_file(path, session=None, keep_matlab_shapes=False):
     """Read the data from the given file path."""
+    if session:
+        keep_matlab_shapes = keep_matlab_shapes or session.keep_matlab_shapes
     try:
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e)) from None
     out = {}
     for key, value in data.items():
-        out[key] = _extract(value, session)
+        out[key] = _extract(value, session, keep_matlab_shapes)
     return out
 
 
@@ -151,22 +153,19 @@ class StructArray(np.recarray):  # type:ignore[type-arg]
     4.0
     """
 
-    def __new__(cls, value, session=None):
+    def __new__(cls, value, session=None, keep_matlab_shapes=False):
         """Create a struct array from a value and optional Octave session."""
         value = np.asarray(value)
         # Squeeze the last element if it is 1
-        if value.shape[value.ndim - 1] == 1:
+        if value.shape[value.ndim - 1] == 1 and not keep_matlab_shapes:
             value = value.squeeze(axis=value.ndim - 1)
         value = np.atleast_1d(value)
-
-        if not session:
-            return value.view(cls)
 
         # Extract the values.
         obj = np.empty(value.size, dtype=value.dtype).view(cls)
         for i, item in enumerate(value.ravel()):
             for name in value.dtype.names:
-                obj[i][name] = _extract(item[name], session)
+                obj[i][name] = _extract(item[name], session, keep_matlab_shapes)
         return obj.reshape(value.shape)
 
     @property
@@ -224,20 +223,16 @@ class Cell(np.ndarray):  # type:ignore[type-arg]
     [1.0, 1.0]
     """
 
-    def __new__(cls, value, session=None):
+    def __new__(cls, value, session=None, keep_matlab_shapes=False):
         """Create a cell array from a value and optional Octave session."""
         # Use atleast_2d to preserve Octave size()
         value = np.atleast_2d(np.asarray(value, dtype=object))
 
-        if not session:
-            return value.view(cls)
-
         # Extract the values.
         obj = np.empty(value.size, dtype=object).view(cls)
         for i, item in enumerate(value.ravel()):
-            obj[i] = _extract(item, session)
-        obj = obj.reshape(value.shape)  # type:ignore[assignment]
-
+            obj[i] = _extract(item, session, keep_matlab_shapes)
+        obj = obj.reshape(value.shape)
         return obj
 
     def __repr__(self):
@@ -258,11 +253,11 @@ class Cell(np.ndarray):  # type:ignore[type-arg]
         return super().__getitem__(key)
 
 
-def _extract(data, session=None):  # noqa
+def _extract(data, session=None, keep_matlab_shapes=False):  # noqa
     """Convert the Octave values to values suitable for Python."""
     # Extract each item of a list.
     if isinstance(data, list):
-        return [_extract(d, session) for d in data]
+        return [_extract(d, session, keep_matlab_shapes) for d in data]
 
     # Ignore leaf objects.
     if not isinstance(data, np.ndarray):
@@ -277,20 +272,25 @@ def _extract(data, session=None):  # noqa
     if data.dtype.names:
         # Singular struct
         if data.size == 1:
-            return _create_struct(data, session)
+            return _create_struct(data, session, keep_matlab_shapes)
         # Struct array
-        return StructArray(data, session)
+        return StructArray(data, session, keep_matlab_shapes)
 
     # Extract cells.
     if data.dtype.kind == "O":
-        return Cell(data, session)
+        return Cell(data, session, keep_matlab_shapes)
 
     # Compress singleton values.
     if data.size == 1:
-        return data.item()
+        if not keep_matlab_shapes:
+            return data.item()
+        else:
+            if data.dtype.kind in "US":
+                return data.item()
+            return data
 
     # Compress empty values.
-    if data.size == 0:
+    if data.shape in ((0,), (0, 0)):
         if data.dtype.kind in "US":
             return ""
         return []
@@ -299,7 +299,7 @@ def _extract(data, session=None):  # noqa
     return data
 
 
-def _create_struct(data, session):
+def _create_struct(data, session, keep_matlab_shapes=False):
     """Create a struct from session data."""
     out = Struct()
     for name in data.dtype.names:
@@ -307,7 +307,7 @@ def _create_struct(data, session):
         # Extract values that are cells (they are doubly wrapped).
         if isinstance(item, np.ndarray) and item.dtype.kind == "O":
             item = item.squeeze().tolist()
-        out[name] = _extract(item, session)
+        out[name] = _extract(item, session, keep_matlab_shapes)
     return out
 
 
