@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 5.8.0
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.7.2...e4b82b9c77e7730b56f2f0a0af0f695da7707635))
+
+### Enhancements made
+
+- add keep_matlab_shapes to oct2py [#334](https://github.com/blink1073/oct2py/pull/334) ([@tylerbjackson](https://github.com/tylerbjackson))
+
+### Maintenance and upkeep improvements
+
+- add citation [#330](https://github.com/blink1073/oct2py/pull/330) ([@yasirroni](https://github.com/yasirroni))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-08-19&to=2024-12-11&type=c))
+
+[@tylerbjackson](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Atylerbjackson+updated%3A2024-08-19..2024-12-11&type=Issues) | [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2024-08-19..2024-12-11&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.7.2
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.7.1...7b9400f72a7cf61a31ce0296ca73bec6a523996d))
@@ -19,8 +39,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-08-12&to=2024-08-19&type=c))
 
 [@blink1073](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2024-08-12..2024-08-19&type=Issues) | [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2024-08-12..2024-08-19&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.7.1
 
