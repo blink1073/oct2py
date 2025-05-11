@@ -6,7 +6,7 @@
 import types
 import warnings
 import weakref
-from typing import Any, Dict
+from typing import Any
 
 import numpy as np
 
@@ -185,7 +185,7 @@ class OctaveUserClass:
     """A wrapper for an Octave user class."""
 
     _name: str
-    _attrs: Dict[str, OctaveUserClassAttr]
+    _attrs: dict[str, OctaveUserClassAttr]
     _ref: Any
 
     def __init__(self, *inputs, **kwargs):
