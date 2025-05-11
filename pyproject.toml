@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "numpy >=1.12",
     "scipy >=0.17",
@@ -47,8 +47,8 @@ docs = [
 ]
 
 [tool.jupyter-releaser.hooks]
-before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
-before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal liboctave-dev"]
+before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
+before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
 
 [tool.hatch.version]
 path = "oct2py/_version.py"

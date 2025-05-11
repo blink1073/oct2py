@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
 
     steps:
@@ -28,7 +28,7 @@ jobs:
       - name: Install Octave
         run: |
           sudo apt-get update
-          sudo apt-get install -qq octave octave-signal liboctave-dev
+          sudo apt-get install -qq octave octave-signal octave-dev
       - name: Generate coverage report
         run: |
           pip install -q hatch
