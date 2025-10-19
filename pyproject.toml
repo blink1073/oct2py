@@ -61,6 +61,7 @@ build = "make -C docs html SPHINXOPTS='-W'"
 [tool.hatch.envs.test]
 features = ["test"]
 [tool.hatch.envs.test.scripts]
+demo = "python -c \"from oct2py import demo; demo(0.01, interactive=False)\""
 test = "python -m pytest -vv {args}"
 nowarn = "python -m pytest -vv -W default {args}"
 

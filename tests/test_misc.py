@@ -91,14 +91,6 @@ class TestMisc:
         assert 'exist("ones")' not in resp
         assert "_pyeval(" in resp
 
-    def test_demo(self):
-        from oct2py import demo
-
-        try:
-            demo.demo(0.01, interactive=False)  # type:ignore
-        except AttributeError:
-            demo(0.01, interactive=False)
-
     def test_threads(self):
         from oct2py import thread_check
 

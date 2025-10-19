@@ -32,6 +32,7 @@ jobs:
       - name: Generate coverage report
         run: |
           pip install -q hatch
+          hatch run test:demo
           hatch run cover:test
 
   check_release:
