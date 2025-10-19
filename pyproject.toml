@@ -47,8 +47,8 @@ docs = [
 ]
 
 [tool.jupyter-releaser.hooks]
-before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
-before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
+before-build-python = ["sudo apt-add-repository ppa:octave/stable", "sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
+before-check-links = ["sudo apt-add-repository ppa:octave/stable", "sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
 
 [tool.hatch.version]
 path = "oct2py/_version.py"
