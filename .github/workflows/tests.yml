@@ -27,7 +27,6 @@ jobs:
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
       - name: Install Octave
         run: |
-          sudo add-apt-repository ppa:octave/stable
           sudo apt update
           sudo apt-get install -qq octave octave-signal octave-dev
       - name: Generate coverage report
