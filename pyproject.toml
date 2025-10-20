@@ -110,6 +110,7 @@ filterwarnings= [
   "module:datetime.datetime.utcf:DeprecationWarning",
   "ignore:(?s).*Pyarrow will become a required dependency of pandas:DeprecationWarning",  # pandas pyarrow (pandas<3.0),
   "module:Parsing dates involving a day of month without a year specified:DeprecationWarning", # ipykernel
+  "module:codecs.open:DeprecationWarning", # ipykernel
 ]
 
 [tool.coverage.run]
