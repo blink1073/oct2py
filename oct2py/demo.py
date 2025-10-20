@@ -59,6 +59,8 @@ def demo(delay=1, interactive=True):
     #########################
     """
     script = script.replace("raw_input", "input")
+    gl = globals()
+    lo = locals()
 
     for line in script.strip().split("\n"):
         line = line.strip()  # noqa
@@ -68,7 +70,7 @@ def demo(delay=1, interactive=True):
             time.sleep(delay)
         if not interactive and ("plot" in line or "surf" in line or "input(" in line):
             line = "print()"  # noqa
-        exec(line)  # noqa
+        exec(line, gl, lo)  # noqa
 
 
 if __name__ == "__main__":  # pragma: no cover

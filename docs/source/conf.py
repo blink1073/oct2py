@@ -13,7 +13,7 @@
 import datetime
 import os
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -49,7 +49,7 @@ source_encoding = "utf-8"
 project = "Oct2Py"
 copyright = f"2011 - {datetime.date.today().year}, Oct2Py contributors"  # noqa
 
-version_ns: Dict[str, Any] = {}
+version_ns: dict[str, Any] = {}
 root = Path(__file__).parent.parent.parent
 version_py = os.path.join(root, "oct2py", "_version.py")
 with open(version_py) as f:
