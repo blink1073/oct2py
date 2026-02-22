@@ -24,15 +24,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: taiki-e/install-action@just
       - name: Install Octave
         run: |
           sudo apt update
           sudo apt-get install -qq octave octave-signal octave-dev
       - name: Generate coverage report
-        run: |
-          pip install -q hatch
-          hatch run cover:test
+        run: just cover
 
   check_release:
     runs-on: ubuntu-latest
@@ -47,21 +48,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
-      - run: hatch run docs:build
+      - uses: astral-sh/setup-uv@v5
+      - uses: taiki-e/install-action@just
+      - run: just docs
 
   test_lint:
     name: Test Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - uses: astral-sh/setup-uv@v5
+      - uses: taiki-e/install-action@just
       - name: Run Linters
         run: |
-          hatch run typing:test
-          hatch run lint:build
-          pipx run interrogate -v .
-          pipx run doc8 --max-line-length=200 docs/source *.md
+          just typing
+          just lint
+          uvx interrogate -v .
+          uvx doc8 --max-line-length=200 docs/source *.md
 
   check_links:
     runs-on: ubuntu-latest

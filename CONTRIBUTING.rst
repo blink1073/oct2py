@@ -4,10 +4,20 @@ Contributing to Oct2Py
 Installation and Test
 ---------------------
 
-To install and run tests locally, run::
+Oct2Py uses `uv <https://docs.astral.sh/uv/>`_ for dependency management and
+`just <https://just.systems/>`_ as a command runner.
 
-    pip install -e ".[test]"
-    pytest .
+To install all development dependencies::
+
+    uv sync --all-groups
+
+To run the tests::
+
+    just test
+
+To run tests with coverage::
+
+    just cover
 
 Linters
 -------
@@ -19,9 +29,19 @@ that help follow a consistent code style within the codebase.
 
 To set up ``pre-commit`` locally, run::
 
-    pip install pre-commit
-    pre-commit install
+    uv run --group lint pre-commit install
 
-To run ``pre-commit`` manually, run::
+To run linters::
 
-    pre-commit run --all-files
+    just lint
+
+To run type checking::
+
+    just typing
+
+Documentation
+-------------
+
+To build the docs::
+
+    just docs
