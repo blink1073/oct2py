@@ -31,7 +31,7 @@ readme = "README.rst"
 homepage = "https://github.com/blink1073/oct2py"
 documentation = "https://blink1073.github.io/oct2py"
 
-[project.optional-dependencies]
+[dependency-groups]
 test = [
     "pytest<8",
     "pandas",
@@ -39,12 +39,18 @@ test = [
     "pytest-timeout",
     "pre-commit",
 ]
+cover = [
+    { include-group = "test" },
+    "coverage",
+    "pytest-cov",
+]
 docs = [
     "sphinx",
     "pydata_sphinx_theme",
     "myst_parser",
     "sphinxcontrib_spelling",
 ]
+lint = ["pre-commit"]
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
@@ -53,39 +59,6 @@ before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave oc
 [tool.hatch.version]
 path = "oct2py/_version.py"
 
-[tool.hatch.envs.docs]
-features = ["docs"]
-[tool.hatch.envs.docs.scripts]
-build = "make -C docs html SPHINXOPTS='-W'"
-
-[tool.hatch.envs.test]
-features = ["test"]
-[tool.hatch.envs.test.scripts]
-test = "python -m pytest -vv {args}"
-nowarn = "python -m pytest -vv -W default {args}"
-
-[tool.hatch.envs.cover]
-features = ["test"]
-dependencies = ["coverage", "pytest-cov"]
-[tool.hatch.envs.cover.env-vars]
-ARGS = "--doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py -vv"
-[tool.hatch.envs.cover.scripts]
-test = "python -m pytest $ARGS --cov-fail-under 85 {args}"
-
-[tool.hatch.envs.lint]
-detached = true
-dependencies = ["pre-commit"]
-[tool.hatch.envs.lint.scripts]
-build = [
-  "pre-commit run --all-files ruff",
-  "pre-commit run --all-files ruff-format"
-]
-
-[tool.hatch.envs.typing]
-dependencies = [ "pre-commit"]
-detached = true
-[tool.hatch.envs.typing.scripts]
-test = "pre-commit run --all-files --hook-stage manual mypy"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

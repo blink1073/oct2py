@@ -15,3 +15,4 @@ example/.ipynb_checkpoints/
 .pytest_cache
 coverage.xml
 .vscode/
+.uv/
