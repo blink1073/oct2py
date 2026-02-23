@@ -33,6 +33,11 @@ documentation = "https://blink1073.github.io/oct2py"
 
 [dependency-groups]
 dev = [ { include-group = "test" } ]
+typing = [
+    { include-group = "test" },
+    "mypy>=1.15",
+    "ipython",
+]
 test = [
     "pytest<8",
     "pandas",
@@ -147,7 +152,7 @@ fail-under=100
 exclude = ["tests", "docs"]
 
 [tool.repo-review]
-ignore = ["PC111", "PY007", "PC901", "PC902", "PC903"]
+ignore = ["PC111", "PC140", "PY007", "PC901", "PC902", "PC903"]
 
 [tool.pydoclint]
 style = 'numpy'

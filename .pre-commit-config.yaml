@@ -31,11 +31,6 @@ repos:
     hooks:
       - id: gitleaks
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.15.0"
-    hooks:
-      - id: mypy
-
   - repo: https://github.com/econchick/interrogate
     rev: 1.7.0
     hooks:
@@ -61,16 +56,6 @@ repos:
     hooks:
       - id: codespell
         args: ["-L", "ans,te,manuel"]
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.8.0"
-    hooks:
-      - id: mypy
-        files: "^oct2py"
-        stages: [manual]
-        args: ["--install-types", "--non-interactive"]
-        additional_dependencies:
-          ["ipython", "metakernel", "octave_kernel", "scipy"]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: "v1.10.0"

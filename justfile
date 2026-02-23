@@ -17,12 +17,12 @@ cover *args:
 
 # Run linters (ruff check + format)
 lint:
-    just pre-commit ruff
     just pre-commit ruff-format
+    just pre-commit ruff-check
 
-# Run type checking (mypy via pre-commit)
+# Run type checking (mypy)
 typing:
-    just pre-commit --hook-stage manual mypy
+    uv run --group typing mypy oct2py
 
 # Build documentation
 docs:
