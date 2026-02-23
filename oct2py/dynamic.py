@@ -13,7 +13,7 @@ try:
     from scipy.io.matlab import MatlabObject
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabObject
+        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore[assignment]
     except ImportError:
         pass
 
@@ -60,7 +60,7 @@ class OctaveVariablePtr(OctavePtr):
     """An object that acts as a pointer to an Octave value."""
 
     @property
-    def __doc__(self):
+    def __doc__(self):  # type:ignore[override]
         return "%s is a variable" % self.name
 
     @property
@@ -203,7 +203,7 @@ class OctaveUserClass:
         return instance
 
     @classmethod
-    def to_value(cls, instance: "OctaveUserClass") -> MatlabObject:
+    def to_value(cls, instance: "OctaveUserClass") -> MatlabObject | dict[str, Any]:
         """Convert to a value to send to Octave."""
         if (
             not isinstance(instance, OctaveUserClass)  # type:ignore[redundant-expr]

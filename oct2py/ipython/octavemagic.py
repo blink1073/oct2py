@@ -57,7 +57,7 @@ import oct2py
 
 
 @magics_class
-class OctaveMagics(Magics):  # type:ignore[misc]
+class OctaveMagics(Magics):
     """A set of magics useful for interactive work with Octave via oct2py.
 
     Parameters

@@ -22,7 +22,7 @@ lint:
 
 # Run type checking (mypy)
 typing:
-    uv run --group typing mypy oct2py
+    uv run --group typing mypy --install-types --non-interactive oct2py
 
 # Build documentation
 docs:

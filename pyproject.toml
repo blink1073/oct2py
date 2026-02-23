@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "numpy >=1.12",
     "scipy >=0.17",
@@ -37,10 +37,12 @@ typing = [
     { include-group = "test" },
     "mypy>=1.15",
     "ipython",
+    "pip"
 ]
 test = [
     "pytest<8",
     "pandas",
+    "scipy",
     "nbconvert",
     "pytest-timeout",
 ]

@@ -11,8 +11,8 @@ import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import EOF, TIMEOUT
-from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
+from metakernel.pexpect import EOF, TIMEOUT  # type:ignore[import-untyped]
+from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore[import-untyped]
 
 from .dynamic import (
     OctavePtr,
@@ -155,7 +155,7 @@ class Oct2Py:
             name = [name]
             var = [var]
 
-        for n, v in zip(name, var):
+        for n, v in zip(name, var, strict=False):
             self.feval("assignin", "base", n, v, nout=0, timeout=timeout, verbose=verbose)
 
     def pull(self, var, timeout=None, verbose=True):

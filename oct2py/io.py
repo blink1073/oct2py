@@ -14,7 +14,7 @@ try:
     from scipy.sparse import spmatrix
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject
+        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore[assignment]
     except ImportError:
         pass
 
@@ -117,16 +117,16 @@ class Struct(dict):  # type:ignore[type-arg]
         instruction = bytecode[frame.f_lasti + 3]
         return instruction in allowed
 
-    __setattr__ = dict.__setitem__  # type:ignore[assignment]
-    __delattr__ = dict.__delitem__  # type:ignore[assignment]
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
 
     @property
-    def __dict__(self):
+    def __dict__(self):  # type:ignore[override]
         # Allow for code completion in a REPL.
         return self.copy()
 
 
-class StructArray(np.recarray):  # type:ignore[misc]
+class StructArray(np.recarray):
     """A Python representation of an Octave structure array.
 
     Notes
@@ -198,7 +198,7 @@ class StructArray(np.recarray):  # type:ignore[misc]
         return msg
 
 
-class Cell(np.ndarray):  # type:ignore[misc]
+class Cell(np.ndarray):
     """A Python representation of an Octave cell array.
 
     Notes
@@ -328,10 +328,10 @@ def _encode(data, convert_to_float):  # noqa
         raise Oct2PyError(msg)
 
     # Handle matlab objects.
-    if isinstance(data, MatlabObject):  # type:ignore[unreachable]
+    if isinstance(data, MatlabObject):
         view = data.view(np.ndarray)
         out = MatlabObject(data, data.classname)
-        for name in out.dtype.names:
+        for name in out.dtype.names:  # type:ignore[union-attr]
             out[name] = _encode(view[name], ctf)
         return out
 
@@ -345,7 +345,7 @@ def _encode(data, convert_to_float):  # noqa
 
     # Extract and encode values from dict-like objects.
     if isinstance(data, dict):
-        out = {}
+        out = {}  # type:ignore[assignment]
         for key, value in data.items():
             out[key] = _encode(value, ctf)
         return out
@@ -373,7 +373,7 @@ def _encode(data, convert_to_float):  # noqa
 
     # Sparse data must be floating type.
     if isinstance(data, spmatrix):
-        return data.astype(np.float64)
+        return data.astype(np.float64)  # type:ignore[attr-defined]
 
     # Return other data types unchanged.
     if not isinstance(data, np.ndarray):
@@ -381,7 +381,7 @@ def _encode(data, convert_to_float):  # noqa
 
     # Extract and encode data from object-like arrays.
     if data.dtype.kind in "OV":
-        out = np.empty(data.size, dtype=data.dtype)
+        out = np.empty(data.size, dtype=data.dtype)  # type:ignore[assignment]
         for i, item in enumerate(data.ravel()):
             if data.dtype.names:
                 for name in data.dtype.names:
