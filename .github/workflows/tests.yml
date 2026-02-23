@@ -52,17 +52,23 @@ jobs:
       - uses: taiki-e/install-action@just
       - run: just docs
 
-  test_lint:
-    name: Test Lint
+  pre_commit:
+    name: Pre-commit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - uses: taiki-e/install-action@just
-      - name: Run pre-commit hooks
-        run: just pre-commit
-      - name: Run type checking
-        run: just typing
+      - run: just pre-commit
+
+  typing:
+    name: Typing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: taiki-e/install-action@just
+      - run: just typing
 
   check_links:
     runs-on: ubuntu-latest
@@ -76,7 +82,8 @@ jobs:
     if: always()
     needs:
       - build
-      - test_lint
+      - pre_commit
+      - typing
       - docs
       - check_links
       - check_release
