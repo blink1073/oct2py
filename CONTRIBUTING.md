@@ -17,6 +17,20 @@ To run the tests:
 just test
 ```
 
+Tests run in parallel across CPU cores (one process per test module) using
+[pytest-xdist](https://pytest-xdist.readthedocs.io/). To disable parallelism
+(e.g. for debugging):
+
+```
+just test -n0
+```
+
+To run a single test:
+
+```
+just test tests/test_misc.py::test_name
+```
+
 To run tests with coverage:
 
 ```
