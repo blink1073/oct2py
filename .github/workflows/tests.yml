@@ -38,6 +38,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: blink1073/oct2py
 
   check_release:
     runs-on: ubuntu-latest
