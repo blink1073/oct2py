@@ -57,17 +57,15 @@ import oct2py
 
 
 @magics_class
-class OctaveMagics(Magics):
+class OctaveMagics(Magics):  # type:ignore[misc]
+    """A set of magics useful for interactive work with Octave via oct2py.
 
-    """A set of magics useful for interactive work with Octave via oct2py."""
+    Parameters
+    ----------
+    shell : IPython shell
+    """
 
     def __init__(self, shell):
-        """
-        Parameters
-        ----------
-        shell : IPython shell
-
-        """
         super().__init__(shell)
         self._oct = oct2py.octave
 
@@ -289,7 +287,7 @@ class OctaveMagics(Magics):
         publish_display_data({"text/plain": line})
 
 
-__doc__ = __doc__.format(  # noqa
+__doc__ = __doc__.format(
     OCTAVE_DOC=dedent(OctaveMagics.octave.__doc__),
     OCTAVE_PUSH_DOC=dedent(OctaveMagics.octave_push.__doc__),
     OCTAVE_PULL_DOC=dedent(OctaveMagics.octave_pull.__doc__),

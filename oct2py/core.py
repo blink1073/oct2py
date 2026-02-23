@@ -2,7 +2,6 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-
 import atexit
 import logging
 import os
@@ -12,8 +11,8 @@ import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import EOF, TIMEOUT  # type:ignore[import-untyped]
-from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore[import-untyped]
+from metakernel.pexpect import EOF, TIMEOUT
+from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
 
 from .dynamic import (
     OctavePtr,
@@ -28,7 +27,6 @@ HERE = osp.realpath(osp.dirname(__file__))
 
 
 class Oct2Py:
-
     """Manages an Octave session.
 
     Uses MAT files to pass data between Octave and Numpy.
@@ -72,7 +70,6 @@ class Oct2Py:
         backend=None,
         keep_matlab_shapes=False,
     ):
-        """Start Octave and set up the session."""
         self._oned_as = oned_as
         self._engine = None
         self._logger = None
@@ -134,7 +131,8 @@ class Oct2Py:
             The value(s) to pass.
         timeout : float
             Time to wait for response from Octave (per line).
-        **kwargs: Deprecated kwargs, ignored.
+        verbose: bool
+             Log Octave output at INFO level.  If False, log at DEBUG level.
 
         Examples
         --------
@@ -170,7 +168,8 @@ class Oct2Py:
             Name of the variable(s) to retrieve.
         timeout : float, optional.
             Time to wait for response from Octave (per line).
-        **kwargs: Deprecated kwargs, ignored.
+        verbose: bool
+             Log Octave output at INFO level.  If False, log at DEBUG level.
 
         Returns
         -------
@@ -281,6 +280,10 @@ class Oct2Py:
             The plot dir where the figures were created.
         remove: bool, optional.
             Whether to remove the plot directory after saving.
+
+        Returns
+        -------
+        The list of figure objects.
         """
         if not self._engine:
             msg = "Session is not open"
@@ -358,13 +361,13 @@ class Oct2Py:
         Returns
         -------
         The Python value(s) returned by the Octave function call.
-        """
+        """  # noqa: DOC102, DOC103
         if not self._engine:
             msg = "Session is not open"
             raise Oct2PyError(msg)
 
         # nout handler
-        nout = kwargs.get("nout", None)
+        nout = kwargs.get("nout")
         if nout is None:
             nout = 1
         elif nout == "max_nout":
@@ -415,7 +418,7 @@ class Oct2Py:
             plot_dir=plot_dir,
         )
 
-    def eval(  # noqa
+    def eval(  # noqa: PLR0913
         self,
         cmds,
         verbose=True,
@@ -432,8 +435,7 @@ class Oct2Py:
         nout=0,
         **kwargs,
     ):
-        """
-        Evaluate an Octave command or commands.
+        """Evaluate an Octave command or commands.
 
         Parameters
         ----------
@@ -514,7 +516,7 @@ class Oct2Py:
         ------
         Oct2PyError
             If the command(s) fail.
-        """
+        """  # noqa: DOC103
         if isinstance(cmds, str):
             cmds = [cmds]
 
@@ -701,11 +703,6 @@ class Oct2Py:
         ----------
         name : str
             Function name to search for.
-
-        Returns
-        -------
-        out : None
-
         """
         print(self._get_doc(name))  # noqa
 

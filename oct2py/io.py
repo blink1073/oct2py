@@ -2,7 +2,6 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-
 import dis
 import inspect
 import threading
@@ -10,12 +9,12 @@ import threading
 import numpy as np
 
 try:
-    from scipy.io import loadmat, savemat  # type:ignore[import-untyped]
-    from scipy.io.matlab import MatlabFunction, MatlabObject  # type:ignore[import-untyped]
-    from scipy.sparse import spmatrix  # type:ignore[import-untyped]
+    from scipy.io import loadmat, savemat
+    from scipy.io.matlab import MatlabFunction, MatlabObject
+    from scipy.sparse import spmatrix
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore[import-untyped]
+        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject
     except ImportError:
         pass
 
@@ -127,7 +126,7 @@ class Struct(dict):  # type:ignore[type-arg]
         return self.copy()
 
 
-class StructArray(np.recarray):  # type:ignore[type-arg]
+class StructArray(np.recarray):  # type:ignore[misc]
     """A Python representation of an Octave structure array.
 
     Notes
@@ -199,7 +198,7 @@ class StructArray(np.recarray):  # type:ignore[type-arg]
         return msg
 
 
-class Cell(np.ndarray):  # type:ignore[type-arg]
+class Cell(np.ndarray):  # type:ignore[misc]
     """A Python representation of an Octave cell array.
 
     Notes

@@ -9,7 +9,7 @@ import pytest
 from IPython.display import SVG
 
 from oct2py import Oct2Py, Oct2PyError, Struct
-from oct2py.io import MatlabFunction
+from oct2py.io import MatlabFunction  # type:ignore[attr-defined]
 
 
 class TestUsage:
@@ -89,7 +89,7 @@ class TestUsage:
     def test_struct(self):
         """Test Struct construct"""
         test = Struct()
-        test.spam = "eggs"  # type:ignore
+        test.spam = "eggs"  # type:ignore[attr-defined]
         test.eggs.spam = "eggs"
         assert test["spam"] == "eggs"
         assert test["eggs"]["spam"] == "eggs"
@@ -254,7 +254,7 @@ class TestUsage:
         val = self.oc.feval("disp", self.oc.zeros)
         assert val.strip() == "@zeros"
 
-        lines: list = []
+        lines: list[str] = []
         self.oc.feval(
             "evalin", "base", "disp(1);disp(2);disp(3)", nout=0, stream_handler=lines.append
         )
@@ -274,7 +274,7 @@ class TestUsage:
         a = self.oc.eval("ones(3);")
         assert np.allclose(a, np.ones((3, 3)))
 
-        lines: list = []
+        lines: list[str] = []
         self.oc.eval("disp(1);disp(2);disp(3)", nout=0, stream_handler=lines.append)
         lines = [line.strip() for line in lines]
         assert lines == ["1", "2", "3"], lines

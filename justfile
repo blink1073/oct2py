@@ -4,7 +4,8 @@ default:
 
 # Install the project with all development dependencies
 install:
-    uv sync --all-groups
+    uv sync
+    uv tool run prek install
 
 # Run tests
 test *args:
@@ -16,13 +17,17 @@ cover *args:
 
 # Run linters (ruff check + format)
 lint:
-    uv run --group lint pre-commit run --all-files ruff
-    uv run --group lint pre-commit run --all-files ruff-format
+    just pre-commit ruff
+    just pre-commit ruff-format
 
 # Run type checking (mypy via pre-commit)
 typing:
-    uv run --group lint pre-commit run --all-files --hook-stage manual mypy
+    just pre-commit --hook-stage manual mypy
 
 # Build documentation
 docs:
     uv run --group docs make -C docs html SPHINXOPTS='-W'
+
+# Run a pre-commit target
+pre-commit *args:
+    uv tool run prek --all-files {{args}}

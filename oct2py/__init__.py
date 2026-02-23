@@ -31,17 +31,17 @@ from .speed_check import speed_check
 from .thread_check import thread_check
 
 __all__ = [
+    "Cell",
     "Oct2Py",
     "Oct2PyError",
-    "octave",
     "Struct",
-    "Cell",
     "StructArray",
+    "__version__",
     "demo",
+    "get_log",
+    "octave",
     "speed_check",
     "thread_check",
-    "__version__",
-    "get_log",
 ]
 
 try:
@@ -56,7 +56,7 @@ def kill_octave():
     This will restart the "octave" instance.  If you have instantiated
     Any other Oct2Py objects, you must restart them.
     """
-    import os
+    import os  # noqa:PLC0415
 
     if os.name == "nt":
         os.system("taskkill /im octave /f")  # noqa

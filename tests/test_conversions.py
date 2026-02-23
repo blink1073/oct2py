@@ -160,4 +160,4 @@ class TestConversions:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
                 else:
-                    assert in_type(incoming) == incoming  # type:ignore
+                    assert in_type(incoming) == incoming

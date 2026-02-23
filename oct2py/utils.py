@@ -22,6 +22,11 @@ def get_log(name=None):
     ----------
     name : str
         Name of the log.
+
+    Returns
+    -------
+    log : object
+        The logger object.
     """
     name = "oct2py" if name is None else "oct2py." + name
 

@@ -2,7 +2,6 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-
 import types
 import warnings
 import weakref
@@ -11,10 +10,10 @@ from typing import Any
 import numpy as np
 
 try:
-    from scipy.io.matlab import MatlabObject  # type:ignore[import-untyped]
+    from scipy.io.matlab import MatlabObject
 except ImportError:
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore[import-untyped]
+        from scipy.io.matlab.mio5 import MatlabObject
     except ImportError:
         pass
 

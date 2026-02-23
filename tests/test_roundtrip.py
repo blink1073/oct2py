@@ -258,20 +258,20 @@ class TestBuiltins:
         """Test python dictionary"""
         test = dict(x="spam", y=[1, 2, 3])
         incoming = self.oc.roundtrip(test)
-        for key in incoming:
-            self.helper(test[key], incoming[key])
+        for key, value in incoming.items():
+            self.helper(test[key], value)
 
     def test_nested_dict(self):
         """Test nested python dictionary"""
         test = dict(x=dict(y=1e3, z=[1, 2]), y="spam")
         incoming = self.oc.roundtrip(test)
         incoming = dict(incoming)
-        for key in test:
-            if isinstance(test[key], dict):
-                for subkey in test[key]:
-                    self.helper(test[key][subkey], incoming[key][subkey])  # type:ignore
+        for key, value in test.items():
+            if isinstance(value, dict):
+                for subkey in value:
+                    self.helper(value[subkey], incoming[key][subkey])
             else:
-                self.helper(test[key], incoming[key])
+                self.helper(value, incoming[key])
 
     def test_set(self):
         """Test python set type"""
@@ -333,7 +333,7 @@ class TestBuiltins:
 
     def test_nested_list(self):
         """Test python nested lists"""
-        test: list = [["spam", "eggs", "baz"], ["foo ", "bar ", "baz "]]
+        test: list[Any] = [["spam", "eggs", "baz"], ["foo ", "bar ", "baz "]]
         incoming = self.oc.roundtrip(test)
         assert isinstance(incoming, Cell)
 
