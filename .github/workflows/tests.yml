@@ -60,6 +60,9 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - uses: taiki-e/install-action@just
       - run: just pre-commit
+      - name: Show diff on failure
+        if: failure()
+        run: git diff
 
   typing:
     name: Typing
