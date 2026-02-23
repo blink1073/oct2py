@@ -50,6 +50,7 @@ test = [
 cover = [
     { include-group = "test" },
     "coverage",
+    "pytest-cov",
 ]
 docs = [
     "sphinx",
