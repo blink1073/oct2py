@@ -1,4 +1,5 @@
 """Version info."""
+
 import re
 from collections import namedtuple
 

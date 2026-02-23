@@ -68,7 +68,7 @@ class TestConversions:
             List of expected return types for the keys.
 
         """
-        for key, type_ in zip(keys, types):
+        for key, type_ in zip(keys, types, strict=False):
             if type(base[key]) != type_:
                 try:
                     assert type_(base[key]) == base[key], key
@@ -160,4 +160,4 @@ class TestConversions:
                 if type(incoming) == np.int32 and in_type == np.int64:
                     pass
                 else:
-                    assert in_type(incoming) == incoming  # type:ignore
+                    assert in_type(incoming) == incoming
