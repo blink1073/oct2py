@@ -12,7 +12,10 @@ test *args:
 
 # Run tests with coverage
 cover *args:
-    uv run --group cover python -m pytest --doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py --cov-fail-under 85 -vv {{args}}
+    uv run --group cover python -m coverage run -m pytest -l -vv {{args}}
+    uv run --group cover python -m coverage report --fail-under=85
+    uv run --group cover python -m coverage html
+    uv run --group cover python -m coverage xml
 
 # Run linters (ruff check + format)
 lint:
