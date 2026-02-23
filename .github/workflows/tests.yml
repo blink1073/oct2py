@@ -34,6 +34,10 @@ jobs:
           sudo apt-get install -qq octave octave-signal octave-dev
       - name: Generate coverage report
         run: just cover
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   check_release:
     runs-on: ubuntu-latest
