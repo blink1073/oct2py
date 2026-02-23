@@ -41,6 +41,7 @@ typing = [
 ]
 test = [
     "pytest<8",
+    "pytest-xdist",
     "pandas",
     "scipy",
     "nbconvert",
@@ -49,6 +50,7 @@ test = [
 cover = [
     { include-group = "test" },
     "coverage",
+    "pytest-cov",
 ]
 docs = [
     "sphinx",
