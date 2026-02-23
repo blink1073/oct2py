@@ -25,6 +25,7 @@ repos:
     rev: 1.0.0
     hooks:
       - id: mdformat
+        verbose: true
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.24.3
