@@ -6,7 +6,7 @@
 
 Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
-MAT files.  Usage is as simple as:
+MAT files. Usage is as simple as:
 
 ```python
 >>> import oct2py

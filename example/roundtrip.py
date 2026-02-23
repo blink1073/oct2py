@@ -1,5 +1,5 @@
-"""Send a numpy array roundtrip to Octave using an m-file.
-"""
+"""Send a numpy array roundtrip to Octave using an m-file."""
+
 import numpy as np
 
 from oct2py import octave

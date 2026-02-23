@@ -1,5 +1,5 @@
-""" Get a sample of all datatypes from Octave and print the result
-"""
+"""Get a sample of all datatypes from Octave and print the result"""
+
 from oct2py import octave
 
 if __name__ == "__main__":

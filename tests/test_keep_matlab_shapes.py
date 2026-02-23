@@ -53,7 +53,7 @@ class TestNumpy:
                 except TypeError:  # pragma: no cover
                     outgoing += np.random.rand(*size).astype(outgoing.dtype)
                 if typecode in ["U", "S"]:
-                    outgoing = [  # type:ignore
+                    outgoing = [
                         [["spam", "eggs", "hash"], ["spam", "eggs", "hash"]],
                         [["spam", "eggs", "hash"], ["spam", "eggs", "hash"]],
                     ]
@@ -88,7 +88,7 @@ class TestNumpy:
 
     def test_sparse(self):
         """Test roundtrip sparse matrices"""
-        from scipy.sparse import csr_matrix, identity  # type:ignore
+        from scipy.sparse import csr_matrix, identity
 
         rand = np.random.rand(100, 100)
         rand = csr_matrix(rand)

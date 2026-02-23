@@ -40,7 +40,7 @@ class TestMisc:
 
     def test_singleton_sparses(self):
         """Make sure a singleton sparse matrix works"""
-        import scipy.sparse  # type:ignore
+        import scipy.sparse
 
         data = scipy.sparse.csc_matrix(1)
         self.oc.push("x", data)
@@ -95,7 +95,7 @@ class TestMisc:
         from oct2py import demo
 
         try:
-            demo.demo(0.01, interactive=False)  # type:ignore
+            demo.demo(0.01, interactive=False)  # type:ignore[attr-defined]
         except AttributeError:
             demo(0.01, interactive=False)
 
@@ -105,7 +105,7 @@ class TestMisc:
         try:
             thread_check()
         except TypeError:
-            thread_check.thread_check()  # type:ignore
+            thread_check.thread_check()  # type:ignore[attr-defined]
 
     def test_speed_check(self):
         from oct2py import speed_check
@@ -113,7 +113,7 @@ class TestMisc:
         try:
             speed_check()
         except TypeError:
-            speed_check.speed_check()  # type:ignore
+            speed_check.speed_check()  # type:ignore[attr-defined]
 
     def test_plot(self):
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
@@ -285,7 +285,7 @@ class TestMisc:
         assert text.strip() == "hi"
         assert np.allclose(value, np.ones((3, 3)))
 
-        lines: list = []
+        lines: list[str] = []
         text, value = self.oc.eval(
             ['disp("hi")', "ones(3);"], return_both=True, stream_handler=lines.append
         )
@@ -297,7 +297,7 @@ class TestMisc:
         logger = self.oc.logger
         self.oc.logger = None
         assert self.oc.logger is not None
-        assert self.oc.logger == logger
+        assert self.oc.logger == logger  # type:ignore[unreachable]
 
     def test_struct_array(self):
         self.oc.eval('x = struct("y", {1, 2}, "z", {3, 4});')

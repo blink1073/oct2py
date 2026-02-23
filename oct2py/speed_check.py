@@ -2,7 +2,6 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-
 import time
 import timeit
 
@@ -20,7 +19,7 @@ class SpeedCheck:
     """
 
     def __init__(self):
-        """Create our Octave instance and initialize the data array"""
+        # Create our Octave instance and initialize the data array
         self.octave = Oct2Py()
         self.array = []
 
@@ -53,7 +52,7 @@ class SpeedCheck:
         log.info(f"    {avg * 1e6:0.01f} usec per loop")
         sides = [1, 10, 100, 1000]
         runs = [10, 10, 10, 5]
-        for side, nruns in zip(sides, runs):
+        for side, nruns in zip(sides, runs, strict=False):
             self.array = np.reshape(np.arange(side**2), (-1))  # type:ignore[assignment]
             log.info(f"Put {side}x{side}: ")
             avg = timeit.timeit(self.large_array_put, number=nruns) / nruns
