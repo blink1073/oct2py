@@ -292,15 +292,15 @@ convenience instance at startup.
   previously handled as uint8 when sending to Octave.
 - Deprecated the use of keyword arguments to Octave function calls,
   use standard Octave calling conventions.
-- Deprecated the `log` and \[return_both\]{.title-ref} keyword arguments
+- Deprecated the `log` and [return_both]{.title-ref} keyword arguments
   to `eval()`. See docs on `Oct2Py.eval()` for more information.
 - Oct2Py will no longer create dynamic functions for values that are
-  not Octave functions - use \[get_pointer\]{.title-ref} or `pull`
+  not Octave functions - use [get_pointer]{.title-ref} or `pull`
   instead.
 
 ## 3.9.0 (2017-01-28)
 
-- Added support for Python 3.6 and Octave \[input()\]{.title-ref}
+- Added support for Python 3.6 and Octave [input()]{.title-ref}
   functions.
 
 ## 3.8.0 (2016-12-25)
@@ -313,16 +313,16 @@ convenience instance at startup.
 - Fixed error that caused the session to crash on Windows when Octave
   encountered a syntax error.
 - Added separate width and height specifiers to the
-  \[%%octave\]{.title-ref} magic so the image can be constrained in one
+  [%%octave]{.title-ref} magic so the image can be constrained in one
   dimension while maintaining its aspect ratio.
-- Added an \[extract_figures\]{.title-ref} method to the
-  \[Oct2Py\]{.title-ref} class which gives back a list of IPython Image
+- Added an [extract_figures]{.title-ref} method to the
+  [Oct2Py]{.title-ref} class which gives back a list of IPython Image
   or SVG objects for the created figures.
 - Completely rewrote the internal communication to Octave on top of
-  the \[octave_kernel\]{.title-ref}, which enabled the Windows crash
+  the [octave_kernel]{.title-ref}, which enabled the Windows crash
   fix.
-- Removed the internal \[\_make_figs.m\]{.title-ref} file, since that
-  functionality is now in \[octave_kernel\]{.title-ref}.
+- Removed the internal [\_make_figs.m]{.title-ref} file, since that
+  functionality is now in [octave_kernel]{.title-ref}.
 
 ## 3.6.1 (2016-11-20)
 
@@ -357,7 +357,7 @@ convenience instance at startup.
 
 ## 3.0.0 (2015-01-10)
 
-- Add \[convert_to_float\]{.title-ref} property that is True by default.
+- Add [convert_to_float]{.title-ref} property that is True by default.
 - Suppress output in dynamic function calls (using ';')
 
 ## 2.4.2 (2014-12-19)
@@ -370,10 +370,10 @@ convenience instance at startup.
 
 ## 2.4.0 (2014-09-27)
 
-- Make \[eval\]{.title-ref} output match Octave session output. If
+- Make [eval]{.title-ref} output match Octave session output. If
   verbose=True, print all Octave output. Return the last "ans" from
   Octave, if available. If you need the response, use
-  \[return_both\]{.title-ref} to get the \[(resp, ans)\]{.title-ref} pair
+  [return_both]{.title-ref} to get the [(resp, ans)]{.title-ref} pair
   back
 - As a result of the previous, Syntax Errors in Octave code will now
   result in a closed session on Windows.
@@ -392,25 +392,25 @@ convenience instance at startup.
 
 ## 2.1.0 (2014-08-23)
 
-- Allow keyword arguments in functions: \[octave.plot(\[1,2,3\],
+- Allow keyword arguments in functions: \[octave.plot([1,2,3],
   linewidth=2))\]{.title-ref} These are translated to ("prop", value)
   arguments to the function.
-- Add option to show plotting gui with \[-g\]{.title-ref} flag in
+- Add option to show plotting gui with [-g]{.title-ref} flag in
   OctaveMagic.
 - Add ability to specify the Octave executable as a keyword argument
   to the Oct2Py object.
   - Add specifications for plot saving instead of displaying plots
-    to \[eval\]{.title-ref} and dynamic functions.
+    to [eval]{.title-ref} and dynamic functions.
 
 ## 2.0.0 (2014-08-14)
 
 \- **Breaking changes**
 
-: -- Removed methods: \[run\]{.title-ref}, \[call\]{.title-ref},
-\[lookfor\]{.title-ref} -- Renamed methods: \[\_eval\]{.title-ref} ->
-\[eval\]{.title-ref}, \[get\]{.title-ref} -> \[pull\]{.title-ref},
-\[put\]{.title-ref} -> \[push\]{.title-ref}, \[close\]{.title-ref} ->
-\[exit\]{.title-ref} -- Removed run and call in favor of using eval
+: -- Removed methods: [run]{.title-ref}, [call]{.title-ref},
+[lookfor]{.title-ref} -- Renamed methods: [\_eval]{.title-ref} ->
+[eval]{.title-ref}, [get]{.title-ref} -> [pull]{.title-ref},
+[put]{.title-ref} -> [push]{.title-ref}, [close]{.title-ref} ->
+[exit]{.title-ref} -- Removed run and call in favor of using eval
 dynamic functions. -- Renamed methods to avoid overshadowing Octave
 builtins and for clarity. -- When a command results in "ans", the
 value of "ans" is returned instead of the printed string.

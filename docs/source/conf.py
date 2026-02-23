@@ -73,7 +73,7 @@ release = version
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns: list[str] = []
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 # default_role = None
@@ -177,13 +177,13 @@ htmlhelp_basename = "Oct2Pydoc"
 
 # -- Options for LaTeX output --------------------------------------------------
 
-latex_elements = {}
+# latex_elements = {}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [
-    ("index", "Oct2Py.tex", "Oct2Py Documentation", "Oct2Py contributors", "manual"),
-]
+# latex_documents = [
+#     ("index", "Oct2Py.tex", "Oct2Py Documentation", "Oct2Py contributors", "manual"),
+# ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -250,7 +250,7 @@ todo_include_todos = False
 
 autoclass_content = "both"
 autodoc_member_order = "bysource"
-autodoc_default_flags = []
+autodoc_default_flags: list[str] = []
 
 # autodoc_default_flags = ['members', 'undoc-members']
 

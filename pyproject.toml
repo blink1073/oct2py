@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "numpy >=1.12",
     "scipy >=0.17",
@@ -32,12 +32,19 @@ homepage = "https://github.com/blink1073/oct2py"
 documentation = "https://blink1073.github.io/oct2py"
 
 [dependency-groups]
+dev = [ { include-group = "test" } ]
+typing = [
+    { include-group = "test" },
+    "mypy>=1.15",
+    "ipython",
+    "pip"
+]
 test = [
     "pytest<8",
     "pandas",
+    "scipy",
     "nbconvert",
     "pytest-timeout",
-    "pre-commit",
 ]
 cover = [
     { include-group = "test" },
@@ -50,7 +57,6 @@ docs = [
     "myst_parser",
     "sphinxcontrib_spelling",
 ]
-lint = ["pre-commit"]
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
@@ -62,6 +68,7 @@ path = "oct2py/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
+log_level = "INFO"
 xfail_strict = true
 log_cli_level = "info"
 addopts = [
@@ -110,6 +117,9 @@ select = [
   "PLC", "PLE", "PLR", "PLW", "Q", "RUF", "S", "SIM", "T", "TID", "UP",
   "W", "YTT",
 ]
+external = [
+  "DOC",  # pydoclint
+]
 ignore = [
 # Q000 Single quotes found but double quotes preferred
 "Q000",
@@ -118,7 +128,9 @@ ignore = [
 # C901 `async_setup_kernel` is too complex (12)
 "C901",
 # C408 Unnecessary `dict` call (rewrite as a literal)
-"C408", "C409"
+"C408", "C409",
+# Unnecessary upgrades
+"UP031"
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -127,11 +139,13 @@ ignore = [
 # PLR2004 Magic value used in comparison
 # SIM114 Combine `if` branches
 # PLR0912 Too many branches
-"tests/*" = ["S101", "N806", "PLR2004", "SIM114", "PLR0912"]
+"tests/*" = ["S101", "N806", "PLR2004", "SIM114", 
+              "PLR0912", "RUF059", "E721", "PLC0415"]
 "*.ipynb" = ["B018", "T201", "F821"]
 
 [tool.interrogate]
 ignore-init-module=true
+ignore-init-method = true
 ignore-private=true
 ignore-semiprivate=true
 ignore-property-decorators=true
@@ -141,4 +155,12 @@ fail-under=100
 exclude = ["tests", "docs"]
 
 [tool.repo-review]
-ignore = ["PY007", "GH102"]
+ignore = ["PC111", "PC140", "PY007", "PC901", "PC902", "PC903"]
+
+[tool.pydoclint]
+style = 'numpy'
+arg-type-hints-in-signature = false
+check-return-types = false
+allow-init-docstring = true
+skip-checking-raises = true
+native-mode-noqa-location = "docstring"

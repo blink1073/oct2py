@@ -52,19 +52,26 @@ jobs:
       - uses: taiki-e/install-action@just
       - run: just docs
 
-  test_lint:
-    name: Test Lint
+  pre_commit:
+    name: Pre-commit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - uses: taiki-e/install-action@just
-      - name: Run Linters
-        run: |
-          just typing
-          just lint
-          uvx interrogate -v .
-          uvx doc8 --max-line-length=200 docs/source *.md
+      - run: just pre-commit
+      - name: Show diff on failure
+        if: failure()
+        run: git diff
+
+  typing:
+    name: Typing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: taiki-e/install-action@just
+      - run: just typing
 
   check_links:
     runs-on: ubuntu-latest
@@ -78,7 +85,8 @@ jobs:
     if: always()
     needs:
       - build
-      - test_lint
+      - pre_commit
+      - typing
       - docs
       - check_links
       - check_release
