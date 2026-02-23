@@ -532,11 +532,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/16/114df1c291c22cac3b0c127a73e0af5c12ed7bbb6558d310429a0ae24023/coverage-7.10.7-py3-none-any.whl", hash = "sha256:f7941f6f2fe6dd6807a1208737b8a0cbcf1cc6d7b07d24998ad2d63590868260", size = 209952, upload-time = "2025-09-21T20:03:53.918Z" },
 ]
 
-[package.optional-dependencies]
-toml = [
-    { name = "tomli", marker = "python_full_version < '3.10'" },
-]
-
 [[package]]
 name = "coverage"
 version = "7.13.4"
@@ -660,11 +655,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/c7/96/38086d58a181aac86d503dfa9c47eb20715a79c3e3acbdf786e92e5c09a8/coverage-7.13.4-cp314-cp314t-win_amd64.whl", hash = "sha256:4c7d3cc01e7350f2f0f6f7036caaf5673fb56b6998889ccfe9e1c1fe75a9c932", size = 224148, upload-time = "2026-02-09T12:58:58.645Z" },
     { url = "https://files.pythonhosted.org/packages/ce/72/8d10abd3740a0beb98c305e0c3faf454366221c0f37a8bcf8f60020bb65a/coverage-7.13.4-cp314-cp314t-win_arm64.whl", hash = "sha256:23e3f687cf945070d1c90f85db66d11e3025665d8dafa831301a0e0038f3db9b", size = 222172, upload-time = "2026-02-09T12:59:00.396Z" },
     { url = "https://files.pythonhosted.org/packages/0d/4a/331fe2caf6799d591109bb9c08083080f6de90a823695d412a935622abb2/coverage-7.13.4-py3-none-any.whl", hash = "sha256:1af1641e57cf7ba1bd67d677c9abdbcd6cc2ab7da3bca7fa1e2b7e50e65f2ad0", size = 211242, upload-time = "2026-02-09T12:59:02.032Z" },
-]
-
-[package.optional-dependencies]
-toml = [
-    { name = "tomli", marker = "python_full_version >= '3.10' and python_full_version <= '3.11'" },
 ]
 
 [[package]]
@@ -1895,7 +1885,6 @@ cover = [
     { name = "pre-commit", version = "4.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "pre-commit", version = "4.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pytest" },
-    { name = "pytest-cov" },
     { name = "pytest-timeout" },
 ]
 docs = [
@@ -1938,7 +1927,6 @@ cover = [
     { name = "pandas" },
     { name = "pre-commit" },
     { name = "pytest", specifier = "<8" },
-    { name = "pytest-cov" },
     { name = "pytest-timeout" },
 ]
 docs = [
@@ -2393,21 +2381,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/80/1f/9d8e98e4133ffb16c90f3b405c43e38d3abb715bb5d7a63a5a684f7e46a3/pytest-7.4.4.tar.gz", hash = "sha256:2cf0005922c6ace4a3e2ec8b4080eb0d9753fdc93107415332f50ce9e7994280", size = 1357116, upload-time = "2023-12-31T12:00:18.035Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/ff/f6e8b8f39e08547faece4bd80f89d5a8de68a38b2d179cc1c4490ffa3286/pytest-7.4.4-py3-none-any.whl", hash = "sha256:b090cdf5ed60bf4c45261be03239c2c1c22df034fbffe691abe93cd80cea01d8", size = 325287, upload-time = "2023-12-31T12:00:13.963Z" },
-]
-
-[[package]]
-name = "pytest-cov"
-version = "7.0.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "coverage", version = "7.10.7", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "python_full_version < '3.10'" },
-    { name = "coverage", version = "7.13.4", source = { registry = "https://pypi.org/simple" }, extra = ["toml"], marker = "python_full_version >= '3.10'" },
-    { name = "pluggy" },
-    { name = "pytest" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/5e/f7/c933acc76f5208b3b00089573cf6a2bc26dc80a8aece8f52bb7d6b1855ca/pytest_cov-7.0.0.tar.gz", hash = "sha256:33c97eda2e049a0c5298e91f519302a1334c26ac65c1a483d6206fd458361af1", size = 54328, upload-time = "2025-09-09T10:57:02.113Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/49/1377b49de7d0c1ce41292161ea0f721913fa8722c19fb9c1e3aa0367eecb/pytest_cov-7.0.0-py3-none-any.whl", hash = "sha256:3b8e9558b16cc1479da72058bdecf8073661c7f57f7d3c5f22a1c23507f2d861", size = 22424, upload-time = "2025-09-09T10:57:00.695Z" },
 ]
 
 [[package]]
