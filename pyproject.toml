@@ -25,7 +25,7 @@ dependencies = [
     "scipy >=0.17",
     "octave_kernel >= 0.34.0",
 ]
-readme = "README.rst"
+readme = "README.md"
 
 [project.urls]
 homepage = "https://github.com/blink1073/oct2py"
