@@ -59,12 +59,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - uses: taiki-e/install-action@just
-      - name: Run Linters
-        run: |
-          just typing
-          just lint
-          uvx interrogate -v .
-          uvx doc8 --max-line-length=200 docs/source *.md
+      - name: Run pre-commit hooks
+        run: just pre-commit
+      - name: Run type checking
+        run: just typing
 
   check_links:
     runs-on: ubuntu-latest
