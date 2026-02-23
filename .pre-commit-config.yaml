@@ -51,6 +51,13 @@ repos:
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
 
+  - repo: https://github.com/PyCQA/doc8
+    rev: "v1.1.2"
+    hooks:
+      - id: doc8
+        args: ["--quiet", "--max-line-length=200"]
+        files: ^(docs/source/.*|.*\.md|.*\.rst)$
+
   - repo: https://github.com/codespell-project/codespell
     rev: "v2.2.6"
     hooks:

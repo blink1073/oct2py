@@ -19,6 +19,8 @@ cover *args:
 lint:
     just pre-commit ruff-format
     just pre-commit ruff-check
+    just pre-commit interrogate
+    just pre-commit doc8
 
 # Run type checking (mypy)
 typing:
