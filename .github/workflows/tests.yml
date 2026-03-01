@@ -52,7 +52,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           winget install GNU.Octave --silent --disable-interactivity --accept-source-agreements --accept-package-agreements
-          winget list GNU.Octave --details
+          winget list --details
           octave --version
       - name: Generate coverage report
         run: just cover
