@@ -15,12 +15,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04
+  test:
+    runs-on: ${{ matrix.os }}
+
     strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
       fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10",  "3.14"]
+        include:
+          - os: ubuntu-latest
+            python-version: "3.11"
+          - os: ubuntu-latest
+            python-version: "3.12"
+          - os: ubuntu-latest
+            python-version: "3.13"
+          - os: ubuntu-latest
+            python-version: "3.14t"
 
     steps:
       - uses: actions/checkout@v4
@@ -28,10 +39,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - uses: taiki-e/install-action@just
-      - name: Install Octave
+      - name: Install Octave (Ubuntu)
+        if: runner.os == 'Linux'
         run: |
           sudo apt update
           sudo apt-get install -qq octave octave-signal octave-dev
+      - name: Install Octave (macOS)
+        if: runner.os == 'macOS'
+        run: brew install octave
+      - name: Install Octave (Windows)
+        if: runner.os == 'Windows'
+        run: choco install octave
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov
@@ -88,7 +106,7 @@ jobs:
   tests_check: # This job does nothing and is only used for the branch protection
     if: always()
     needs:
-      - build
+      - test
       - pre_commit
       - typing
       - docs
