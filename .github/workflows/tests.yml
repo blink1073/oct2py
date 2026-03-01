@@ -52,8 +52,8 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           winget install GNU.Octave --silent --disable-interactivity --accept-source-agreements --accept-package-agreements
-          winget list --details
-          octave --version
+          dir %ProgramFiles%
+          octave.exe --version
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov
