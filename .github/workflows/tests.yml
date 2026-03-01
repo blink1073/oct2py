@@ -50,8 +50,9 @@ jobs:
       - name: Install Octave (Windows)
         if: runner.os == 'Windows'
         run: |
-          choco install octave
-          dir C:\ProgramData\chocolatey\lib\Octave
+          choco install octave --yes --no-progress
+          dir C:\ProgramData\Chocolatey
+          C:\ProgramData\Chocolatey\octave.exe --version
           exit 1
       - name: Generate coverage report
         run: just cover
