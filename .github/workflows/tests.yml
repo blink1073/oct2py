@@ -46,13 +46,10 @@ jobs:
           sudo apt-get install -qq octave octave-signal octave-dev
       - name: Install Octave (macOS)
         if: runner.os == 'macOS'
-        run: brew install octave
+        run: brew install -q octave
       - name: Install Octave (Windows)
         if: runner.os == 'Windows'
-        run: |
-          choco install octave --yes --no-progress
-          type C:\ProgramData\chocolatey\logs\chocolatey.log
-          exit 1
+        run: winget install GNU.Octave --silent --disable-interactivity --accept-source-agreements --accept-package-agreements
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov
