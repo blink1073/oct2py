@@ -51,7 +51,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install octave --yes --no-progress
-          dir C:\ProgramData\chocolatey\lib\Octave\octave.nupkg
+          type C:\ProgramData\chocolatey\logs\chocolatey.log
           exit 1
       - name: Generate coverage report
         run: just cover
