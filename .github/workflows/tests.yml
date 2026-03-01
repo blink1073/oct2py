@@ -49,7 +49,9 @@ jobs:
         run: brew install -q octave
       - name: Install Octave (Windows)
         if: runner.os == 'Windows'
-        run: winget install GNU.Octave --silent --disable-interactivity --accept-source-agreements --accept-package-agreements
+        run: |
+          winget install GNU.Octave --silent --disable-interactivity --accept-source-agreements --accept-package-agreements
+          octave --version
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov
