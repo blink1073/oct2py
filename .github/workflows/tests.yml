@@ -51,7 +51,7 @@ jobs:
       - name: Install Octave (Windows)
         if: runner.os == 'Windows'
         run: |
-          choco install octave==11.1.0
+          choco install octave --version=11.1.0
           dir "C:\Program Files\GNU Octave"
           octave.exe --version
       - name: Generate coverage report
