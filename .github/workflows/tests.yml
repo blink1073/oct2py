@@ -51,9 +51,8 @@ jobs:
       - name: Install Octave (Windows)
         if: runner.os == 'Windows'
         run: |
-          choco install octave --version=11.1.0
-          dir "C:\Program Files\GNU Octave"
-          octave.exe --version
+          choco install octave -y --version=11.1.0
+          echo "/c/Program Files/GNU Octave/Octave-11.1.0/mingw64/bin" >> $GITHUB_PATH
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov
