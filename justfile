@@ -7,13 +7,21 @@ install:
     uv sync
     uv tool run prek install
 
-# Run tests
-test *args:
-    uv run --group test python -m pytest -n auto --dist=loadscope -vv {{args}}
+# Run tests.
+test *args="":
+    uv run --group test python -m pytest {{args}}
 
-# Run tests with coverage
-cover *args:
-    uv run --group cover python -m pytest -n auto --dist=loadscope --doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py --cov-fail-under 85 -vv {{args}}
+# Run tests in parallel
+test-parallel *args:
+    just test -n auto --dist=loadscope -vv {{args}}
+
+# Run with coverage
+cover *args="":
+    uv run --group cover python -m pytest --doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py --cov-fail-under 85 -vv {{args}}
+
+# Run tests in parallel with coverage
+cover-parallel *args:
+    just cover -n auto --dist=loadscope {{args}}
 
 # Run linters (ruff check + format)
 lint:

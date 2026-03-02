@@ -52,9 +52,13 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install octave -y --version=11.1.0
+          dir "/c/Program Files/GNU Octave/Octave-11.1.0/"
+          dir "/c/Program Files/GNU Octave/Octave-11.1.0/mingw64/bin"
           echo "/c/Program Files/GNU Octave/Octave-11.1.0/mingw64/bin" >> $GITHUB_PATH
+      - name: Get Octave info
+        run: octave --version
       - name: Generate coverage report
-        run: just cover
+        run: just cover-parallel
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
