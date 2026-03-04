@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import sys
 import tempfile
 from io import StringIO
 
@@ -121,6 +122,7 @@ class TestUsage:
         a = self.oc.pull("a")
         assert a == 1
 
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_extract_figures(self):
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
         code = """
@@ -144,6 +146,7 @@ class TestUsage:
         with pytest.raises(Oct2PyError):
             self.oc.eval("a = ones2(1)")
 
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_keyword_arguments(self):
         self.oc.set(0, DefaultFigureColor="b", nout=0)
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
@@ -327,6 +330,7 @@ class TestUsage:
         with pytest.raises(Oct2PyError, match=exp):
             self.oc.pyeval_like_error3(1)
 
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_pkg_load(self):
         self.oc.eval("pkg load signal")
         t = np.linspace(0, 1, num=100)
