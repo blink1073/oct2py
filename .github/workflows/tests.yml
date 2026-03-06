@@ -32,6 +32,9 @@ jobs:
         uses: calysto/octave_kernel@v0.37.0
         with:
           install-type: "ubuntu"
+      - name: Install signal package
+        run:
+          sudo apt-get install -qq octave octave-signal
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov

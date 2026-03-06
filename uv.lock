@@ -990,17 +990,18 @@ wheels = [
 
 [[package]]
 name = "metakernel"
-version = "0.30.4"
+version = "0.31.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "comm" },
     { name = "ipykernel" },
     { name = "jedi" },
     { name = "jupyter-core" },
     { name = "pexpect" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/01/5f/ba95216f06a45837b545c42a5a0503a3650c7ab451bf947d1142a6146e95/metakernel-0.30.4.tar.gz", hash = "sha256:48858f88630db0470f224713d07638ffd411b75c313f06316462d43a3cb082e8", size = 191916, upload-time = "2025-11-05T15:34:16.007Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fe/6e/46bc45385ee5f7566e9d97e25c9507bc014ce0d13d80b97c26405d500cd9/metakernel-0.31.0.tar.gz", hash = "sha256:eeb6cbd357925709cb2b390a78d9b503a1267b48c13c0bf4eaf0d51068526e3f", size = 448687, upload-time = "2026-03-03T13:49:33.139Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f5/6d/d18ea414aa7d7a6fc690d4453b422268f768da97d7c6e669dc302a5394b8/metakernel-0.30.4-py3-none-any.whl", hash = "sha256:7a6bdf4cdc6ebd5354eccbdf2ab49eebd14f73c2383e3ff45b54145f255d400d", size = 217708, upload-time = "2025-11-05T15:34:14.003Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/9b/e9eeffefab5cafa6778d6275ead313c0914e1467e22969d652fb9e22af17/metakernel-0.31.0-py3-none-any.whl", hash = "sha256:da3ba87a353d04b3c77cf70ea78bced53ba31a930e7aedade8fea0a721262644", size = 196043, upload-time = "2026-03-03T13:49:30.892Z" },
 ]
 
 [[package]]
@@ -1460,16 +1461,16 @@ typing = [
 
 [[package]]
 name = "octave-kernel"
-version = "0.36.0"
+version = "0.37.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ipykernel" },
     { name = "jupyter-client" },
     { name = "metakernel" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/aa/e5/4500326ddf986e42a8974b7ba09576bfe4ec43f8c58cafb8f7de89804758/octave_kernel-0.36.0.tar.gz", hash = "sha256:925882f8915c86ed75b6db8e1341deed980dba0be73bf07365d3ea08961a1ddb", size = 262878, upload-time = "2024-04-15T11:21:09.72Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fa/74/abf98b56a6d7584315234a7507cfe57a61c3f81a1c964f7fc1790f6cb8f1/octave_kernel-0.37.0.tar.gz", hash = "sha256:1e1a53ddd1d822ac5513667847566d757930b27f67cc46e226b3c4a2f5231826", size = 265086, upload-time = "2026-03-05T20:44:19.623Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fd/25/ff1f24b0ddcf4899beb5697d06bf572425eba605f29f9eb577b147b35a8a/octave_kernel-0.36.0-py3-none-any.whl", hash = "sha256:99391babf7591fee3a502225920873d9316c5838d1866b14506ae764b4b89cac", size = 35509, upload-time = "2024-04-15T11:21:06.508Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/d6/50317e3bab21508fc8d168b241b9ce67012ae085e5d6cc53d643c7c4b981/octave_kernel-0.37.0-py3-none-any.whl", hash = "sha256:3895b7a74bc7166198392b3830ff6b3523bf370cd1060247218506bf9c85cdf6", size = 36249, upload-time = "2026-03-05T20:44:17.878Z" },
 ]
 
 [[package]]
