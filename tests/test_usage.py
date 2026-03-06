@@ -128,6 +128,8 @@ class TestUsage:
     def test_extract_figures(self):
         if self.oc._engine.executable.startswith("flatpak"):
             raise pytest.skip("Flatpak version of octave does not handle plotting")
+        if "snap" in self.oc._engine.executable:
+            raise pytest.skip("snap version of octave does not handle plotting")
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
         code = """
         figure 1
@@ -154,6 +156,8 @@ class TestUsage:
     def test_keyword_arguments(self):
         if self.oc._engine.executable.startswith("flatpak"):
             raise pytest.skip("Flatpak version of octave does not handle plotting")
+        if "snap" in self.oc._engine.executable:
+            raise pytest.skip("snap version of octave does not handle plotting")
         self.oc.set(0, DefaultFigureColor="b", nout=0)
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
@@ -348,6 +352,8 @@ class TestUsage:
     def test_pkg_load(self):
         if self.oc._engine.executable.startswith("flatpak"):
             raise pytest.skip("We do not install signal on flatpak")
+        if "snap" in self.oc._engine.executable:
+            raise pytest.skip("We do not install signal on snap")
         self.oc.eval("pkg load signal")
         t = np.linspace(0, 1, num=100)
         x = np.cos(2 * np.pi * t * 3)
