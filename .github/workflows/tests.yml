@@ -34,7 +34,7 @@ jobs:
           install-type: "ubuntu"
       - name: Install signal package
         run:
-          sudo apt-get install -qq octave octave-signal
+          sudo apt-get install -qq octave-signal
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov
