@@ -15,11 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t"]
       fail-fast: false
 
     steps:
@@ -29,9 +29,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - uses: taiki-e/install-action@just
       - name: Install Octave
-        run: |
-          sudo apt update
-          sudo apt-get install -qq octave octave-signal octave-dev
+        uses: calysto/octave_kernel@v0.37.0
+        with:
+          install-type: "ubuntu"
+      - name: Install signal package
+        run:
+          sudo apt-get install -qq octave-signal
       - name: Generate coverage report
         run: just cover
       - name: Upload coverage to Codecov
@@ -39,16 +42,26 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  macos:
-    runs-on: macos-latest
-    env:
-      TERM: dumb
+  test-other:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            install-type: windows
+          - os: macos-latest
+            install-type: macos
+          - os: ubuntu-latest
+            install-type: ubuntu-flatpak
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - uses: taiki-e/install-action@just
       - name: Install Octave
-        run: brew install octave
+        uses: calysto/octave_kernel@v0.37.0
+        with:
+          install-type: ${{ matrix.install-type }}
       - name: Run tests
         run: just test tests/test_usage.py
 
@@ -101,8 +114,8 @@ jobs:
   tests_check: # This job does nothing and is only used for the branch protection
     if: always()
     needs:
-      - build
-      - macos
+      - test
+      - test-other
       - pre_commit
       - typing
       - docs

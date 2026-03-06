@@ -11,8 +11,8 @@ import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import EOF, TIMEOUT  # type:ignore[import-untyped]
-from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore[import-untyped]
+from metakernel.pexpect import EOF, TIMEOUT
+from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
 
 from .dynamic import (
     OctavePtr,
@@ -77,12 +77,7 @@ class Oct2Py:
         self.timeout = timeout
         self.backend = backend or "default"
         self.keep_matlab_shapes = keep_matlab_shapes
-        if temp_dir is None:
-            temp_dir_obj = tempfile.mkdtemp()
-            self.temp_dir = temp_dir_obj
-            atexit.register(shutil.rmtree, self.temp_dir)
-        else:
-            self.temp_dir = temp_dir
+        self.temp_dir = temp_dir
         self.convert_to_float = convert_to_float
         self._user_classes = {}
         self._function_ptrs = {}
@@ -578,6 +573,17 @@ class Oct2Py:
             self._engine = OctaveEngine(stdin_handler=self._handle_stdin, logger=self.logger)
         except Exception as e:
             raise Oct2PyError(str(e)) from None
+
+        # Handle the temporary directory, taking into account if we're using flatpak.
+        if self.temp_dir is None:
+            base_dir = None
+            if self._engine.executable.startswith("flatpak"):
+                cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
+                base_dir = os.path.join(cache_dir, "oct2py")
+                os.makedirs(base_dir, exist_ok=True)
+            temp_dir_obj = tempfile.mkdtemp(dir=base_dir)
+            self.temp_dir = temp_dir_obj
+            atexit.register(shutil.rmtree, self.temp_dir)
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
