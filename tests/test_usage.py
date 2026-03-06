@@ -39,6 +39,8 @@ class TestUsage:
 
     def test_dynamic_functions(self):
         """Test some dynamic functions"""
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("Flatpak version of octave does not handle svd")
         out = self.oc.ones(1, 2)
         assert np.allclose(out, np.ones((1, 2)))
 
@@ -124,6 +126,8 @@ class TestUsage:
 
     @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_extract_figures(self):
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("Flatpak version of octave does not handle plotting")
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
         code = """
         figure 1
@@ -148,6 +152,8 @@ class TestUsage:
 
     @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_keyword_arguments(self):
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("Flatpak version of octave does not handle plotting")
         self.oc.set(0, DefaultFigureColor="b", nout=0)
         plot_dir = tempfile.mkdtemp().replace("\\", "/")
         self.oc.plot([1, 2, 3], linewidth=3, plot_dir=plot_dir)
@@ -264,10 +270,11 @@ class TestUsage:
         lines = [line.strip() for line in lines]
         assert lines == ["1", "2", "3"], lines
 
-        val = self.oc.feval("svd", np.array([[1, 2], [1, 3]]))
-        u, v, d = self.oc.feval("svd", np.array([[1, 2], [1, 3]]), nout=3)
-        assert isinstance(val, np.ndarray)
-        assert isinstance(u, np.ndarray)
+        if not self.oc._engine.executable.startswith("flatpak"):
+            val = self.oc.feval("svd", np.array([[1, 2], [1, 3]]))
+            u, v, d = self.oc.feval("svd", np.array([[1, 2], [1, 3]]), nout=3)
+            assert isinstance(val, np.ndarray)
+            assert isinstance(u, np.ndarray)
 
         self.oc.feval("test_nodocstring.m", 1)
         with pytest.raises(TypeError):
@@ -285,8 +292,9 @@ class TestUsage:
         a = self.oc.eval(["zeros(3);", "ones(3);"])
         assert np.allclose(a, np.ones((3, 3)))
 
-        U, S, V = self.oc.eval("svd(hilb(3))", nout=3)
-        assert isinstance(U, np.ndarray)
+        if not self.oc._engine.executable.startswith("flatpak"):
+            U, S, V = self.oc.eval("svd(hilb(3))", nout=3)
+            assert isinstance(U, np.ndarray)
 
     def test_no_args_returned(self):
         # Test a function that only works when nargout=0
@@ -303,6 +311,8 @@ class TestUsage:
 
     @pytest.mark.parametrize("fn", ["pyeval_like_error%s" % i for i in range(4)])
     def test_script_error_like_my_pyeval(self, fn):
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("Errors returned in flatpak are different")
         exp = "element number 1 undefined in return list"
         here = os.path.dirname(__file__)
         with pytest.raises(Oct2PyError, match=exp):
@@ -315,11 +325,15 @@ class TestUsage:
             self.oc.pyeval_like_error0()
 
     def test_script_error_like_my_pyeval1(self):
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("Errors returned in flatpak are different")
         exp = "element number 1 undefined in return list"
         with pytest.raises(Oct2PyError, match=exp):
             self.oc.pyeval_like_error1()
 
     def test_script_error_like_my_pyeval2(self):
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("Errors returned in flatpak are different")
         exp = "element number 1 undefined in return list"
         with pytest.raises(Oct2PyError, match=exp):
             self.oc.pyeval_like_error2(1)
@@ -332,6 +346,8 @@ class TestUsage:
 
     @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_pkg_load(self):
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("We do not install signal on flatpak")
         self.oc.eval("pkg load signal")
         t = np.linspace(0, 1, num=100)
         x = np.cos(2 * np.pi * t * 3)

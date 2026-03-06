@@ -62,9 +62,6 @@ jobs:
         uses: calysto/octave_kernel@v0.37.0
         with:
           install-type: ${{ matrix.install-type }}
-      - name: Install blas and atlas for flatpak
-        if: ${{ matrix.install-type == 'ubuntu-flatpak' }}
-        run: sudo apt install gnuplot
       - name: Run tests
         run: just test tests/test_usage.py
 
