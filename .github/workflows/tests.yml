@@ -63,7 +63,7 @@ jobs:
         with:
           install-type: ${{ matrix.install-type }}
       - name: Install blas and atlas for flatpak
-        if: ${{ matrix.install-type == 'ubuntu-flatpack' }}
+        if: ${{ matrix.install-type == 'ubuntu-flatpak' }}
         run: sudo apt install libblas-dev libatlas-base-dev
       - name: Run tests
         run: just test tests/test_usage.py
