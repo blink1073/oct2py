@@ -11,8 +11,8 @@ import tempfile
 import warnings
 
 import numpy as np
-from metakernel.pexpect import EOF, TIMEOUT  # type:ignore[import-untyped]
-from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine  # type:ignore[import-untyped]
+from metakernel.pexpect import EOF, TIMEOUT
+from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
 
 from .dynamic import (
     OctavePtr,

@@ -126,7 +126,7 @@ class Struct(dict):  # type:ignore[type-arg]
         return self.copy()
 
 
-class StructArray(np.recarray):
+class StructArray(np.recarray):  # type: ignore[type-arg]
     """A Python representation of an Octave structure array.
 
     Notes
@@ -198,7 +198,7 @@ class StructArray(np.recarray):
         return msg
 
 
-class Cell(np.ndarray):
+class Cell(np.ndarray):  # type: ignore[type-arg]
     """A Python representation of an Octave cell array.
 
     Notes
@@ -330,7 +330,7 @@ def _encode(data, convert_to_float):  # noqa
     # Handle matlab objects.
     if isinstance(data, MatlabObject):
         view = data.view(np.ndarray)
-        out = MatlabObject(data, data.classname)
+        out = MatlabObject(data, data.classname)  # type: ignore[arg-type]
         for name in out.dtype.names:  # type:ignore[union-attr]
             out[name] = _encode(view[name], ctf)
         return out
