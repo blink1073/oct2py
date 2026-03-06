@@ -578,7 +578,10 @@ class Oct2Py:
         if self.temp_dir is None:
             base_dir = None
             exe = self._engine.executable
-            if exe.startswith("flatpak"):
+            if "snap" in exe:
+                cache_dir = os.path.expanduser("~/snap/octave/current")
+                os.makedirs(base_dir, exist_ok=True)
+            elif exe.startswith("flatpak"):
                 cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
                 base_dir = os.path.join(cache_dir, "oct2py")
                 os.makedirs(base_dir, exist_ok=True)
