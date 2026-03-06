@@ -62,6 +62,9 @@ jobs:
         uses: calysto/octave_kernel@v0.37.0
         with:
           install-type: ${{ matrix.install-type }}
+      - name: Install blas and atlas for flatpak
+        if: ${{ matrix.install-type == 'ubuntu-flatpack' }}
+        run: sudo apt install libblas-dev libatlas-base-dev
       - name: Run tests
         run: just test tests/test_usage.py
 
