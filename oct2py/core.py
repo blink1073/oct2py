@@ -580,7 +580,7 @@ class Oct2Py:
             if self._engine.executable.startswith("flatpak"):
                 cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
                 base_dir = os.path.join(cache_dir, "oct2py")
-            tempfile.mkstemp()
+                os.makedirs(base_dir, exist_ok=True)
             temp_dir_obj = tempfile.mkdtemp(dir=base_dir)
             self.temp_dir = temp_dir_obj
             atexit.register(shutil.rmtree, self.temp_dir)
