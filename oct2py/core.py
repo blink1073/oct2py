@@ -577,7 +577,8 @@ class Oct2Py:
         # Handle the temporary directory, taking into account if we're using flatpak.
         if self.temp_dir is None:
             base_dir = None
-            if self._engine.executable.startswith("flatpak"):
+            exe = self._engine.executable
+            if exe.startswith("flatpak") or "snap" in exe:
                 cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
                 base_dir = os.path.join(cache_dir, "oct2py")
                 os.makedirs(base_dir, exist_ok=True)

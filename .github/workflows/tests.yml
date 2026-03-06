@@ -53,13 +53,15 @@ jobs:
             install-type: macos
           - os: ubuntu-latest
             install-type: ubuntu-flatpak
+          - os: ubuntu-latest
+            install-type: ubuntu-snap
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
-        uses: calysto/octave_kernel@ea5c2a446db94664c9e9121c3b31ae3a9ca437e1 # v0.37.0
+        uses: calysto/octave_kernel@248d392a4c1ed2501ad8e50b4bb6a573732d239f # v0.37.1
         with:
           install-type: ${{ matrix.install-type }}
       - name: Run tests
