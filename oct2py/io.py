@@ -7,17 +7,9 @@ import inspect
 import threading
 
 import numpy as np
-
-try:
-    from scipy.io import loadmat, savemat
-    from scipy.io.matlab import MatlabFunction, MatlabObject
-    from scipy.sparse import spmatrix
-except ImportError:
-    try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabFunction, MatlabObject  # type:ignore[assignment]
-    except ImportError:
-        pass
-
+from scipy.io import loadmat, savemat
+from scipy.io.matlab import MatlabFunction, MatlabObject
+from scipy.sparse import spmatrix
 
 try:
     from pandas import DataFrame, Series

@@ -1409,9 +1409,9 @@ typing = [
 
 [package.metadata]
 requires-dist = [
-    { name = "numpy", specifier = ">=1.12" },
+    { name = "numpy", specifier = ">=1.24" },
     { name = "octave-kernel", specifier = ">=0.38.0" },
-    { name = "scipy", specifier = ">=0.17" },
+    { name = "scipy", specifier = ">=1.9.0" },
 ]
 
 [package.metadata.requires-dev]
