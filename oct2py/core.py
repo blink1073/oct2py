@@ -2,12 +2,9 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
-import atexit
 import logging
 import os
 import os.path as osp
-import shutil
-import tempfile
 import warnings
 
 import numpy as np
@@ -574,20 +571,10 @@ class Oct2Py:
         except Exception as e:
             raise Oct2PyError(str(e)) from None
 
-        # Handle the temporary directory, taking into account if we're using flatpak.
+        # Use the same base temp dir as the octave engine.
         if self.temp_dir is None:
-            base_dir = None
-            exe = self._engine.executable
-            if "snap" in exe:
-                base_dir = os.path.expanduser("~/snap/octave/current/oct2py")
-                os.makedirs(base_dir, exist_ok=True)
-            elif exe.startswith("flatpak"):
-                cache_dir = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
-                base_dir = os.path.join(cache_dir, "oct2py")
-                os.makedirs(base_dir, exist_ok=True)
-            temp_dir_obj = tempfile.mkdtemp(dir=base_dir)
-            self.temp_dir = temp_dir_obj
-            atexit.register(shutil.rmtree, self.temp_dir)
+            self.temp_dir = os.path.join(self._engine.tmp_dir, "oct2py")
+            os.makedirs(self.temp_dir, exist_ok=True)
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
