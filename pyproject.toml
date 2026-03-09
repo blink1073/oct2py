@@ -23,7 +23,7 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy >=1.24",
     "scipy >=1.9.0",
-    "octave_kernel >= 0.38.0",
+    "octave_kernel >= 0.39",
 ]
 readme = "README.md"
 

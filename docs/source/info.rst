@@ -131,24 +131,21 @@ timeout.
 
 Graphics Toolkit
 ================
-On newer versions of Octave, ``qt`` is only available when Octave is started with a
-display.  By default, oct2py runs ``octave-cli``, which only supports
-``gnuplot`` (or ``fltk`` in some cases) and has limited support for rendering
-or interactive plots.
 
-To use the ``qt`` backend, set the ``OCTAVE_EXECUTABLE`` environment variable
-to ``octave`` or the path to your Octave executable before starting your
-session:
+In some cases, the ``qt`` graphics toolkit is only available when running with a
+display enabled.
 
-.. code-block:: bash
+On a remote system without a display, you can use ``xvfb-run`` to provide a virtual framebuffer.  For example:
 
-    $ export OCTAVE_EXECUTABLE=octave
+.. code:: shell
 
-On headless or remote systems, you may need to use a virtual framebuffer:
+    export OCTAVE_EXECUTABLE="xvfb-run octave"
 
-.. code-block:: bash
+Or in the config file:
 
-    $ export OCTAVE_EXECUTABLE="xvfb-run octave"
+.. code:: python
+
+    c.OctaveMagics.executable = "xvfb-run octave"
 
 To inspect or change the active toolkit at runtime:
 

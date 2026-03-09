@@ -41,6 +41,7 @@ To enable the magics below, execute ``%load_ext octavemagic``.
 import os
 import shutil
 
+import traitlets
 from IPython.core.magic import (
     Magics,
     line_cell_magic,
@@ -63,7 +64,18 @@ class OctaveMagics(Magics):
     Parameters
     ----------
     shell : IPython shell
+
+    Attributes
+    ----------
+    executable : str
+        Path to the Octave executable. When set, a new oct2py session is
+        started using this executable and ``OCTAVE_EXECUTABLE`` is updated.
     """
+
+    executable = traitlets.Unicode(
+        "",
+        help="Path to the Octave executable. When set, a new oct2py session is started.",
+    ).tag(config=True)
 
     def __init__(self, shell):
         super().__init__(shell)
@@ -72,6 +84,12 @@ class OctaveMagics(Magics):
         # Allow display to be overridden for
         # testing purposes.
         self._display = display
+
+    @traitlets.observe("executable")
+    def _executable_changed(self, change):
+        if change["new"]:
+            os.environ["OCTAVE_EXECUTABLE"] = change["new"]
+        self._oct = oct2py.Oct2Py()
 
     @skip_doctest
     @line_magic

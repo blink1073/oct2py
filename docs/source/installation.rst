@@ -53,23 +53,20 @@ GNU Octave Installation
 
 Graphics Backend (Qt vs gnuplot)
 ---------------------------------
-By default, oct2py runs ``octave-cli``, which only supports the ``gnuplot``
-backend (or ``fltk`` in some cases) and has limited support for rendering or
-interactive plots.  On newer versions of Octave, the ``qt`` graphics toolkit
-is only available when Octave is started with a display.
+In some cases, the ``qt`` graphics toolkit is only available when running with a
+display enabled.
 
-To use the ``qt`` backend for rendering or interactive plots, set
-``OCTAVE_EXECUTABLE`` to ``octave`` or the path to your Octave executable:
+On a remote system without a display, you can use ``xvfb-run`` to provide a virtual framebuffer.  For example:
 
-.. code-block:: bash
+.. code:: shell
 
-    $ export OCTAVE_EXECUTABLE=octave
+    export OCTAVE_EXECUTABLE="xvfb-run octave"
 
-On remote or headless systems you can use a virtual framebuffer:
+Or in the config file:
 
-.. code-block:: bash
+.. code:: python
 
-    $ export OCTAVE_EXECUTABLE="xvfb-run octave"
+    c.OctaveMagics.executable = "xvfb-run octave"
 
 .. _Anaconda: https://conda.io/projects/conda/en/latest/user-guide/install/index.html
 .. _pip: http://www.pip-installer.org/en/latest/installing.html
