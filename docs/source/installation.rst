@@ -49,7 +49,8 @@ GNU Octave Installation
   If Octave starts, you should be good to go.
 
 - Alternatively, you can specify the path to your Octave executable by
-  creating an ``OCTAVE_EXECUTABLE`` environmental variable.
+  creating an ``OCTAVE_EXECUTABLE`` environmental variable.  The default
+  executable is ``octave``.
 
 Graphics Backend (Qt vs gnuplot)
 ---------------------------------

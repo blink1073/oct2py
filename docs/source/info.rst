@@ -129,6 +129,24 @@ timeout.
     oct2py.utils.Oct2PyError: Session timed out
 
 
+Octave Executable
+=================
+By default, oct2py uses ``octave`` as the Octave executable.  To use a
+different binary, set the ``OCTAVE_EXECUTABLE`` environment variable before
+starting Python:
+
+.. code:: shell
+
+    export OCTAVE_EXECUTABLE=/path/to/octave
+
+When using IPython or Jupyter, you can also change it at runtime via the
+``OctaveMagics`` config trait without restarting the kernel:
+
+.. code:: python
+
+    %config OctaveMagics.executable = "/path/to/octave"
+
+
 Graphics Toolkit
 ================
 
