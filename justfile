@@ -30,6 +30,14 @@ typing:
 docs:
     uv run --group docs make -C docs html SPHINXOPTS='-W'
 
+# Open the example notebook interactively
+run-notebook:
+    uv run --group test --with notebook jupyter notebook example/octavemagic_extension.ipynb
+
+# Run the example notebook as a test
+test-notebook:
+    uv run --group test jupyter nbconvert --to notebook --execute example/octavemagic_extension.ipynb --output /dev/null
+
 # Run a pre-commit target
 pre-commit *args:
     uv tool run prek --all-files {{args}}
