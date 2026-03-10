@@ -36,7 +36,7 @@ run-notebook:
 
 # Run the example notebook as a test
 test-notebook:
-    uv run --group test jupyter nbconvert --to notebook --execute example/octavemagic_extension.ipynb --output /dev/null
+    uv run --group test jupyter nbconvert --to notebook --execute example/octavemagic_extension.ipynb --output /tmp/oct2py-test-notebook
 
 # Run a pre-commit target
 pre-commit *args:
