@@ -3,6 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/oct2py.png/)](http://badge.fury.io/py/oct2py)
 [![codecov](https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=main)](https://codecov.io/github/blink1073/oct2py?branch=main)
 [![PyPi Download stats](http://pepy.tech/badge/oct2py)](http://pepy.tech/project/oct2py)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blink1073/oct2py/main?filepath=example/octavemagic_extension.ipynb)
 
 Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
 It manages the Octave session for you, sharing data behind the scenes using
@@ -92,3 +93,33 @@ $ conda install -c conda-forge oct2py
 Documentation is available [online](https://oct2py.readthedocs.io/en/latest/).
 
 For version information, see the [Changelog](https://github.com/blink1073/oct2py/blob/main/CHANGELOG.md).
+
+## JupyterHub with Qt Support
+
+To enable Octave's Qt graphics toolkit in a JupyterHub environment (or any headless server), you need a virtual display. Install the required system packages:
+
+```shell
+apt-get install -y octave libglu1 xvfb texinfo fonts-freefont-otf ghostscript
+```
+
+Start `Xvfb` before launching JupyterHub (or in a server startup script):
+
+```shell
+Xvfb :99 -screen 0 1024x768x24 &
+export DISPLAY=:99
+```
+
+Then configure oct2py to use the Qt backend in your notebook or script:
+
+```python
+from oct2py import octave
+octave.eval("graphics_toolkit qt")
+```
+
+Alternatively, set `OCTAVE_EXECUTABLE` to run Octave under `xvfb-run`:
+
+```shell
+export OCTAVE_EXECUTABLE="xvfb-run octave"
+```
+
+For Binder-based deployments, the `binder/` directory in this repository contains an `apt.txt` listing required packages and a `start` script that launches `Xvfb` and exports `DISPLAY` before the Jupyter server starts, enabling Qt graphics out of the box.
