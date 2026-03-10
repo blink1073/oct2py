@@ -37,6 +37,8 @@ jobs:
           sudo apt-get install -qq octave-signal
       - name: Generate coverage report
         run: just cover
+      - name: Run example notebook
+        run: just test-notebook
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         with:
