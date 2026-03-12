@@ -288,37 +288,40 @@ class Oct2Py:
 
         Parameters
         ----------
-        func_path: str
+        func_path : str
             Name of function to run or a path to an m-file.
-        func_args: object, optional
+        func_args : object, optional
             Args to send to the function.
-        nout: int or str, optional.
+
+        Other Parameters
+        ----------------
+        nout : int or str, optional
             The desired number of returned values, defaults to 1. If nout
             value is 'max_nout', _get_max_nout() will be used.
-        store_as: str, optional
+        store_as : str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
         verbose : bool, optional
             Log Octave output at INFO level.  If False, log at DEBUG level.
-        stream_handler: callable, optional
+        stream_handler : callable, optional
             A function that is called for each line of output from the
             evaluation.
-        timeout: float, optional
+        timeout : float, optional
             The timeout in seconds for the call.
-        plot_dir: str, optional
+        plot_dir : str, optional
             If specified, save the session's plot figures to the plot
             directory instead of displaying the plot window.
-        plot_backend: str, optional
+        plot_backend : str, optional
             The plotting back end to use.
         plot_name : str, optional
             Saved plots will start with `plot_name` and
             end with "_%%.xxx' where %% is the plot number and
             xxx is the `plot_format`.
-        plot_format: str, optional
+        plot_format : str, optional
             The format in which to save the plot.
-        plot_width: int, optional
-            The plot with in pixels.
-        plot_height: int, optional
+        plot_width : int, optional
+            The plot width in pixels.
+        plot_height : int, optional
             The plot height in pixels.
 
         Notes

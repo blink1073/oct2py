@@ -26,6 +26,7 @@ repos:
     hooks:
       - id: mdformat
         verbose: true
+        exclude: ^docs/(index|api)\.md$
 
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.24.3
@@ -57,20 +58,13 @@ repos:
     hooks:
       - id: doc8
         args: ["--quiet", "--max-line-length=200"]
-        files: ^(docs/source/.*|.*\.md|.*\.rst)$
+        files: ^(docs/.*|.*\.md)$
 
   - repo: https://github.com/codespell-project/codespell
     rev: "v2.2.6"
     hooks:
       - id: codespell
         args: ["-L", "ans,te,manuel"]
-
-  - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: "v1.10.0"
-    hooks:
-      - id: rst-backticks
-      - id: rst-directive-colons
-      - id: rst-inline-touching-normal
 
   - repo: https://github.com/scientific-python/cookie
     rev: "2025.11.21"
