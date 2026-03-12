@@ -4,7 +4,7 @@
 
 Oct2Py provides a plugin for IPython to bring Octave to the IPython
 prompt or the IPython
-[Notebook](http://nbviewer.jupyter.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1).
+[Notebook](http://nbviewer.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1).
 
 ## M-File Examples
 
