@@ -53,10 +53,10 @@ cover = [
     "pytest-cov",
 ]
 docs = [
-    "sphinx",
-    "pydata_sphinx_theme",
-    "myst_parser",
-    "sphinxcontrib_spelling",
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.0",
+    "mkdocstrings[python]>=0.24",
+    "mkdocs-jupyter>=0.24",
 ]
 
 [tool.jupyter-releaser.hooks]
@@ -156,7 +156,7 @@ fail-under=100
 exclude = ["tests", "docs"]
 
 [tool.repo-review]
-ignore = ["PC111", "PC140", "PY007", "PC901", "PC902", "PC903"]
+ignore = ["PC111", "PC140", "PC170", "PY007", "PC901", "PC902", "PC903"]
 
 [tool.pydoclint]
 style = 'numpy'

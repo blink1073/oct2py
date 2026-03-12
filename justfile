@@ -28,7 +28,11 @@ typing:
 
 # Build documentation
 docs:
-    uv run --group docs make -C docs html SPHINXOPTS='-W'
+    uv run --group docs mkdocs build
+
+# Serve documentation locally
+docs-serve:
+    uv run --group docs mkdocs serve
 
 # Open the example notebook interactively
 run-notebook:
