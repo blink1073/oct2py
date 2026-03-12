@@ -305,3 +305,19 @@ class TestMisc:
         assert set(x.fieldnames) == {"y", "z"}
         other = StructArray(x)
         assert other.shape == x.shape
+
+    def test_feval_script_default_nout(self):
+        """Calling a .m script (not a function) with default nout should work (issue #332)."""
+        result = self.oc.feval("test_octave_script")
+        assert result is None
+
+    def test_feval_script_with_args(self):
+        """Calling a .m script with args should make them available via argv (issue #332)."""
+        lines: list[str] = []
+        self.oc.feval(
+            "test_octave_script_argv",
+            "hello_from_oct2py",
+            nout=0,
+            stream_handler=lines.append,
+        )
+        assert any("hello_from_oct2py" in line for line in lines)

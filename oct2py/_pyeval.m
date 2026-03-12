@@ -45,7 +45,22 @@ try
     if req.nout == 0
 
         if length(req.func_args)
-          feval(req.func_name, req.func_args{:});
+          try
+            feval(req.func_name, req.func_args{:});
+          catch ME
+            if ~isempty(strfind(ME.message, 'invalid call to script'))
+              assignin('base', 'argv', req.func_args);
+              try
+                evalin('base', req.func_name);
+              catch ME2
+                evalin('base', 'clear argv');
+                rethrow(ME2);
+              end
+              evalin('base', 'clear argv');
+            else
+              rethrow(ME);
+            end
+          end
         else
           feval(req.func_name)
         end
@@ -56,7 +71,17 @@ try
       try
         [result{1:req.nout}] = feval(req.func_name, req.func_args{:});
       catch ME
-        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1 ||
+        if ~isempty(strfind(ME.message, 'invalid call to script'))
+          assignin('base', 'argv', req.func_args);
+          try
+            evalin('base', req.func_name);
+          catch ME2
+            evalin('base', 'clear argv');
+            rethrow(ME2);
+          end
+          evalin('base', 'clear argv');
+          result = get_ans(sentinel);
+        elseif (strcmp(ME.message, 'element number 1 undefined in return list') != 1 ||
             length(ME.stack) != 1)
           rethrow(ME);
         else
@@ -69,8 +94,10 @@ try
       try
         [result{1:req.nout}] = feval(req.func_name);
       catch ME
-          rethrow(ME);
-        if (strcmp(ME.message, 'element number 1 undefined in return list') != 1 ||
+        if ~isempty(strfind(ME.message, 'invalid call to script'))
+          evalin('base', req.func_name);
+          result = get_ans(sentinel);
+        elseif (strcmp(ME.message, 'element number 1 undefined in return list') != 1 ||
             length(ME.stack) != 1)
           rethrow(ME);
         end
