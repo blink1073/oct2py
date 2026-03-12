@@ -57,7 +57,7 @@ trust a code translator, this is your library.
 ## Features
 
 - Supports all Octave datatypes and most Python datatypes and Numpy dtypes.
-- Provides [OctaveMagic](https://nbviewer.jupyter.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1) for IPython, including inline plotting in notebooks.
+- Provides [OctaveMagic](https://nbviewer.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1) for IPython, including inline plotting in notebooks.
 - Supports cell arrays and structs/struct arrays with arbitrary nesting.
 - Supports sparse matrices.
 - Builds methods on the fly linked to Octave commands (e.g. `zeros` above).
