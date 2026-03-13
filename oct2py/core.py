@@ -581,7 +581,16 @@ class Oct2Py:
             os.environ["OCTAVE_EXECUTABLE"] = os.environ["OCTAVE"]
 
         try:
-            self._engine = OctaveEngine(stdin_handler=self._handle_stdin, logger=self.logger)
+            # Pass --no-line-editing to avoid readline overhead on every function
+            # call in Octave 7+. In interactive mode, readline does expensive
+            # terminal processing after each function call (~0.5s on some
+            # systems), which is unnecessary since oct2py drives Octave
+            # programmatically via pexpect.
+            self._engine = OctaveEngine(
+                stdin_handler=self._handle_stdin,
+                logger=self.logger,
+                cli_options="--no-line-editing",
+            )
         except Exception as e:
             raise Oct2PyError(str(e)) from None
 
