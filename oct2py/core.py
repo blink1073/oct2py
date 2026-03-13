@@ -629,6 +629,11 @@ class Oct2Py:
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
 
+        # Octave's default max_recursion_depth is 256, which is lower than
+        # MATLAB's default and causes deep recursive functions to crash the
+        # session.  Raise it to match a more permissive default (issue #326).
+        self._engine.eval("max_recursion_depth(2500);")
+
     def _feval(  # noqa
         self,
         func_name,

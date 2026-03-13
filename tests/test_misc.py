@@ -3,6 +3,7 @@ import glob
 import logging
 import os
 import shutil
+import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import StringIO
@@ -337,6 +338,17 @@ class TestMisc:
         """Calling a .m script (not a function) with default nout should work (issue #332)."""
         result = self.oc.feval("test_octave_script")
         assert result is None
+
+    @pytest.mark.skipif(
+        sys.platform == "darwin",
+        reason="macOS pre-allocates an 8 MB main-thread stack for the Octave "
+        "subprocess that cannot be enlarged from Python",
+    )
+    def test_recursive_function(self):
+        """Recursive functions should work for deep recursion (issue #326)."""
+        n = 300
+        result = self.oc.test_recurse(n)
+        assert result == n * (n + 1) / 2
 
     def test_feval_script_with_args(self):
         """Calling a .m script with args should make them available via argv (issue #332)."""
