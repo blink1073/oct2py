@@ -16,6 +16,27 @@ import oct2py
 from oct2py import Oct2Py, Oct2PyError, StructArray
 
 
+def _multiprocessing_worker(_):
+    """Top-level worker so it is picklable by multiprocessing.Pool."""
+    oc = Oct2Py()
+    result = oc.sum([1, 2, 3])
+    oc.exit()
+    return float(result)
+
+
+def _multiprocessing_worker_exit(_):
+    """Worker that explicitly exits inherited Oct2Py sessions to trigger the bug."""
+    import oct2py as _oct2py
+
+    # Explicitly calling exit() on the inherited global in the child kills the
+    # parent's Octave process via os.kill(pid, signal).  This is the bug.
+    _oct2py.octave.exit()
+    oc = Oct2Py()
+    result = oc.sum([1, 2, 3])
+    oc.exit()
+    return float(result)
+
+
 class TestMisc:
     oc: Oct2Py
 
@@ -134,6 +155,32 @@ class TestMisc:
         assert final <= initial + 1, (
             f"Octave process leak detected: started with {initial} children, ended with {final}"
         )
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="fork not available on Windows")
+    def test_multiprocessing_pool(self):
+        """Oct2Py sessions created in a multiprocessing.Pool must work (issue #283).
+
+        When Pool uses fork, child processes inherit the parent's pexpect pty
+        file descriptors and Octave process PID.  Calling exit() on the
+        inherited session in a child sends SIGHUP to the parent's Octave
+        process, killing it.  Oct2Py must reset inherited sessions after fork
+        so the parent's session is not destroyed.
+        """
+        import multiprocessing
+
+        import oct2py as _oct2py
+
+        # Verify parent's global session works before the fork.
+        assert float(_oct2py.octave.sum([1, 2, 3])) == 6.0
+
+        ctx = multiprocessing.get_context("fork")
+        with ctx.Pool(3) as pool:
+            results = pool.map(_multiprocessing_worker_exit, range(3))
+
+        assert results == [6.0, 6.0, 6.0]
+
+        # After the pool, the parent's global session must still be alive.
+        assert float(_oct2py.octave.sum([4, 5, 6])) == 15.0
 
     def test_speed_check(self):
         from oct2py import speed_check
