@@ -1,8 +1,8 @@
 # Oct2Py: Python to GNU Octave Bridge
 
-[![PyPI version](https://badge.fury.io/py/oct2py.png/)](http://badge.fury.io/py/oct2py)
+[![PyPI version](https://badge.fury.io/py/oct2py.png/)](https://badge.fury.io/py/oct2py)
 [![codecov](https://codecov.io/github/blink1073/oct2py/coverage.svg?branch=main)](https://codecov.io/github/blink1073/oct2py?branch=main)
-[![PyPi Download stats](http://pepy.tech/badge/oct2py)](http://pepy.tech/project/oct2py)
+[![PyPi Download stats](https://pepy.tech/badge/oct2py)](https://pepy.tech/project/oct2py)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/blink1073/oct2py/main?filepath=example/octavemagic_extension.ipynb)
 
 Oct2Py allows you to seamlessly call M-files and Octave functions from Python.
@@ -74,7 +74,7 @@ Alternatively, you can set an `OCTAVE_EXECUTABLE` or `OCTAVE` environment
 variable that points to `octave` executable itself.
 
 You must have the Numpy and Scipy libraries for Python installed.
-See the [installation instructions](http://blink1073.github.io/oct2py/source/installation.html) for more details.
+See the [installation instructions](https://blink1073.github.io/oct2py/source/installation.html) for more details.
 
 Once the dependencies have been installed, run:
 

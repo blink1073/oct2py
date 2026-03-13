@@ -3,6 +3,7 @@
 # Distributed under the terms of the MIT License.
 
 import atexit
+import contextlib
 import logging
 import os
 import os.path as osp
@@ -25,6 +26,45 @@ from .io import Cell, StructArray, read_file, write_file
 from .utils import Oct2PyError, get_log
 
 HERE = osp.realpath(osp.dirname(__file__))
+
+# Registry of all live Oct2Py instances, held via weak references so they can
+# be garbage-collected normally.  Used by the post-fork handler below.
+_instances: weakref.WeakSet["Oct2Py"] = weakref.WeakSet()
+
+
+def _reset_instances_after_fork() -> None:
+    """Detach inherited Oct2Py sessions in a freshly forked child process.
+
+    After os.fork() the child inherits a copy of every Oct2Py instance
+    including its _engine (pexpect pty + Octave process PID).  Calling
+    exit() or even letting __del__ run on these inherited engines is
+    dangerous: terminate() sends SIGHUP to the Octave PID, which is the
+    *parent's* live Octave process.  We neutralise all inherited sessions
+    here so that neither exit() nor __del__ can harm the parent.
+    """
+    for inst in list(_instances):
+        if inst._engine is not None:
+            with contextlib.suppress(Exception):
+                atexit.unregister(inst._engine._cleanup)
+            with contextlib.suppress(Exception):
+                # Mark the inherited pexpect spawn as already terminated so
+                # that pexpect's __del__ skips waitpid().  Without this,
+                # garbage-collecting the engine in the child would call
+                # waitpid() on the parent's Octave PID, raising ECHILD.
+                inst._engine.repl.terminated = True
+        # Prevent exit() / __del__ from touching the parent's engine.
+        inst._engine = None
+        inst._temp_dir_owner = False
+        inst.temp_dir = None
+    # The parent's atexit.register(shutil.rmtree, temp_dir, ...) calls are
+    # inherited by the child.  Remove them so the child doesn't delete the
+    # parent's /dev/shm temp directories on exit.  Any new Oct2Py instances
+    # created in the child will register their own handlers afterwards.
+    atexit.unregister(shutil.rmtree)
+
+
+if hasattr(os, "register_at_fork"):
+    os.register_at_fork(after_in_child=_reset_instances_after_fork)
 
 
 class Oct2Py:
@@ -86,6 +126,7 @@ class Oct2Py:
         self.convert_to_float = convert_to_float
         self._user_classes = {}
         self._function_ptrs = {}
+        _instances.add(self)
         self.restart()
 
     @property

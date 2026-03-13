@@ -50,7 +50,7 @@ details is kept in the documentation directory, in the file
 ``about/credits.txt``.
 
 The core team that coordinates development on GitHub can be found here:
-http://github.com/ipython.  As of late 2010, it consists of:
+https://github.com/ipython.  As of late 2010, it consists of:
 
 * Brian E. Granger
 * Jonathan March

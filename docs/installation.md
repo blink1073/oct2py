@@ -30,7 +30,7 @@ conda install -c conda-forge oct2py
   available.
 
 - On OSX, the recommended methods are listed on this
-  [wiki](http://wiki.octave.org/Octave_for_MacOS_X).
+  [wiki](https://wiki.octave.org/Octave_for_MacOS_X).
 
 - On Windows, download the latest MinGW or .NET
   [version](https://sourceforge.net/projects/octave/files/Octave%20Windows%20binaries/).
