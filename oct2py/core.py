@@ -46,12 +46,21 @@ def _reset_instances_after_fork() -> None:
         if inst._engine is not None:
             with contextlib.suppress(Exception):
                 atexit.unregister(inst._engine._cleanup)
+            with contextlib.suppress(Exception):
+                # Mark the inherited pexpect spawn as already terminated so
+                # that pexpect's __del__ skips waitpid().  Without this,
+                # garbage-collecting the engine in the child would call
+                # waitpid() on the parent's Octave PID, raising ECHILD.
+                inst._engine.repl.terminated = True
         # Prevent exit() / __del__ from touching the parent's engine.
         inst._engine = None
-        # Prevent cleanup of the parent's temp_dir (the atexit rmtree
-        # registered in restart() checks this flag via _cleanup_temp_dir).
         inst._temp_dir_owner = False
         inst.temp_dir = None
+    # The parent's atexit.register(shutil.rmtree, temp_dir, ...) calls are
+    # inherited by the child.  Remove them so the child doesn't delete the
+    # parent's /dev/shm temp directories on exit.  Any new Oct2Py instances
+    # created in the child will register their own handlers afterwards.
+    atexit.unregister(shutil.rmtree)
 
 
 if hasattr(os, "register_at_fork"):
@@ -155,17 +164,6 @@ class Oct2Py:
             shutil.rmtree(self.temp_dir, ignore_errors=True)
             self.temp_dir = None
             self._temp_dir_owner = False
-
-    def _cleanup_temp_dir(self) -> None:
-        """atexit helper: remove the session's /dev/shm temp dir if we own it.
-
-        Registered as a bound method (not a bare shutil.rmtree call) so that
-        forked child processes, which have their _temp_dir_owner flag cleared
-        by _reset_instances_after_fork(), skip the removal and leave the
-        parent's temp directory intact.
-        """
-        if self._temp_dir_owner and self.temp_dir and osp.isdir(self.temp_dir):
-            shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def push(self, name, var, timeout=None, verbose=True):
         """
@@ -663,10 +661,7 @@ class Oct2Py:
             shm = "/dev/shm"  # noqa: S108
             if not sandboxed and osp.isdir(shm) and os.access(shm, os.W_OK):
                 self.temp_dir = tempfile.mkdtemp(dir=shm, prefix="oct2py_")
-                # Use a bound method so forked children that inherit this
-                # atexit handler will skip the rmtree when _temp_dir_owner
-                # has been cleared by _reset_instances_after_fork().
-                atexit.register(self._cleanup_temp_dir)
+                atexit.register(shutil.rmtree, self.temp_dir, True)
             else:
                 self.temp_dir = os.path.join(self._engine.tmp_dir, "oct2py")
                 os.makedirs(self.temp_dir, exist_ok=True)
