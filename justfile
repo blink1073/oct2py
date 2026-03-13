@@ -42,6 +42,14 @@ run-notebook:
 test-notebook:
     uv run --group test jupyter nbconvert --to notebook --execute --stdout example/octavemagic_extension.ipynb > /dev/null
 
+# Run ASV benchmarks on HEAD (quick mode: one run per benchmark, ≤5 min)
+benchmark:
+    uv run --group bench asv run --quick HEAD^!
+
+# Compare benchmarks between the branch base commit and HEAD
+benchmark-compare:
+    uv run --group bench asv continuous $(git merge-base HEAD origin/main) HEAD --show-stderr
+
 # Run a pre-commit target
 pre-commit *args:
     uv tool run prek --all-files {{args}}
