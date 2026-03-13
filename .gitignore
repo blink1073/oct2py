@@ -17,3 +17,5 @@ example/.ipynb_checkpoints/
 coverage.xml
 .vscode/
 .uv/
+env/
+results/

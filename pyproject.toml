@@ -58,6 +58,10 @@ docs = [
     "mkdocstrings[python]>=0.24",
     "mkdocs-jupyter>=0.24",
 ]
+bench = [
+    "asv",
+    "virtualenv",
+]
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
@@ -153,7 +157,7 @@ ignore-property-decorators=true
 ignore-nested-functions=true
 ignore-nested-classes=true
 fail-under=100
-exclude = ["tests", "docs"]
+exclude = ["tests", "docs", "benchmarks", "env", "results"]
 
 [tool.repo-review]
 ignore = ["PC111", "PC140", "PC170", "PY007", "PC901", "PC902", "PC903"]

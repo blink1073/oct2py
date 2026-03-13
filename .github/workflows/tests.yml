@@ -69,6 +69,28 @@ jobs:
       - name: Run tests
         run: just test tests/test_usage.py
 
+  benchmark:
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          python-version: "3.12"
+      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
+      - name: Install Octave
+        uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
+        with:
+          install-type: "ubuntu"
+      - name: Install signal package
+        run: sudo apt-get install -qq octave-signal
+      - name: Fetch main branch
+        run: git fetch origin main
+      - name: Run benchmark comparison
+        run: just benchmark-compare
+
   check_release:
     runs-on: ubuntu-latest
     steps:
