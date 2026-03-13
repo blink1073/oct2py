@@ -591,8 +591,10 @@ class Oct2Py:
             # On Linux, /dev/shm is always in RAM and avoids disk latency,
             # which is critical for performance in Octave 7+ where save/load
             # can be significantly slower on disk-backed filesystems.
+            executable = self._engine.executable
+            sandboxed = "snap" in executable or "flatpak" in executable
             shm = "/dev/shm"  # noqa: S108
-            if osp.isdir(shm) and os.access(shm, os.W_OK):
+            if not sandboxed and osp.isdir(shm) and os.access(shm, os.W_OK):
                 self.temp_dir = tempfile.mkdtemp(dir=shm, prefix="oct2py_")
                 atexit.register(shutil.rmtree, self.temp_dir, True)
             else:
