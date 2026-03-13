@@ -228,6 +228,6 @@ and will not interfere with any other session.
 ## IPython Notebook
 
 Oct2Py provides
-[OctaveMagic](http://nbviewer.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1)
+[OctaveMagic](https://nbviewer.org/github/blink1073/oct2py/blob/main/example/octavemagic_extension.ipynb?create=1)
 for IPython, including inline plotting in notebooks. This requires
 IPython >= 1.0.0.
