@@ -1,10 +1,19 @@
-comment: off
-# show coverage in CI status, but never consider it a failure
 coverage:
   status:
     project:
       default:
-        target: 0%
+        target: 90%
+        threshold: 0%
+        # Wait for all 6 coverage uploads before reporting:
+        # 6 test (6x ubuntu-24.04, one per Python version)
+        after_n_builds: 6
     patch:
       default:
-        target: 0%
+        target: 95%
+        threshold: 0%
+        after_n_builds: 6
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false
