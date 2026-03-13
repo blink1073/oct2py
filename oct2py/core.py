@@ -2,9 +2,12 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
+import atexit
 import logging
 import os
 import os.path as osp
+import shutil
+import tempfile
 import warnings
 
 import numpy as np
@@ -47,8 +50,11 @@ class Oct2Py:
         If 'row', write 1-D numpy arrays as row vectors.}
     temp_dir : str, optional
         If specified, the session's MAT files will be created in the
-        directory, otherwise a default directory is used.  This can be
-        a shared memory (tmpfs) path.
+        directory, otherwise a default directory is used.  On Linux,
+        ``/dev/shm`` (a RAM-based tmpfs) is used automatically when
+        available, which significantly reduces per-call overhead.  On
+        other platforms you can point this at a tmpfs mount for the
+        same benefit.
     convert_to_float : bool, optional
         If true, convert integer types to float when passing to Octave.
     backend: string, optional
@@ -75,6 +81,7 @@ class Oct2Py:
         self.backend = backend or "default"
         self.keep_matlab_shapes = keep_matlab_shapes
         self.temp_dir = temp_dir
+        self._temp_dir_owner = False
         self.convert_to_float = convert_to_float
         self._user_classes = {}
         self._function_ptrs = {}
@@ -110,6 +117,10 @@ class Oct2Py:
         if self._engine:
             self._engine.repl.terminate()
         self._engine = None
+        if self._temp_dir_owner and self.temp_dir and osp.isdir(self.temp_dir):
+            shutil.rmtree(self.temp_dir, ignore_errors=True)
+            self.temp_dir = None
+            self._temp_dir_owner = False
 
     def push(self, name, var, timeout=None, verbose=True):
         """
@@ -570,14 +581,35 @@ class Oct2Py:
             os.environ["OCTAVE_EXECUTABLE"] = os.environ["OCTAVE"]
 
         try:
-            self._engine = OctaveEngine(stdin_handler=self._handle_stdin, logger=self.logger)
+            # Pass --no-line-editing to avoid readline overhead on every function
+            # call in Octave 7+. In interactive mode, readline does expensive
+            # terminal processing after each function call (~0.5s on some
+            # systems), which is unnecessary since oct2py drives Octave
+            # programmatically via pexpect.
+            self._engine = OctaveEngine(
+                stdin_handler=self._handle_stdin,
+                logger=self.logger,
+                cli_options="--no-line-editing",
+            )
         except Exception as e:
             raise Oct2PyError(str(e)) from None
 
-        # Use the same base temp dir as the octave engine.
+        # Set up the temp directory for MAT file exchange.
         if self.temp_dir is None:
-            self.temp_dir = os.path.join(self._engine.tmp_dir, "oct2py")
-            os.makedirs(self.temp_dir, exist_ok=True)
+            # Prefer a RAM-based filesystem (tmpfs) for faster file I/O.
+            # On Linux, /dev/shm is always in RAM and avoids disk latency,
+            # which is critical for performance in Octave 7+ where save/load
+            # can be significantly slower on disk-backed filesystems.
+            executable = self._engine.executable
+            sandboxed = "snap" in executable or "flatpak" in executable
+            shm = "/dev/shm"  # noqa: S108
+            if not sandboxed and osp.isdir(shm) and os.access(shm, os.W_OK):
+                self.temp_dir = tempfile.mkdtemp(dir=shm, prefix="oct2py_")
+                atexit.register(shutil.rmtree, self.temp_dir, True)
+            else:
+                self.temp_dir = os.path.join(self._engine.tmp_dir, "oct2py")
+                os.makedirs(self.temp_dir, exist_ok=True)
+            self._temp_dir_owner = True
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
