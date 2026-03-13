@@ -1,8 +1,10 @@
+import gc
 import glob
 import logging
 import os
 import shutil
 import tempfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import StringIO
 
 import numpy as np
@@ -106,6 +108,31 @@ class TestMisc:
             thread_check()
         except TypeError:
             thread_check.thread_check()  # type:ignore[attr-defined]
+
+    def test_threadpool_no_process_leak(self):
+        """Oct2Py sessions created in a ThreadPoolExecutor must not leak Octave
+        subprocesses after the threads complete (issue #289)."""
+        import psutil
+
+        proc = psutil.Process(os.getpid())
+        initial = len(proc.children(recursive=True))
+
+        def run():
+            oc = Oct2Py()
+            result = oc.sum([1, 2, 3])
+            return result
+
+        for _ in range(2):
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                futures = [executor.submit(run) for _ in range(3)]
+                for future in as_completed(futures):
+                    future.result()
+            gc.collect()
+
+        final = len(proc.children(recursive=True))
+        assert final <= initial + 1, (
+            f"Octave process leak detected: started with {initial} children, ended with {final}"
+        )
 
     def test_speed_check(self):
         from oct2py import speed_check

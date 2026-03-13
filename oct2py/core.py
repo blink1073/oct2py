@@ -9,6 +9,7 @@ import os.path as osp
 import shutil
 import tempfile
 import warnings
+import weakref
 
 import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
@@ -115,6 +116,7 @@ class Oct2Py:
     def exit(self):
         """Quits this octave session and cleans up."""
         if self._engine:
+            atexit.unregister(self._engine._cleanup)
             self._engine.repl.terminate()
         self._engine = None
         if self._temp_dir_owner and self.temp_dir and osp.isdir(self.temp_dir):
@@ -586,8 +588,21 @@ class Oct2Py:
             # terminal processing after each function call (~0.5s on some
             # systems), which is unnecessary since oct2py drives Octave
             # programmatically via pexpect.
+            #
+            # Use a weakref-based wrapper so that OctaveEngine (and its atexit
+            # registration) does not hold a strong reference back to this Oct2Py
+            # instance, which would otherwise prevent __del__ / exit() from ever
+            # being called and cause Octave subprocesses to accumulate.
+            _weak_self = weakref.ref(self)
+
+            def _stdin_handler(line):
+                inst = _weak_self()
+                if inst is not None:
+                    return inst._handle_stdin(line)
+                return None
+
             self._engine = OctaveEngine(
-                stdin_handler=self._handle_stdin,
+                stdin_handler=_stdin_handler,
                 logger=self.logger,
                 cli_options="--no-line-editing",
             )
