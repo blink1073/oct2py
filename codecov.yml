@@ -4,14 +4,16 @@ coverage:
       default:
         target: 90%
         threshold: 0%
-        # Wait for all 6 coverage uploads before reporting:
-        # 6 test (6x ubuntu-24.04, one per Python version)
-        after_n_builds: 6
     patch:
       default:
         target: 95%
         threshold: 0%
-        after_n_builds: 6
+
+codecov:
+  notify:
+    # Wait for all 6 coverage uploads before reporting:
+    # 6 test (6x ubuntu-24.04, one per Python version)
+    after_n_builds: 6
 
 comment:
   layout: "reach,diff,flags,files"
