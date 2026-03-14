@@ -12,6 +12,10 @@ jupyter:
 
 ::: oct2py.Oct2Py
 
+## OctaveWorkspaceProxy
+
+::: oct2py.OctaveWorkspaceProxy
+
 ## Struct
 
 ::: oct2py.Struct

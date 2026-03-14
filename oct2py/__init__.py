@@ -24,7 +24,7 @@ trust a code translator, this is your library.
 from .utils import Oct2PyError, get_log  # noqa
 
 from ._version import __version__
-from .core import Oct2Py
+from .core import Oct2Py, OctaveWorkspaceProxy
 from .demo import demo
 from .io import Cell, Struct, StructArray
 from .speed_check import speed_check
@@ -34,6 +34,7 @@ __all__ = [
     "Cell",
     "Oct2Py",
     "Oct2PyError",
+    "OctaveWorkspaceProxy",
     "Struct",
     "StructArray",
     "__version__",
