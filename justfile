@@ -48,6 +48,7 @@ benchmark:
 
 # Compare benchmarks between the branch base commit and HEAD
 benchmark-compare:
+    uv run --group bench asv machine --yes
     uv run --group bench asv continuous $(git merge-base HEAD origin/main) HEAD --show-stderr
 
 # Run a pre-commit target
