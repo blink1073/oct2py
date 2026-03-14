@@ -39,7 +39,11 @@ class TestUsage:
 
     def test_run_script_creates_workspace_variables(self):
         """Variables assigned in a script run via run() persist (issue #239)."""
-        with tempfile.NamedTemporaryFile(suffix=".m", mode="w", delete=False) as f:
+        # Write the script into temp_dir so sandboxed Octave (snap/flatpak)
+        # can access it.
+        with tempfile.NamedTemporaryFile(
+            suffix=".m", mode="w", delete=False, dir=self.oc.temp_dir
+        ) as f:
             f.write("issue239_var = [1, 2, 3];")
             script_path = f.name
         try:
