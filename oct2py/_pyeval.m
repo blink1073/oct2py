@@ -42,7 +42,33 @@ try
     assignin('base', 'ans', sentinel);
 
     % Use the `ans` response if no output arguments are expected.
-    if req.nout == 0
+    % nout == -1 means "execute but discard all output" (no ans capture).
+    if req.nout == -1
+
+        if length(req.func_args)
+          try
+            feval(req.func_name, req.func_args{:});
+          catch ME
+            if ~isempty(strfind(ME.message, 'invalid call to script'))
+              assignin('base', 'argv', req.func_args);
+              try
+                evalin('base', req.func_name);
+              catch ME2
+                evalin('base', 'clear argv');
+                rethrow(ME2);
+              end
+              evalin('base', 'clear argv');
+            else
+              rethrow(ME);
+            end
+          end
+        else
+          feval(req.func_name)
+        end
+
+        result = { sentinel };
+
+    elseif req.nout == 0
 
         if length(req.func_args)
           try

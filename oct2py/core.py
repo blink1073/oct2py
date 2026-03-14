@@ -352,6 +352,9 @@ class Oct2Py:
         nout : int or str, optional
             The desired number of returned values, defaults to 1. If nout
             value is 'max_nout', _get_max_nout() will be used.
+        quiet : bool, optional
+            If True, execute the function but do not capture or return any
+            output.  Takes precedence over ``nout``.
         store_as : str, optional
             If given, saves the result to the given Octave variable name
             instead of returning it.
@@ -417,7 +420,9 @@ class Oct2Py:
 
         # nout handler
         nout = kwargs.get("nout")
-        if nout is None:
+        if kwargs.get("quiet"):
+            nout = -1
+        elif nout is None:
             nout = 1
         elif nout == "max_nout":
             nout = self._get_max_nout(func_path)
@@ -482,6 +487,7 @@ class Oct2Py:
         plot_height=None,
         plot_res=None,
         nout=0,
+        quiet=False,
         **kwargs,
     ):
         """Evaluate an Octave command or commands.
@@ -502,6 +508,10 @@ class Oct2Py:
             The desired number of returned values, defaults to 0.  If nout
             is 0, the `ans` will be returned as the return value. If nout
             value is 'max_nout', _get_max_nout() will be used.
+        quiet : bool, optional
+            If True, execute the command(s) but do not capture or return any
+            output.  Useful when ``ans`` is not serialisable, or to avoid
+            double-printing in Jupyter.  Takes precedence over ``nout``.
         temp_dir: str, optional
             If specified, the session's MAT files will be created in the
             directory, otherwise a the instance `temp_dir` is used.
@@ -594,6 +604,7 @@ class Oct2Py:
                 "base",
                 cmd,
                 nout=nout,
+                quiet=quiet,
                 timeout=timeout,
                 stream_handler=stream_handler,
                 verbose=verbose,
