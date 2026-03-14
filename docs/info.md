@@ -64,6 +64,33 @@ call `feval` with the full path.
 >>> octave.feval("/path/to/myscript", 1, 2)  # doctest: +SKIP
 ```
 
+## Suppressing Output Capture
+
+By default, `eval` and `feval` capture and return the Octave `ans` value.
+Passing `quiet=True` executes the command but discards the result entirely,
+returning `None`. This is useful in three situations:
+
+- **Inspecting struct fields in Jupyter** — without `quiet=True`, the value is
+  both printed by Octave and returned to the cell output, causing it to appear
+  twice.
+- **Non-serialisable types** — some Octave values (custom class objects, large
+  sparse arrays, etc.) cannot be serialised to a MAT file. `quiet=True` lets
+  you run the command for its side effects without triggering a serialisation
+  error.
+- **Fire-and-forget calls** — when you only care about the side effect (e.g.
+  setting a variable, calling `disp`) and do not need the return value.
+
+```pycon
+>>> from oct2py import octave
+>>> octave.push("s", {"field": [1, 2, 3]})
+>>> result = octave.eval("s.field", quiet=True)  # prints once, returns None
+>>> result is None
+True
+>>> result = octave.feval("max", [3, 1, 2], quiet=True)  # no return value
+>>> result is None
+True
+```
+
 ## Direct Interaction
 
 Oct2Py supports the Octave `keyboard` function which drops you into an

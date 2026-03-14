@@ -465,6 +465,19 @@ class TestMisc:
             assert result.label == "hi"
         # else: older Octave returns OctaveUserClass — non-crash is sufficient
 
+    def test_eval_quiet_discards_output(self):
+        """quiet=True should execute the command but return None (issue #211)."""
+        self.oc.push("x", 42)
+        result = self.oc.eval("x", quiet=True)
+        assert result is None
+        # Confirm default behaviour still returns ans for an expression
+        assert self.oc.eval("x + 0") == 42
+
+    def test_feval_quiet_discards_output(self):
+        """feval quiet=True should execute but return None (issue #211)."""
+        result = self.oc.feval("max", np.array([3, 1, 2]), quiet=True)
+        assert result is None
+
     def test_feval_script_with_args(self):
         """Calling a .m script with args should make them available via argv (issue #332)."""
         lines: list[str] = []
