@@ -40,6 +40,7 @@ jobs:
       - name: Run example notebook
         run: just test-notebook
       - name: Upload coverage to Codecov
+        if: always()
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
