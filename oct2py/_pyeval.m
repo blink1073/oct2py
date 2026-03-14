@@ -163,6 +163,8 @@ function val = coerce_value(val)
                        'int8', 'int16', 'int32', 'int64', ...
                        'uint8', 'uint16', 'uint32', 'uint64'};
     if isstruct(val)
+        % NOTE: coercion applies to scalar structs only; struct arrays
+        % (numel > 1) are not handled field-by-field here.
         fields = fieldnames(val);
         for i = 1:numel(fields)
             f = fields{i};

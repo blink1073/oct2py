@@ -1,5 +1,4 @@
-% SimpleObj: minimal classdef used by test_misc.py to exercise issue #215.
-% A classdef object that Octave cannot save with -v6 -mat-binary.
+% SimpleObj: minimal classdef fixture used by test_misc.py (issue #215).
 classdef SimpleObj
   properties
     value = 0
