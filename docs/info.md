@@ -64,6 +64,37 @@ call `feval` with the full path.
 >>> octave.feval("/path/to/myscript", 1, 2)  # doctest: +SKIP
 ```
 
+## Running Scripts and Accessing Their Variables
+
+Octave scripts (as opposed to functions) assign variables directly into
+the caller's workspace. When you call a script through the dynamic
+dispatch mechanism (e.g. `octave.myscript()`), oct2py evaluates it
+inside a temporary function scope, so any variables the script creates
+are discarded when it returns and are not accessible via `pull`.
+
+Use `Oct2Py.run()` instead. It executes the script in Octave's **base
+workspace**, so variables it assigns persist and can be retrieved with
+`pull`:
+
+```pycon
+>>> from oct2py import Oct2Py
+>>> oc = Oct2Py()
+>>> # myscript.m contains: result = [1, 2, 3];
+>>> oc.run("/path/to/myscript.m")  # doctest: +SKIP
+>>> oc.pull("result")              # doctest: +SKIP
+array([1., 2., 3.])
+```
+
+`run` accepts the same optional keyword arguments as `eval` (`verbose`,
+`timeout`, `stream_handler`, etc.).
+
+> **Note:** This limitation does not apply to Octave *functions* — a
+> function's return values are passed back to Python normally via
+> `feval`. If you need to share data between Python and Octave in a
+> flexible way, prefer writing a function that accepts arguments and
+> returns results rather than relying on side-effects in the base
+> workspace.
+
 ## Suppressing Output Capture
 
 By default, `eval` and `feval` capture and return the Octave `ans` value.
