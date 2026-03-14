@@ -2,7 +2,6 @@
 
 [run]
 branch = True
-relative_files = True
 omit =
     oct2py/tests/*
     oct2py/ipython/tests/*
