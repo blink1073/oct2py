@@ -141,68 +141,51 @@ end
 
 function save_safe_struct(output_file, result, err)
     % NOTE: result is cell{1,1} containing other data
-    % warning('off', 'Octave:classdef-to-struct');
     try
         warn_state = warning('off', 'all');
         save('-v6', '-mat-binary', output_file, 'result', 'err');
         warning(warn_state);
     catch ME
         warning(warn_state);
-        % handle failure in passing user defined object
-        acceptable_types = {'double', 'char', 'logical', 'sparse'};
-        if isstruct(result{1,1})
-            result{1,1} = clean_struct(result{1,1}, acceptable_types);
-        elseif iscell(result{1,1})
-            result{1,1} = clean_cell(result{1,1}, acceptable_types);
-        end
+        % Recursively coerce result to types that MAT v6 can serialize.
+        result{1,1} = coerce_value(result{1,1});
         save('-v6', '-mat-binary', output_file, 'result', 'err');
     end
 end
 
-function struct_out = clean_struct(struct_in, acceptable_types)
-    fields = fieldnames(struct_in);
-    struct_out = struct_in;
-    for i = 1:numel(fields)
-        field_value = struct_in.(fields{i});
-        if ~is_acceptable_type(field_value, acceptable_types)
-            warning(...
-                'oct2py:pyeval:save_safe_struct:UnacceptableType', ...
-                'Skipping field "%s" as it is not an acceptable type.', ...
-                fields{i} ...
-            );
-            struct_out = rmfield(struct_out, fields{i});
-        elseif isstruct(field_value)
-            struct_out.(fields{i}) = clean_struct(field_value, acceptable_types);
-        elseif iscell(field_value)
-            struct_out.(fields{i}) = clean_cell(field_value, acceptable_types);
+function val = coerce_value(val)
+    % Recursively make val serializable to MAT v6 format.
+    %   - structs/cells: recurse into fields/elements
+    %   - function handles: convert to string via func2str
+    %   - classdef/user objects: convert to struct via struct(), then recurse
+    %   - unknown types: replace with [] and emit a warning
+    primitive_types = {'double', 'single', 'char', 'logical', 'sparse', ...
+                       'int8', 'int16', 'int32', 'int64', ...
+                       'uint8', 'uint16', 'uint32', 'uint64'};
+    if isstruct(val)
+        fields = fieldnames(val);
+        for i = 1:numel(fields)
+            f = fields{i};
+            val.(f) = coerce_value(val.(f));
         end
-    end
-end
-
-function cell_out = clean_cell(cell_in, acceptable_types)
-    cell_out = cell_in;
-    for i = 1:numel(cell_in)
-        if ~is_acceptable_type(cell_in{i}, acceptable_types)
-            warning(...
-              'oct2py:pyeval:save_safe_struct:UnacceptableType', ...
-              'Skipping cell content at index {%d} as it is not an acceptable type.', ...
-              i ...
-            );
-            cell_out{i} = [];
-        elseif isstruct(cell_in{i})
-            cell_out{i} = clean_struct(cell_in{i}, acceptable_types);
-        elseif iscell(cell_in{i})
-            cell_out{i} = clean_cell(cell_in{i}, acceptable_types);
+    elseif iscell(val)
+        for i = 1:numel(val)
+            val{i} = coerce_value(val{i});
         end
-    end
-end
-
-function result = is_acceptable_type(value, acceptable_types)
-    if isstruct(value)
-        result = all(structfun(@(v) is_acceptable_type(v, acceptable_types), value));
-    elseif iscell(value)
-        result = all(cellfun(@(v) is_acceptable_type(v, acceptable_types), value));
+    elseif any(strcmp(class(val), primitive_types))
+        % already serializable — return as-is
+    elseif isa(val, 'function_handle')
+        val = func2str(val);
     else
-        result = any(strcmp(class(value), acceptable_types));
+        % Unknown/user-defined type: try object-to-struct conversion first.
+        try
+            val = coerce_value(struct(val));
+            return;
+        catch
+        end
+        warning('oct2py:pyeval:save_safe_struct:UnacceptableType', ...
+                'Replacing value of class "%s" with [] as it is not serializable.', ...
+                class(val));
+        val = [];
     end
 end

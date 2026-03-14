@@ -397,6 +397,61 @@ class TestMisc:
         result = self.oc.test_recurse(n)
         assert result == n * (n + 1) / 2
 
+    def test_struct_function_handle_field_converted(self):
+        """Bug #215 (3/3): function handle fields in structs were silently dropped.
+
+        save_safe_struct fell back to clean_struct, which called rmfield on any
+        field whose class was not in the narrow acceptable_types list.  A function
+        handle therefore vanished from the result.  The fix converts function
+        handles to their string representation via func2str instead of dropping.
+        """
+        self.oc.eval(
+            "function r = _make_fh_struct(); r.fn = @(x) x^2; r.val = 42.0; end",
+            nout=0,
+        )
+        result = self.oc._make_fh_struct()
+        assert result.val == 42.0
+        # fn must be present and contain the function-handle string, not be absent
+        assert "@" in result.fn
+
+    def test_struct_integer_fields_preserved(self):
+        """Bug #215 (1/3): acceptable_types was missing integer and single types.
+
+        When save_safe_struct fell back to the cleaning path, only
+        {'double', 'char', 'logical', 'sparse'} were kept.  Integer-typed fields
+        (int8/16/32/64, uint8/16/32/64) and single-precision fields were therefore
+        discarded even though MAT v6 supports them.  The fix adds all numeric
+        primitive types to the list.
+        """
+        self.oc.eval(
+            "function r = _make_int_struct();"
+            " r.fn = @(x) x; r.count = int32(99); r.flag = uint8(1); end",
+            nout=0,
+        )
+        result = self.oc._make_int_struct()
+        assert int(result.count) == 99
+        assert int(result.flag) == 1
+
+    def test_toplevel_unserializable_value_coerced(self):
+        """Bug #215 (2/3): non-struct/non-cell top-level values were not cleaned.
+
+        The old save_safe_struct catch block only cleaned result{1,1} when it was
+        a struct or a cell.  If the top-level value was something else (e.g. a bare
+        function handle), neither branch fired, and the second save attempt also
+        failed, raising an Oct2PyError.  The fix applies coerce_value unconditionally.
+        """
+        # A bare function handle as the return value triggers the fallback; the old
+        # code raised Oct2PyError here because neither isstruct nor iscell matched.
+        result = self.oc.feval("eval", "@(x) x + 1", nout=1)
+        assert isinstance(result, str)
+        assert "@" in result
+
+    def test_classdef_object_return(self):
+        """Returning a classdef object should not crash; it comes back as a Struct (issue #215)."""
+        result = self.oc.feval("SimpleObj", 7, "hi", nout=1)
+        assert int(result.value) == 7
+        assert result.label == "hi"
+
     def test_feval_script_with_args(self):
         """Calling a .m script with args should make them available via argv (issue #332)."""
         lines: list[str] = []
