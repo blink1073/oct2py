@@ -626,6 +626,44 @@ class Oct2Py:
             return "\n".join(lines), ans
         return ans
 
+    def run(self, script, **kwargs):
+        """Run an Octave script file in the base workspace.
+
+        Unlike calling ``octave.run(script)`` via dynamic dispatch (which runs
+        the script inside a temporary function scope and discards any variables
+        it creates), this method executes the script through ``evalin('base',
+        ...)``, so variables assigned by the script persist in the Octave base
+        workspace and can be retrieved with :meth:`pull`.
+
+        Parameters
+        ----------
+        script : str
+            Name of the script or path to an ``.m`` file, passed directly to
+            Octave's ``run()`` built-in.
+        **kwargs
+            Additional keyword arguments forwarded to :meth:`eval` (e.g.
+            ``verbose``, ``timeout``, ``stream_handler``).
+
+        Examples
+        --------
+        >>> import os, tempfile
+        >>> from oct2py import Oct2Py
+        >>> oc = Oct2Py()
+        >>> with tempfile.NamedTemporaryFile(suffix='.m', mode='w', delete=False) as f:
+        ...     _ = f.write('b = 42;')
+        ...     script_path = f.name
+        >>> oc.run(script_path)
+        >>> oc.pull('b')
+        42.0
+        >>> oc.exit()
+        >>> os.unlink(script_path)
+        """
+        # Escape backslashes and single quotes so the path is safe inside
+        # an Octave single-quoted string literal.
+        safe = script.replace("\\", "/").replace("'", "''")
+        kwargs.setdefault("nout", 0)
+        self.eval(f"run('{safe}')", **kwargs)
+
     def restart(self):
         """Restart an Octave session in a clean state"""
         if self._engine:

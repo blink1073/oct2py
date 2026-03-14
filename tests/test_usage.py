@@ -37,6 +37,22 @@ class TestUsage:
         with pytest.raises(Oct2PyError):
             self.oc.eval("_spam")
 
+    def test_run_script_creates_workspace_variables(self):
+        """Variables assigned in a script run via run() persist (issue #239)."""
+        # Write the script into temp_dir so sandboxed Octave (snap/flatpak)
+        # can access it.
+        with tempfile.NamedTemporaryFile(
+            suffix=".m", mode="w", delete=False, dir=self.oc.temp_dir
+        ) as f:
+            f.write("issue239_var = [1, 2, 3];")
+            script_path = f.name
+        try:
+            self.oc.run(script_path)
+            result = self.oc.pull("issue239_var")
+            assert np.allclose(result, np.array([1, 2, 3]))
+        finally:
+            os.unlink(script_path)
+
     def test_dynamic_functions(self):
         """Test some dynamic functions"""
         if self.oc._engine.executable.startswith("flatpak"):
