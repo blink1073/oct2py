@@ -46,7 +46,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
           disable_search: true
-          verbose: true
 
   test-other:
     runs-on: ${{ matrix.os }}
