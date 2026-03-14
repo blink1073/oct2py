@@ -13,7 +13,7 @@ from scipy.sparse import spmatrix
 
 try:
     from pandas import DataFrame, Series
-except Exception:
+except Exception:  # pragma: no cover
 
     class Series:  # type:ignore[no-redef]
         """placeholder."""

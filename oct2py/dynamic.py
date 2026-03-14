@@ -11,7 +11,7 @@ import numpy as np
 
 try:
     from scipy.io.matlab import MatlabObject
-except ImportError:
+except ImportError:  # pragma: no cover
     try:  # noqa
         from scipy.io.matlab.mio5 import MatlabObject  # type:ignore[assignment]
     except ImportError:

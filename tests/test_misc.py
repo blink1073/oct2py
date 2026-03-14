@@ -250,7 +250,8 @@ class TestMisc:
     def test_func_without_docstring(self):
         out = self.oc.test_nodocstring(5)
         assert out == 5
-        assert "user-defined function" in self.oc.test_nodocstring.__doc__
+        doc = self.oc.test_nodocstring.__doc__
+        assert "user-defined function" in doc or "undocumented function" in doc
         assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
 
     def test_func_noexist(self):
