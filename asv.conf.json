@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "project": "oct2py",
+    "project_url": "https://github.com/blink1073/oct2py",
+    "repo": ".",
+    "branches": ["main"],
+    "environment_type": "virtualenv",
+    "show_commit_url": "https://github.com/blink1073/oct2py/commit/",
+    "pythons": ["3.10"],
+    "benchmark_dir": "benchmarks",
+    "matrix": {},
+    "build_command": ["python -m pip wheel --no-deps -w {build_cache_dir} {build_dir}"]
+}
