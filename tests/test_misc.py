@@ -53,6 +53,21 @@ class TestMisc:
         """Make sure unicode docstrings in Octave functions work"""
         help(self.oc.test_datatypes)
 
+    def test_loadmat_typeerror_raises_oct2pyerror(self):
+        """scipy TypeError for char encoding bug in old Octave becomes Oct2PyError (#179)."""
+        from unittest.mock import patch
+
+        from oct2py.io import read_file
+
+        with (
+            patch(
+                "oct2py.io.loadmat",
+                side_effect=TypeError("buffer is too small for requested array"),
+            ),
+            pytest.raises(Oct2PyError, match="character-encoding bug in older Octave"),
+        ):
+            read_file("/nonexistent.mat")
+
     def test_context_manager(self):
         """Make sure oct2py works within a context manager"""
         with Oct2Py() as oc1:
