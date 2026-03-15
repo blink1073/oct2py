@@ -431,6 +431,18 @@ class Oct2Py:
         Python. That is, all values must be passed as a comma separated list,
         not using `x=foo` assignment.
 
+        **Plot rendering limitation (issue #172):** oct2py executes Octave
+        synchronously, so figure updates triggered by ``pause()`` calls inside
+        a ``.m`` function are not rendered mid-execution — plots are only
+        exposed after the entire function returns.  For interactive display
+        this means figures appear at the end of the call, not incrementally.
+        To capture figures from inside a ``.m`` file programmatically, pass
+        ``plot_dir`` and then call :meth:`extract_figures`::
+
+            plot_dir = tempfile.mkdtemp()
+            octave.feval("my_func.m", plot_dir=plot_dir)
+            imgs = octave.extract_figures(plot_dir)
+
         Examples
         --------
         >>> from oct2py import octave
@@ -974,8 +986,8 @@ class Oct2Py:
         doc += "Keyword arguments to dynamic functions are deprecated.\n"
         doc += "The `plot_*` kwargs will be ignored, but the rest will\n"
         doc += "used as key - value pairs as in version 3.x.\n"
-        doc += "Use `set_plot_settings()` for plot settings, and use\n"
-        doc += "`func_args` directly for key - value pairs."
+        doc += "Pass `plot_dir` to `feval` or `eval` for inline plot capture,\n"
+        doc += "and use `func_args` directly for key - value pairs."
         return doc
 
     def _exist(self, name):
