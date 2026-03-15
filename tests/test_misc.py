@@ -251,6 +251,40 @@ class TestMisc:
         oc.eval("close all")
         oc.exit()
 
+    def test_show(self):
+        """Test that show() captures open Octave figures and displays via matplotlib (issue #164).
+
+        Verifies that show() can render Octave figures as images and that
+        auto_show=True triggers _show_figures() after each feval.
+        """
+        pytest.importorskip("matplotlib")
+        import matplotlib.pyplot as plt
+
+        oc = Oct2Py(backend="default")
+        captured = []
+
+        original_show_figures = oc._show_figures
+
+        def mock_show_figures():
+            captured.append(True)
+            original_show_figures()
+
+        oc._show_figures = mock_show_figures
+
+        # Without auto_show, show() should still work manually.
+        oc.figure(1)
+        oc.show()
+        assert captured, "show() did not invoke _show_figures()"
+        oc.exit()
+
+        # With auto_show=True, _show_figures should be called automatically.
+        captured.clear()
+        oc2 = Oct2Py(backend="default", auto_show=True)
+        oc2._show_figures = lambda: captured.append(True)
+        oc2.figure(1)
+        assert captured, "auto_show=True did not trigger _show_figures() after feval"
+        oc2.exit()
+
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
         assert s.shape == (2, 1)
