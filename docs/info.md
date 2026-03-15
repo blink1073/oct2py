@@ -268,6 +268,47 @@ To inspect or change the active toolkit at runtime:
 'gnuplot'
 ```
 
+## PyCharm and IDE Integration
+
+PyCharm's interactive console (and similar IDEs) displays matplotlib figures
+inline but cannot capture Octave's native figure windows. As a result,
+`octave.plot([1, 2, 3])` produces no visible output even though the figure
+exists in Octave.
+
+Oct2Py bridges this gap with two mechanisms:
+
+**Automatic (`auto_show`):** When `PYCHARM_HOSTED` is set in the environment
+(i.e. when running inside PyCharm), oct2py automatically renders open Octave
+figures as PNG images and displays them via `matplotlib.pyplot.imshow()` after
+every `eval` or `feval` call. No code changes are required — just install
+matplotlib and run your plotting code as normal:
+
+```pycon
+>>> from oct2py import octave
+>>> octave.plot([1, 2, 3])  # figure appears inline automatically in PyCharm
+```
+
+**Manual (`show()`):** In other environments, or to trigger display on demand,
+call `show()` explicitly:
+
+```pycon
+>>> from oct2py import Oct2Py
+>>> oc = Oct2Py()
+>>> oc.plot([1, 2, 3])
+>>> oc.show()  # renders and displays the figure via matplotlib
+```
+
+You can also enable or disable `auto_show` explicitly regardless of the
+environment:
+
+```pycon
+>>> oc = Oct2Py(auto_show=True)   # always auto-display figures
+>>> oc = Oct2Py(auto_show=False)  # never auto-display figures
+```
+
+`show()` requires `matplotlib` to be installed. If it is not available the
+method returns silently, so it is safe to call unconditionally.
+
 ## Context Manager
 
 Oct2Py can be used as a Context Manager. The session will be closed and
