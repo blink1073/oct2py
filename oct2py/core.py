@@ -11,6 +11,7 @@ import shutil
 import signal
 import tempfile
 import threading
+import uuid
 import warnings
 import weakref
 
@@ -297,15 +298,26 @@ class Oct2Py:
             return outputs[0]
         return outputs
 
-    def get_pointer(self, name, timeout=None):
+    def get_pointer(self, name, timeout=None, expr=False):
         """Get a pointer to a named object in the Octave workspace.
 
         Parameters
         ----------
         name: str
-            The name of the object in the Octave workspace.
+            The name of the object in the Octave workspace, or an Octave
+            expression string when ``expr=True``.
         timeout: float, optional.
             Time to wait for response from Octave (per line).
+        expr: bool, optional (default False)
+            If True, treat `name` as an Octave expression string rather than a
+            variable name. The expression is assigned to a unique temporary
+            variable in the Octave workspace and a pointer to that variable is
+            returned. Use this when you need to pass an expression that cannot
+            be converted to a Python object (e.g. cell arrays of function
+            handles like ``{@cos @sin}``).
+
+            Note: the temporary variable persists in the Octave workspace for
+            the lifetime of the session.
 
         Examples
         --------
@@ -328,6 +340,13 @@ class Oct2Py:
         >>> x
         2.0
 
+        >>> from oct2py import octave
+        >>> ptr = octave.get_pointer('{@cos @sin}', expr=True)
+        >>> type(ptr).__name__
+        'OctaveVariablePtr'
+        >>> # Pass the cell of function handles to an Octave function
+        >>> octave.feval('cellfun', '@(f) f(0)', ptr)  # doctest: +SKIP
+
         Notes
         -----
         Pointers can be passed to `feval` or dynamic functions as function
@@ -344,6 +363,11 @@ class Oct2Py:
         -------
         A variable, object, user class, or function pointer as appropriate.
         """
+        if expr:
+            tmp_name = f"_oct2py_expr_{uuid.uuid4().hex}"
+            self.eval(f"{tmp_name} = {name}", timeout=timeout)
+            return _make_variable_ptr_instance(self, tmp_name)
+
         exist = self._exist(name)
         isobject = self._isobject(name, exist)
 
