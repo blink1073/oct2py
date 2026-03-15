@@ -46,6 +46,7 @@ test = [
     "scipy",
     "nbconvert",
     "pytest-timeout",
+    "matplotlib",
 ]
 cover = [
     { include-group = "test" },
