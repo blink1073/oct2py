@@ -212,15 +212,16 @@ class TestMisc:
         assert self.oc.extract_figures(plot_dir)
 
     def test_interactive_figure(self):
-        """Test that figures are displayed when using a non-inline backend (issue #176)."""
-        from unittest.mock import patch
+        """Test that figures are created and accessible with a non-inline backend (issue #176).
 
+        Interactive figure display (drawnow expose) is handled inside _pyeval.m
+        when figures are open and figure visibility is on.
+        """
         oc = Oct2Py(backend="default")
-        with patch.object(
-            oc._engine, "make_figures", wraps=oc._engine.make_figures
-        ) as mock_make_figures:
-            oc.figure(1)
-            mock_make_figures.assert_called_once_with()
+        oc.figure(1)
+        n_figs = oc.eval("numel(get(0, 'children'))", nout=1)
+        assert int(n_figs) >= 1, "Expected at least one open figure after figure(1)"
+        oc.eval("close all")
         oc.exit()
 
     def test_narg_out(self):

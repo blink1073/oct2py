@@ -192,7 +192,8 @@ class Oct2Py:
 
     def __del__(self):
         """Delete session"""
-        self.exit()
+        with contextlib.suppress(Exception):
+            self.exit()
 
     def exit(self):
         """Quits this octave session and cleans up."""
@@ -867,8 +868,6 @@ class Oct2Py:
 
         if plot_dir:
             engine.make_figures(plot_dir)
-        elif not engine.plot_settings.get("backend", "inline").startswith("inline"):
-            engine.make_figures()
 
         return result
 
