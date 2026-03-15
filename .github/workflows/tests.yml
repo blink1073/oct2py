@@ -44,8 +44,8 @@ jobs:
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          disable_search: true
+          files: ./coverage.xml
+          plugins: ""   # <-- disables the Python (and other) plugins
 
   test-other:
     runs-on: ${{ matrix.os }}
