@@ -996,9 +996,10 @@ class Oct2Py:
         self._function_ptrs.setdefault(name, func(self, name))
         return self._function_ptrs[name]
 
-    def _get_user_class(self, name):
+    def _get_user_class(self, name, attrs=None):
         """Get or create a user class of the given type."""
-        self._user_classes.setdefault(name, _make_user_class(self, name))
+        if name not in self._user_classes:
+            self._user_classes[name] = _make_user_class(self, name, attrs=attrs)
         return self._user_classes[name]
 
     def __getattr__(self, attr):

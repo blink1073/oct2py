@@ -266,7 +266,8 @@ def _extract(data, session=None, keep_matlab_shapes=False):  # noqa
 
     # Extract user defined classes.
     if isinstance(data, MatlabObject):
-        cls = session._get_user_class(data.classname)
+        attrs = list(data.dtype.names) if data.dtype.names else None
+        cls = session._get_user_class(data.classname, attrs=attrs)
         return cls.from_value(data)
 
     # Extract struct data.

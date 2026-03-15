@@ -493,6 +493,24 @@ class TestMisc:
             assert result.label == "hi"
         # else: older Octave returns OctaveUserClass — non-crash is sufficient
 
+    def test_classdef_required_ctor_return(self):
+        """Returning a classdef whose constructor requires arguments must not raise (issue #174).
+
+        Previously, _make_user_class called fieldnames(ClassName) which tries
+        to invoke the no-arg constructor.  For classes that require arguments
+        that raised an Oct2PyError.  The fix passes dtype.names from the
+        MatlabObject directly so fieldnames() is never called.
+        """
+        from oct2py.io import Struct
+
+        result = self.oc.feval("NoDefaultCtorClass", 5, "test", nout=1)
+        assert result is not None
+        if isinstance(result, Struct):
+            # Octave 11+: classdef converted to struct on save
+            assert int(result.value) == 5
+            assert result.label == "test"
+        # else: older Octave returns OctaveUserClass — non-crash is sufficient
+
     def test_eval_quiet_discards_output(self):
         """quiet=True should execute the command but return None (issue #211)."""
         self.oc.push("x", 42)
