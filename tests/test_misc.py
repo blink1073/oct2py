@@ -212,6 +212,32 @@ class TestMisc:
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
+    def test_plot_from_inside_m_file(self):
+        """Test that plots generated inside a .m function are captured via plot_dir (issue #172).
+
+        When a .m file creates figures internally (e.g. clf/subplot/plot/pause),
+        passing plot_dir to feval should save those figures even though the
+        rendering happens inside the Octave subprocess.
+        """
+        plot_dir = tempfile.mkdtemp().replace("\\", "/")
+        m_path = os.path.join(tempfile.gettempdir(), "test_plot_inside.m")
+        with open(m_path, "w") as f:
+            f.write(
+                "function test_plot_inside()\n"
+                "  clf;\n"
+                "  subplot(2,1,1);\n"
+                "  plot([1 2 3], [4 5 6]);\n"
+                "  subplot(2,1,2);\n"
+                "  plot([1 2 3], [6 5 4]);\n"
+                "end\n"
+            )
+        try:
+            self.oc.feval(m_path, nout=0, plot_dir=plot_dir)
+            assert glob.glob("%s/*" % plot_dir), "No figure files saved from inside .m function"
+            assert self.oc.extract_figures(plot_dir), "extract_figures returned nothing"
+        finally:
+            os.unlink(m_path)
+
     def test_interactive_figure(self):
         """Test that figures are created and accessible with a non-inline backend (issue #176).
 
