@@ -256,6 +256,20 @@ class TestUsage:
         with pytest.raises(Oct2PyError):
             self.oc.get_pointer("foo123")
 
+        # expr=True: treat argument as an Octave expression
+        eptr = self.oc.get_pointer("{@cos @sin}", expr=True)
+        assert type(eptr).__name__ == "OctaveVariablePtr"
+        assert eptr.address.startswith("_oct2py_expr_")
+
+        # Each call produces a unique temp var
+        eptr2 = self.oc.get_pointer("{@cos @sin}", expr=True)
+        assert eptr.address != eptr2.address
+
+        # The pointer can be passed to an Octave function
+        fptr = self.oc.get_pointer("@(f) f(0)", expr=True)
+        result = self.oc.feval("cellfun", fptr, eptr)
+        assert np.allclose(result, [1.0, 0.0])
+
     def test_get_max_nout(self):
         self.oc.addpath(os.path.realpath(os.path.dirname(__file__)))
         here = os.path.dirname(__file__)

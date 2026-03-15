@@ -66,6 +66,31 @@ array([[1., 2., 3.]])
 This is equivalent to using `push` and `pull` directly, but can be more
 natural when porting code from MATLAB's Python engine.
 
+## Expression Pointers
+
+Some Octave values — such as cell arrays of function handles — cannot be
+converted to Python objects. Use `get_pointer` with `expr=True` to hold a
+reference to such an expression and pass it directly to Octave functions
+without a round-trip through Python:
+
+```pycon
+>>> from oct2py import octave
+>>> ptr = octave.get_pointer('{@cos @sin}', expr=True)
+>>> type(ptr).__name__
+'OctaveVariablePtr'
+>>> # Pass the cell of function handles to an Octave function unchanged
+>>> octave.feval('cellfun', '@(f) f(0)', ptr)  # doctest: +SKIP
+array([1., 0.])
+```
+
+`get_pointer(expr_str, expr=True)` assigns the expression to a uniquely
+named temporary variable in the Octave workspace and returns a pointer to
+it. The pointer's `address` is the internal variable name; the temporary
+variable persists for the life of the session.
+
+This is different from `get_pointer(name)` (without `expr=True`), which
+looks up an *existing* named variable or function.
+
 ## Using M-Files
 
 In order to use an m-file in Oct2Py you must first call `addpath` for
