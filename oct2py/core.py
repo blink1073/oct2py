@@ -8,7 +8,9 @@ import logging
 import os
 import os.path as osp
 import shutil
+import signal
 import tempfile
+import threading
 import warnings
 import weakref
 
@@ -730,6 +732,20 @@ class Oct2Py:
         if "OCTAVE_EXECUTABLE" not in os.environ and "OCTAVE" in os.environ:
             os.environ["OCTAVE_EXECUTABLE"] = os.environ["OCTAVE"]
 
+        # Preserve the SIGINT handler across engine startup.  The underlying
+        # pexpect spawn temporarily replaces SIGINT with SIG_DFL so that the
+        # Octave child process inherits a clean disposition.  If a concurrent
+        # thread (e.g. from a scipy/sympy lazy initialiser) transiently sets
+        # SIGINT to SIG_IGN at exactly the wrong moment, pexpect's finally
+        # block can "restore" that transient SIG_IGN value, leaving SIGINT
+        # permanently ignored for the rest of the Python process (issue #168).
+        # Restoring the handler we observed before the spawn prevents engine
+        # startup from having any net effect on the caller's SIGINT disposition.
+        _saved_sigint = None
+        if threading.current_thread() is threading.main_thread():
+            with contextlib.suppress(Exception):
+                _saved_sigint = signal.getsignal(signal.SIGINT)
+
         try:
             # Pass --no-line-editing to avoid readline overhead on every function
             # call in Octave 7+. In interactive mode, readline does expensive
@@ -756,6 +772,10 @@ class Oct2Py:
             )
         except Exception as e:
             raise Oct2PyError(str(e)) from None
+        finally:
+            if _saved_sigint is not None:
+                with contextlib.suppress(Exception):
+                    signal.signal(signal.SIGINT, _saved_sigint)
 
         # Set up the temp directory for MAT file exchange.
         if self.temp_dir is None:
