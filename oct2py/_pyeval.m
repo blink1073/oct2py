@@ -167,19 +167,9 @@ end
 
 function save_safe_struct(output_file, result, err)
     % NOTE: result is cell{1,1} containing other data
-    warn_state = warning('off', 'all');
     try
+        warn_state = warning('off', 'all');
         save('-v6', '-mat-binary', output_file, 'result', 'err');
-        % Only verify readability when the result contains an old-style
-        % Octave object.  Such objects (e.g. ``ss`` from the control
-        % package) are saved without error but produce a MAT file with an
-        % Octave-specific type tag (type 6) that scipy's loadmat cannot
-        % parse.  Plain numerics/structs/cells never have this problem, so
-        % the extra load is skipped in the common case to avoid the I/O
-        % overhead (issue #166).
-        if any(cellfun(@isobject, result))
-            load(output_file);
-        end
         warning(warn_state);
     catch ME
         warning(warn_state);
