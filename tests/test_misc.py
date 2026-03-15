@@ -490,6 +490,10 @@ class TestMisc:
         with pytest.raises(Oct2PyError):
             self.oc.pull("y")
 
+        # Deleting a non-variable (e.g. a built-in function, exist != 1) raises KeyError
+        with pytest.raises(KeyError):
+            del self.oc.workspace["sin"]
+
     def test_feval_script_with_args(self):
         """Calling a .m script with args should make them available via argv (issue #332)."""
         lines: list[str] = []
