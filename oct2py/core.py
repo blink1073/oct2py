@@ -82,9 +82,10 @@ class OctaveWorkspaceProxy:
         The Oct2Py session to proxy.
     """
 
+    _session: "Oct2Py"
+
     def __init__(self, session):
-        # Use object.__setattr__ to avoid triggering Oct2Py.__setattr__
-        object.__setattr__(self, "_session", session)
+        self._session = session
 
     def __getitem__(self, name):
         """Return the named variable from the Octave workspace."""
