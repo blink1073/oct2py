@@ -192,12 +192,14 @@ class Oct2Py:
 
     def __del__(self):
         """Delete session"""
-        self.exit()
+        with contextlib.suppress(Exception):
+            self.exit()
 
     def exit(self):
         """Quits this octave session and cleans up."""
         if self._engine:
-            atexit.unregister(self._engine._cleanup)
+            if callable(atexit.unregister):
+                atexit.unregister(self._engine._cleanup)
             self._engine.repl.terminate()
         self._engine = None
         if self._temp_dir_owner and self.temp_dir and osp.isdir(self.temp_dir):

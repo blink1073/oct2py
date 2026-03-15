@@ -211,6 +211,19 @@ class TestMisc:
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
+    def test_interactive_figure(self):
+        """Test that figures are created and accessible with a non-inline backend (issue #176).
+
+        Interactive figure display (drawnow expose) is handled inside _pyeval.m
+        when figures are open and figure visibility is on.
+        """
+        oc = Oct2Py(backend="default")
+        oc.figure(1)
+        n_figs = oc.eval("numel(get(0, 'children'))", nout=1)
+        assert int(n_figs) >= 1, "Expected at least one open figure after figure(1)"
+        oc.eval("close all")
+        oc.exit()
+
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
         assert s.shape == (2, 1)
