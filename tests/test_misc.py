@@ -3,6 +3,7 @@ import glob
 import logging
 import os
 import shutil
+import signal
 import sys
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -550,3 +551,38 @@ class TestMisc:
             stream_handler=lines.append,
         )
         assert any("hello_from_oct2py" in line for line in lines)
+
+    def test_restart_preserves_sigint_handler(self):
+        """restart() must not permanently alter the SIGINT disposition (issue #168).
+
+        If a third-party library (e.g. an older scipy/sympy) transiently sets
+        SIGINT to SIG_IGN and the pexpect spawn captures that transient value,
+        the spawn's finally block can "restore" SIG_IGN after the library has
+        already corrected it.  Oct2Py's restart() must restore whatever handler
+        was in place before the spawn so that it has no net effect on SIGINT.
+        """
+        original = signal.getsignal(signal.SIGINT)
+        try:
+            # Simulate a library that leaves SIGINT=SIG_IGN before Oct2Py starts.
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+            oc = Oct2Py()
+            oc.exit()
+            assert signal.getsignal(signal.SIGINT) is signal.SIG_IGN
+        finally:
+            signal.signal(signal.SIGINT, original)
+
+    def test_restart_preserves_custom_sigint_handler(self):
+        """restart() restores a custom SIGINT handler unchanged (issue #168)."""
+        original = signal.getsignal(signal.SIGINT)
+        sentinel = []
+
+        def custom_handler(signum, frame):  # pragma: no cover
+            sentinel.append(signum)
+
+        try:
+            signal.signal(signal.SIGINT, custom_handler)
+            oc = Oct2Py()
+            oc.exit()
+            assert signal.getsignal(signal.SIGINT) is custom_handler
+        finally:
+            signal.signal(signal.SIGINT, original)
