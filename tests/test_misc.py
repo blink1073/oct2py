@@ -196,6 +196,18 @@ class TestMisc:
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
+    def test_interactive_figure(self):
+        """Test that figures are displayed when using a non-inline backend (issue #176)."""
+        from unittest.mock import patch
+
+        oc = Oct2Py(backend="default")
+        with patch.object(
+            oc._engine, "make_figures", wraps=oc._engine.make_figures
+        ) as mock_make_figures:
+            oc.figure(1)
+            mock_make_figures.assert_called_once_with()
+        oc.exit()
+
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
         assert s.shape == (2, 1)

@@ -197,7 +197,8 @@ class Oct2Py:
     def exit(self):
         """Quits this octave session and cleans up."""
         if self._engine:
-            atexit.unregister(self._engine._cleanup)
+            if callable(atexit.unregister):
+                atexit.unregister(self._engine._cleanup)
             self._engine.repl.terminate()
         self._engine = None
         if self._temp_dir_owner and self.temp_dir and osp.isdir(self.temp_dir):
@@ -866,6 +867,8 @@ class Oct2Py:
 
         if plot_dir:
             engine.make_figures(plot_dir)
+        elif not engine.plot_settings.get("backend", "inline").startswith("inline"):
+            engine.make_figures()
 
         return result
 
