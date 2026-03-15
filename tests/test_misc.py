@@ -478,6 +478,22 @@ class TestMisc:
         result = self.oc.feval("max", np.array([3, 1, 2]), quiet=True)
         assert result is None
 
+    def test_workspace_proxy(self):
+        """workspace attribute should support dict-style get/set/delete (issue #190)."""
+        self.oc.eval("x = 5", nout=0)
+        assert self.oc.workspace["x"] == 5.0
+
+        self.oc.workspace["y"] = 42
+        assert self.oc.pull("y") == 42.0
+
+        del self.oc.workspace["y"]
+        with pytest.raises(Oct2PyError):
+            self.oc.pull("y")
+
+        # Deleting a non-variable (e.g. a built-in function, exist != 1) raises KeyError
+        with pytest.raises(KeyError):
+            del self.oc.workspace["sin"]
+
     def test_feval_script_with_args(self):
         """Calling a .m script with args should make them available via argv (issue #332)."""
         lines: list[str] = []

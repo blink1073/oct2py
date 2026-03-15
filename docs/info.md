@@ -47,6 +47,25 @@ only see this if you were using logging).
 1.0
 ```
 
+## Workspace Access
+
+The `workspace` attribute provides a dict-like interface to the Octave base
+workspace, mirroring the `eng.workspace` API in MATLAB's Python engine:
+
+```pycon
+>>> from oct2py import octave
+>>> octave.eval("x = 5", nout=0)
+>>> octave.workspace["x"]
+5.0
+>>> octave.workspace["y"] = [1, 2, 3]
+>>> octave.pull("y")
+array([[1., 2., 3.]])
+>>> del octave.workspace["y"]
+```
+
+This is equivalent to using `push` and `pull` directly, but can be more
+natural when porting code from MATLAB's Python engine.
+
 ## Using M-Files
 
 In order to use an m-file in Oct2Py you must first call `addpath` for

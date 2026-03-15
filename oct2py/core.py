@@ -67,6 +67,46 @@ if hasattr(os, "register_at_fork"):
     os.register_at_fork(after_in_child=_reset_instances_after_fork)
 
 
+class OctaveWorkspaceProxy:
+    """Dict-like proxy for the Octave base workspace.
+
+    Allows MATLAB-style variable access::
+
+        octave.workspace['x'] = 5
+        octave.workspace['x']   # returns 5.0
+        del octave.workspace['x']
+
+    Parameters
+    ----------
+    session : Oct2Py
+        The Oct2Py session to proxy.
+    """
+
+    _session: "Oct2Py"
+
+    def __init__(self, session):
+        self._session = session
+
+    def __getitem__(self, name):
+        """Return the named variable from the Octave workspace."""
+        return self._session.pull(name)
+
+    def __setitem__(self, name, value):
+        """Set a variable in the Octave workspace."""
+        self._session.push(name, value)
+
+    def __delitem__(self, name):
+        """Delete a variable from the Octave workspace."""
+        exist = self._session._exist(name)
+        if exist != 1:
+            raise KeyError(name)
+        self._session.eval('clear("%s")' % name, verbose=False)
+
+    def __repr__(self):
+        """Return a string representation of the proxy."""
+        return f"OctaveWorkspaceProxy({self._session!r})"
+
+
 class Oct2Py:
     """Manages an Octave session.
 
@@ -663,6 +703,22 @@ class Oct2Py:
         safe = script.replace("\\", "/").replace("'", "''")
         kwargs.setdefault("nout", 0)
         self.eval(f"run('{safe}')", **kwargs)
+
+    @property
+    def workspace(self):
+        """A dict-like proxy for the Octave base workspace.
+
+        Supports MATLAB-style variable access::
+
+            octave.workspace['x'] = 5
+            octave.workspace['x']   # returns 5.0
+            del octave.workspace['x']
+
+        Returns
+        -------
+        OctaveWorkspaceProxy
+        """
+        return OctaveWorkspaceProxy(self)
 
     def restart(self):
         """Restart an Octave session in a clean state"""
