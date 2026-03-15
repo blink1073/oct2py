@@ -488,3 +488,83 @@ class TestMisc:
             stream_handler=lines.append,
         )
         assert any("hello_from_oct2py" in line for line in lines)
+
+    def test_pyeval_missing_dname_issue_180(self):
+        """_pyeval.m handles a request struct without 'dname' (issue #180).
+
+        When dname is absent from the MAT request file, ``if req.dname`` in
+        _pyeval.m raises "structure has no member 'dname'".  The fix guards
+        the field access with isfield() so the call succeeds.
+        """
+        import scipy.io
+
+        from oct2py.io import read_file
+
+        oc = self.oc
+
+        # Encode a single numeric argument as a 1-element object array (cell).
+        func_arg = np.array([-3.0])
+        encoded = np.empty(1, dtype=object)
+        encoded[0] = func_arg
+
+        req = {
+            "func_name": "abs",
+            "func_args": encoded,
+            "nout": np.float64(1),
+            "store_as": "",
+            "ref_indices": np.array([]),
+            # "dname" intentionally omitted — simulates the condition that
+            # triggered the original "structure has no member 'dname'" error.
+        }
+
+        out_file = os.path.join(oc.temp_dir, "writer.mat")
+        in_file = os.path.join(oc.temp_dir, "reader.mat")
+
+        scipy.io.savemat(out_file, req, appendmat=False, oned_as="row", long_field_names=True)
+        out_file_fwd = out_file.replace(os.sep, "/")
+        in_file_fwd = in_file.replace(os.sep, "/")
+        oc._engine.eval(f'_pyeval("{out_file_fwd}", "{in_file_fwd}");')
+
+        resp = read_file(in_file, oc)
+        assert not resp["err"], f"_pyeval raised: {resp['err']}"
+        result = resp["result"].ravel().tolist()
+        assert result[0] == 3.0
+
+    def test_pyeval_missing_store_as(self):
+        """_pyeval.m handles a request struct without 'store_as'.
+
+        Mirrors the dname guard: if 'store_as' is absent from the request,
+        ``if req.store_as`` raises "structure has no member 'store_as'".
+        The isfield() guard prevents this.
+        """
+        import scipy.io
+
+        from oct2py.io import read_file
+
+        oc = self.oc
+
+        func_arg = np.array([-5.0])
+        encoded = np.empty(1, dtype=object)
+        encoded[0] = func_arg
+
+        req = {
+            "func_name": "abs",
+            "func_args": encoded,
+            "dname": "",
+            "nout": np.float64(1),
+            "ref_indices": np.array([]),
+            # "store_as" intentionally omitted
+        }
+
+        out_file = os.path.join(oc.temp_dir, "writer.mat")
+        in_file = os.path.join(oc.temp_dir, "reader.mat")
+
+        scipy.io.savemat(out_file, req, appendmat=False, oned_as="row", long_field_names=True)
+        out_file_fwd = out_file.replace(os.sep, "/")
+        in_file_fwd = in_file.replace(os.sep, "/")
+        oc._engine.eval(f'_pyeval("{out_file_fwd}", "{in_file_fwd}");')
+
+        resp = read_file(in_file, oc)
+        assert not resp["err"], f"_pyeval raised: {resp['err']}"
+        result = resp["result"].ravel().tolist()
+        assert result[0] == 5.0

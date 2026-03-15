@@ -28,7 +28,7 @@ try
     req = load(input_file);
 
     % Add function path to current path.
-    if req.dname
+    if isfield(req, 'dname') && req.dname
         addpath(req.dname);
     end
 
@@ -130,7 +130,7 @@ try
       end
     end
 
-    if req.store_as
+    if isfield(req, 'store_as') && req.store_as
       assignin('base', req.store_as, result{1});
       result = { sentinel };
     end
