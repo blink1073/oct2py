@@ -612,3 +612,26 @@ class TestMisc:
             assert signal.getsignal(signal.SIGINT) is custom_handler
         finally:
             signal.signal(signal.SIGINT, original)
+
+    def test_old_style_octave_object_return(self):
+        """Returning an old-style Octave object must not raise an error (issue #166).
+
+        Octave can save old-style class instances (e.g. ``ss`` from the control
+        package) without raising an exception, but the resulting MAT file
+        contains an Octave-specific type tag (miINT8/type 6) that scipy's
+        ``loadmat`` cannot parse.  The fix verifies readability via a round-trip
+        load in Octave and applies coerce_value when the check fails.
+        """
+        pytest.importorskip("oct2py")  # always available; guards the skip logic below
+        # Check whether the control package is installed.
+        try:
+            self.oc.eval("pkg load control", nout=0)
+        except Oct2PyError:
+            pytest.skip("Octave control package not installed")
+
+        # Prior to the fix this raised:
+        #   Oct2PyError: Expecting miMATRIX type here, got 6
+        result = self.oc.ss(1)
+        # The result should be coerced to a dict-like Struct (or similar
+        # mapping) containing the state-space matrices.
+        assert result is not None
