@@ -227,10 +227,31 @@ class OctaveUserClass:
         return OctavePtr(instance._ref, instance._name, instance._address)
 
 
-def _make_user_class(session, name):
-    """Make an Octave class for a given class name"""
-    attrs = session.eval("fieldnames(%s);" % name, nout=1).ravel().tolist()
-    methods = session.eval("methods(%s);" % name, nout=1).ravel().tolist()
+def _make_user_class(session, name, attrs=None):
+    """Make an Octave class for a given class name.
+
+    Parameters
+    ----------
+    session : Oct2Py
+        The active Octave session.
+    name : str
+        The class name (or workspace variable name for old-style classes).
+    attrs : list of str, optional
+        Known property names.  When provided (e.g. read from a MatlabObject's
+        dtype), Octave is not queried with ``fieldnames(name)``.  This avoids
+        an error when the class constructor requires arguments.
+
+    Returns
+    -------
+    type
+        A new class derived from ``OctaveUserClass`` representing the Octave class.
+    """
+    if attrs is None:
+        attrs = session.eval("fieldnames(%s);" % name, nout=1).ravel().tolist()
+    try:
+        methods = session.eval("methods(%s);" % name, nout=1).ravel().tolist()
+    except Exception:
+        methods = []
     ref = weakref.ref(session)
 
     doc = _DocDescriptor(ref, name)
