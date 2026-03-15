@@ -40,6 +40,16 @@ def read_file(path, session=None, keep_matlab_shapes=False):
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:
         raise Oct2PyError(str(e)) from None
+    except TypeError as e:
+        # Some Octave versions (e.g. 6.x on Windows) write char arrays with a
+        # mismatched byte-width that scipy cannot read.  Upgrading Octave to
+        # version 7 or later resolves the issue.
+        msg = (
+            f"{e}. "
+            "This is typically caused by a character-encoding bug in older "
+            "Octave versions (< 7) on Windows. Upgrading Octave should fix it."
+        )
+        raise Oct2PyError(msg) from None
     out = {}
     for key, value in data.items():
         out[key] = _extract(value, session, keep_matlab_shapes)
