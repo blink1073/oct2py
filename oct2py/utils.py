@@ -3,7 +3,6 @@
 # Distributed under the terms of the MIT License.
 
 import logging
-import sys
 
 
 class Oct2PyError(Exception):
@@ -13,7 +12,7 @@ class Oct2PyError(Exception):
 
 
 def get_log(name=None):
-    """Return a console logger.
+    """Return a logger for oct2py.
 
     Output may be sent to the logger using the `debug`, `info`, `warning`,
     `error` and `critical` methods.
@@ -29,23 +28,10 @@ def get_log(name=None):
         The logger object.
     """
     name = "oct2py" if name is None else "oct2py." + name
-
-    log = logging.getLogger(name)
-    log.setLevel(logging.INFO)
-    return log
+    return logging.getLogger(name)
 
 
-def _setup_log():
-    """Configure root logger."""
-    try:
-        handler = logging.StreamHandler(stream=sys.stdout)
-    except TypeError:  # pragma: no cover
-        handler = logging.StreamHandler(strm=sys.stdout)  # type:ignore[call-overload]
-
-    log = get_log()
-    log.addHandler(handler)
-    log.setLevel(logging.INFO)
-    log.propagate = False
-
-
-_setup_log()
+# Add a NullHandler so that log records are silently discarded unless the
+# application configures logging.  Per Python logging best practices, libraries
+# must not install their own handlers or set levels on their loggers.
+logging.getLogger("oct2py").addHandler(logging.NullHandler())
