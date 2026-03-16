@@ -1,11 +1,8 @@
-#!/usr/bin/env -S uv run
-# /// script
-# dependencies = ["opencv-python"]
-# ///
-"""Repro script for issue #240: conflict between opencv-python and oct2py.
+#!/usr/bin/env python
+"""Regression test for issue #240: conflict between opencv-python and oct2py.
 
-When cv2 is imported before Oct2Py() is instantiated on Linux, Octave
-crashes with pexpect.exceptions.EOF due to a Qt platform plugin conflict.
+Validates that importing cv2 before or after oct2py no longer causes Octave
+to crash with pexpect.exceptions.EOF due to a Qt platform plugin conflict.
 """
 
 import subprocess
