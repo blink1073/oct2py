@@ -88,12 +88,11 @@ class TestUsage:
         tests = [self.oc.zeros, self.oc.ones, self.oc.plot]
         for item in tests:
             assert "class 'oct2py.dynamic" in repr(type(item))
-        with pytest.raises(Oct2PyError):
-            self.oc.__getattr__("aaldkfasd")
-        with pytest.raises(Oct2PyError):
-            self.oc.__getattr__("_foo")
-        with pytest.raises(Oct2PyError):
-            self.oc.__getattr__("foo\\W")
+        from oct2py.dynamic import OctaveNamespaceProxy
+
+        assert isinstance(self.oc.__getattr__("aaldkfasd"), OctaveNamespaceProxy)
+        assert isinstance(self.oc.__getattr__("_foo"), OctaveNamespaceProxy)
+        assert isinstance(self.oc.__getattr__("foo\\W"), OctaveNamespaceProxy)
 
     def test_open_close(self):
         """Test opening and closing the Octave session"""

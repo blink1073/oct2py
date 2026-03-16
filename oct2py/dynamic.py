@@ -270,6 +270,41 @@ def _make_user_class(session, name, attrs=None):
     return type(str(name), (OctaveUserClass,), values)
 
 
+class OctaveNamespaceProxy:
+    """A lazy proxy for an Octave package namespace.
+
+    Returned when attribute access on an Oct2Py session resolves to a name
+    that doesn't exist as a plain function or variable in Octave — which
+    includes package-namespace prefixes like ``+package`` directories.
+
+    Chained access (``octave.pkg.sub.func``) keeps building the dotted
+    name; calling the proxy dispatches to ``feval``.
+    """
+
+    def __init__(self, session_weakref, prefix):
+        self._ref = session_weakref
+        self._prefix = prefix
+
+    def __getattr__(self, name):
+        """Return a child proxy, extending the dotted prefix."""
+        if name.startswith("_"):
+            raise AttributeError(name)
+        return OctaveNamespaceProxy(self._ref, f"{self._prefix}.{name}")
+
+    def __call__(self, *inputs, **kwargs):
+        """Call the resolved dotted name as an Octave function."""
+        return self._ref().feval(self._prefix, *inputs, _is_dotted_name=True, **kwargs)
+
+    def __repr__(self):
+        """A string repr of the proxy."""
+        return f'Octave namespace proxy for "{self._prefix}"'
+
+
+def _make_namespace_proxy(session, prefix):
+    """Return a namespace proxy for an unresolved Octave name."""
+    return OctaveNamespaceProxy(weakref.ref(session), prefix)
+
+
 def _make_function_ptr_instance(session, name):
     ref = weakref.ref(session)
     doc = _DocDescriptor(ref, name)

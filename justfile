@@ -13,7 +13,7 @@ test *args:
 
 # Run tests with coverage
 cover *args:
-    uv run --group cover python -m pytest -n auto --dist=loadscope --doctest-modules -l --cov-report html --cov-report=xml --cov=oct2py --cov-fail-under 85 -vv {{args}}
+    uv run --group cover python -m pytest -n auto --dist=loadscope --doctest-modules -l --cov-report html --cov-report=xml --cov-report=term-missing --cov=oct2py --cov-fail-under 85 -vv {{args}}
 
 # Run linters (ruff check + format)
 lint:
