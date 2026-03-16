@@ -1,9 +1,10 @@
 # Configuration & Settings
 
 `Oct2PySettings` provides a single object that carries all session defaults.
-It reads values from environment variables automatically, so you can configure
-oct2py without changing any code — useful in CI, Docker, or shared
-environments.
+It is built on [pydantic-settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/),
+which means it reads values from environment variables automatically, so you
+can configure oct2py without changing any code — useful in CI, Docker, or
+shared environments.
 
 ## Quick start
 
