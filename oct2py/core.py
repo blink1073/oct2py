@@ -27,7 +27,7 @@ from .dynamic import (
     _make_variable_ptr_instance,
 )
 from .io import Cell, StructArray, read_file, write_file
-from .utils import Oct2PyError, get_log
+from .utils import Oct2PyError, _augment_path_for_windows, get_log
 
 HERE = osp.realpath(osp.dirname(__file__))
 
@@ -842,8 +842,10 @@ class Oct2Py:
         if self._engine:
             self._engine.repl.terminate()
 
-        if "OCTAVE_EXECUTABLE" not in os.environ and "OCTAVE" in os.environ:
-            os.environ["OCTAVE_EXECUTABLE"] = os.environ["OCTAVE"]
+        # OctaveEngine resolves OCTAVE_EXECUTABLE from its env; honour the
+        # legacy OCTAVE alias by passing it explicitly when OCTAVE_EXECUTABLE
+        # is absent.
+        _executable = os.environ.get("OCTAVE_EXECUTABLE") or os.environ.get("OCTAVE", "")
 
         # Preserve the SIGINT handler across engine startup.  The underlying
         # pexpect spawn temporarily replaces SIGINT with SIG_DFL so that the
@@ -879,6 +881,7 @@ class Oct2Py:
                 return None
 
             self._engine = OctaveEngine(
+                executable=_executable,
                 stdin_handler=_stdin_handler,
                 logger=self.logger,
                 cli_options="--no-line-editing",
@@ -889,6 +892,8 @@ class Oct2Py:
             if _saved_sigint is not None:
                 with contextlib.suppress(Exception):
                     signal.signal(signal.SIGINT, _saved_sigint)
+
+        _augment_path_for_windows(self._engine.executable)
 
         # Set up the temp directory for MAT file exchange.
         if self.temp_dir is None:

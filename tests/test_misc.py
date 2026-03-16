@@ -780,3 +780,67 @@ class TestMisc:
         # The result should be coerced to a dict-like Struct (or similar
         # mapping) containing the state-space matrices.
         assert result is not None
+
+
+# ---------------------------------------------------------------------------
+# Tests for _augment_path_for_windows (issue #228)
+# ---------------------------------------------------------------------------
+
+from oct2py.utils import _augment_path_for_windows  # noqa: E402
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows-only behaviour")
+def test_augment_path_adds_mingw_dirs(tmp_path, monkeypatch):
+    """Helper prepends <root>/mingw64/bin and <root>/usr/bin on Windows."""
+    # Build a fake Octave install tree: <root>/mingw64/bin/octave-cli.exe
+    exe_dir = tmp_path / "mingw64" / "bin"
+    exe_dir.mkdir(parents=True)
+    exe = exe_dir / "octave-cli.exe"
+    exe.touch()
+
+    mingw_bin = str(tmp_path / "mingw64" / "bin")
+    usr_bin_dir = tmp_path / "usr" / "bin"
+    usr_bin_dir.mkdir(parents=True)
+    usr_bin = str(usr_bin_dir)
+
+    monkeypatch.setenv("PATH", "C:\\Windows\\System32")
+
+    _augment_path_for_windows(str(exe))
+
+    path_entries = os.environ["PATH"].split(os.pathsep)
+    assert mingw_bin in path_entries
+    assert usr_bin in path_entries
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows-only behaviour")
+def test_augment_path_idempotent(tmp_path, monkeypatch):
+    """Calling the helper twice must not duplicate PATH entries."""
+    exe_dir = tmp_path / "mingw64" / "bin"
+    exe_dir.mkdir(parents=True)
+    exe = exe_dir / "octave-cli.exe"
+    exe.touch()
+    (tmp_path / "usr" / "bin").mkdir(parents=True)
+
+    monkeypatch.setenv("PATH", "C:\\Windows\\System32")
+
+    _augment_path_for_windows(str(exe))
+    path_after_first = os.environ["PATH"]
+    _augment_path_for_windows(str(exe))
+    path_after_second = os.environ["PATH"]
+
+    assert path_after_first == path_after_second
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Non-Windows behaviour")
+def test_augment_path_noop_on_non_windows(monkeypatch):
+    """Helper must leave PATH unchanged on non-Windows platforms."""
+    original_path = os.environ.get("PATH", "")
+    _augment_path_for_windows("octave-cli")
+    assert os.environ.get("PATH", "") == original_path
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows integration test")
+def test_system_cat_works_via_oct2py():
+    """Oct2Py session can call system('cat --version') without raising."""
+    with Oct2Py() as oc:
+        oc.eval("[~, out] = system('cat --version');", nout=0)
