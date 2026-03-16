@@ -274,32 +274,63 @@ class TestMisc:
         oc.eval("close all")
         oc.exit()
 
+    @skip_flatpak  # inline graphics toolkit crashes Octave in flatpak sandbox
     def test_show(self):
-        """Test that show() and auto_show wire up _show_figures() correctly (issue #164).
+        """Test _show_figures() end-to-end using matplotlib's inline backend (issue #164).
 
-        Verifies that show() delegates to _show_figures() and that auto_show=True
-        triggers _show_figures() automatically after each feval.  The actual
-        figure-capture path is exercised headlessly via a mock to avoid blocking
-        on plt.show() in CI environments without a display.
+        Exercises the real capture path: Octave renders a figure to a PNG in
+        temp_dir, which is loaded by matplotlib and added as a figure.  The
+        IPython inline backend is used so plt.show() flushes figures to display
+        output without opening a window.  A spy on plt.show() captures the
+        figure count at the moment of display, since the inline backend clears
+        figures immediately after show().
         """
-        pytest.importorskip("matplotlib")
+        from unittest.mock import patch
 
-        captured = []
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
 
-        # show() should delegate to _show_figures().
+        mpl.use("module://matplotlib_inline.backend_inline")
+        plt.close("all")
+
         oc = Oct2Py(backend="inline")
-        oc._show_figures = lambda: captured.append("show")
-        oc.show()
-        assert captured == ["show"], "show() did not invoke _show_figures()"
-        oc.exit()
+        try:
+            # A real plot creates a figure that _show_figures() should capture.
+            oc.plot([1, 2, 3])
 
-        # auto_show=True should call _show_figures() after every feval.
-        captured.clear()
+            captured: list[int] = []
+
+            def spy_show(*args: object, **kwargs: object) -> None:
+                captured.append(len(plt.get_fignums()))
+
+            with patch.object(plt, "show", spy_show):
+                oc._show_figures()
+            assert captured and captured[0] > 0, (
+                "_show_figures() did not create any matplotlib figures"
+            )
+
+            # With no open Octave figures, _show_figures() should not call plt.show().
+            oc.eval("close all", nout=0)
+            captured.clear()
+            with patch.object(plt, "show", spy_show):
+                oc._show_figures()
+            assert not captured, "_show_figures() called plt.show() unexpectedly"
+        finally:
+            oc.exit()
+
+        # auto_show=True: _show_figures() fires after each feval that produces a figure.
+        plt.close("all")
         oc2 = Oct2Py(backend="inline", auto_show=True)
-        oc2._show_figures = lambda: captured.append("auto")
-        oc2.plot([1, 2, 3])
-        assert captured == ["auto"], "auto_show=True did not trigger _show_figures() after feval"
-        oc2.exit()
+        try:
+            captured = []
+            with patch.object(plt, "show", spy_show):
+                oc2.plot([1, 2, 3])
+            assert captured and captured[0] > 0, (
+                "auto_show=True did not produce a matplotlib figure after plot()"
+            )
+        finally:
+            oc2.exit()
+            plt.close("all")
 
     def test_narg_out(self):
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
