@@ -859,6 +859,7 @@ class Oct2Py:
             with contextlib.suppress(Exception):
                 _saved_sigint = signal.getsignal(signal.SIGINT)
 
+        _qt_plugin_path = None
         try:
             # Pass --no-line-editing to avoid readline overhead on every function
             # call in Octave 7+. In interactive mode, readline does expensive
@@ -870,6 +871,13 @@ class Oct2Py:
             # registration) does not hold a strong reference back to this Oct2Py
             # instance, which would otherwise prevent __del__ / exit() from ever
             # being called and cause Octave subprocesses to accumulate.
+            #
+            # Strip QT_QPA_PLATFORM_PLUGIN_PATH before spawning Octave.  When
+            # opencv-python is imported it injects its own bundled Qt plugin
+            # directory into this variable; pexpect inherits os.environ, so the
+            # Octave child process would pick up the incompatible path and crash
+            # with "Could not load the Qt platform plugin" (issue #240).
+            _qt_plugin_path = os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
             _weak_self = weakref.ref(self)
 
             def _stdin_handler(line):
@@ -889,6 +897,8 @@ class Oct2Py:
             if _saved_sigint is not None:
                 with contextlib.suppress(Exception):
                     signal.signal(signal.SIGINT, _saved_sigint)
+            if _qt_plugin_path is not None:
+                os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = _qt_plugin_path
 
         # Set up the temp directory for MAT file exchange.
         if self.temp_dir is None:

@@ -39,6 +39,9 @@ jobs:
         run: just cover
       - name: Run example notebook
         run: just test-notebook
+      - name: Test opencv compatibility
+        if: ${{ matrix.python-version != '3.14t' }}
+        run: just test-opencv
       - name: Upload coverage to Codecov
         if: always()
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
@@ -71,6 +74,8 @@ jobs:
           install-type: ${{ matrix.install-type }}
       - name: Run tests
         run: just test tests/test_usage.py tests/test_misc.py
+      - name: Test opencv compatibility
+        run: just test-opencv
 
   benchmark:
     runs-on: ubuntu-24.04
