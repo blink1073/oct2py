@@ -207,7 +207,7 @@ class TestMisc:
             speed_check.speed_check()  # type:ignore[attr-defined]
 
     def test_plot(self):
-        plot_dir = tempfile.mkdtemp().replace("\\", "/")
+        plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
@@ -219,8 +219,8 @@ class TestMisc:
         passing plot_dir to feval should save those figures even though the
         rendering happens inside the Octave subprocess.
         """
-        plot_dir = tempfile.mkdtemp().replace("\\", "/")
-        m_path = os.path.join(tempfile.gettempdir(), "test_plot_inside.m")
+        plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
+        m_path = os.path.join(self.oc.temp_dir, "test_plot_inside.m")
         with open(m_path, "w") as f:
             f.write(
                 "function test_plot_inside()\n"
@@ -375,7 +375,7 @@ class TestMisc:
         oc.exit()
 
     def test_temp_dir(self):
-        temp_dir = tempfile.mkdtemp()
+        temp_dir = tempfile.mkdtemp(dir=self.oc.temp_dir)
         oc = Oct2Py(temp_dir=temp_dir)
         oc.push("a", 1)
         assert len(os.listdir(temp_dir))
