@@ -54,7 +54,7 @@ jobs:
             cover-cmd: just cover
           - os: windows-latest
             install-type: windows
-            cover-cmd: just cover tests/test_usage.py tests/test_misc.py
+            cover-cmd: just cover tests/test_usage.py tests/test_misc.py tests/test_octavemagic.py
       fail-fast: false
 
     steps:
