@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   test:
-    needs: cover
+    needs: pre_commit
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -81,7 +81,7 @@ jobs:
           plugins: ""   # <-- disables the Python (and other) plugins
 
   test-opencv:
-    needs: cover
+    needs: pre_commit
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -106,7 +106,7 @@ jobs:
         run: just test-opencv
 
   test-other:
-    needs: cover
+    needs: pre_commit
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
