@@ -257,11 +257,38 @@ Traceback (most recent call last):
 oct2py.utils.Oct2PyError: Session timed out
 ```
 
+## Configuration & Settings
+
+All session defaults — timeout, executable, plot format, backend, and
+more — can be set in one place using `Oct2PySettings` and read from
+environment variables automatically.  See the
+[Configuration & Settings](settings.md) page for the full guide,
+including env var names, `.env` file support, and common recipes for
+headless, sandboxed, and CI environments.
+
+```python
+from oct2py import Oct2Py, Oct2PySettings
+
+s = Oct2PySettings(backend="disable", timeout=30, plot_format="png")
+oc = Oct2Py(settings=s)
+```
+
+Use `oct2py.configure()` to reconfigure the default global instance:
+
+```python
+import oct2py
+oct2py.configure(backend="disable", timeout=60)
+```
+
 ## Octave Executable
 
 By default, oct2py uses `octave` as the Octave executable. To use a
-different binary, set the `OCTAVE_EXECUTABLE` environment variable
-before starting Python:
+different binary, pass it directly or set the `OCTAVE_EXECUTABLE`
+environment variable:
+
+```python
+oc = Oct2Py(executable="/path/to/octave")
+```
 
 ```shell
 export OCTAVE_EXECUTABLE=/path/to/octave

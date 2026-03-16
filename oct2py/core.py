@@ -153,19 +153,90 @@ class Oct2Py:
         and display them via matplotlib.  Defaults to True when the
         ``PYCHARM_HOSTED`` environment variable is set (i.e. when running
         inside PyCharm), False otherwise.  Set explicitly to override.
+    extra_cli_options : str, optional
+        Extra command-line options appended to the Octave invocation.
+    executable : str, optional
+        Path to the Octave executable. Resolved in order: this argument,
+        ``OCTAVE_EXECUTABLE`` env var, ``octave``/``octave-cli`` on
+        ``PATH``, then Flatpak.
+    load_octaverc : bool, optional
+        If True (default), source ``~/.octaverc`` during startup.  Set to
+        False to skip loading the user init file, which is useful in
+        reproducible or sandboxed environments where the init file may
+        alter the path, set conflicting options, or is simply unavailable.
+    plot_format : str, optional
+        Default format for saved plots (default ``"svg"``).
+    plot_name : str, optional
+        Default base name for saved plots (default ``"plot"``).
+    plot_width : int, optional
+        Default plot width in pixels.
+    plot_height : int, optional
+        Default plot height in pixels.
+    plot_res : int, optional
+        Default plot resolution in pixels per inch.
     """
 
     def __init__(  # noqa
         self,
+        settings=None,
         logger=None,
         timeout=None,
-        oned_as="row",
+        oned_as=None,
         temp_dir=None,
-        convert_to_float=True,
+        convert_to_float=None,
         backend=None,
-        keep_matlab_shapes=False,
+        keep_matlab_shapes=None,
         auto_show=None,
+        extra_cli_options=None,
+        executable=None,
+        load_octaverc=None,
+        plot_format=None,
+        plot_name=None,
+        plot_width=None,
+        plot_height=None,
+        plot_res=None,
     ):
+        from .settings import Oct2PySettings
+        if settings is None:
+            settings = Oct2PySettings()
+        # Apply settings as defaults for any unspecified kwargs
+        if oned_as is None:
+            oned_as = settings.oned_as
+        if convert_to_float is None:
+            convert_to_float = settings.convert_to_float
+        if backend is None:
+            backend = settings.backend
+        if keep_matlab_shapes is None:
+            keep_matlab_shapes = settings.keep_matlab_shapes
+        if timeout is None:
+            timeout = settings.timeout
+        if temp_dir is None:
+            temp_dir = settings.temp_dir
+        if extra_cli_options is None:
+            extra_cli_options = settings.extra_cli_options
+        if executable is None:
+            executable = settings.executable
+        if load_octaverc is None:
+            load_octaverc = settings.load_octaverc
+        if plot_format is None:
+            plot_format = settings.plot_format
+        if plot_name is None:
+            plot_name = settings.plot_name
+        if plot_width is None:
+            plot_width = settings.plot_width
+        if plot_height is None:
+            plot_height = settings.plot_height
+        if plot_res is None:
+            plot_res = settings.plot_res
+        self._settings = settings
+        self._extra_cli_options = extra_cli_options
+        self.executable = executable or ""
+        self._load_octaverc = load_octaverc
+        self.plot_format = plot_format
+        self.plot_name = plot_name
+        self.plot_width = plot_width
+        self.plot_height = plot_height
+        self.plot_res = plot_res
         self._oned_as = oned_as
         self._engine = None
         self._logger = None
@@ -178,6 +249,8 @@ class Oct2Py:
         self.convert_to_float = convert_to_float
         self._user_classes = {}
         self._function_ptrs = {}
+        if auto_show is None:
+            auto_show = settings.auto_show
         if auto_show is None:
             auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
             if self.backend == "disable":
@@ -258,6 +331,7 @@ class Oct2Py:
         unless `convert_to_float=False`.
 
         """
+        timeout = timeout if timeout is not None else self.timeout
         if isinstance(name, str):
             name = [name]
             var = [var]
@@ -300,6 +374,7 @@ class Oct2Py:
           [u'spam', array([[1, 2, 3, 4]])]
 
         """
+        timeout = timeout if timeout is not None else self.timeout
         if isinstance(var, str):
             var = [var]
         outputs = []
@@ -379,6 +454,7 @@ class Oct2Py:
         -------
         A variable, object, user class, or function pointer as appropriate.
         """
+        timeout = timeout if timeout is not None else self.timeout
         if expr:
             tmp_name = f"_oct2py_expr_{uuid.uuid4().hex}"
             self.eval(f"{tmp_name} = {name}", timeout=timeout)
@@ -614,7 +690,8 @@ class Oct2Py:
         stream_handler = kwargs.get("stream_handler")
         verbose = kwargs.get("verbose", True)
         store_as = kwargs.get("store_as", "")
-        timeout = kwargs.get("timeout", self.timeout)
+        _t = kwargs.get("timeout")
+        timeout = _t if _t is not None else self.timeout
         if not stream_handler:
             stream_handler = self.logger.info if verbose else self.logger.debug
 
@@ -637,8 +714,8 @@ class Oct2Py:
         stream_handler=None,
         temp_dir=None,
         plot_dir=None,
-        plot_name="plot",
-        plot_format="svg",
+        plot_name=None,
+        plot_format=None,
         plot_backend=None,
         plot_width=None,
         plot_height=None,
@@ -735,6 +812,13 @@ class Oct2Py:
         """  # noqa: DOC103
         if isinstance(cmds, str):
             cmds = [cmds]
+
+        timeout = timeout if timeout is not None else self.timeout
+        plot_name = plot_name if plot_name is not None else self.plot_name
+        plot_format = plot_format if plot_format is not None else self.plot_format
+        plot_width = plot_width if plot_width is not None else self.plot_width
+        plot_height = plot_height if plot_height is not None else self.plot_height
+        plot_res = plot_res if plot_res is not None else self.plot_res
 
         prev_temp_dir = self.temp_dir
         self.temp_dir = temp_dir or self.temp_dir
@@ -842,10 +926,8 @@ class Oct2Py:
         if self._engine:
             self._engine.repl.terminate()
 
-        # OctaveEngine resolves OCTAVE_EXECUTABLE from its env; honour the
-        # legacy OCTAVE alias by passing it explicitly when OCTAVE_EXECUTABLE
-        # is absent.
-        _executable = os.environ.get("OCTAVE_EXECUTABLE") or os.environ.get("OCTAVE", "")
+        # Use the stored executable (may be empty, letting OctaveEngine resolve).
+        _executable = self.executable
 
         # Preserve the SIGINT handler across engine startup.  The underlying
         # pexpect spawn temporarily replaces SIGINT with SIG_DFL so that the
@@ -863,12 +945,6 @@ class Oct2Py:
 
         _qt_plugin_path = None
         try:
-            # Pass --no-line-editing to avoid readline overhead on every function
-            # call in Octave 7+. In interactive mode, readline does expensive
-            # terminal processing after each function call (~0.5s on some
-            # systems), which is unnecessary since oct2py drives Octave
-            # programmatically via pexpect.
-            #
             # Use a weakref-based wrapper so that OctaveEngine (and its atexit
             # registration) does not hold a strong reference back to this Oct2Py
             # instance, which would otherwise prevent __del__ / exit() from ever
@@ -892,7 +968,8 @@ class Oct2Py:
                 executable=_executable,
                 stdin_handler=_stdin_handler,
                 logger=self.logger,
-                cli_options="--no-line-editing",
+                cli_options=self._extra_cli_options,
+                load_octaverc=self._load_octaverc,
             )
         except Exception as e:
             raise Oct2PyError(str(e)) from None
@@ -903,7 +980,8 @@ class Oct2Py:
             if _qt_plugin_path is not None:
                 os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = _qt_plugin_path
 
-        _augment_path_for_windows(self._engine.executable)
+        self.executable = self._engine.executable
+        _augment_path_for_windows(self.executable)
 
         # Set up the temp directory for MAT file exchange.
         if self.temp_dir is None:

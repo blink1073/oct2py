@@ -39,3 +39,11 @@ jupyter:
 ## kill_octave
 
 ::: oct2py.kill_octave
+
+## Oct2PySettings
+
+::: oct2py.Oct2PySettings
+
+## configure
+
+::: oct2py.configure

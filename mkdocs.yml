@@ -42,5 +42,6 @@ nav:
   - Examples: examples.md
   - Type Conversions: conversions.md
   - Example Notebook: notebook.ipynb
+  - Configuration: settings.md
   - API Reference: api.md
   - Information: info.md
