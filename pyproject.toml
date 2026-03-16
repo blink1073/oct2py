@@ -114,6 +114,10 @@ pretty = true
 show_error_context = true
 warn_unreachable = true
 
+[[tool.mypy.overrides]]
+module = "matplotlib.*"
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 100
 

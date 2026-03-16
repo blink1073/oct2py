@@ -4,6 +4,7 @@
 
 import atexit
 import contextlib
+import glob
 import logging
 import os
 import os.path as osp
@@ -204,9 +205,9 @@ class Oct2Py:
 
     def __del__(self):
         """Delete session"""
-        try:
+        try:  # noqa: SIM105
             self.exit()
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
     def exit(self):
@@ -441,18 +442,27 @@ class Oct2Py:
 
     def _show_figures(self):
         """Capture open Octave figures and display them via matplotlib."""
-        import glob as _glob
-
+        if not self._engine:
+            return
         try:
-            import matplotlib.image as mpimg
-            import matplotlib.pyplot as plt
+            import matplotlib.image as mpimg  # noqa: PLC0415
+            import matplotlib.pyplot as plt  # noqa: PLC0415
         except ImportError:
             return
 
         plot_dir = tempfile.mkdtemp()
         try:
-            self._engine.make_figures(plot_dir)
-            figure_files = sorted(_glob.glob(osp.join(plot_dir, "*")))
+            # Temporarily switch to inline mode so _make_figures uses a
+            # headless-compatible toolkit (gnuplot/qt offscreen) rather than
+            # the default interactive toolkit, which requires a display.
+            saved = self._engine.plot_settings.copy()
+            self._engine.plot_settings = {**saved, "backend": "inline"}
+            try:
+                self._engine.make_figures(plot_dir)
+            finally:
+                self._engine.plot_settings = saved
+
+            figure_files = sorted(glob.glob(osp.join(plot_dir, "*")))
             for img_path in figure_files:
                 img = mpimg.imread(img_path)
                 _, ax = plt.subplots()
