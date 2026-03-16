@@ -43,6 +43,9 @@ jobs:
         run: just test
       - name: Run example notebook
         run: just test-notebook
+      - name: Test opencv compatibility
+        if: ${{ matrix.python-version == '3.10' }}
+        run: just test-opencv
 
   cover:
     runs-on: ${{ matrix.os }}
@@ -79,31 +82,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           plugins: ""   # <-- disables the Python (and other) plugins
-
-  test-opencv:
-    needs: pre_commit
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-24.04
-            install-type: ubuntu
-          - os: windows-latest
-            install-type: windows
-          - os: macos-latest
-            install-type: macos
-      fail-fast: false
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
-      - name: Install Octave
-        uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
-        with:
-          install-type: ${{ matrix.install-type }}
-      - name: Test opencv compatibility
-        run: just test-opencv
 
   test-other:
     needs: pre_commit
@@ -205,7 +183,6 @@ jobs:
     needs:
       - test
       - cover
-      - test-opencv
       - test-other
       - pre_commit
       - typing
