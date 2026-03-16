@@ -424,7 +424,8 @@ class TestMisc:
         assert out == 5
         doc = self.oc.test_nodocstring.__doc__
         assert "user-defined function" in doc or "undocumented function" in doc
-        assert os.path.dirname(__file__) in self.oc.test_nodocstring.__doc__
+        expected_dir = self.oc.temp_dir if self._flatpak else os.path.dirname(__file__)
+        assert expected_dir in doc
 
     def test_func_noexist(self):
         with pytest.raises(Oct2PyError):
