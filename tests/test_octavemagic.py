@@ -31,19 +31,26 @@ def magics(ip, tmp_path):
     return m
 
 
-def test_executable_trait_sets_oct2py(ip, monkeypatch):
+def test_executable_trait_sets_oct2py(ip):
     """Setting the executable trait creates a new Oct2Py session with OCTAVE_EXECUTABLE set."""
-    with patch("oct2py.ipython.octavemagic.oct2py") as mock_oct2py_module:
-        mock_oct2py_module.octave = MagicMock()
-        new_session = MagicMock()
-        mock_oct2py_module.Oct2Py.return_value = new_session
+    orig = os.environ.pop("OCTAVE_EXECUTABLE", None)
+    try:
+        with patch("oct2py.ipython.octavemagic.oct2py") as mock_oct2py_module:
+            mock_oct2py_module.octave = MagicMock()
+            new_session = MagicMock()
+            mock_oct2py_module.Oct2Py.return_value = new_session
 
-        magics = OctaveMagics(ip)
-        magics.executable = "/usr/bin/octave-custom"
+            magics = OctaveMagics(ip)
+            magics.executable = "/usr/bin/octave-custom"
 
-        assert os.environ.get("OCTAVE_EXECUTABLE") == "/usr/bin/octave-custom"
-        mock_oct2py_module.Oct2Py.assert_called_once_with()
-        assert magics._oct is new_session
+            assert os.environ.get("OCTAVE_EXECUTABLE") == "/usr/bin/octave-custom"
+            mock_oct2py_module.Oct2Py.assert_called_once_with()
+            assert magics._oct is new_session
+    finally:
+        if orig is None:
+            os.environ.pop("OCTAVE_EXECUTABLE", None)
+        else:
+            os.environ["OCTAVE_EXECUTABLE"] = orig
 
 
 def test_octave_line_magic_returns_value(magics):
