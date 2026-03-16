@@ -23,6 +23,12 @@ Struct, StructArray are Oct2Py convenience classes.
 | set | array or cell | ndarray or Cell |
 | Struct | struct | Struct |
 | StructArray | struct array | StructArray |
+| pd.Series | array | ndarray |
+| pd.DataFrame | matrix | ndarray |
+
+> **Note:** Pandas objects are converted to their underlying NumPy array via
+> `.values` before being sent to Octave. The round-trip type is therefore
+> `ndarray`, not the original `Series` or `DataFrame`.
 
 ## Numpy to Octave Types
 

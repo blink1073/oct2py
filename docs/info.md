@@ -316,6 +316,33 @@ array([[1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
 ...
 ```
 
+## Pandas
+
+Oct2Py supports `pandas.Series` and `pandas.DataFrame` objects directly.
+They are converted to their underlying NumPy array via `.values` before
+being sent to Octave, so the Octave side always receives a plain numeric
+array or matrix. The round-trip type is `ndarray`, not the original pandas
+type.
+
+```pycon
+>>> import numpy as np
+>>> import pandas as pd
+>>> from oct2py import Oct2Py
+>>> oc = Oct2Py()
+>>> series = pd.Series([1.0, 2.0, 3.0])
+>>> oc.push("s", series)
+>>> oc.pull("s")
+array([[1., 2., 3.]])
+>>> data = np.array([[1.0, 2.0], [3.0, 4.0]])
+>>> df = pd.DataFrame(data, columns=["a", "b"])
+>>> oc.push("df", df)
+>>> oc.pull("df")
+array([[1., 2.],
+       [3., 4.]])
+>>> oc.exit()
+
+```
+
 ## Structs
 
 Struct is a convenience class that mimics an Octave structure variable
