@@ -4,6 +4,8 @@ import os
 import tempfile
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 import oct2py
 from oct2py import Oct2Py, Oct2PySettings
 
@@ -139,6 +141,22 @@ class TestOct2PySettings:
         assert s.plot_res == 150
 
 
+@pytest.fixture()
+def restore_octave():
+    """Save and restore oct2py.octave after each configure test.
+
+    Also mocks exit() on the saved instance so the real Octave session is
+    never closed by configure() during a test.
+    """
+    saved = oct2py.octave
+    with patch.object(saved, "exit"):
+        yield
+    # Null out the engine of whatever configure() installed, then restore.
+    if oct2py.octave is not saved:
+        oct2py.octave._engine = None
+    oct2py.octave = saved
+
+
 class TestConfigure:
     """Tests for the oct2py.configure() function."""
 
@@ -148,7 +166,7 @@ class TestConfigure:
         fake.executable = executable
         return fake
 
-    def test_configure_with_kwargs_builds_settings(self):
+    def test_configure_with_kwargs_builds_settings(self, restore_octave):
         """configure(**kwargs) builds an Oct2PySettings from kwargs."""
         fake = self._make_fake_engine()
         original = oct2py.octave
@@ -158,9 +176,8 @@ class TestConfigure:
         assert new_instance is not original
         assert new_instance.backend == "disable"
         assert new_instance.timeout == 42
-        new_instance._engine = None
 
-    def test_configure_with_settings_object(self):
+    def test_configure_with_settings_object(self, restore_octave):
         """configure(settings=s) uses the provided settings object directly."""
         s = Oct2PySettings(backend="disable", timeout=99, oned_as="column")
         fake = self._make_fake_engine()
@@ -172,9 +189,8 @@ class TestConfigure:
         assert new_instance.backend == "disable"
         assert new_instance.timeout == 99
         assert new_instance._oned_as == "column"
-        new_instance._engine = None
 
-    def test_configure_no_args_uses_defaults(self):
+    def test_configure_no_args_uses_defaults(self, restore_octave):
         """configure() with no args creates a default-settings instance."""
         fake = self._make_fake_engine()
         original = oct2py.octave
@@ -184,9 +200,8 @@ class TestConfigure:
         assert new_instance is not original
         assert isinstance(new_instance._settings, Oct2PySettings)
         assert new_instance.backend == "default"
-        new_instance._engine = None
 
-    def test_configure_replaces_global_octave(self):
+    def test_configure_replaces_global_octave(self, restore_octave):
         """configure() replaces oct2py.octave with a new Oct2Py instance."""
         fake = self._make_fake_engine()
         before = oct2py.octave
@@ -194,21 +209,20 @@ class TestConfigure:
             oct2py.configure(backend="disable")
         assert oct2py.octave is not before
         assert isinstance(oct2py.octave, Oct2Py)
-        oct2py.octave._engine = None
 
     def test_configure_exits_old_instance(self):
         """configure() calls exit() on the previous global octave instance."""
         fake = self._make_fake_engine()
         old_instance = MagicMock()
+        # patch.object restores oct2py.octave on exit, so the real session is unaffected.
         with (
             patch.object(oct2py, "octave", old_instance),
             patch("oct2py.core.OctaveEngine", return_value=fake),
         ):
             oct2py.configure(backend="disable")
         old_instance.exit.assert_called_once()
-        oct2py.octave._engine = None
 
-    def test_configure_kwargs_override_env_vars(self):
+    def test_configure_kwargs_override_env_vars(self, restore_octave):
         """kwargs passed to configure() take precedence over OCT2PY_* env vars."""
         fake = self._make_fake_engine()
         with (
@@ -217,9 +231,8 @@ class TestConfigure:
         ):
             oct2py.configure(backend="disable")
         assert oct2py.octave.backend == "disable"
-        oct2py.octave._engine = None
 
-    def test_configure_settings_ignored_if_kwargs_provided(self):
+    def test_configure_settings_ignored_if_kwargs_provided(self, restore_octave):
         """When both settings and kwargs are passed, settings wins (kwargs are ignored)."""
         # The function signature is configure(settings=None, **kwargs).
         # If a pre-built settings object is passed, kwargs are silently ignored
@@ -230,4 +243,3 @@ class TestConfigure:
             oct2py.configure(settings=s, timeout=77)
         # timeout=77 is not applied — it was passed as a kwarg but settings was provided
         assert oct2py.octave._settings is s
-        oct2py.octave._engine = None
