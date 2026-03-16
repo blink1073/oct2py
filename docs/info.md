@@ -177,15 +177,49 @@ version of Octave.
 
 ## Logging
 
-Oct2Py supports logging of session interaction. You can provide a logger
-to the constructor or set one at any time.
+Oct2Py uses the standard Python `logging` module under the logger name
+`"oct2py"`. Following Python library best practices, no handlers or levels
+are configured by default — all log output is suppressed unless your
+application sets up logging.
+
+To see oct2py log output, configure the `"oct2py"` logger (or the root
+logger) in your application:
+
+```python
+import logging
+
+# Show INFO and above from oct2py
+logging.getLogger("oct2py").setLevel(logging.INFO)
+logging.getLogger("oct2py").addHandler(logging.StreamHandler())
+
+# Or configure the root logger (affects all loggers):
+logging.basicConfig(level=logging.INFO)
+```
+
+To enable DEBUG output (useful for troubleshooting), use `logging.DEBUG`:
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+When using pytest, pass `--log-cli-level=DEBUG` on the command line or add
+to `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "DEBUG"
+```
+
+You can also pass a logger directly to the `Oct2Py` constructor or replace
+it at any time:
 
 ```pycon
 >>> import logging
 >>> from oct2py import Oct2Py, get_log
 >>> oc = Oct2Py(logger=get_log())
 >>> oc.logger = get_log("new_log")
->>> oc.logger.setLevel(logging.INFO)
 ```
 
 All Oct2Py methods support a `verbose` keyword. If True, the commands
