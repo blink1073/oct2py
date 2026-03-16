@@ -450,7 +450,7 @@ class Oct2Py:
         except ImportError:
             return
 
-        plot_dir = tempfile.mkdtemp()
+        plot_dir = tempfile.mkdtemp(dir=self.temp_dir)
         try:
             # Temporarily switch to inline mode so _make_figures uses a
             # headless-compatible toolkit (gnuplot/qt offscreen) rather than
