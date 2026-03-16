@@ -152,7 +152,8 @@ s = Oct2PySettings(_env_file=".env")
 oc = Oct2Py(settings=s)
 ```
 
-A `.env` file might look like:
+The path is resolved relative to the current working directory. A `.env` file
+might look like:
 
 ```ini
 OCT2PY_BACKEND=disable
