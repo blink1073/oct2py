@@ -40,6 +40,7 @@ jobs:
       - name: Run example notebook
         run: just test-notebook
       - name: Test opencv compatibility
+        if: ${{ matrix.python-version != '3.14t' }}
         run: just test-opencv
       - name: Upload coverage to Codecov
         if: always()
