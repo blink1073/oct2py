@@ -368,6 +368,8 @@ class TestMisc:
 
     def test_disable_backend(self):
         """backend='disable' suppresses all figure rendering (issue #152)."""
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         from unittest.mock import patch
 
         oc = Oct2Py(backend="disable")
