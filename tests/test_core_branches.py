@@ -85,7 +85,7 @@ class TestGetPointer:
 
     def test_get_pointer_undefined_raises(self):
         """Undefined name should raise Oct2PyError."""
-        with pytest.raises(Oct2PyError, match="does not exist"):
+        with pytest.raises(Oct2PyError, match="is undefined"):
             self.oc.get_pointer("_oct2py_no_such_var_xyz")
 
     def test_get_pointer_exist_zero_raises(self):
@@ -286,10 +286,10 @@ class TestExist:
         code = self.oc._exist("_test_exist_var")
         assert code == 1
 
-    def test_exist_zero_with_error_raises(self):
-        """_exist should raise for a truly undefined name."""
-        with pytest.raises(Oct2PyError, match="does not exist"):
-            self.oc._exist("_oct2py_no_such_xyz_999")
+    def test_exist_zero_with_error_returns_zero(self):
+        """_exist should return 0 for a truly undefined name."""
+        code = self.oc._exist("_oct2py_no_such_xyz_999")
+        assert code == 0
 
     def test_exist_zero_without_error_returns_two(self):
         """_exist should return 2 when exist==0 but class() succeeds."""
@@ -368,6 +368,57 @@ class TestGetattr:
         fn1 = self.oc.cos
         # After first access, the result should be cached on the instance
         assert self.oc.__dict__.get("cos") is fn1
+
+    def test_getattr_unknown_returns_namespace_proxy(self):
+        """__getattr__ on an unknown name should return a namespace proxy."""
+        from oct2py.dynamic import OctaveNamespaceProxy
+
+        proxy = self.oc.nonexistent_name_xyz
+        assert isinstance(proxy, OctaveNamespaceProxy)
+
+    def test_getattr_namespace_proxy_not_cached(self):
+        """Namespace proxies should not be cached on the session."""
+        from oct2py.dynamic import OctaveNamespaceProxy
+
+        proxy = self.oc.nonexistent_name_xyz
+        assert isinstance(proxy, OctaveNamespaceProxy)
+        assert "nonexistent_name_xyz" not in self.oc.__dict__
+
+    def test_getattr_namespace_proxy_underscore_raises(self):
+        """Accessing a name starting with '_' on a proxy raises AttributeError."""
+        from oct2py.dynamic import OctaveNamespaceProxy
+
+        proxy = OctaveNamespaceProxy(None, "mypkg")
+        with pytest.raises(AttributeError):
+            _ = proxy._hidden
+
+    def test_getattr_package_namespace_chaining(self):
+        """Chained attribute access on a proxy should build the dotted prefix."""
+        from oct2py.dynamic import OctaveNamespaceProxy
+
+        proxy = self.oc.mypkg.myfunc
+        assert isinstance(proxy, OctaveNamespaceProxy)
+        assert proxy._prefix == "mypkg.myfunc"
+
+    def test_getattr_package_namespace_integration(self):
+        """Calling a function inside a +package directory should work."""
+        import textwrap
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pkg_dir = os.path.join(tmpdir, "+testpkg286")
+            os.makedirs(pkg_dir)
+            m_file = os.path.join(pkg_dir, "add_one.m")
+            with open(m_file, "w") as f:
+                f.write(
+                    textwrap.dedent("""\
+                    function y = add_one(x)
+                      y = x + 1;
+                    end
+                """)
+                )
+            self.oc.addpath(tmpdir)
+            result = self.oc.testpkg286.add_one(3)
+            assert result == 4
 
 
 class TestGetMaxNout:

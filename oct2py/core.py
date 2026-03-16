@@ -21,8 +21,10 @@ from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
 
 from .dynamic import (
+    OctaveNamespaceProxy,
     OctavePtr,
     _make_function_ptr_instance,
+    _make_namespace_proxy,
     _make_user_class,
     _make_variable_ptr_instance,
 )
@@ -600,12 +602,17 @@ class Oct2Py:
         )
         self._engine.plot_settings = settings
 
-        dname = osp.dirname(func_path)
-        fname = osp.basename(func_path)
-        func_name, ext = osp.splitext(fname)
-        if ext and ext != ".m":
-            msg = "Need to give path to .m file"
-            raise TypeError(msg)
+        _is_dotted_name = kwargs.pop("_is_dotted_name", False)
+        if _is_dotted_name:
+            func_name = func_path
+            dname = ""
+        else:
+            dname = osp.dirname(func_path)
+            fname = osp.basename(func_path)
+            func_name, ext = osp.splitext(fname)
+            if ext and ext != ".m":
+                msg = "Need to give path to .m file"
+                raise TypeError(msg)
 
         if func_name == "clear":
             msg = 'Cannot use `clear` command directly, use eval("clear(var1, var2)")'
@@ -1122,10 +1129,7 @@ class Oct2Py:
         if exist == 0:
             cmd = "class(%s)" % name
             resp = self._engine.eval(cmd, silent=True).strip()
-            if "error:" in resp:
-                msg = 'Value "%s" does not exist in Octave workspace'
-                raise Oct2PyError(msg % name)
-            else:
+            if "error:" not in resp:
                 exist = 2
         return exist
 
@@ -1172,6 +1176,11 @@ class Oct2Py:
         exist = self._exist(name)
 
         if exist not in [2, 3, 5, 103]:
+            if exist in (0, 7):
+                # Name not found or is a directory — may be an Octave package
+                # namespace (+package). Return a lazy proxy; Octave will report
+                # an error at call time if the name is truly invalid.
+                return _make_namespace_proxy(self, name)
             msg = 'Name "%s" is not a valid callable, use `pull` for variables'
             raise Oct2PyError(msg % name)
 
@@ -1186,7 +1195,9 @@ class Oct2Py:
             obj = self._get_function_ptr(name)
 
         # !!! attr, *not* name, because we might have python keyword name!
-        setattr(self, attr, obj)
+        # Don't cache namespace proxies — the namespace isn't resolved yet.
+        if not isinstance(obj, OctaveNamespaceProxy):
+            setattr(self, attr, obj)
 
         return obj
 
