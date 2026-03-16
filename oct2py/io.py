@@ -338,6 +338,11 @@ def _encode(data, convert_to_float):  # noqa
             out[name] = _encode(view[name], ctf)
         return out
 
+    # Boolean objects should be preserved as logical
+    # (bool is a subclass of int in Python, so this must come first)
+    if isinstance(data, bool):
+        return np.bool_(data)
+
     # Integer objects should be converted to floats
     if isinstance(data, int):
         return float(data)

@@ -129,6 +129,11 @@ class TestConversions:
             x_ = self.oc.pull("x")
             assert np.allclose(np.atleast_2d(np.shape(x_)), self.oc.eval("size(x)", verbose=False))
 
+    def test_bool_islogical(self):
+        """Test that Python bools are passed to Octave as logical type"""
+        assert self.oc.islogical(False) == 1
+        assert self.oc.islogical(True) == 1
+
     def test_python_conversions(self):
         """Test roundtrip python type conversions"""
         self.oc.addpath(os.path.dirname(__file__))
