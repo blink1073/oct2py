@@ -16,11 +16,6 @@ import pytest
 import oct2py
 from oct2py import Oct2Py, Oct2PyError, StructArray
 
-# Flatpak sandboxes Octave so it cannot access arbitrary host paths and cannot
-# easily spawn a second Octave instance while one is already running.
-_FLATPAK = "flatpak" in os.environ.get("OCTAVE_EXECUTABLE", "")
-skip_flatpak = pytest.mark.skipif(_FLATPAK, reason="not supported inside flatpak sandbox")
-
 
 def _multiprocessing_worker(_):
     """Top-level worker so it is picklable by multiprocessing.Pool."""
@@ -45,16 +40,17 @@ def _multiprocessing_worker_exit(_):
 
 class TestMisc:
     oc: Oct2Py
+    _flatpak: bool
 
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
+        # Flatpak sandboxes Octave so it cannot access arbitrary host paths.
+        cls._flatpak = cls.oc._engine.executable.startswith("flatpak")
         tests_dir = os.path.dirname(__file__)
-        if _FLATPAK:
-            # The flatpak sandbox restricts Octave's filesystem access, so the
-            # tests directory is not visible to it.  Copy all .m files and
-            # Octave class directories (@Foo/) into the sandbox-accessible
-            # temp_dir and add that to the path instead.
+        if cls._flatpak:
+            # Copy all .m files and Octave class directories (@Foo/) into the
+            # sandbox-accessible temp_dir and add that to the path instead.
             for item in os.listdir(tests_dir):
                 src = os.path.join(tests_dir, item)
                 if os.path.isfile(src) and item.endswith(".m"):
@@ -150,8 +146,9 @@ class TestMisc:
         assert 'exist("ones")' not in resp
         assert "_pyeval(" in resp
 
-    @skip_flatpak  # spawns a second Oct2Py() which cannot start inside flatpak
     def test_demo(self):
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         from oct2py import demo
 
         try:
@@ -226,14 +223,14 @@ class TestMisc:
         except TypeError:
             speed_check.speed_check()  # type:ignore[attr-defined]
 
-    @skip_flatpak  # inline graphics toolkit crashes Octave in flatpak sandbox
     def test_plot(self):
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
-    @skip_flatpak  # inline graphics toolkit crashes Octave in flatpak sandbox
     def test_plot_from_inside_m_file(self):
         """Test that plots generated inside a .m function are captured via plot_dir (issue #172).
 
@@ -241,6 +238,8 @@ class TestMisc:
         passing plot_dir to feval should save those figures even though the
         rendering happens inside the Octave subprocess.
         """
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
         m_path = os.path.join(self.oc.temp_dir, "test_plot_inside.m")
         with open(m_path, "w") as f:
@@ -260,13 +259,14 @@ class TestMisc:
         finally:
             os.unlink(m_path)
 
-    @skip_flatpak  # interactive graphics backend not available in flatpak sandbox
     def test_interactive_figure(self):
         """Test that figures are created and accessible with a non-inline backend (issue #176).
 
         Interactive figure display (drawnow expose) is handled inside _pyeval.m
         when figures are open and figure visibility is on.
         """
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         oc = Oct2Py(backend="default")
         oc.figure(1)
         n_figs = oc.eval("numel(get(0, 'children'))", nout=1)
@@ -274,7 +274,6 @@ class TestMisc:
         oc.eval("close all")
         oc.exit()
 
-    @skip_flatpak  # inline graphics toolkit crashes Octave in flatpak sandbox
     def test_show(self):
         """Test _show_figures() end-to-end using matplotlib's inline backend (issue #164).
 
@@ -285,6 +284,8 @@ class TestMisc:
         figure count at the moment of display, since the inline backend clears
         figures immediately after show().
         """
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         from unittest.mock import patch
 
         import matplotlib as mpl
@@ -332,7 +333,15 @@ class TestMisc:
             oc2.exit()
             plt.close("all")
 
+    def test_show_no_engine(self):
+        """_show_figures() is a no-op when _engine is None (closed session)."""
+        oc = Oct2Py()
+        oc.exit()  # sets _engine = None
+        oc._show_figures()  # must return silently without error
+
     def test_narg_out(self):
+        if self._flatpak:
+            pytest.skip("Flatpak version of octave does not handle svd")
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
         assert s.shape == (2, 1)
         U, S, V = self.oc.svd([[1, 2], [1, 3]], nout=3)
@@ -394,8 +403,9 @@ class TestMisc:
         with pytest.raises(Oct2PyError):
             self.oc.eval("oct2py_dummy")
 
-    @skip_flatpak  # spawns a second Oct2Py() which cannot start inside flatpak
     def test_timeout(self):
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         with Oct2Py(timeout=2) as oc:
             oc.pause(2.1, timeout=5, nout=0)
             with pytest.raises(Oct2PyError):

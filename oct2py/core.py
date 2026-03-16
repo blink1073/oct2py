@@ -207,7 +207,7 @@ class Oct2Py:
         """Delete session"""
         try:  # noqa: SIM105
             self.exit()
-        except Exception:  # noqa: S110
+        except Exception:  # noqa: S110  # pragma: no cover
             pass
 
     def exit(self):
@@ -447,7 +447,7 @@ class Oct2Py:
         try:
             import matplotlib.image as mpimg  # noqa: PLC0415
             import matplotlib.pyplot as plt  # noqa: PLC0415
-        except ImportError:
+        except ImportError:  # pragma: no cover
             return
 
         plot_dir = tempfile.mkdtemp(dir=self.temp_dir)
