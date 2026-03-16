@@ -157,21 +157,22 @@ class TestRestart:
         oc.exit()
 
     def test_restart_octave_env_var_propagation(self):
-        """OCTAVE env var should be copied to OCTAVE_EXECUTABLE if not already set."""
+        """OCTAVE env var should be passed to OctaveEngine when OCTAVE_EXECUTABLE is unset."""
         env_without_exec = {k: v for k, v in os.environ.items() if k != "OCTAVE_EXECUTABLE"}
         env_without_exec["OCTAVE"] = "/fake/octave"
         fake_engine = MagicMock()
         fake_engine.tmp_dir = tempfile.mkdtemp()
         with (
             patch.dict(os.environ, env_without_exec, clear=True),
-            patch("oct2py.core.OctaveEngine", return_value=fake_engine),
+            patch("oct2py.core.OctaveEngine", return_value=fake_engine) as mock_engine,
         ):
             oc = Oct2Py()
-            assert os.environ.get("OCTAVE_EXECUTABLE") == "/fake/octave"
+            assert mock_engine.call_args.kwargs.get("executable") == "/fake/octave"
+            assert "OCTAVE_EXECUTABLE" not in os.environ
             oc.exit()
 
     def test_restart_octave_executable_not_overwritten(self):
-        """OCTAVE_EXECUTABLE should not be overwritten if already set."""
+        """OCTAVE_EXECUTABLE should take precedence over OCTAVE when passed to OctaveEngine."""
         env = dict(os.environ)
         env["OCTAVE_EXECUTABLE"] = "/custom/octave"
         env["OCTAVE"] = "/other/octave"
@@ -179,10 +180,10 @@ class TestRestart:
         fake_engine.tmp_dir = tempfile.mkdtemp()
         with (
             patch.dict(os.environ, env, clear=True),
-            patch("oct2py.core.OctaveEngine", return_value=fake_engine),
+            patch("oct2py.core.OctaveEngine", return_value=fake_engine) as mock_engine,
         ):
             oc = Oct2Py()
-            assert os.environ.get("OCTAVE_EXECUTABLE") == "/custom/octave"
+            assert mock_engine.call_args.kwargs.get("executable") == "/custom/octave"
             oc.exit()
 
     def test_restart_engine_creation_failure_raises(self):
