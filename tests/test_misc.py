@@ -231,6 +231,24 @@ class TestMisc:
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+    def test_plot_via_eval(self):
+        """Figures created by plot() inside eval() must be captured via plot_dir (issue #158).
+
+        Calling octave.eval('plot(...)') should expose the same plot-capture
+        behaviour as octave.plot(...): when plot_dir is provided the figure is
+        saved to disk; when it is not, the interactive drawnow('expose') path
+        in _pyeval.m handles display.
+        """
+        if self.oc._engine.executable.startswith("flatpak"):
+            raise pytest.skip("Flatpak version of octave does not handle plotting")
+        if "snap" in self.oc._engine.executable:
+            raise pytest.skip("snap version of octave does not handle plotting")
+        plot_dir = tempfile.mkdtemp().replace("\\", "/")
+        self.oc.eval("plot([1, 2, 3])", plot_dir=plot_dir)
+        assert glob.glob("%s/*" % plot_dir), "No figure files saved from eval() plot"
+        assert self.oc.extract_figures(plot_dir), "extract_figures returned nothing"
+
     def test_plot_from_inside_m_file(self):
         """Test that plots generated inside a .m function are captured via plot_dir (issue #172).
 
@@ -260,10 +278,13 @@ class TestMisc:
             os.unlink(m_path)
 
     def test_interactive_figure(self):
-        """Test that figures are created and accessible with a non-inline backend (issue #176).
+        """Test that figures created via eval() are accessible (issues #176, #158).
 
         Interactive figure display (drawnow expose) is handled inside _pyeval.m
-        when figures are open and figure visibility is on.
+        when figures are open and figure visibility is on.  This covers both the
+        direct-call path (oc.figure()) and the eval() path (oc.eval("plot(...)"))
+        to ensure issue #158 is addressed: plots created inside eval() must be
+        visible to Octave's figure system, not silently dropped.
         """
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
@@ -271,6 +292,12 @@ class TestMisc:
         oc.figure(1)
         n_figs = oc.eval("numel(get(0, 'children'))", nout=1)
         assert int(n_figs) >= 1, "Expected at least one open figure after figure(1)"
+
+        # Verify that a plot created via eval() also registers as a figure (issue #158).
+        oc.eval("figure(2); plot([1, 2, 3]);")
+        n_figs_after = oc.eval("numel(get(0, 'children'))", nout=1)
+        assert int(n_figs_after) >= 2, "Expected at least two open figures after eval('plot(...)')"
+
         oc.eval("close all")
         oc.exit()
 
