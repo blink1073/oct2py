@@ -16,6 +16,11 @@ import pytest
 import oct2py
 from oct2py import Oct2Py, Oct2PyError, StructArray
 
+# Flatpak sandboxes Octave so it cannot access arbitrary host paths and cannot
+# easily spawn a second Octave instance while one is already running.
+_FLATPAK = "flatpak" in os.environ.get("OCTAVE_EXECUTABLE", "")
+skip_flatpak = pytest.mark.skipif(_FLATPAK, reason="not supported inside flatpak sandbox")
+
 
 def _multiprocessing_worker(_):
     """Top-level worker so it is picklable by multiprocessing.Pool."""
@@ -44,7 +49,21 @@ class TestMisc:
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
-        cls.oc.addpath(os.path.dirname(__file__))
+        tests_dir = os.path.dirname(__file__)
+        if _FLATPAK:
+            # The flatpak sandbox restricts Octave's filesystem access, so the
+            # tests directory is not visible to it.  Copy all .m files and
+            # Octave class directories (@Foo/) into the sandbox-accessible
+            # temp_dir and add that to the path instead.
+            for item in os.listdir(tests_dir):
+                src = os.path.join(tests_dir, item)
+                if os.path.isfile(src) and item.endswith(".m"):
+                    shutil.copy2(src, cls.oc.temp_dir)
+                elif os.path.isdir(src) and item.startswith("@"):
+                    shutil.copytree(src, os.path.join(cls.oc.temp_dir, item))
+            cls.oc.addpath(cls.oc.temp_dir)
+        else:
+            cls.oc.addpath(tests_dir)
 
     @classmethod
     def teardown_class(cls):
@@ -131,6 +150,7 @@ class TestMisc:
         assert 'exist("ones")' not in resp
         assert "_pyeval(" in resp
 
+    @skip_flatpak  # spawns a second Oct2Py() which cannot start inside flatpak
     def test_demo(self):
         from oct2py import demo
 
@@ -206,12 +226,14 @@ class TestMisc:
         except TypeError:
             speed_check.speed_check()  # type:ignore[attr-defined]
 
+    @skip_flatpak  # inline graphics toolkit crashes Octave in flatpak sandbox
     def test_plot(self):
         plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
 
+    @skip_flatpak  # inline graphics toolkit crashes Octave in flatpak sandbox
     def test_plot_from_inside_m_file(self):
         """Test that plots generated inside a .m function are captured via plot_dir (issue #172).
 
@@ -238,6 +260,7 @@ class TestMisc:
         finally:
             os.unlink(m_path)
 
+    @skip_flatpak  # interactive graphics backend not available in flatpak sandbox
     def test_interactive_figure(self):
         """Test that figures are created and accessible with a non-inline backend (issue #176).
 
@@ -340,6 +363,7 @@ class TestMisc:
         with pytest.raises(Oct2PyError):
             self.oc.eval("oct2py_dummy")
 
+    @skip_flatpak  # spawns a second Oct2Py() which cannot start inside flatpak
     def test_timeout(self):
         with Oct2Py(timeout=2) as oc:
             oc.pause(2.1, timeout=5, nout=0)
