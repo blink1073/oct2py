@@ -14,6 +14,9 @@ class Oct2PySettings(BaseSettings):
 
     Attributes
     ----------
+    model_config : SettingsConfigDict
+        Pydantic-settings configuration: ``env_prefix="OCT2PY_"``,
+        ``populate_by_name=True``.
     executable : str, optional
         Path to the Octave executable. Resolved in order: this argument,
         ``OCTAVE_EXECUTABLE`` env var, ``octave``/``octave-cli`` on

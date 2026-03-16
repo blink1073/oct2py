@@ -23,8 +23,13 @@ class TestInit:
 
     def test_settings_applied_as_defaults(self):
         """Oct2PySettings values fill in unspecified __init__ kwargs."""
-        s = Oct2PySettings(backend="disable", timeout=42, oned_as="column",
-                           convert_to_float=False, keep_matlab_shapes=True)
+        s = Oct2PySettings(
+            backend="disable",
+            timeout=42,
+            oned_as="column",
+            convert_to_float=False,
+            keep_matlab_shapes=True,
+        )
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py(settings=s)
@@ -182,8 +187,9 @@ class TestInit:
         """Plot params set via kwargs are stored on the instance."""
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
-            oc = Oct2Py(plot_format="png", plot_name="fig",
-                        plot_width=800, plot_height=600, plot_res=150)
+            oc = Oct2Py(
+                plot_format="png", plot_name="fig", plot_width=800, plot_height=600, plot_res=150
+            )
         assert oc.plot_format == "png"
         assert oc.plot_name == "fig"
         assert oc.plot_width == 800
@@ -193,8 +199,9 @@ class TestInit:
 
     def test_plot_params_from_settings(self):
         """Plot params fall back to settings values."""
-        s = Oct2PySettings(plot_format="png", plot_name="fig",
-                           plot_width=800, plot_height=600, plot_res=150)
+        s = Oct2PySettings(
+            plot_format="png", plot_name="fig", plot_width=800, plot_height=600, plot_res=150
+        )
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py(settings=s)
@@ -219,8 +226,9 @@ class TestInit:
         """Instance plot params are used as defaults in eval() calls."""
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
-            oc = Oct2Py(plot_format="png", plot_name="myfig",
-                        plot_width=640, plot_height=480, plot_res=96)
+            oc = Oct2Py(
+                plot_format="png", plot_name="myfig", plot_width=640, plot_height=480, plot_res=96
+            )
         with patch.object(oc, "_feval", return_value=None):
             oc.eval("1+1")
         engine_settings = fake.plot_settings

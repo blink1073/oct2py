@@ -27,6 +27,7 @@ from .dynamic import (
     _make_variable_ptr_instance,
 )
 from .io import Cell, StructArray, read_file, write_file
+from .settings import Oct2PySettings
 from .utils import Oct2PyError, _augment_path_for_windows, get_log
 
 HERE = osp.realpath(osp.dirname(__file__))
@@ -126,6 +127,11 @@ class Oct2Py:
 
     Parameters
     ----------
+    settings : Oct2PySettings, optional
+        Settings object supplying defaults for all other parameters.
+        When omitted, a default ``Oct2PySettings()`` is created (which
+        reads ``OCT2PY_*`` environment variables automatically).
+        Explicit keyword arguments always override values from settings.
     logger : logging object, optional
         Optional logger to use for Oct2Py session
     timeout : float, optional
@@ -196,7 +202,6 @@ class Oct2Py:
         plot_height=None,
         plot_res=None,
     ):
-        from .settings import Oct2PySettings
         if settings is None:
             settings = Oct2PySettings()
         # Apply settings as defaults for any unspecified kwargs

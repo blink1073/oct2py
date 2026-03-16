@@ -14,7 +14,7 @@ s = Oct2PySettings(backend="disable", timeout=30, plot_format="png")
 oc = Oct2Py(settings=s)
 ```
 
-Any field you do not set keeps its default value.  Individual keyword
+Any field you do not set keeps its default value. Individual keyword
 arguments to `Oct2Py` always take precedence over the settings object:
 
 ```python
@@ -25,7 +25,7 @@ oc = Oct2Py(settings=s, timeout=5)
 ## Environment variables
 
 Every field (except `executable`) is also readable from an environment
-variable prefixed with `OCT2PY_`.  This lets you configure a session
+variable prefixed with `OCT2PY_`. This lets you configure a session
 without modifying source code:
 
 ```shell

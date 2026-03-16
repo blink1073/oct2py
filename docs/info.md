@@ -261,7 +261,7 @@ oct2py.utils.Oct2PyError: Session timed out
 
 All session defaults — timeout, executable, plot format, backend, and
 more — can be set in one place using `Oct2PySettings` and read from
-environment variables automatically.  See the
+environment variables automatically. See the
 [Configuration & Settings](settings.md) page for the full guide,
 including env var names, `.env` file support, and common recipes for
 headless, sandboxed, and CI environments.

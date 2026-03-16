@@ -71,7 +71,7 @@ def configure(settings=None, **kwargs):
     >>> import oct2py
     >>> oct2py.configure(backend="disable", timeout=30)  # doctest: +SKIP
     """
-    global octave
+    global octave  # noqa: PLW0603
     if settings is None:
         settings = Oct2PySettings(**kwargs)
     octave.exit()
