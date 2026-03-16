@@ -384,6 +384,14 @@ class TestGetattr:
         assert isinstance(proxy, OctaveNamespaceProxy)
         assert "nonexistent_name_xyz" not in self.oc.__dict__
 
+    def test_getattr_namespace_proxy_underscore_raises(self):
+        """Accessing a name starting with '_' on a proxy raises AttributeError."""
+        from oct2py.dynamic import OctaveNamespaceProxy
+
+        proxy = OctaveNamespaceProxy(None, "mypkg")
+        with pytest.raises(AttributeError):
+            _ = proxy._hidden
+
     def test_getattr_package_namespace_chaining(self):
         """Chained attribute access on a proxy should build the dotted prefix."""
         from oct2py.dynamic import OctaveNamespaceProxy
