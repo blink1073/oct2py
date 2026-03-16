@@ -36,22 +36,23 @@ CASES = [
 
 failures = []
 for name, code in CASES:
-    print(f"Case: {name} ... ", end="", flush=True)
-    result = subprocess.run(
+    print(f"Case: {name} ... ", end="", flush=True)  # noqa: T201
+    result = subprocess.run(  # noqa: S603
         [sys.executable, "-c", code],
         capture_output=True,
         text=True,
+        check=False,
     )
     if result.returncode == 0:
-        print("PASS")
+        print("PASS")  # noqa: T201
     else:
-        print("FAIL")
-        print(f"  stdout: {result.stdout.strip()}")
-        print(f"  stderr: {result.stderr.strip()}")
+        print("FAIL")  # noqa: T201
+        print(f"  stdout: {result.stdout.strip()}")  # noqa: T201
+        print(f"  stderr: {result.stderr.strip()}")  # noqa: T201
         failures.append(name)
 
 if failures:
-    print(f"\n{len(failures)} case(s) failed.")
+    print(f"\n{len(failures)} case(s) failed.")  # noqa: T201
     sys.exit(1)
 else:
-    print("\nAll cases passed.")
+    print("\nAll cases passed.")  # noqa: T201
