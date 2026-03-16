@@ -51,6 +51,10 @@ benchmark-compare:
     uv run --group bench asv machine --yes
     uv run --group bench asv continuous $(git merge-base HEAD origin/main) HEAD --show-stderr
 
+# Test opencv/oct2py compatibility
+test-opencv:
+    uv run --with "oct2py @ ." --with opencv-python scripts/test-opencv.py
+
 # Run a pre-commit target
 pre-commit *args:
     uv tool run prek --all-files {{args}}
