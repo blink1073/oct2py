@@ -8,13 +8,18 @@ import pytest
 pytest.importorskip("IPython")
 
 from IPython.core.interactiveshell import InteractiveShell
+from traitlets.config import Config
 
 from oct2py.ipython.octavemagic import OctaveMagics
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def ip():
-    return InteractiveShell.instance()
+    shell = MagicMock(spec=InteractiveShell)
+    shell.user_ns = {}
+    shell.push.side_effect = shell.user_ns.update
+    shell.config = Config()
+    return shell
 
 
 @pytest.fixture
