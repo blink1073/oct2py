@@ -4,6 +4,7 @@
 
 import atexit
 import contextlib
+import glob
 import logging
 import os
 import os.path as osp
@@ -145,6 +146,11 @@ class Oct2Py:
         The graphics_toolkit to use for plotting.
     keep_matlab_shapes: bool, optional
         If true, matlab shapes will be preserved (scalars as (1,1) etc)
+    auto_show : bool, optional
+        If True, automatically capture open Octave figures after each call
+        and display them via matplotlib.  Defaults to True when the
+        ``PYCHARM_HOSTED`` environment variable is set (i.e. when running
+        inside PyCharm), False otherwise.  Set explicitly to override.
     """
 
     def __init__(  # noqa
@@ -156,6 +162,7 @@ class Oct2Py:
         convert_to_float=True,
         backend=None,
         keep_matlab_shapes=False,
+        auto_show=None,
     ):
         self._oned_as = oned_as
         self._engine = None
@@ -169,6 +176,9 @@ class Oct2Py:
         self.convert_to_float = convert_to_float
         self._user_classes = {}
         self._function_ptrs = {}
+        if auto_show is None:
+            auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
+        self._auto_show = auto_show
         _instances.add(self)
         self.restart()
 
@@ -195,8 +205,10 @@ class Oct2Py:
 
     def __del__(self):
         """Delete session"""
-        with contextlib.suppress(Exception):
+        try:  # noqa: SIM105
             self.exit()
+        except Exception:  # noqa: S110  # pragma: no cover
+            pass
 
     def exit(self):
         """Quits this octave session and cleans up."""
@@ -404,6 +416,62 @@ class Oct2Py:
             raise Oct2PyError(msg)
         figures = self._engine.extract_figures(plot_dir, remove)
         return figures
+
+    def show(self):
+        """Render open Octave figures and display them using matplotlib.
+
+        Captures all currently open Octave figure windows as PNG images and
+        displays them via :func:`matplotlib.pyplot.imshow`.  This is useful
+        in environments such as PyCharm that can display matplotlib figures
+        inline but cannot show Octave's native figure windows.
+
+        Requires ``matplotlib`` to be installed.  If it is not available,
+        the method returns silently.
+
+        This is called automatically after each eval/feval when
+        ``auto_show=True`` (which is the default inside PyCharm).
+
+        Examples
+        --------
+        >>> import oct2py
+        >>> oc = oct2py.Oct2Py()
+        >>> oc.plot([1, 2, 3])
+        >>> oc.show()  # displays the Octave figure inline
+        """
+        self._show_figures()
+
+    def _show_figures(self):
+        """Capture open Octave figures and display them via matplotlib."""
+        if not self._engine:
+            return
+        try:
+            import matplotlib.image as mpimg  # noqa: PLC0415
+            import matplotlib.pyplot as plt  # noqa: PLC0415
+        except ImportError:  # pragma: no cover
+            return
+
+        plot_dir = tempfile.mkdtemp(dir=self.temp_dir)
+        try:
+            # Temporarily switch to inline mode so _make_figures uses a
+            # headless-compatible toolkit (gnuplot/qt offscreen) rather than
+            # the default interactive toolkit, which requires a display.
+            saved = self._engine.plot_settings.copy()
+            self._engine.plot_settings = {**saved, "backend": "inline"}
+            try:
+                self._engine.make_figures(plot_dir)
+            finally:
+                self._engine.plot_settings = saved
+
+            figure_files = sorted(glob.glob(osp.join(plot_dir, "*")))
+            for img_path in figure_files:
+                img = mpimg.imread(img_path)
+                _, ax = plt.subplots()
+                ax.imshow(img)
+                ax.axis("off")
+            if figure_files:
+                plt.show()
+        finally:
+            shutil.rmtree(plot_dir, ignore_errors=True)
 
     def feval(self, func_path, *func_args, **kwargs):
         """Run a function in Octave and return the result.
@@ -924,6 +992,8 @@ class Oct2Py:
 
         if plot_dir:
             engine.make_figures(plot_dir)
+        elif self._auto_show:
+            self._show_figures()
 
         return result
 

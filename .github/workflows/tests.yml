@@ -70,7 +70,7 @@ jobs:
         with:
           install-type: ${{ matrix.install-type }}
       - name: Run tests
-        run: just test tests/test_usage.py
+        run: just test tests/test_usage.py tests/test_misc.py
 
   benchmark:
     runs-on: ubuntu-24.04
