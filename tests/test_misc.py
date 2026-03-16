@@ -366,6 +366,31 @@ class TestMisc:
         oc.exit()  # sets _engine = None
         oc._show_figures()  # must return silently without error
 
+    def test_disable_backend(self):
+        """backend='disable' suppresses all figure rendering (issue #152)."""
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
+        from unittest.mock import patch
+
+        oc = Oct2Py(backend="disable")
+        try:
+            # Basic computation must still work.
+            result = oc.eval("1 + 1", nout=1)
+            assert result == 2
+
+            # auto_show must default to False.
+            assert not oc._auto_show
+
+            # make_figures must never be called when backend='disable'.
+            with patch.object(oc._engine, "make_figures") as mock_mf:
+                oc.eval("figure(1); plot([1,2,3]);", nout=0)
+                mock_mf.assert_not_called()
+
+            # show() must be a silent no-op.
+            oc.show()
+        finally:
+            oc.exit()
+
     def test_narg_out(self):
         if self._flatpak:
             pytest.skip("Flatpak version of octave does not handle svd")

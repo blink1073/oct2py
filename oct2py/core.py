@@ -143,7 +143,9 @@ class Oct2Py:
     convert_to_float : bool, optional
         If true, convert integer types to float when passing to Octave.
     backend: string, optional
-        The graphics_toolkit to use for plotting.
+        The graphics_toolkit to use for plotting.  Use ``"disable"`` to
+        suppress all figure rendering (useful in headless or
+        computation-only environments where a display is unavailable).
     keep_matlab_shapes: bool, optional
         If true, matlab shapes will be preserved (scalars as (1,1) etc)
     auto_show : bool, optional
@@ -169,7 +171,7 @@ class Oct2Py:
         self._logger = None
         self.logger = logger
         self.timeout = timeout
-        self.backend = backend or "default"
+        self.backend = backend if backend is not None else "default"
         self.keep_matlab_shapes = keep_matlab_shapes
         self.temp_dir = temp_dir
         self._temp_dir_owner = False
@@ -178,6 +180,8 @@ class Oct2Py:
         self._function_ptrs = {}
         if auto_show is None:
             auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
+            if self.backend == "disable":
+                auto_show = False
         self._auto_show = auto_show
         _instances.add(self)
         self.restart()
@@ -444,6 +448,8 @@ class Oct2Py:
         """Capture open Octave figures and display them via matplotlib."""
         if not self._engine:
             return
+        if self.backend == "disable":
+            return
         try:
             import matplotlib.image as mpimg  # noqa: PLC0415
             import matplotlib.pyplot as plt  # noqa: PLC0415
@@ -580,6 +586,9 @@ class Oct2Py:
         # Choose appropriate plot backend.
         default_backend = "inline" if plot_dir else self.backend
         backend = kwargs.get("plot_backend", default_backend)
+        # Map "disable" to "inline" so octave_kernel sets defaultfigurevisible=off.
+        if backend == "disable":
+            backend = "inline"
 
         settings = dict(
             backend=backend,
