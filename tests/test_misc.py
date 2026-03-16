@@ -40,11 +40,26 @@ def _multiprocessing_worker_exit(_):
 
 class TestMisc:
     oc: Oct2Py
+    _flatpak: bool
 
     @classmethod
     def setup_class(cls):
         cls.oc = Oct2Py()
-        cls.oc.addpath(os.path.dirname(__file__))
+        # Flatpak sandboxes Octave so it cannot access arbitrary host paths.
+        cls._flatpak = cls.oc._engine.executable.startswith("flatpak")
+        tests_dir = os.path.dirname(__file__)
+        if cls._flatpak:
+            # Copy all .m files and Octave class directories (@Foo/) into the
+            # sandbox-accessible temp_dir and add that to the path instead.
+            for item in os.listdir(tests_dir):
+                src = os.path.join(tests_dir, item)
+                if os.path.isfile(src) and item.endswith(".m"):
+                    shutil.copy2(src, cls.oc.temp_dir)
+                elif os.path.isdir(src) and item.startswith("@"):
+                    shutil.copytree(src, os.path.join(cls.oc.temp_dir, item))
+            cls.oc.addpath(cls.oc.temp_dir)
+        else:
+            cls.oc.addpath(tests_dir)
 
     @classmethod
     def teardown_class(cls):
@@ -132,6 +147,8 @@ class TestMisc:
         assert "_pyeval(" in resp
 
     def test_demo(self):
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         from oct2py import demo
 
         try:
@@ -207,7 +224,9 @@ class TestMisc:
             speed_check.speed_check()  # type:ignore[attr-defined]
 
     def test_plot(self):
-        plot_dir = tempfile.mkdtemp().replace("\\", "/")
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
+        plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
@@ -237,8 +256,10 @@ class TestMisc:
         passing plot_dir to feval should save those figures even though the
         rendering happens inside the Octave subprocess.
         """
-        plot_dir = tempfile.mkdtemp().replace("\\", "/")
-        m_path = os.path.join(tempfile.gettempdir(), "test_plot_inside.m")
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
+        plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
+        m_path = os.path.join(self.oc.temp_dir, "test_plot_inside.m")
         with open(m_path, "w") as f:
             f.write(
                 "function test_plot_inside()\n"
@@ -265,6 +286,8 @@ class TestMisc:
         to ensure issue #158 is addressed: plots created inside eval() must be
         visible to Octave's figure system, not silently dropped.
         """
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         oc = Oct2Py(backend="default")
         oc.figure(1)
         n_figs = oc.eval("numel(get(0, 'children'))", nout=1)
@@ -278,7 +301,74 @@ class TestMisc:
         oc.eval("close all")
         oc.exit()
 
+    def test_show(self):
+        """Test _show_figures() end-to-end using matplotlib's inline backend (issue #164).
+
+        Exercises the real capture path: Octave renders a figure to a PNG in
+        temp_dir, which is loaded by matplotlib and added as a figure.  The
+        IPython inline backend is used so plt.show() flushes figures to display
+        output without opening a window.  A spy on plt.show() captures the
+        figure count at the moment of display, since the inline backend clears
+        figures immediately after show().
+        """
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
+        from unittest.mock import patch
+
+        import matplotlib as mpl
+        import matplotlib.pyplot as plt
+
+        mpl.use("module://matplotlib_inline.backend_inline")
+        plt.close("all")
+
+        oc = Oct2Py(backend="inline")
+        try:
+            # A real plot creates a figure that _show_figures() should capture.
+            oc.plot([1, 2, 3])
+
+            captured: list[int] = []
+
+            def spy_show(*args: object, **kwargs: object) -> None:
+                captured.append(len(plt.get_fignums()))
+
+            with patch.object(plt, "show", spy_show):
+                oc._show_figures()
+            assert captured and captured[0] > 0, (
+                "_show_figures() did not create any matplotlib figures"
+            )
+
+            # With no open Octave figures, _show_figures() should not call plt.show().
+            oc.eval("close all", nout=0)
+            captured.clear()
+            with patch.object(plt, "show", spy_show):
+                oc._show_figures()
+            assert not captured, "_show_figures() called plt.show() unexpectedly"
+        finally:
+            oc.exit()
+
+        # auto_show=True: _show_figures() fires after each feval that produces a figure.
+        plt.close("all")
+        oc2 = Oct2Py(backend="inline", auto_show=True)
+        try:
+            captured = []
+            with patch.object(plt, "show", spy_show):
+                oc2.plot([1, 2, 3])
+            assert captured and captured[0] > 0, (
+                "auto_show=True did not produce a matplotlib figure after plot()"
+            )
+        finally:
+            oc2.exit()
+            plt.close("all")
+
+    def test_show_no_engine(self):
+        """_show_figures() is a no-op when _engine is None (closed session)."""
+        oc = Oct2Py()
+        oc.exit()  # sets _engine = None
+        oc._show_figures()  # must return silently without error
+
     def test_narg_out(self):
+        if self._flatpak:
+            pytest.skip("Flatpak version of octave does not handle svd")
         s = self.oc.svd(np.array([[1, 2], [1, 3]]))
         assert s.shape == (2, 1)
         U, S, V = self.oc.svd([[1, 2], [1, 3]], nout=3)
@@ -341,6 +431,8 @@ class TestMisc:
             self.oc.eval("oct2py_dummy")
 
     def test_timeout(self):
+        if self._flatpak:
+            pytest.skip("not supported inside flatpak sandbox")
         with Oct2Py(timeout=2) as oc:
             oc.pause(2.1, timeout=5, nout=0)
             with pytest.raises(Oct2PyError):
@@ -375,7 +467,7 @@ class TestMisc:
         oc.exit()
 
     def test_temp_dir(self):
-        temp_dir = tempfile.mkdtemp()
+        temp_dir = tempfile.mkdtemp(dir=self.oc.temp_dir)
         oc = Oct2Py(temp_dir=temp_dir)
         oc.push("a", 1)
         assert len(os.listdir(temp_dir))
