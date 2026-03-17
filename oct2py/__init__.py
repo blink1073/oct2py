@@ -21,7 +21,7 @@ If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
 """
 
-from .utils import Oct2PyError, get_log  # noqa
+from .utils import Oct2PyError, Oct2PyWarning, get_log  # noqa
 
 from ._version import __version__
 from .check import check
@@ -35,6 +35,7 @@ __all__ = [
     "Cell",
     "Oct2Py",
     "Oct2PyError",
+    "Oct2PyWarning",
     "OctaveWorkspaceProxy",
     "Struct",
     "StructArray",

@@ -178,17 +178,22 @@ version of Octave.
 ## Logging
 
 Oct2Py uses the standard Python `logging` module under the logger name
-`"oct2py"`. Following Python library best practices, no handlers or levels
-are configured by default — all log output is suppressed unless your
-application sets up logging.
+`"oct2py"`. Following Python library best practices, oct2py installs no
+handlers and sets no log levels. This means:
 
-To see oct2py log output, configure the `"oct2py"` logger (or the root
-logger) in your application:
+- **WARNING and above** propagate to the root logger. If your application has
+  not configured logging, Python's built-in `lastResort` handler will print
+  them to `stderr`.
+- **DEBUG and INFO** are invisible until you configure logging, since the root
+  logger's default level is WARNING.
+
+To see oct2py INFO output (e.g. commands sent to Octave), configure the
+`"oct2py"` logger or the root logger in your application:
 
 ```python
 import logging
 
-# Show INFO and above from oct2py
+# Show INFO and above from oct2py only
 logging.getLogger("oct2py").setLevel(logging.INFO)
 logging.getLogger("oct2py").addHandler(logging.StreamHandler())
 
@@ -225,6 +230,40 @@ it at any time:
 All Oct2Py methods support a `verbose` keyword. If True, the commands
 are logged at the INFO level, otherwise they are logged at the DEBUG
 level.
+
+## Warnings
+
+Oct2Py uses `Oct2PyWarning` (a subclass of `UserWarning`) for deprecation
+notices and other advisory conditions. Because it has its own type, you can
+handle oct2py warnings independently of warnings from other libraries.
+
+Catch oct2py warnings in tests with `pytest.warns`:
+
+```python
+import pytest
+from oct2py import Oct2PyWarning
+
+with pytest.warns(Oct2PyWarning):
+    oc.eval("1 + 1", log=False)  # log= kwarg is deprecated
+```
+
+Silence oct2py warnings without affecting other `UserWarning`s:
+
+```python
+import warnings
+from oct2py import Oct2PyWarning
+
+warnings.filterwarnings("ignore", category=Oct2PyWarning)
+```
+
+Turn oct2py warnings into errors (useful in CI):
+
+```python
+import warnings
+from oct2py import Oct2PyWarning
+
+warnings.filterwarnings("error", category=Oct2PyWarning)
+```
 
 ## Debugging
 
