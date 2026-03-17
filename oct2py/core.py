@@ -1034,7 +1034,12 @@ class Oct2Py:
             ref_indices=ref_arr,
         )
 
-        write_file(req, out_file, oned_as=self._settings.oned_as, convert_to_float=self._settings.convert_to_float)
+        write_file(
+            req,
+            out_file,
+            oned_as=self._settings.oned_as,
+            convert_to_float=self._settings.convert_to_float,
+        )
 
         # Set up the engine and evaluate the `_pyeval()` function.
         engine.line_handler = stream_handler or self.logger.info
