@@ -66,6 +66,11 @@ repos:
       - id: codespell
         args: ["-L", "ans,te,manuel"]
 
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.25
+    hooks:
+      - id: validate-pyproject
+
   - repo: https://github.com/scientific-python/cookie
     rev: "2025.11.21"
     hooks:

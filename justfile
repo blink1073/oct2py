@@ -21,6 +21,7 @@ lint:
     just pre-commit ruff-check
     just pre-commit interrogate
     just pre-commit doc8
+    just pre-commit validate-pyproject
 
 # Run type checking (mypy)
 typing:
