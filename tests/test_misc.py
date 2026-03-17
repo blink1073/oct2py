@@ -223,6 +223,16 @@ class TestMisc:
         except TypeError:
             speed_check.speed_check()  # type:ignore[attr-defined]
 
+    def test_check(self, capsys):
+        from oct2py import check
+
+        check()
+        out = capsys.readouterr().out
+        assert "Platform:" in out
+        assert "oct2py:" in out
+        assert "Octave exe:" in out
+        assert "Connection OK" in out
+
     def test_plot(self):
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
