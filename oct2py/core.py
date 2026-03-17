@@ -10,6 +10,7 @@ import os
 import os.path as osp
 import shutil
 import signal
+import sys
 import tempfile
 import threading
 import uuid
@@ -30,7 +31,14 @@ from .dynamic import (
 )
 from .io import Cell, StructArray, read_file, write_file
 from .settings import Oct2PySettings
-from .utils import Oct2PyError, Oct2PyWarning, _augment_path_for_windows, get_log
+from .utils import (
+    Oct2PyError,
+    Oct2PyWarning,
+    _augment_path_for_windows,
+    _create_macos_ramdisk,
+    _detach_macos_ramdisk,
+    get_log,
+)
 
 HERE = osp.realpath(osp.dirname(__file__))
 
@@ -183,6 +191,13 @@ class Oct2Py:
         Default plot height in pixels.
     plot_res : int, optional
         Default plot resolution in pixels per inch.
+    ramdisk_size_mb : int, optional
+        macOS only.  When set to a positive integer, oct2py will create
+        a temporary HFS+ RAM disk of the given size (in MiB) and use it
+        as the MAT-file exchange directory.  The disk is unmounted
+        automatically on session exit.  Has no effect on Linux (where
+        ``/dev/shm`` is used automatically) or on Windows.  Defaults to
+        ``0`` (disabled).
     """
 
     def __init__(  # noqa
@@ -204,6 +219,7 @@ class Oct2Py:
         plot_width=None,
         plot_height=None,
         plot_res=None,
+        ramdisk_size_mb=None,
     ):
         if settings is None:
             settings = Oct2PySettings()
@@ -225,6 +241,8 @@ class Oct2Py:
         self._logger = None
         self.logger = logger
         self._temp_dir_owner = False
+        self._ramdisk_device = None
+        self._out_fh = None
         self._user_classes = {}
         self._function_ptrs = {}
         _instances.add(self)
@@ -274,10 +292,16 @@ class Oct2Py:
                 atexit.unregister(self._engine._cleanup)
             self._engine.repl.terminate()
         self._engine = None
+        if self._out_fh and not self._out_fh.closed:
+            self._out_fh.close()
+            self._out_fh = None
         if self._temp_dir_owner and self._settings.temp_dir and osp.isdir(self._settings.temp_dir):
             shutil.rmtree(self._settings.temp_dir, ignore_errors=True)
             self._settings.temp_dir = None
             self._temp_dir_owner = False
+        if self._ramdisk_device:
+            _detach_macos_ramdisk(self._ramdisk_device)
+            self._ramdisk_device = None
 
     def push(self, name, var, timeout=None, verbose=True):
         """
@@ -980,10 +1004,22 @@ class Oct2Py:
             if not sandboxed and osp.isdir(shm) and os.access(shm, os.W_OK):
                 self._settings.temp_dir = tempfile.mkdtemp(dir=shm, prefix="oct2py_")
                 atexit.register(shutil.rmtree, self._settings.temp_dir, True)
-            else:
+            elif sys.platform == "darwin" and not sandboxed and self._settings.ramdisk_size_mb > 0:
+                device, mount = _create_macos_ramdisk(self._settings.ramdisk_size_mb)
+                if device:
+                    self._ramdisk_device = device
+                    self._settings.temp_dir = tempfile.mkdtemp(dir=mount, prefix="oct2py_")
+                    atexit.register(shutil.rmtree, self._settings.temp_dir, True)
+                    atexit.register(_detach_macos_ramdisk, device)
+            if self._settings.temp_dir is None:
                 self._settings.temp_dir = os.path.join(self._engine.tmp_dir, "oct2py")
                 os.makedirs(self._settings.temp_dir, exist_ok=True)
             self._temp_dir_owner = True
+
+        # Pre-open writer.mat so the file descriptor is reused across calls,
+        # avoiding repeated open/close syscall overhead.
+        if self._out_fh is None or self._out_fh.closed:
+            self._out_fh = open(osp.join(self._settings.temp_dir, "writer.mat"), "w+b")  # noqa: SIM115
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
@@ -1036,7 +1072,7 @@ class Oct2Py:
 
         write_file(
             req,
-            out_file,
+            self._out_fh,
             oned_as=self._settings.oned_as,
             convert_to_float=self._settings.convert_to_float,
         )

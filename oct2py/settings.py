@@ -54,6 +54,13 @@ class Oct2PySettings(BaseSettings):
         False to skip loading the user init file, which is useful in
         reproducible or sandboxed environments where the init file may
         alter the path, set conflicting options, or is simply unavailable.
+    ramdisk_size_mb : int
+        macOS only.  When set to a positive integer, oct2py will create a
+        temporary HFS+ RAM disk of the given size (in MiB) and use it as
+        the MAT-file exchange directory.  The disk is unmounted automatically
+        on session exit.  Has no effect on Linux (where ``/dev/shm`` is used
+        automatically) or on Windows.  Defaults to ``0`` (disabled).
+        Can also be set via the ``OCT2PY_RAMDISK_SIZE_MB`` environment variable.
 
     Examples
     --------
@@ -92,3 +99,4 @@ class Oct2PySettings(BaseSettings):
     plot_res: int | None = None
     extra_cli_options: str = ""
     load_octaverc: bool = True
+    ramdisk_size_mb: int = 0

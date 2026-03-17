@@ -58,6 +58,9 @@ jobs:
           - os: windows-latest
             install-type: windows
             cover-cmd: just cover tests/test_usage.py tests/test_misc.py tests/test_octavemagic.py
+          - os: macos-latest
+            install-type: macos
+            cover-cmd: just cover tests/test_usage.py tests/test_misc.py tests/test_octavemagic.py
       fail-fast: false
 
     steps:
@@ -89,8 +92,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-latest
-            install-type: macos
           - os: ubuntu-latest
             install-type: ubuntu-flatpak
           - os: ubuntu-latest
