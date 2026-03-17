@@ -51,16 +51,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            install-type: ubuntu
-            cover-cmd: just cover
-          - os: windows-latest
-            install-type: windows
-            cover-cmd: just cover tests/test_usage.py tests/test_misc.py tests/test_octavemagic.py
-          - os: macos-latest
-            install-type: macos
-            cover-cmd: just cover tests/test_usage.py tests/test_misc.py tests/test_octavemagic.py
+        os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
 
     steps:
@@ -72,12 +63,12 @@ jobs:
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
         with:
-          install-type: ${{ matrix.install-type }}
+          install-type: ${{ startsWith(matrix.os, 'ubuntu') && 'ubuntu' || startsWith(matrix.os, 'windows') && 'windows' || 'macos' }}
       - name: Install signal package
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: sudo apt-get install -qq octave-signal
       - name: Generate coverage report
-        run: ${{ matrix.cover-cmd }}
+        run: ${{ startsWith(matrix.os, 'ubuntu') && 'just cover' || 'just cover tests/test_usage.py tests/test_misc.py tests/test_octavemagic.py' }}
       - name: Upload coverage to Codecov
         if: always()
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5
