@@ -34,6 +34,7 @@ from .utils import Oct2PyError, _augment_path_for_windows, get_log
 
 HERE = osp.realpath(osp.dirname(__file__))
 
+
 # Registry of all live Oct2Py instances, held via weak references so they can
 # be garbage-collected normally.  Used by the post-fork handler below.
 _instances: weakref.WeakSet["Oct2Py"] = weakref.WeakSet()
@@ -206,63 +207,50 @@ class Oct2Py:
     ):
         if settings is None:
             settings = Oct2PySettings()
-        # Apply settings as defaults for any unspecified kwargs
-        if oned_as is None:
-            oned_as = settings.oned_as
-        if convert_to_float is None:
-            convert_to_float = settings.convert_to_float
-        if backend is None:
-            backend = settings.backend
-        if keep_matlab_shapes is None:
-            keep_matlab_shapes = settings.keep_matlab_shapes
-        if timeout is None:
-            timeout = settings.timeout
-        if temp_dir is None:
-            temp_dir = settings.temp_dir
-        if extra_cli_options is None:
-            extra_cli_options = settings.extra_cli_options
-        if executable is None:
-            executable = settings.executable
-        if load_octaverc is None:
-            load_octaverc = settings.load_octaverc
-        if plot_format is None:
-            plot_format = settings.plot_format
-        if plot_name is None:
-            plot_name = settings.plot_name
-        if plot_width is None:
-            plot_width = settings.plot_width
-        if plot_height is None:
-            plot_height = settings.plot_height
-        if plot_res is None:
-            plot_res = settings.plot_res
+        # Build a dict of explicitly-provided non-None kwargs and overlay onto settings.
+        _overrides = {
+            k: v
+            for k, v in dict(
+                timeout=timeout,
+                oned_as=oned_as,
+                temp_dir=temp_dir,
+                convert_to_float=convert_to_float,
+                backend=backend,
+                keep_matlab_shapes=keep_matlab_shapes,
+                auto_show=auto_show,
+                extra_cli_options=extra_cli_options,
+                executable=executable,
+                load_octaverc=load_octaverc,
+                plot_format=plot_format,
+                plot_name=plot_name,
+                plot_width=plot_width,
+                plot_height=plot_height,
+                plot_res=plot_res,
+            ).items()
+            if v is not None
+        }
+        if _overrides:
+            settings = settings.model_copy(update=_overrides)
         self._settings = settings
-        self._extra_cli_options = extra_cli_options
-        self.executable = executable or ""
-        self._load_octaverc = load_octaverc
-        self.plot_format = plot_format
-        self.plot_name = plot_name
-        self.plot_width = plot_width
-        self.plot_height = plot_height
-        self.plot_res = plot_res
-        self._oned_as = oned_as
+        # Copy all standard settings fields to private instance attrs.
+        for _field in Oct2PySettings.model_fields:
+            if _field not in ("executable", "auto_show"):
+                setattr(self, f"_{_field}", getattr(settings, _field))
+        # executable needs a non-None fallback.
+        self._executable = settings.executable or ""
         self._engine = None
         self._logger = None
         self.logger = logger
-        self.timeout = timeout
-        self.backend = backend if backend is not None else "default"
-        self.keep_matlab_shapes = keep_matlab_shapes
-        self.temp_dir = temp_dir
         self._temp_dir_owner = False
-        self.convert_to_float = convert_to_float
         self._user_classes = {}
         self._function_ptrs = {}
-        if auto_show is None:
-            auto_show = settings.auto_show
-        if auto_show is None:
-            auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
-            if self.backend == "disable":
-                auto_show = False
-        self._auto_show = auto_show
+        # auto_show has additional env-var detection when not explicitly set.
+        _auto_show = settings.auto_show
+        if _auto_show is None:
+            _auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
+            if self._backend == "disable":
+                _auto_show = False
+        self._auto_show = _auto_show
         _instances.add(self)
         self.restart()
 
@@ -276,6 +264,105 @@ class Oct2Py:
         self._logger = value or get_log()
         if self._engine:
             self._engine.logger = self._logger
+
+    @property
+    def timeout(self):
+        """Timeout in seconds for Octave commands."""
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        self._timeout = value
+
+    @property
+    def backend(self):
+        """Graphics toolkit used for plotting."""
+        return self._backend
+
+    @backend.setter
+    def backend(self, value):
+        self._backend = value
+
+    @property
+    def executable(self):
+        """Path to the Octave executable."""
+        return self._executable
+
+    @executable.setter
+    def executable(self, value):
+        self._executable = value
+
+    @property
+    def temp_dir(self):
+        """Directory used for MAT exchange files."""
+        return self._temp_dir
+
+    @temp_dir.setter
+    def temp_dir(self, value):
+        self._temp_dir = value
+
+    @property
+    def convert_to_float(self):
+        """If True, convert integer types to float before sending to Octave."""
+        return self._convert_to_float
+
+    @convert_to_float.setter
+    def convert_to_float(self, value):
+        self._convert_to_float = value
+
+    @property
+    def keep_matlab_shapes(self):
+        """If True, preserve MATLAB array shapes."""
+        return self._keep_matlab_shapes
+
+    @keep_matlab_shapes.setter
+    def keep_matlab_shapes(self, value):
+        self._keep_matlab_shapes = value
+
+    @property
+    def plot_format(self):
+        """Default format for saved plots."""
+        return self._plot_format
+
+    @plot_format.setter
+    def plot_format(self, value):
+        self._plot_format = value
+
+    @property
+    def plot_name(self):
+        """Default base name for saved plots."""
+        return self._plot_name
+
+    @plot_name.setter
+    def plot_name(self, value):
+        self._plot_name = value
+
+    @property
+    def plot_width(self):
+        """Default plot width in pixels."""
+        return self._plot_width
+
+    @plot_width.setter
+    def plot_width(self, value):
+        self._plot_width = value
+
+    @property
+    def plot_height(self):
+        """Default plot height in pixels."""
+        return self._plot_height
+
+    @plot_height.setter
+    def plot_height(self, value):
+        self._plot_height = value
+
+    @property
+    def plot_res(self):
+        """Default plot resolution in pixels per inch."""
+        return self._plot_res
+
+    @plot_res.setter
+    def plot_res(self, value):
+        self._plot_res = value
 
     def __enter__(self):
         """Return octave object, restart session if necessary"""
