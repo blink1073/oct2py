@@ -4,6 +4,7 @@
 
 import dis
 import inspect
+import os
 import threading
 
 import numpy as np
@@ -56,14 +57,28 @@ def read_file(path, session=None, keep_matlab_shapes=False):
     return out
 
 
-def write_file(obj, path, oned_as="row", convert_to_float=True):
-    """Save a Python object to an Octave file on the given path."""
+def write_file(obj, path_or_fh, oned_as="row", convert_to_float=True):
+    """Save a Python object to an Octave file.
+
+    ``path_or_fh`` may be a file path (str / os.PathLike) or an open
+    binary file object.  When a file object is supplied it is seeked to
+    the beginning and truncated before writing so that the same handle
+    can be reused across multiple calls.
+    """
     data = _encode(obj, convert_to_float)
     try:
-        # scipy.io.savemat is not thread-save.
+        # scipy.io.savemat is not thread-safe.
         # See https://github.com/scipy/scipy/issues/7260
         with _WRITE_LOCK:
-            savemat(path, data, appendmat=False, oned_as=oned_as, long_field_names=True)
+            if isinstance(path_or_fh, (str, os.PathLike)):
+                savemat(path_or_fh, data, appendmat=False, oned_as=oned_as, long_field_names=True)
+            else:
+                # File-like object: rewind and overwrite in place, then flush
+                # so the kernel buffer is up to date before Octave reads it.
+                path_or_fh.seek(0)
+                path_or_fh.truncate(0)
+                savemat(path_or_fh, data, appendmat=False, oned_as=oned_as, long_field_names=True)
+                path_or_fh.flush()
     except KeyError:  # pragma: no cover
         msg = "could not save mat file"
         raise Exception(msg) from None
@@ -333,7 +348,7 @@ def _encode(data, convert_to_float):  # noqa
     # Handle matlab objects.
     if isinstance(data, MatlabObject):
         view = data.view(np.ndarray)
-        out = MatlabObject(data, data.classname)  # type: ignore[arg-type]
+        out = MatlabObject(data, data.classname)  # type: ignore[arg-type, unused-ignore]
         for name in out.dtype.names:  # type:ignore[union-attr]
             out[name] = _encode(view[name], ctf)
         return out

@@ -534,6 +534,51 @@ Oct2Py speed test
 ...
 ```
 
+### Reducing MAT-file overhead with a RAM-backed temp directory
+
+Oct2py exchanges data with Octave by writing and reading MAT files in a
+temporary directory. Keeping that directory in RAM eliminates disk I/O
+entirely and can meaningfully improve throughput for workloads that make
+many short calls.
+
+**Linux** — `/dev/shm` (a kernel-managed tmpfs) is used automatically
+whenever it is available and writable. No configuration is required.
+
+**macOS — opt-in RAM disk (managed by oct2py)**
+
+Pass `ramdisk_size_mb` to have oct2py create, use, and destroy a HFS+
+RAM disk for the duration of the session:
+
+```python
+from oct2py import Oct2Py
+
+oc = Oct2Py(ramdisk_size_mb=256)   # 256 MiB RAM disk
+```
+
+You can also set it via the environment variable `OCT2PY_RAMDISK_SIZE_MB`.
+Choose a size large enough to hold the largest single argument or return
+value you expect to exchange. The disk is unmounted automatically when
+`oc.exit()` is called or when the Python process exits.
+
+**macOS — existing RAM disk (user-managed)**
+
+If you already have a RAM disk mounted (for example via a login-item
+script), pass its path directly as `temp_dir`:
+
+```bash
+# Create a 256 MiB RAM disk and mount it at /Volumes/ramdisk
+diskutil erasevolume HFS+ "ramdisk" $(hdiutil attach -nomount ram://524288)
+```
+
+```python
+from oct2py import Oct2Py
+
+oc = Oct2Py(temp_dir="/Volumes/ramdisk")
+```
+
+oct2py will create a subdirectory inside that path and will *not* unmount
+the disk when the session exits — lifetime management is left to you.
+
 ## Threading
 
 If you want to use threading, you *must* create a new `Oct2Py` instance

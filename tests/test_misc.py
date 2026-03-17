@@ -901,3 +901,157 @@ def test_system_cat_works_via_oct2py():
     """Oct2Py session can call system('cat --version') without raising."""
     with Oct2Py() as oc:
         oc.eval("[~, out] = system('cat --version');", nout=0)
+
+
+# ---------------------------------------------------------------------------
+# Tests for writer.mat file-handle reuse (phase 2 of issue #322)
+# ---------------------------------------------------------------------------
+
+
+class TestWriterFileHandle:
+    def test_out_fh_open_after_init(self):
+        """_out_fh is a valid open binary file after session start."""
+        with Oct2Py() as oc:
+            assert oc._out_fh is not None
+            assert not oc._out_fh.closed
+
+    def test_out_fh_stable_across_calls(self):
+        """The same file handle object is reused for every feval call."""
+        with Oct2Py() as oc:
+            fh_id = id(oc._out_fh)
+            oc.eval("1 + 1", nout=0)
+            oc.eval("2 + 2", nout=0)
+            assert id(oc._out_fh) == fh_id
+
+    def test_out_fh_closed_on_exit(self):
+        """_out_fh is closed and set to None when the session exits."""
+        oc = Oct2Py()
+        fh = oc._out_fh
+        oc.exit()
+        assert fh.closed
+        assert oc._out_fh is None
+
+
+def test_write_file_accepts_file_handle(tmp_path):
+    """write_file writes a valid MAT file when given an open file handle."""
+    from oct2py.io import read_file, write_file
+
+    mat_path = tmp_path / "test.mat"
+    with open(mat_path, "w+b") as fh:
+        write_file({"x": np.array([1.0, 2.0])}, fh)
+
+    result = read_file(str(mat_path))
+    assert result["x"].ravel().tolist() == [1.0, 2.0]
+
+
+def test_write_file_handle_overwrites_on_second_call(tmp_path):
+    """A second write_file call on the same handle overwrites the first."""
+    from oct2py.io import read_file, write_file
+
+    mat_path = tmp_path / "test.mat"
+    with open(mat_path, "w+b") as fh:
+        write_file({"x": np.array([1.0, 2.0])}, fh)
+        write_file({"x": np.array([99.0, 100.0])}, fh)
+
+    result = read_file(str(mat_path))
+    assert result["x"].ravel().tolist() == [99.0, 100.0]
+
+
+# ---------------------------------------------------------------------------
+# Tests for macOS RAM disk helpers and ramdisk_size_mb (issue #322)
+# ---------------------------------------------------------------------------
+
+from oct2py.utils import _create_macos_ramdisk, _detach_macos_ramdisk  # noqa: E402
+
+
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS only")
+class TestMacOSRamdisk:
+    def test_create_returns_none_on_subprocess_failure(self, monkeypatch):
+        """Returns (None, None) when hdiutil is unavailable or fails."""
+        import subprocess as sp
+
+        def _fail(*a, **kw):
+            raise FileNotFoundError("hdiutil not found")
+
+        monkeypatch.setattr(sp, "run", _fail)
+        device, mount = _create_macos_ramdisk(32)
+        assert device is None
+        assert mount is None
+
+    def test_detach_swallows_errors(self):
+        """_detach_macos_ramdisk does not raise for an invalid device path."""
+        _detach_macos_ramdisk("/dev/nonexistent_disk999")
+
+    def test_oct2py_ramdisk_sets_temp_dir(self, tmp_path, monkeypatch):
+        """Oct2Py(ramdisk_size_mb=N) uses the RAM disk mount as temp_dir."""
+        import oct2py.core as core_mod
+
+        monkeypatch.setattr(
+            core_mod, "_create_macos_ramdisk", lambda n: ("fake_dev", str(tmp_path))
+        )
+        detached: list[str] = []
+
+        def _record_detach(d):
+            detached.append(d)
+
+        monkeypatch.setattr(core_mod, "_detach_macos_ramdisk", _record_detach)
+
+        with Oct2Py(ramdisk_size_mb=64) as oc:
+            assert oc._settings.temp_dir.startswith(str(tmp_path))
+            assert oc._ramdisk_device == "fake_dev"
+            assert oc.eval("2 + 2", nout=1) == 4.0
+
+        assert "fake_dev" in detached
+
+    def test_oct2py_falls_back_when_ramdisk_fails(self, monkeypatch):
+        """Falls back to the default temp_dir when RAM disk creation fails."""
+        import oct2py.core as core_mod
+
+        monkeypatch.setattr(core_mod, "_create_macos_ramdisk", lambda n: (None, None))
+
+        with Oct2Py(ramdisk_size_mb=64) as oc:
+            assert oc._ramdisk_device is None
+            assert oc.eval("1 + 1", nout=1) == 2.0
+
+    def test_partial_failure_detaches_device(self, monkeypatch):
+        """If hdiutil succeeds but diskutil fails, the allocated device is detached."""
+        import subprocess as sp
+
+        call_count = 0
+        detached: list[str] = []
+
+        def _selective_fail(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                # First call (hdiutil attach): succeed, return a fake device path.
+                result = sp.CompletedProcess(args[0], 0)
+                result.stdout = "/dev/fake_disk9"
+                result.stderr = ""
+                return result
+            # Second call (diskutil erasevolume): fail.
+            raise sp.CalledProcessError(1, args[0])
+
+        def _record_detach(d):
+            detached.append(d)
+
+        monkeypatch.setattr(sp, "run", _selective_fail)
+        monkeypatch.setattr("oct2py.utils._detach_macos_ramdisk", _record_detach)
+
+        device, mount = _create_macos_ramdisk(32)
+
+        assert device is None
+        assert mount is None
+        assert "/dev/fake_disk9" in detached
+
+    def test_create_and_detach_roundtrip(self):
+        """_create_macos_ramdisk mounts a usable directory; _detach cleans up."""
+        device, mount = _create_macos_ramdisk(32)
+        try:
+            assert device is not None
+            assert mount is not None
+            assert os.path.isdir(mount)
+        finally:
+            if device:
+                _detach_macos_ramdisk(device)
+        assert not os.path.isdir(mount)

@@ -2,8 +2,11 @@
 # Copyright (c) oct2py developers.
 # Distributed under the terms of the MIT License.
 
+import contextlib
 import logging
 import os
+import subprocess
+import sys
 
 
 class Oct2PyError(Exception):
@@ -36,6 +39,47 @@ def get_log(name=None):
     """
     name = "oct2py" if name is None else "oct2py." + name
     return logging.getLogger(name)
+
+
+def _create_macos_ramdisk(size_mb: int) -> tuple[str, str] | tuple[None, None]:
+    """Create a RAM disk on macOS via hdiutil/diskutil.
+
+    Returns ``(device, mount_point)`` on success, ``(None, None)`` on failure.
+    Only meaningful on macOS; on other platforms always returns ``(None, None)``.
+    """
+    if sys.platform != "darwin":
+        return None, None
+    sectors = size_mb * 2048  # type: ignore[unreachable, unused-ignore]  # 512 bytes per sector
+    vol_name = f"oct2py_{os.getpid()}"
+    device: str | None = None
+    try:
+        result = subprocess.run(  # noqa: S603
+            ["hdiutil", "attach", "-nomount", f"ram://{sectors}"],  # noqa: S607
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        device = result.stdout.strip()
+        subprocess.run(  # noqa: S603
+            ["diskutil", "erasevolume", "HFS+", vol_name, device],  # noqa: S607
+            capture_output=True,
+            check=True,
+        )
+        return device, f"/Volumes/{vol_name}"
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        if device:
+            _detach_macos_ramdisk(device)
+        return None, None
+
+
+def _detach_macos_ramdisk(device: str) -> None:
+    """Unmount and release a macOS RAM disk created by hdiutil."""
+    with contextlib.suppress(Exception):
+        subprocess.run(  # noqa: S603
+            ["hdiutil", "detach", "-quiet", device],  # noqa: S607
+            capture_output=True,
+            check=False,
+        )
 
 
 def _augment_path_for_windows(executable: str) -> None:
