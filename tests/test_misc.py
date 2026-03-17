@@ -6,6 +6,7 @@ import shutil
 import signal
 import sys
 import tempfile
+import warnings
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import StringIO
 
@@ -14,7 +15,7 @@ import pandas as pd
 import pytest
 
 import oct2py
-from oct2py import Oct2Py, Oct2PyError, StructArray
+from oct2py import Oct2Py, Oct2PyError, Oct2PyWarning, StructArray
 
 
 def _multiprocessing_worker(_):
@@ -146,6 +147,52 @@ class TestMisc:
         assert 'exist("ones")' not in resp
         assert "_pyeval(" in resp
 
+    def test_no_null_handler(self):
+        # Libraries must not install a NullHandler — it was removed in the fix
+        # for issue #162.  Without it, WARNING+ records propagate to the root
+        # logger (and ultimately to logging.lastResort → stderr) when the
+        # application has not configured logging.
+        logger = logging.getLogger("oct2py")
+        null_handlers = [h for h in logger.handlers if isinstance(h, logging.NullHandler)]
+        assert null_handlers == [], "oct2py must not install a NullHandler"
+        assert logger.propagate is True
+
+    def test_warning_propagates_to_root(self):
+        # With no NullHandler, a WARNING emitted on the oct2py logger must
+        # reach the root logger so that logging.lastResort can display it.
+        oct2py_logger = logging.getLogger("oct2py")
+        root_logger = logging.getLogger()
+        records = []
+
+        class _Capture(logging.Handler):
+            def emit(self, record):
+                records.append(record)
+
+        handler = _Capture(logging.WARNING)
+        root_logger.addHandler(handler)
+        try:
+            oct2py_logger.warning("oct2py-sentinel")
+        finally:
+            root_logger.removeHandler(handler)
+
+        assert any("oct2py-sentinel" in r.getMessage() for r in records)
+
+    def test_oct2py_warning_raised(self):
+        # Deprecated kwargs on eval() must surface as Oct2PyWarning.
+        with pytest.warns(Oct2PyWarning, match="deprecated `log`"):
+            self.oc.eval("1 + 1", log=False)
+
+    def test_oct2py_warning_filterable(self):
+        # Oct2PyWarning can be silenced without affecting unrelated UserWarnings.
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            warnings.filterwarnings("ignore", category=Oct2PyWarning)
+            self.oc.eval("1 + 1", log=False)
+            warnings.warn("unrelated", UserWarning, stacklevel=1)
+
+        assert not any(issubclass(w.category, Oct2PyWarning) for w in caught)
+        assert any(w.category is UserWarning for w in caught)
+
     def test_demo(self):
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
@@ -222,6 +269,16 @@ class TestMisc:
             speed_check()
         except TypeError:
             speed_check.speed_check()  # type:ignore[attr-defined]
+
+    def test_check(self, capsys):
+        from oct2py import check
+
+        check()
+        out = capsys.readouterr().out
+        assert "Platform:" in out
+        assert "oct2py:" in out
+        assert "Octave exe:" in out
+        assert "Connection OK" in out
 
     def test_plot(self):
         if self._flatpak:

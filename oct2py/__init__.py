@@ -21,9 +21,10 @@ If you want to run legacy m-files, do not have MATLAB(TM), and do not fully
 trust a code translator, this is your library.
 """
 
-from .utils import Oct2PyError, get_log  # noqa
+from .utils import Oct2PyError, Oct2PyWarning, get_log  # noqa
 
 from ._version import __version__
+from .check import check
 from .core import Oct2Py, OctaveWorkspaceProxy
 from .demo import demo
 from .io import Cell, Struct, StructArray
@@ -36,10 +37,12 @@ __all__ = [
     "Oct2Py",
     "Oct2PyError",
     "Oct2PySettings",
+    "Oct2PyWarning",
     "OctaveWorkspaceProxy",
     "Struct",
     "StructArray",
     "__version__",
+    "check",
     "configure",
     "demo",
     "get_log",

@@ -152,6 +152,7 @@ ignore = [
 # PLR0912 Too many branches
 "tests/*" = ["S101", "N806", "PLR2004", "SIM114",
               "PLR0912", "RUF059", "E721", "PLC0415", "EM101"]
+"oct2py/check.py" = ["T201"]
 "*.ipynb" = ["B018", "T201", "F821"]
 
 [tool.interrogate]

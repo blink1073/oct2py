@@ -30,7 +30,7 @@ from .dynamic import (
 )
 from .io import Cell, StructArray, read_file, write_file
 from .settings import Oct2PySettings
-from .utils import Oct2PyError, _augment_path_for_windows, get_log
+from .utils import Oct2PyError, Oct2PyWarning, _augment_path_for_windows, get_log
 
 HERE = osp.realpath(osp.dirname(__file__))
 
@@ -816,7 +816,7 @@ class Oct2Py:
             if name not in kwargs:
                 continue
             msg = "Using deprecated `%s` kwarg, see docs on `Oct2Py.eval()`"
-            warnings.warn(msg % name, stacklevel=2)
+            warnings.warn(msg % name, Oct2PyWarning, stacklevel=2)
 
         return_both = kwargs.pop("return_both", False)
         lines: list[str] = []

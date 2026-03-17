@@ -32,6 +32,10 @@ jupyter:
 
 ::: oct2py.Oct2PyError
 
+## Oct2PyWarning
+
+::: oct2py.Oct2PyWarning
+
 ## get_log
 
 ::: oct2py.get_log
