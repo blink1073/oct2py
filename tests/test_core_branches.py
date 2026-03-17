@@ -7,7 +7,237 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from oct2py import Oct2Py, Oct2PyError
+from oct2py import Oct2Py, Oct2PyError, Oct2PySettings
+
+
+class TestInit:
+    """Tests for the new Oct2Py.__init__ parameters."""
+
+    def _make_fake_engine(self, executable="/resolved/octave"):
+        fake = MagicMock()
+        fake.tmp_dir = tempfile.mkdtemp()
+        fake.executable = executable
+        return fake
+
+    # --- settings parameter ---
+
+    def test_settings_applied_as_defaults(self):
+        """Oct2PySettings values fill in unspecified __init__ kwargs."""
+        s = Oct2PySettings(
+            backend="disable",
+            timeout=42,
+            oned_as="column",
+            convert_to_float=False,
+            keep_matlab_shapes=True,
+        )
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py(settings=s)
+        assert oc.settings.backend == "disable"
+        assert oc.settings.timeout == 42
+        assert oc.settings.oned_as == "column"
+        assert oc.settings.convert_to_float is False
+        assert oc.settings.keep_matlab_shapes is True
+        oc._engine = None
+
+    def test_kwargs_override_settings(self):
+        """Explicit __init__ kwargs take precedence over settings values."""
+        s = Oct2PySettings(backend="disable", timeout=99)
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py(settings=s, backend="default", timeout=7)
+        assert oc.settings.backend == "default"
+        assert oc.settings.timeout == 7
+        oc._engine = None
+
+    def test_default_settings_created_when_none(self):
+        """When settings=None, a default Oct2PySettings() is created."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py()
+        assert isinstance(oc.settings, Oct2PySettings)
+        oc._engine = None
+
+    # --- extra_cli_options parameter ---
+
+    def test_extra_cli_options_passed_to_engine(self):
+        """extra_cli_options is forwarded as cli_options to OctaveEngine."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(extra_cli_options="--traditional")
+        assert mock_engine.call_args.kwargs.get("cli_options") == "--traditional"
+        oc._engine = None
+
+    def test_no_extra_cli_options_passes_empty_string(self):
+        """Without extra_cli_options, cli_options is an empty string."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py()
+        assert mock_engine.call_args.kwargs.get("cli_options") == ""
+        oc._engine = None
+
+    def test_extra_cli_options_from_settings(self):
+        """extra_cli_options falls back to the settings value."""
+        s = Oct2PySettings(extra_cli_options="--traditional")
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(settings=s)
+        cli = mock_engine.call_args.kwargs.get("cli_options", "")
+        assert "--traditional" in cli
+        oc._engine = None
+
+    def test_extra_cli_options_kwarg_overrides_settings(self):
+        """extra_cli_options kwarg overrides the settings value."""
+        s = Oct2PySettings(extra_cli_options="--from-settings")
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(settings=s, extra_cli_options="--from-kwarg")
+        cli = mock_engine.call_args.kwargs.get("cli_options", "")
+        assert "--from-kwarg" in cli
+        assert "--from-settings" not in cli
+        oc._engine = None
+
+    # --- executable parameter ---
+
+    def test_executable_passed_to_engine(self):
+        """executable kwarg is forwarded to OctaveEngine."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(executable="/custom/octave")
+        assert mock_engine.call_args.kwargs.get("executable") == "/custom/octave"
+        oc._engine = None
+
+    def test_executable_updated_from_engine(self):
+        """self.executable is updated to the actual path used by the engine."""
+        fake = self._make_fake_engine(executable="/resolved/octave-cli")
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py(executable="/custom/octave")
+        assert oc.settings.executable == "/resolved/octave-cli"
+        oc._engine = None
+
+    def test_executable_from_settings(self):
+        """executable falls back to the settings value."""
+        s = Oct2PySettings(executable="/settings/octave")
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(settings=s)
+        assert mock_engine.call_args.kwargs.get("executable") == "/settings/octave"
+        oc._engine = None
+
+    def test_executable_kwarg_overrides_settings(self):
+        """executable kwarg overrides the settings value."""
+        s = Oct2PySettings(executable="/settings/octave")
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(settings=s, executable="/kwarg/octave")
+        assert mock_engine.call_args.kwargs.get("executable") == "/kwarg/octave"
+        oc._engine = None
+
+    # --- load_octaverc parameter ---
+
+    def test_load_octaverc_default_is_true(self):
+        """load_octaverc defaults to True and is passed to OctaveEngine."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py()
+        assert mock_engine.call_args.kwargs.get("load_octaverc") is True
+        oc._engine = None
+
+    def test_load_octaverc_false_passed_to_engine(self):
+        """load_octaverc=False is forwarded to OctaveEngine."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(load_octaverc=False)
+        assert mock_engine.call_args.kwargs.get("load_octaverc") is False
+        oc._engine = None
+
+    def test_load_octaverc_from_settings(self):
+        """load_octaverc falls back to the settings value."""
+        s = Oct2PySettings(load_octaverc=False)
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(settings=s)
+        assert mock_engine.call_args.kwargs.get("load_octaverc") is False
+        oc._engine = None
+
+    def test_load_octaverc_kwarg_overrides_settings(self):
+        """load_octaverc kwarg overrides the settings value."""
+        s = Oct2PySettings(load_octaverc=False)
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake) as mock_engine:
+            oc = Oct2Py(settings=s, load_octaverc=True)
+        assert mock_engine.call_args.kwargs.get("load_octaverc") is True
+        oc._engine = None
+
+    # --- plot_* parameters ---
+
+    def test_plot_params_defaults(self):
+        """Plot params get their defaults from settings when not specified."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py()
+        assert oc.settings.plot_format == "svg"
+        assert oc.settings.plot_name == "plot"
+        assert oc.settings.plot_width is None
+        assert oc.settings.plot_height is None
+        assert oc.settings.plot_res is None
+        oc._engine = None
+
+    def test_plot_params_from_kwargs(self):
+        """Plot params set via kwargs are stored on the instance."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py(
+                plot_format="png", plot_name="fig", plot_width=800, plot_height=600, plot_res=150
+            )
+        assert oc.settings.plot_format == "png"
+        assert oc.settings.plot_name == "fig"
+        assert oc.settings.plot_width == 800
+        assert oc.settings.plot_height == 600
+        assert oc.settings.plot_res == 150
+        oc._engine = None
+
+    def test_plot_params_from_settings(self):
+        """Plot params fall back to settings values."""
+        s = Oct2PySettings(
+            plot_format="png", plot_name="fig", plot_width=800, plot_height=600, plot_res=150
+        )
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py(settings=s)
+        assert oc.settings.plot_format == "png"
+        assert oc.settings.plot_name == "fig"
+        assert oc.settings.plot_width == 800
+        assert oc.settings.plot_height == 600
+        assert oc.settings.plot_res == 150
+        oc._engine = None
+
+    def test_plot_params_kwarg_overrides_settings(self):
+        """Plot param kwargs take precedence over settings."""
+        s = Oct2PySettings(plot_format="png", plot_width=800)
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py(settings=s, plot_format="svg", plot_width=1024)
+        assert oc.settings.plot_format == "svg"
+        assert oc.settings.plot_width == 1024
+        oc._engine = None
+
+    def test_plot_params_used_as_eval_defaults(self):
+        """Instance plot params are used as defaults in eval() calls."""
+        fake = self._make_fake_engine()
+        with patch("oct2py.core.OctaveEngine", return_value=fake):
+            oc = Oct2Py(
+                plot_format="png", plot_name="myfig", plot_width=640, plot_height=480, plot_res=96
+            )
+        with patch.object(oc, "_feval", return_value=None):
+            oc.eval("1+1")
+        engine_settings = fake.plot_settings
+        assert engine_settings["format"] == "png"
+        assert engine_settings["name"] == "myfig"
+        assert engine_settings["width"] == 640
+        assert engine_settings["height"] == 480
+        assert engine_settings["resolution"] == 96
+        oc._engine = None
 
 
 class TestEnterDel:
@@ -141,19 +371,19 @@ class TestRestart:
         """When temp_dir is None, restart should create a new temp dir."""
         oc = Oct2Py()
         oc.exit()
-        oc.temp_dir = None
+        oc.settings.temp_dir = None
         oc.restart()
-        assert oc.temp_dir is not None
-        assert os.path.isdir(oc.temp_dir)
+        assert oc.settings.temp_dir is not None
+        assert os.path.isdir(oc.settings.temp_dir)
         oc.exit()
 
     def test_restart_with_temp_dir_set(self):
         """When temp_dir is already set, restart should not change it."""
         temp_dir = tempfile.mkdtemp()
         oc = Oct2Py(temp_dir=temp_dir)
-        original_temp_dir = oc.temp_dir
+        original_temp_dir = oc.settings.temp_dir
         oc.restart()
-        assert oc.temp_dir == original_temp_dir
+        assert oc.settings.temp_dir == original_temp_dir
         oc.exit()
 
     def test_restart_octave_env_var_propagation(self):

@@ -265,7 +265,7 @@ class OctaveMagics(Magics):
         temp_dir = args.temp_dir
         if temp_dir and not os.path.isdir(temp_dir):
             temp_dir = None
-        temp_dir = temp_dir or self._oct.temp_dir
+        temp_dir = temp_dir or self._oct.settings.temp_dir
 
         # Put the plots in the temp directory so we don't have to make another
         # temporary directory.

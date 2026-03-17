@@ -28,6 +28,7 @@ from .check import check
 from .core import Oct2Py, OctaveWorkspaceProxy
 from .demo import demo
 from .io import Cell, Struct, StructArray
+from .settings import Oct2PySettings
 from .speed_check import speed_check
 from .thread_check import thread_check
 
@@ -35,12 +36,14 @@ __all__ = [
     "Cell",
     "Oct2Py",
     "Oct2PyError",
+    "Oct2PySettings",
     "Oct2PyWarning",
     "OctaveWorkspaceProxy",
     "Struct",
     "StructArray",
     "__version__",
     "check",
+    "configure",
     "demo",
     "get_log",
     "octave",
@@ -52,6 +55,30 @@ try:
     octave = Oct2Py()
 except Oct2PyError as e:
     print(e)  # noqa
+
+
+def configure(settings=None, **kwargs):
+    """Configure (or reconfigure) the default oct2py session.
+
+    Parameters
+    ----------
+    settings : Oct2PySettings, optional
+        Settings object. If not provided, one is built from kwargs and
+        any OCT2PY_* environment variables.
+    **kwargs
+        Passed directly to Oct2PySettings (e.g. ``backend="qt"``,
+        ``timeout=30``).
+
+    Examples
+    --------
+    >>> import oct2py
+    >>> oct2py.configure(backend="disable", timeout=30)  # doctest: +SKIP
+    """
+    global octave  # noqa: PLW0603
+    if settings is None:
+        settings = Oct2PySettings(**kwargs)
+    octave.exit()
+    octave = Oct2Py(settings=settings)
 
 
 def kill_octave():

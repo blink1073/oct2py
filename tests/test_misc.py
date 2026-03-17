@@ -55,10 +55,10 @@ class TestMisc:
             for item in os.listdir(tests_dir):
                 src = os.path.join(tests_dir, item)
                 if os.path.isfile(src) and item.endswith(".m"):
-                    shutil.copy2(src, cls.oc.temp_dir)
+                    shutil.copy2(src, cls.oc.settings.temp_dir)
                 elif os.path.isdir(src) and item.startswith("@"):
-                    shutil.copytree(src, os.path.join(cls.oc.temp_dir, item))
-            cls.oc.addpath(cls.oc.temp_dir)
+                    shutil.copytree(src, os.path.join(cls.oc.settings.temp_dir, item))
+            cls.oc.addpath(cls.oc.settings.temp_dir)
         else:
             cls.oc.addpath(tests_dir)
 
@@ -283,7 +283,7 @@ class TestMisc:
     def test_plot(self):
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
-        plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
+        plot_dir = tempfile.mkdtemp(dir=self.oc.settings.temp_dir).replace("\\", "/")
         self.oc.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
         assert self.oc.extract_figures(plot_dir)
@@ -315,8 +315,8 @@ class TestMisc:
         """
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
-        plot_dir = tempfile.mkdtemp(dir=self.oc.temp_dir).replace("\\", "/")
-        m_path = os.path.join(self.oc.temp_dir, "test_plot_inside.m")
+        plot_dir = tempfile.mkdtemp(dir=self.oc.settings.temp_dir).replace("\\", "/")
+        m_path = os.path.join(self.oc.settings.temp_dir, "test_plot_inside.m")
         with open(m_path, "w") as f:
             f.write(
                 "function test_plot_inside()\n"
@@ -436,7 +436,7 @@ class TestMisc:
             assert result == 2
 
             # auto_show must default to False.
-            assert not oc._auto_show
+            assert not oc.settings.auto_show
 
             # make_figures must never be called when backend='disable'.
             with patch.object(oc._engine, "make_figures") as mock_mf:
@@ -506,7 +506,7 @@ class TestMisc:
         assert out == 5
         doc = self.oc.test_nodocstring.__doc__
         assert "user-defined function" in doc or "undocumented function" in doc
-        expected_dir = self.oc.temp_dir if self._flatpak else os.path.dirname(__file__)
+        expected_dir = self.oc.settings.temp_dir if self._flatpak else os.path.dirname(__file__)
         assert expected_dir in doc
 
     def test_func_noexist(self):
@@ -550,7 +550,7 @@ class TestMisc:
         oc.exit()
 
     def test_temp_dir(self):
-        temp_dir = tempfile.mkdtemp(dir=self.oc.temp_dir)
+        temp_dir = tempfile.mkdtemp(dir=self.oc.settings.temp_dir)
         oc = Oct2Py(temp_dir=temp_dir)
         oc.push("a", 1)
         assert len(os.listdir(temp_dir))

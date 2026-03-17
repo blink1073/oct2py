@@ -35,7 +35,7 @@ _WRITE_LOCK = threading.Lock()
 def read_file(path, session=None, keep_matlab_shapes=False):
     """Read the data from the given file path."""
     if session:
-        keep_matlab_shapes = keep_matlab_shapes or session.keep_matlab_shapes
+        keep_matlab_shapes = keep_matlab_shapes or session.settings.keep_matlab_shapes
     try:
         data = loadmat(path, struct_as_record=True)
     except UnicodeDecodeError as e:

@@ -155,7 +155,7 @@ class TestConversions:
                 pass
             else:
                 assert octave_type == oct_type or (
-                    octave_type == "double" and self.oc.convert_to_float
+                    octave_type == "double" and self.oc.settings.convert_to_float
                 )
             if out_type is None:
                 assert np.isnan(incoming)

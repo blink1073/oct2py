@@ -28,7 +28,7 @@ typing:
 
 # Build documentation
 docs:
-    uv run --group docs mkdocs build
+    uv run --group docs mkdocs build --strict
 
 # Serve documentation locally
 docs-serve:
