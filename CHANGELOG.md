@@ -2,6 +2,90 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 6.0.0rc0
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.8.0...720aa6b912ca24ce979b3ae19995edb75296237f))
+
+### Enhancements made
+
+- Add opt-in macOS RAM disk and reuse writer.mat file handle [#398](https://github.com/blink1073/oct2py/pull/398) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Add check() diagnostic utility, debugging docs, and issue templates [#396](https://github.com/blink1073/oct2py/pull/396) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Add pydantic-settings support with Oct2PySettings and configure() [#395](https://github.com/blink1073/oct2py/pull/395) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Add backend='disable' to suppress all figure rendering [#390](https://github.com/blink1073/oct2py/pull/390) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Add workspace proxy for MATLAB-style variable access [#375](https://github.com/blink1073/oct2py/pull/375) ([@blink1073](https://github.com/blink1073))
+- Add Oct2Py.run() to execute scripts in the base workspace [#374](https://github.com/blink1073/oct2py/pull/374) ([@blink1073](https://github.com/blink1073))
+- Fix per-call overhead in Octave 7+ by passing --no-line-editing [#363](https://github.com/blink1073/oct2py/pull/363) ([@blink1073](https://github.com/blink1073))
+- Add binder support and JupyterHub Qt docs [#356](https://github.com/blink1073/oct2py/pull/356) ([@blink1073](https://github.com/blink1073))
+- Add executable trait to OctaveMagics and bump octave-kernel to 0.39 [#355](https://github.com/blink1073/oct2py/pull/355) ([@blink1073](https://github.com/blink1073))
+- Simplify snap/flatpak temp dir support via engine.tmp_dir [#352](https://github.com/blink1073/oct2py/pull/352) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Add support for ubuntu snap [#351](https://github.com/blink1073/oct2py/pull/351) ([@blink1073](https://github.com/blink1073))
+
+### Bugs fixed
+
+- Fix logging/warning hygiene: remove NullHandler, add Oct2PyWarning [#397](https://github.com/blink1073/oct2py/pull/397) ([@blink1073](https://github.com/blink1073))
+- Support Octave package namespace access (closes #286) [#393](https://github.com/blink1073/oct2py/pull/393) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Fix system() failures on Windows — augment PATH with Octave's MinGW/MSYS tool dirs [#392](https://github.com/blink1073/oct2py/pull/392) ([@blink1073](https://github.com/blink1073))
+- Fix Octave startup crash when opencv-python is imported on Linux [#391](https://github.com/blink1073/oct2py/pull/391) ([@blink1073](https://github.com/blink1073))
+- Fix Python bool → Octave logical conversion (closes #153) [#389](https://github.com/blink1073/oct2py/pull/389) ([@blink1073](https://github.com/blink1073))
+- Fix logging configuration to follow Python library best practices [#386](https://github.com/blink1073/oct2py/pull/386) ([@blink1073](https://github.com/blink1073))
+- Add auto_show and show() for PyCharm/IDE inline plot display (closes #164) [#385](https://github.com/blink1073/oct2py/pull/385) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Fix TypeError when returning old-style Octave objects like ss (closes #166) [#384](https://github.com/blink1073/oct2py/pull/384) ([@blink1073](https://github.com/blink1073))
+- Add expr=True support to get_pointer (closes #169) [#383](https://github.com/blink1073/oct2py/pull/383) ([@blink1073](https://github.com/blink1073))
+- Preserve SIGINT handler across engine startup (closes #168) [#381](https://github.com/blink1073/oct2py/pull/381) ([@blink1073](https://github.com/blink1073))
+- Fix classdef return for classes with required-argument constructors [#380](https://github.com/blink1073/oct2py/pull/380) ([@blink1073](https://github.com/blink1073))
+- Fix interactive figure display and exit TypeError [#379](https://github.com/blink1073/oct2py/pull/379) ([@blink1073](https://github.com/blink1073))
+- Convert scipy TypeError to Oct2PyError for char encoding issues [#378](https://github.com/blink1073/oct2py/pull/378) ([@blink1073](https://github.com/blink1073))
+- Add quiet parameter to eval/feval to suppress output capture [#372](https://github.com/blink1073/oct2py/pull/372) ([@blink1073](https://github.com/blink1073))
+- Fix save_safe_struct: function handles, integer types, top-level objects (closes #215) [#370](https://github.com/blink1073/oct2py/pull/370) ([@blink1073](https://github.com/blink1073))
+- Fix multiprocessing.Pool fork safety (issue #283) [#366](https://github.com/blink1073/oct2py/pull/366) ([@blink1073](https://github.com/blink1073))
+- Fix deep recursion crashing Octave session [#365](https://github.com/blink1073/oct2py/pull/365) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Fix Octave subprocess leak in ThreadPoolExecutor [#364](https://github.com/blink1073/oct2py/pull/364) ([@blink1073](https://github.com/blink1073))
+- Fix calling .m scripts (not functions) via feval [#361](https://github.com/blink1073/oct2py/pull/361) ([@blink1073](https://github.com/blink1073))
+- Drop legacy scipy compatibility shims and bump minimum versions [#354](https://github.com/blink1073/oct2py/pull/354) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+
+### Maintenance and upkeep improvements
+
+- Restructure CI: split cover job, add test-opencv job, configure Codecov notify [#394](https://github.com/blink1073/oct2py/pull/394) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Document pandas DataFrame and Series support (closes #157) [#388](https://github.com/blink1073/oct2py/pull/388) ([@blink1073](https://github.com/blink1073))
+- Add regression tests for eval() plot capture and interactive display (closes #158) [#387](https://github.com/blink1073/oct2py/pull/387) ([@blink1073](https://github.com/blink1073))
+- Document plot-rendering limitation for .m files and add regression test [#382](https://github.com/blink1073/oct2py/pull/382) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Fix coverage upload [#377](https://github.com/blink1073/oct2py/pull/377) ([@blink1073](https://github.com/blink1073))
+- Add pull request template [#373](https://github.com/blink1073/oct2py/pull/373) ([@blink1073](https://github.com/blink1073))
+- Increase branch coverage: pragma nocover, fork-reset tests, docstring fix [#371](https://github.com/blink1073/oct2py/pull/371) ([@blink1073](https://github.com/blink1073))
+- Fix codecov.yml structure to use canonical notify.after_n_builds [#369](https://github.com/blink1073/oct2py/pull/369) ([@blink1073](https://github.com/blink1073))
+- Improve Codecov configuration with coverage targets and PR comments [#368](https://github.com/blink1073/oct2py/pull/368) ([@blink1073](https://github.com/blink1073))
+- Add ASV benchmark suite and CI job [#367](https://github.com/blink1073/oct2py/pull/367) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Add branch coverage tests for Oct2Py core methods [#360](https://github.com/blink1073/oct2py/pull/360) ([@blink1073](https://github.com/blink1073))
+- Bump octave_kernel action to v0.39.0 [#359](https://github.com/blink1073/oct2py/pull/359) ([@blink1073](https://github.com/blink1073))
+- Add justfile targets for running the example notebook [#357](https://github.com/blink1073/oct2py/pull/357) ([@blink1073](https://github.com/blink1073))
+- Pin GitHub Actions to commit SHAs and add zizmor security scanning [#350](https://github.com/blink1073/oct2py/pull/350) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Expand test environments [#349](https://github.com/blink1073/oct2py/pull/349) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Add macOS CI job for test_usage.py [#348](https://github.com/blink1073/oct2py/pull/348) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Update dependabot config [#347](https://github.com/blink1073/oct2py/pull/347) ([@blink1073](https://github.com/blink1073))
+- Add CodeQL analysis workflow configuration [#345](https://github.com/blink1073/oct2py/pull/345) ([@blink1073](https://github.com/blink1073))
+- Add pytest-xdist for parallel test execution [#344](https://github.com/blink1073/oct2py/pull/344) ([@blink1073](https://github.com/blink1073))
+- Switch to coverage run and upload results to Codecov [#343](https://github.com/blink1073/oct2py/pull/343) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Update linters and pre-commit checks [#342](https://github.com/blink1073/oct2py/pull/342) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+- Convert top-level RST files to Markdown [#341](https://github.com/blink1073/oct2py/pull/341) ([@blink1073](https://github.com/blink1073))
+- Switch from hatch to uv + just for project management [#340](https://github.com/blink1073/oct2py/pull/340) ([@blink1073](https://github.com/blink1073))
+- Update supported Pythons and fix octave install in ci [#338](https://github.com/blink1073/oct2py/pull/338) ([@blink1073](https://github.com/blink1073))
+
+### Documentation improvements
+
+- Switch documentation from Sphinx to MkDocs [#358](https://github.com/blink1073/oct2py/pull/358) ([@blink1073](https://github.com/blink1073))
+- docs: document qt backend requirements and OCTAVE_EXECUTABLE [#353](https://github.com/blink1073/oct2py/pull/353) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-12-11&to=2026-03-17&type=c))
+
+@blink1073 ([activity](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2024-12-11..2026-03-17&type=Issues)) | @claude ([activity](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Aclaude+updated%3A2024-12-11..2026-03-17&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 5.8.0
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.7.2...e4b82b9c77e7730b56f2f0a0af0f695da7707635))
@@ -19,8 +103,6 @@
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-08-19&to=2024-12-11&type=c))
 
 [@tylerbjackson](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Atylerbjackson+updated%3A2024-08-19..2024-12-11&type=Issues) | [@yasirroni](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ayasirroni+updated%3A2024-08-19..2024-12-11&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.7.2
 
