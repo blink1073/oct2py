@@ -57,7 +57,7 @@ def check() -> None:
         print(f"Graphics:     {toolkit} (available: {toolkits_str})")
         oc.exit()
         print("Connection OK")
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         print(f"Connection failed: {e}")
 
 
