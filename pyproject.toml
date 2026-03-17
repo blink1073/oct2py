@@ -21,10 +21,11 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "numpy >=1.24",
-    "scipy >=1.9.0",
+    "numpy >=1.25.0",
+    "scipy >=1.11.0",
     "octave-kernel>=1.0.0rc0",
     "pydantic-settings>=2.0",
+    "tornado>=6.5.5",
 ]
 readme = "README.md"
 

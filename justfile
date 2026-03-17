@@ -56,6 +56,11 @@ benchmark-compare:
 test-opencv:
     uv run --with "oct2py @ ." --with opencv-python scripts/test-opencv.py
 
+# Audit dependencies for known vulnerabilities
+audit:
+    uv sync --all-groups --all-extras
+    PIPAPI_PYTHON_LOCATION=$(which python) uv tool run pip-audit --skip-editable
+
 # Run a pre-commit target
 pre-commit *args:
     uv tool run prek --all-files {{args}}

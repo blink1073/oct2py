@@ -160,6 +160,15 @@ jobs:
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - run: just typing
 
+  static:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
+      - run: just audit
+
   check_links:
     runs-on: ubuntu-latest
     timeout-minutes: 10
