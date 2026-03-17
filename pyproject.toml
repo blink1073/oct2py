@@ -78,7 +78,6 @@ path = "oct2py/_version.py"
 minversion = "6.0"
 log_level = "INFO"
 xfail_strict = true
-log_cli_level = "info"
 addopts = [
   "-ra", "--durations=10", "--color=yes", "--doctest-modules",
    "--showlocals", "--strict-markers", "--strict-config"
