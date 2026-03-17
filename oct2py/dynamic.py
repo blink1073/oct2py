@@ -15,7 +15,7 @@ try:
     from scipy.io.matlab import MatlabObject
 except ImportError:  # pragma: no cover
     try:  # noqa
-        from scipy.io.matlab.mio5 import MatlabObject  # type:ignore[assignment]
+        from scipy.io.matlab.mio5 import MatlabObject
     except ImportError:
         pass
 
@@ -62,7 +62,7 @@ class OctaveVariablePtr(OctavePtr):
     """An object that acts as a pointer to an Octave value."""
 
     @property
-    def __doc__(self):  # type:ignore[override]
+    def __doc__(self):
         return "%s is a variable" % self.name
 
     @property
@@ -209,10 +209,7 @@ class OctaveUserClass:
     @classmethod
     def to_value(cls, instance: "OctaveUserClass") -> MatlabObject | dict[str, Any]:
         """Convert to a value to send to Octave."""
-        if (
-            not isinstance(instance, OctaveUserClass)  # type:ignore[redundant-expr]
-            or not instance._attrs
-        ):
+        if not isinstance(instance, OctaveUserClass) or not instance._attrs:
             return {}
         # Bootstrap a MatlabObject from scipy.io
         # From https://github.com/scipy/scipy/blob/93a0ea9e5d4aba1f661b6bb0e18f9c2d1fce436a/scipy/io/matlab/mio5.py#L435-L443
@@ -223,7 +220,7 @@ class OctaveUserClass:
             dtype.append((str(attr), object))
             values.append(getattr(instance, attr))
         struct = np.array([tuple(values)], dtype)
-        return MatlabObject(struct, instance._name)  # type: ignore[arg-type, unused-ignore]
+        return MatlabObject(struct, instance._name)
 
     @classmethod
     def to_pointer(cls, instance):
@@ -262,7 +259,7 @@ def _make_user_class(session, name, attrs=None):
     values = dict(__doc__=doc, _name=name, _ref=ref, _attrs=attrs, __module__="oct2py.dynamic")
 
     for method in methods:
-        doc = _MethodDocDescriptor(ref, name, method)  # type:ignore[assignment]
+        doc = _MethodDocDescriptor(ref, name, method)
         cls_name = f"{name}_{method}"
         method_values = dict(__doc__=doc)
         method_cls = type(str(cls_name), (OctaveUserClassMethod,), method_values)

@@ -16,12 +16,12 @@ try:
     from pandas import DataFrame, Series
 except Exception:  # pragma: no cover
 
-    class Series:  # type:ignore[no-redef]
+    class Series:
         """placeholder."""
 
         pass
 
-    class DataFrame:  # type:ignore[no-redef]
+    class DataFrame:
         """placeholder."""
 
         pass
@@ -84,7 +84,7 @@ def write_file(obj, path_or_fh, oned_as="row", convert_to_float=True):
         raise Exception(msg) from None
 
 
-class Struct(dict):  # type:ignore[type-arg]
+class Struct(dict):
     """
     Octave style struct, enhanced.
 
@@ -138,12 +138,12 @@ class Struct(dict):  # type:ignore[type-arg]
     __delattr__ = dict.__delitem__
 
     @property
-    def __dict__(self):  # type:ignore[override]
+    def __dict__(self):
         # Allow for code completion in a REPL.
         return self.copy()
 
 
-class StructArray(np.recarray):  # type: ignore[type-arg]
+class StructArray(np.recarray):
     """A Python representation of an Octave structure array.
 
     Notes
@@ -178,6 +178,7 @@ class StructArray(np.recarray):  # type: ignore[type-arg]
         value = np.atleast_1d(value)
 
         # Extract the values.
+        assert value.dtype.names is not None  # noqa: S101
         obj = np.empty(value.size, dtype=value.dtype).view(cls)
         for i, item in enumerate(value.ravel()):
             for name in value.dtype.names:
@@ -215,7 +216,7 @@ class StructArray(np.recarray):  # type: ignore[type-arg]
         return msg
 
 
-class Cell(np.ndarray):  # type: ignore[type-arg]
+class Cell(np.ndarray):
     """A Python representation of an Octave cell array.
 
     Notes
@@ -281,6 +282,7 @@ def _extract(data, session=None, keep_matlab_shapes=False):  # noqa
 
     # Extract user defined classes.
     if isinstance(data, MatlabObject):
+        assert session is not None  # noqa: S101
         attrs = list(data.dtype.names) if data.dtype.names else None
         cls = session._get_user_class(data.classname, attrs=attrs)
         return cls.from_value(data)
@@ -348,8 +350,8 @@ def _encode(data, convert_to_float):  # noqa
     # Handle matlab objects.
     if isinstance(data, MatlabObject):
         view = data.view(np.ndarray)
-        out = MatlabObject(data, data.classname)  # type: ignore[arg-type, unused-ignore]
-        for name in out.dtype.names:  # type:ignore[union-attr]
+        out = MatlabObject(data, data.classname)
+        for name in out.dtype.names:
             out[name] = _encode(view[name], ctf)
         return out
 
@@ -368,7 +370,7 @@ def _encode(data, convert_to_float):  # noqa
 
     # Extract and encode values from dict-like objects.
     if isinstance(data, dict):
-        out = {}  # type:ignore[assignment]
+        out = {}
         for key, value in data.items():
             out[key] = _encode(value, ctf)
         return out
@@ -396,7 +398,7 @@ def _encode(data, convert_to_float):  # noqa
 
     # Sparse data must be floating type.
     if isinstance(data, spmatrix):
-        return data.astype(np.float64)  # type:ignore[attr-defined]
+        return data.astype(np.float64)
 
     # Return other data types unchanged.
     if not isinstance(data, np.ndarray):
@@ -404,7 +406,7 @@ def _encode(data, convert_to_float):  # noqa
 
     # Extract and encode data from object-like arrays.
     if data.dtype.kind in "OV":
-        out = np.empty(data.size, dtype=data.dtype)  # type:ignore[assignment]
+        out = np.empty(data.size, dtype=data.dtype)
         for i, item in enumerate(data.ravel()):
             if data.dtype.names:
                 for name in data.dtype.names:

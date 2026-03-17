@@ -37,9 +37,8 @@ documentation = "https://blink1073.github.io/oct2py"
 dev = [ { include-group = "test" } ]
 typing = [
     { include-group = "test" },
-    "mypy>=1.15",
+    "ty==0.0.23",
     "ipython",
-    "pip"
 ]
 test = [
     "pytest<8",
@@ -108,18 +107,6 @@ omit = [
   "tests/*",
 ]
 
-[tool.mypy]
-strict = true
-disable_error_code = ["no-untyped-call", "no-untyped-def"]
-enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
-pretty = true
-show_error_context = true
-warn_unreachable = true
-
-[[tool.mypy.overrides]]
-module = "matplotlib.*"
-ignore_missing_imports = true
-
 [tool.ruff]
 line-length = 100
 
@@ -168,7 +155,7 @@ fail-under=100
 exclude = ["tests", "docs", "benchmarks", "env", "results"]
 
 [tool.repo-review]
-ignore = ["PC111", "PC140", "PC170", "PY007", "PC901", "PC902", "PC903"]
+ignore = ["PC111", "PC140", "PC170", "PY007", "PC901", "PC902", "PC903", "MY100"]
 
 [tool.pydoclint]
 style = 'numpy'

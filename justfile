@@ -23,9 +23,9 @@ lint:
     just pre-commit doc8
     just pre-commit validate-pyproject
 
-# Run type checking (mypy)
+# Run type checking (ty)
 typing:
-    uv run --group typing mypy --install-types --non-interactive oct2py
+    uv run --group typing ty check oct2py
 
 # Build documentation
 docs:

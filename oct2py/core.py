@@ -67,7 +67,7 @@ def _reset_instances_after_fork() -> None:
                 # that pexpect's __del__ skips waitpid().  Without this,
                 # garbage-collecting the engine in the child would call
                 # waitpid() on the parent's Octave PID, raising ECHILD.
-                inst._engine.repl.terminated = True
+                inst._engine.repl.terminated = True  # type: ignore[invalid-assignment]
         # Prevent exit() / __del__ from touching the parent's engine.
         inst._engine = None
         inst._temp_dir_owner = False
@@ -1047,6 +1047,7 @@ class Oct2Py:
             raise Oct2PyError(msg)
 
         # Set up our mat file paths.
+        assert self._settings.temp_dir is not None  # noqa: S101
         out_file = osp.join(self._settings.temp_dir, "writer.mat")
         out_file = out_file.replace(osp.sep, "/")
         in_file = osp.join(self._settings.temp_dir, "reader.mat")
@@ -1085,16 +1086,16 @@ class Oct2Py:
         try:
             engine.eval(f'_pyeval("{out_file}", "{in_file}");', timeout=timeout)
         except KeyboardInterrupt:
-            stream_handler(engine.repl.interrupt())
+            (stream_handler or self.logger.info)(engine.repl.interrupt())
             raise
         except TIMEOUT:
-            stream_handler(engine.repl.interrupt())
+            (stream_handler or self.logger.info)(engine.repl.interrupt())
             msg = "Timed out, interrupting"
             raise Oct2PyError(msg) from None
         except EOF:
             if not self._engine:
                 return
-            stream_handler(engine.repl.child.before)
+            (stream_handler or self.logger.info)(engine.repl.child.before)
             self.restart()
             msg = "Session died, restarting"
             raise Oct2PyError(msg) from None
@@ -1314,9 +1315,9 @@ class Oct2Py:
                             continue
                     line = line.translate(  # noqa
                         str.maketrans("", "", "[]()")
-                    ).split()  # type:ignore[assignment]
+                    ).split()
                     try:  # noqa
-                        line.remove("function")  # type:ignore[attr-defined]
+                        line.remove("function")
                     except Exception:  # noqa
                         pass
                     for char in line:

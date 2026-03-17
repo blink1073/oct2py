@@ -49,7 +49,7 @@ def _create_macos_ramdisk(size_mb: int) -> tuple[str, str] | tuple[None, None]:
     """
     if sys.platform != "darwin":
         return None, None
-    sectors = size_mb * 2048  # type: ignore[unreachable, unused-ignore]  # 512 bytes per sector
+    sectors = size_mb * 2048  # 512 bytes per sector
     vol_name = f"oct2py_{os.getpid()}"
     device: str | None = None
     try:
