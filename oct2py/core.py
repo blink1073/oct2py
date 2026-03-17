@@ -63,7 +63,7 @@ def _reset_instances_after_fork() -> None:
         # Prevent exit() / __del__ from touching the parent's engine.
         inst._engine = None
         inst._temp_dir_owner = False
-        inst.temp_dir = None
+        inst._settings.temp_dir = None
     # The parent's atexit.register(shutil.rmtree, temp_dir, ...) calls are
     # inherited by the child.  Remove them so the child doesn't delete the
     # parent's /dev/shm temp directories on exit.  Any new Oct2Py instances
@@ -207,29 +207,26 @@ class Oct2Py:
     ):
         if settings is None:
             settings = Oct2PySettings()
-        self._settings = settings
-        # For each settings field, use the kwarg if given, else fall back to settings.
+        # Apply any explicit kwargs as overrides on top of the settings object.
         _locals = locals()
-        for _field in Oct2PySettings.model_fields:
-            if _field in ("executable", "auto_show"):
-                continue
-            _kwarg = _locals.get(_field)
-            setattr(self, f"_{_field}", _kwarg if _kwarg is not None else getattr(settings, _field))
-        # executable needs a non-None fallback.
-        self._executable = executable or settings.executable or ""
+        _overrides = {
+            f: _locals[f]
+            for f in Oct2PySettings.model_fields
+            if f != "auto_show" and _locals.get(f) is not None
+        }
+        # Resolve auto_show: explicit kwarg > settings > env detection.
+        _auto_show = auto_show if auto_show is not None else settings.auto_show
+        if _auto_show is None:
+            _auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
+            if _overrides.get("backend", settings.backend) == "disable":
+                _auto_show = False
+        self._settings = settings.model_copy(update={**_overrides, "auto_show": _auto_show})
         self._engine = None
         self._logger = None
         self.logger = logger
         self._temp_dir_owner = False
         self._user_classes = {}
         self._function_ptrs = {}
-        # auto_show has additional env-var detection when not explicitly set.
-        _auto_show = auto_show if auto_show is not None else settings.auto_show
-        if _auto_show is None:
-            _auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
-            if self._backend == "disable":
-                _auto_show = False
-        self._auto_show = _auto_show
         _instances.add(self)
         self.restart()
 
@@ -245,103 +242,13 @@ class Oct2Py:
             self._engine.logger = self._logger
 
     @property
-    def timeout(self):
-        """Timeout in seconds for Octave commands."""
-        return self._timeout
+    def settings(self):
+        """The session's current settings."""
+        return self._settings
 
-    @timeout.setter
-    def timeout(self, value):
-        self._timeout = value
-
-    @property
-    def backend(self):
-        """Graphics toolkit used for plotting."""
-        return self._backend
-
-    @backend.setter
-    def backend(self, value):
-        self._backend = value
-
-    @property
-    def executable(self):
-        """Path to the Octave executable."""
-        return self._executable
-
-    @executable.setter
-    def executable(self, value):
-        self._executable = value
-
-    @property
-    def temp_dir(self):
-        """Directory used for MAT exchange files."""
-        return self._temp_dir
-
-    @temp_dir.setter
-    def temp_dir(self, value):
-        self._temp_dir = value
-
-    @property
-    def convert_to_float(self):
-        """If True, convert integer types to float before sending to Octave."""
-        return self._convert_to_float
-
-    @convert_to_float.setter
-    def convert_to_float(self, value):
-        self._convert_to_float = value
-
-    @property
-    def keep_matlab_shapes(self):
-        """If True, preserve MATLAB array shapes."""
-        return self._keep_matlab_shapes
-
-    @keep_matlab_shapes.setter
-    def keep_matlab_shapes(self, value):
-        self._keep_matlab_shapes = value
-
-    @property
-    def plot_format(self):
-        """Default format for saved plots."""
-        return self._plot_format
-
-    @plot_format.setter
-    def plot_format(self, value):
-        self._plot_format = value
-
-    @property
-    def plot_name(self):
-        """Default base name for saved plots."""
-        return self._plot_name
-
-    @plot_name.setter
-    def plot_name(self, value):
-        self._plot_name = value
-
-    @property
-    def plot_width(self):
-        """Default plot width in pixels."""
-        return self._plot_width
-
-    @plot_width.setter
-    def plot_width(self, value):
-        self._plot_width = value
-
-    @property
-    def plot_height(self):
-        """Default plot height in pixels."""
-        return self._plot_height
-
-    @plot_height.setter
-    def plot_height(self, value):
-        self._plot_height = value
-
-    @property
-    def plot_res(self):
-        """Default plot resolution in pixels per inch."""
-        return self._plot_res
-
-    @plot_res.setter
-    def plot_res(self, value):
-        self._plot_res = value
+    @settings.setter
+    def settings(self, value):
+        self._settings = value
 
     def __enter__(self):
         """Return octave object, restart session if necessary"""
@@ -367,9 +274,9 @@ class Oct2Py:
                 atexit.unregister(self._engine._cleanup)
             self._engine.repl.terminate()
         self._engine = None
-        if self._temp_dir_owner and self.temp_dir and osp.isdir(self.temp_dir):
-            shutil.rmtree(self.temp_dir, ignore_errors=True)
-            self.temp_dir = None
+        if self._temp_dir_owner and self._settings.temp_dir and osp.isdir(self._settings.temp_dir):
+            shutil.rmtree(self._settings.temp_dir, ignore_errors=True)
+            self._settings.temp_dir = None
             self._temp_dir_owner = False
 
     def push(self, name, var, timeout=None, verbose=True):
@@ -404,7 +311,7 @@ class Oct2Py:
         unless `convert_to_float=False`.
 
         """
-        timeout = timeout if timeout is not None else self.timeout
+        timeout = timeout if timeout is not None else self._settings.timeout
         if isinstance(name, str):
             name = [name]
             var = [var]
@@ -447,7 +354,7 @@ class Oct2Py:
           [u'spam', array([[1, 2, 3, 4]])]
 
         """
-        timeout = timeout if timeout is not None else self.timeout
+        timeout = timeout if timeout is not None else self._settings.timeout
         if isinstance(var, str):
             var = [var]
         outputs = []
@@ -527,7 +434,7 @@ class Oct2Py:
         -------
         A variable, object, user class, or function pointer as appropriate.
         """
-        timeout = timeout if timeout is not None else self.timeout
+        timeout = timeout if timeout is not None else self._settings.timeout
         if expr:
             tmp_name = f"_oct2py_expr_{uuid.uuid4().hex}"
             self.eval(f"{tmp_name} = {name}", timeout=timeout)
@@ -597,7 +504,7 @@ class Oct2Py:
         """Capture open Octave figures and display them via matplotlib."""
         if not self._engine:
             return
-        if self.backend == "disable":
+        if self._settings.backend == "disable":
             return
         try:
             import matplotlib.image as mpimg  # noqa: PLC0415
@@ -605,7 +512,7 @@ class Oct2Py:
         except ImportError:  # pragma: no cover
             return
 
-        plot_dir = tempfile.mkdtemp(dir=self.temp_dir)
+        plot_dir = tempfile.mkdtemp(dir=self._settings.temp_dir)
         try:
             # Temporarily switch to inline mode so _make_figures uses a
             # headless-compatible toolkit (gnuplot/qt offscreen) rather than
@@ -733,7 +640,7 @@ class Oct2Py:
         plot_dir = kwargs.get("plot_dir")
 
         # Choose appropriate plot backend.
-        default_backend = "inline" if plot_dir else self.backend
+        default_backend = "inline" if plot_dir else self._settings.backend
         backend = kwargs.get("plot_backend", default_backend)
         # Map "disable" to "inline" so octave_kernel sets defaultfigurevisible=off.
         if backend == "disable":
@@ -769,7 +676,7 @@ class Oct2Py:
         verbose = kwargs.get("verbose", True)
         store_as = kwargs.get("store_as", "")
         _t = kwargs.get("timeout")
-        timeout = _t if _t is not None else self.timeout
+        timeout = _t if _t is not None else self._settings.timeout
         if not stream_handler:
             stream_handler = self.logger.info if verbose else self.logger.debug
 
@@ -891,15 +798,15 @@ class Oct2Py:
         if isinstance(cmds, str):
             cmds = [cmds]
 
-        timeout = timeout if timeout is not None else self.timeout
-        plot_name = plot_name if plot_name is not None else self.plot_name
-        plot_format = plot_format if plot_format is not None else self.plot_format
-        plot_width = plot_width if plot_width is not None else self.plot_width
-        plot_height = plot_height if plot_height is not None else self.plot_height
-        plot_res = plot_res if plot_res is not None else self.plot_res
+        timeout = timeout if timeout is not None else self._settings.timeout
+        plot_name = plot_name if plot_name is not None else self._settings.plot_name
+        plot_format = plot_format if plot_format is not None else self._settings.plot_format
+        plot_width = plot_width if plot_width is not None else self._settings.plot_width
+        plot_height = plot_height if plot_height is not None else self._settings.plot_height
+        plot_res = plot_res if plot_res is not None else self._settings.plot_res
 
-        prev_temp_dir = self.temp_dir
-        self.temp_dir = temp_dir or self.temp_dir
+        prev_temp_dir = self._settings.temp_dir
+        self._settings.temp_dir = temp_dir or self._settings.temp_dir
         prev_log_level = self.logger.level
 
         if kwargs.get("log") is False:
@@ -938,7 +845,7 @@ class Oct2Py:
             if resp is not None:
                 ans = resp
 
-        self.temp_dir = prev_temp_dir
+        self._settings.temp_dir = prev_temp_dir
         self.logger.setLevel(prev_log_level)
 
         if return_both:
@@ -1005,7 +912,7 @@ class Oct2Py:
             self._engine.repl.terminate()
 
         # Use the stored executable (may be empty, letting OctaveEngine resolve).
-        _executable = self.executable
+        _executable = self._settings.executable or ""
 
         # Preserve the SIGINT handler across engine startup.  The underlying
         # pexpect spawn temporarily replaces SIGINT with SIG_DFL so that the
@@ -1046,8 +953,8 @@ class Oct2Py:
                 executable=_executable,
                 stdin_handler=_stdin_handler,
                 logger=self.logger,
-                cli_options=self._extra_cli_options,
-                load_octaverc=self._load_octaverc,
+                cli_options=self._settings.extra_cli_options,
+                load_octaverc=self._settings.load_octaverc,
             )
         except Exception as e:
             raise Oct2PyError(str(e)) from None
@@ -1058,11 +965,11 @@ class Oct2Py:
             if _qt_plugin_path is not None:
                 os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = _qt_plugin_path
 
-        self.executable = self._engine.executable
-        _augment_path_for_windows(self.executable)
+        self._settings.executable = self._engine.executable
+        _augment_path_for_windows(self._settings.executable)
 
         # Set up the temp directory for MAT file exchange.
-        if self.temp_dir is None:
+        if self._settings.temp_dir is None:
             # Prefer a RAM-based filesystem (tmpfs) for faster file I/O.
             # On Linux, /dev/shm is always in RAM and avoids disk latency,
             # which is critical for performance in Octave 7+ where save/load
@@ -1071,11 +978,11 @@ class Oct2Py:
             sandboxed = "snap" in executable or "flatpak" in executable
             shm = "/dev/shm"  # noqa: S108
             if not sandboxed and osp.isdir(shm) and os.access(shm, os.W_OK):
-                self.temp_dir = tempfile.mkdtemp(dir=shm, prefix="oct2py_")
-                atexit.register(shutil.rmtree, self.temp_dir, True)
+                self._settings.temp_dir = tempfile.mkdtemp(dir=shm, prefix="oct2py_")
+                atexit.register(shutil.rmtree, self._settings.temp_dir, True)
             else:
-                self.temp_dir = os.path.join(self._engine.tmp_dir, "oct2py")
-                os.makedirs(self.temp_dir, exist_ok=True)
+                self._settings.temp_dir = os.path.join(self._engine.tmp_dir, "oct2py")
+                os.makedirs(self._settings.temp_dir, exist_ok=True)
             self._temp_dir_owner = True
 
         # Add local Octave scripts.
@@ -1104,9 +1011,9 @@ class Oct2Py:
             raise Oct2PyError(msg)
 
         # Set up our mat file paths.
-        out_file = osp.join(self.temp_dir, "writer.mat")
+        out_file = osp.join(self._settings.temp_dir, "writer.mat")
         out_file = out_file.replace(osp.sep, "/")
-        in_file = osp.join(self.temp_dir, "reader.mat")
+        in_file = osp.join(self._settings.temp_dir, "reader.mat")
         in_file = in_file.replace(osp.sep, "/")
 
         func_args = list(func_args)
@@ -1127,12 +1034,12 @@ class Oct2Py:
             ref_indices=ref_arr,
         )
 
-        write_file(req, out_file, oned_as=self._oned_as, convert_to_float=self.convert_to_float)
+        write_file(req, out_file, oned_as=self._settings.oned_as, convert_to_float=self._settings.convert_to_float)
 
         # Set up the engine and evaluate the `_pyeval()` function.
         engine.line_handler = stream_handler or self.logger.info
         if timeout is None:
-            timeout = self.timeout
+            timeout = self._settings.timeout
 
         try:
             engine.eval(f'_pyeval("{out_file}", "{in_file}");', timeout=timeout)
@@ -1172,7 +1079,7 @@ class Oct2Py:
 
         if plot_dir:
             engine.make_figures(plot_dir)
-        elif self._auto_show:
+        elif self._settings.auto_show:
             self._show_figures()
 
         return result

@@ -33,11 +33,11 @@ class TestInit:
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py(settings=s)
-        assert oc.backend == "disable"
-        assert oc.timeout == 42
-        assert oc._oned_as == "column"
-        assert oc.convert_to_float is False
-        assert oc.keep_matlab_shapes is True
+        assert oc.settings.backend == "disable"
+        assert oc.settings.timeout == 42
+        assert oc.settings.oned_as == "column"
+        assert oc.settings.convert_to_float is False
+        assert oc.settings.keep_matlab_shapes is True
         oc._engine = None
 
     def test_kwargs_override_settings(self):
@@ -46,8 +46,8 @@ class TestInit:
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py(settings=s, backend="default", timeout=7)
-        assert oc.backend == "default"
-        assert oc.timeout == 7
+        assert oc.settings.backend == "default"
+        assert oc.settings.timeout == 7
         oc._engine = None
 
     def test_default_settings_created_when_none(self):
@@ -55,7 +55,7 @@ class TestInit:
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py()
-        assert isinstance(oc._settings, Oct2PySettings)
+        assert isinstance(oc.settings, Oct2PySettings)
         oc._engine = None
 
     # --- extra_cli_options parameter ---
@@ -112,7 +112,7 @@ class TestInit:
         fake = self._make_fake_engine(executable="/resolved/octave-cli")
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py(executable="/custom/octave")
-        assert oc.executable == "/resolved/octave-cli"
+        assert oc.settings.executable == "/resolved/octave-cli"
         oc._engine = None
 
     def test_executable_from_settings(self):
@@ -176,11 +176,11 @@ class TestInit:
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py()
-        assert oc.plot_format == "svg"
-        assert oc.plot_name == "plot"
-        assert oc.plot_width is None
-        assert oc.plot_height is None
-        assert oc.plot_res is None
+        assert oc.settings.plot_format == "svg"
+        assert oc.settings.plot_name == "plot"
+        assert oc.settings.plot_width is None
+        assert oc.settings.plot_height is None
+        assert oc.settings.plot_res is None
         oc._engine = None
 
     def test_plot_params_from_kwargs(self):
@@ -190,11 +190,11 @@ class TestInit:
             oc = Oct2Py(
                 plot_format="png", plot_name="fig", plot_width=800, plot_height=600, plot_res=150
             )
-        assert oc.plot_format == "png"
-        assert oc.plot_name == "fig"
-        assert oc.plot_width == 800
-        assert oc.plot_height == 600
-        assert oc.plot_res == 150
+        assert oc.settings.plot_format == "png"
+        assert oc.settings.plot_name == "fig"
+        assert oc.settings.plot_width == 800
+        assert oc.settings.plot_height == 600
+        assert oc.settings.plot_res == 150
         oc._engine = None
 
     def test_plot_params_from_settings(self):
@@ -205,11 +205,11 @@ class TestInit:
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py(settings=s)
-        assert oc.plot_format == "png"
-        assert oc.plot_name == "fig"
-        assert oc.plot_width == 800
-        assert oc.plot_height == 600
-        assert oc.plot_res == 150
+        assert oc.settings.plot_format == "png"
+        assert oc.settings.plot_name == "fig"
+        assert oc.settings.plot_width == 800
+        assert oc.settings.plot_height == 600
+        assert oc.settings.plot_res == 150
         oc._engine = None
 
     def test_plot_params_kwarg_overrides_settings(self):
@@ -218,8 +218,8 @@ class TestInit:
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oc = Oct2Py(settings=s, plot_format="svg", plot_width=1024)
-        assert oc.plot_format == "svg"
-        assert oc.plot_width == 1024
+        assert oc.settings.plot_format == "svg"
+        assert oc.settings.plot_width == 1024
         oc._engine = None
 
     def test_plot_params_used_as_eval_defaults(self):
@@ -371,19 +371,19 @@ class TestRestart:
         """When temp_dir is None, restart should create a new temp dir."""
         oc = Oct2Py()
         oc.exit()
-        oc.temp_dir = None
+        oc.settings.temp_dir = None
         oc.restart()
-        assert oc.temp_dir is not None
-        assert os.path.isdir(oc.temp_dir)
+        assert oc.settings.temp_dir is not None
+        assert os.path.isdir(oc.settings.temp_dir)
         oc.exit()
 
     def test_restart_with_temp_dir_set(self):
         """When temp_dir is already set, restart should not change it."""
         temp_dir = tempfile.mkdtemp()
         oc = Oct2Py(temp_dir=temp_dir)
-        original_temp_dir = oc.temp_dir
+        original_temp_dir = oc.settings.temp_dir
         oc.restart()
-        assert oc.temp_dir == original_temp_dir
+        assert oc.settings.temp_dir == original_temp_dir
         oc.exit()
 
     def test_restart_octave_env_var_propagation(self):

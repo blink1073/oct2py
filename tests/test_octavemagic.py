@@ -28,7 +28,7 @@ def magics(ip, tmp_path):
         mock_oct2py_module.octave = MagicMock()
         m = OctaveMagics(ip)
     mock_oct = MagicMock()
-    mock_oct.temp_dir = str(tmp_path)
+    mock_oct.settings.temp_dir = str(tmp_path)
     mock_oct.eval.return_value = 42
     mock_oct.extract_figures.return_value = []
     m._oct = mock_oct
@@ -109,22 +109,22 @@ def test_octave_width_height_args(magics):
 
 def test_octave_temp_dir_valid(magics):
     """A valid --temp_dir is forwarded to eval."""
-    valid_dir = magics._oct.temp_dir
+    valid_dir = magics._oct.settings.temp_dir
     magics.octave(f"--temp_dir {valid_dir} X = 1", cell=None, local_ns={})
     kwargs = magics._oct.eval.call_args.kwargs
     assert kwargs["temp_dir"] == valid_dir
 
 
 def test_octave_temp_dir_invalid_falls_back(magics):
-    """An invalid --temp_dir path falls back to _oct.temp_dir."""
+    """An invalid --temp_dir path falls back to _oct.settings.temp_dir."""
     magics.octave("--temp_dir /nonexistent/path/xyz X = 1", cell=None, local_ns={})
     kwargs = magics._oct.eval.call_args.kwargs
-    assert kwargs["temp_dir"] == magics._oct.temp_dir
+    assert kwargs["temp_dir"] == magics._oct.settings.temp_dir
 
 
 def test_octave_plot_dir_existing_is_removed(magics):
     """If plot_dir already exists it is cleared before re-creation."""
-    plot_dir = os.path.join(magics._oct.temp_dir, "plots")
+    plot_dir = os.path.join(magics._oct.settings.temp_dir, "plots")
     os.makedirs(plot_dir)
     sentinel = os.path.join(plot_dir, "old_file.png")
     open(sentinel, "w").close()

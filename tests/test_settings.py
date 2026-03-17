@@ -174,8 +174,8 @@ class TestConfigure:
             oct2py.configure(backend="disable", timeout=42)
         new_instance = oct2py.octave
         assert new_instance is not original
-        assert new_instance.backend == "disable"
-        assert new_instance.timeout == 42
+        assert new_instance.settings.backend == "disable"
+        assert new_instance.settings.timeout == 42
 
     def test_configure_with_settings_object(self, restore_octave):
         """configure(settings=s) uses the provided settings object directly."""
@@ -186,9 +186,9 @@ class TestConfigure:
             oct2py.configure(settings=s)
         new_instance = oct2py.octave
         assert new_instance is not original
-        assert new_instance.backend == "disable"
-        assert new_instance.timeout == 99
-        assert new_instance._oned_as == "column"
+        assert new_instance.settings.backend == "disable"
+        assert new_instance.settings.timeout == 99
+        assert new_instance.settings.oned_as == "column"
 
     def test_configure_no_args_uses_defaults(self, restore_octave):
         """configure() with no args creates a default-settings instance."""
@@ -198,8 +198,8 @@ class TestConfigure:
             oct2py.configure()
         new_instance = oct2py.octave
         assert new_instance is not original
-        assert isinstance(new_instance._settings, Oct2PySettings)
-        assert new_instance.backend == "default"
+        assert isinstance(new_instance.settings, Oct2PySettings)
+        assert new_instance.settings.backend == "default"
 
     def test_configure_replaces_global_octave(self, restore_octave):
         """configure() replaces oct2py.octave with a new Oct2Py instance."""
@@ -230,7 +230,7 @@ class TestConfigure:
             patch("oct2py.core.OctaveEngine", return_value=fake),
         ):
             oct2py.configure(backend="disable")
-        assert oct2py.octave.backend == "disable"
+        assert oct2py.octave.settings.backend == "disable"
 
     def test_configure_settings_ignored_if_kwargs_provided(self, restore_octave):
         """When both settings and kwargs are passed, settings wins (kwargs are ignored)."""
@@ -241,5 +241,7 @@ class TestConfigure:
         fake = self._make_fake_engine()
         with patch("oct2py.core.OctaveEngine", return_value=fake):
             oct2py.configure(settings=s, timeout=77)
-        # timeout=77 is not applied — it was passed as a kwarg but settings was provided
-        assert oct2py.octave._settings is s
+        # timeout=77 is not applied — it was passed as a kwarg but settings was provided.
+        # The instance settings are derived from s, so backend is preserved.
+        assert oct2py.octave.settings.backend == "disable"
+        assert oct2py.octave.settings.timeout != 77

@@ -42,7 +42,7 @@ class TestUsage:
         # Write the script into temp_dir so sandboxed Octave (snap/flatpak)
         # can access it.
         with tempfile.NamedTemporaryFile(
-            suffix=".m", mode="w", delete=False, dir=self.oc.temp_dir
+            suffix=".m", mode="w", delete=False, dir=self.oc.settings.temp_dir
         ) as f:
             f.write("issue239_var = [1, 2, 3];")
             script_path = f.name

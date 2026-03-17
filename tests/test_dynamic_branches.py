@@ -177,17 +177,18 @@ class TestResetInstancesAfterFork:
         fake_engine.repl = MagicMock()
         fake_engine.repl.terminated = False
 
-        inst = MagicMock(spec=["_engine", "_temp_dir_owner", "temp_dir"])
+        inst = MagicMock(spec=["_engine", "_temp_dir_owner", "_settings"])
         inst._engine = fake_engine
         inst._temp_dir_owner = True
-        inst.temp_dir = "/tmp/fake"  # noqa: S108
+        inst._settings = MagicMock()
+        inst._settings.temp_dir = "/tmp/fake"  # noqa: S108
 
         instances.add(inst)
         try:
             reset()
             assert inst._engine is None
             assert inst._temp_dir_owner is False
-            assert inst.temp_dir is None
+            assert inst._settings.temp_dir is None
             # repl.terminated should have been set to True
             assert fake_engine.repl.terminated is True
         finally:
@@ -198,17 +199,18 @@ class TestResetInstancesAfterFork:
         reset = self._get_reset_fn()
         instances = self._get_instances()
 
-        inst = MagicMock(spec=["_engine", "_temp_dir_owner", "temp_dir"])
+        inst = MagicMock(spec=["_engine", "_temp_dir_owner", "_settings"])
         inst._engine = None
         inst._temp_dir_owner = True
-        inst.temp_dir = "/tmp/fake2"  # noqa: S108
+        inst._settings = MagicMock()
+        inst._settings.temp_dir = "/tmp/fake2"  # noqa: S108
 
         instances.add(inst)
         try:
             reset()
             assert inst._engine is None
             assert inst._temp_dir_owner is False
-            assert inst.temp_dir is None
+            assert inst._settings.temp_dir is None
         finally:
             instances.discard(inst)
 
@@ -222,8 +224,9 @@ class TestResetInstancesAfterFork:
         # Make unregister raise when called with _cleanup
         fake_engine.repl = MagicMock()
 
-        inst = MagicMock(spec=["_engine", "_temp_dir_owner", "temp_dir"])
+        inst = MagicMock(spec=["_engine", "_temp_dir_owner", "_settings"])
         inst._engine = fake_engine
+        inst._settings = MagicMock()
 
         # Patch atexit.unregister to raise for _cleanup to exercise suppress
         original_unregister = atexit.unregister
@@ -249,7 +252,7 @@ class TestResetInstancesAfterFork:
         try:
             reset()
             assert oc._engine is None
-            assert oc.temp_dir is None
+            assert oc.settings.temp_dir is None
         finally:
             # Instance is now dead — don't call exit(), just discard
             pass
