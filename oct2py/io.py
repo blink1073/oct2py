@@ -348,7 +348,7 @@ def _encode(data, convert_to_float):  # noqa
     # Handle matlab objects.
     if isinstance(data, MatlabObject):
         view = data.view(np.ndarray)
-        out = MatlabObject(data, data.classname)
+        out = MatlabObject(data, data.classname)  # type: ignore[arg-type, unused-ignore]
         for name in out.dtype.names:  # type:ignore[union-attr]
             out[name] = _encode(view[name], ctf)
         return out

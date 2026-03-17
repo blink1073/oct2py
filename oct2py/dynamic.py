@@ -223,7 +223,7 @@ class OctaveUserClass:
             dtype.append((str(attr), object))
             values.append(getattr(instance, attr))
         struct = np.array([tuple(values)], dtype)
-        return MatlabObject(struct, instance._name)
+        return MatlabObject(struct, instance._name)  # type: ignore[arg-type, unused-ignore]
 
     @classmethod
     def to_pointer(cls, instance):
