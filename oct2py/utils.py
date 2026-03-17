@@ -12,6 +12,12 @@ class Oct2PyError(Exception):
     pass
 
 
+class Oct2PyWarning(UserWarning):
+    """Warning raised by oct2py for deprecations and other advisory conditions."""
+
+    pass
+
+
 def get_log(name=None):
     """Return a logger for oct2py.
 
@@ -30,12 +36,6 @@ def get_log(name=None):
     """
     name = "oct2py" if name is None else "oct2py." + name
     return logging.getLogger(name)
-
-
-# Add a NullHandler so that log records are silently discarded unless the
-# application configures logging.  Per Python logging best practices, libraries
-# must not install their own handlers or set levels on their loggers.
-logging.getLogger("oct2py").addHandler(logging.NullHandler())
 
 
 def _augment_path_for_windows(executable: str) -> None:

@@ -9,6 +9,8 @@ from typing import Any
 
 import numpy as np
 
+from .utils import Oct2PyWarning
+
 try:
     from scipy.io.matlab import MatlabObject
 except ImportError:  # pragma: no cover
@@ -103,7 +105,9 @@ class OctaveFunctionPtr(OctavePtr):
                 extras[key] = kwargs.pop(key)
 
         if extras:
-            warnings.warn("Key - value pairs are deprecated, use `func_args`", stacklevel=2)
+            warnings.warn(
+                "Key - value pairs are deprecated, use `func_args`", Oct2PyWarning, stacklevel=2
+            )
 
         inputs += tuple(item for pair in extras.items() for item in pair)
 
