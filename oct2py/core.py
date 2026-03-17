@@ -207,37 +207,16 @@ class Oct2Py:
     ):
         if settings is None:
             settings = Oct2PySettings()
-        # Build a dict of explicitly-provided non-None kwargs and overlay onto settings.
-        _overrides = {
-            k: v
-            for k, v in dict(
-                timeout=timeout,
-                oned_as=oned_as,
-                temp_dir=temp_dir,
-                convert_to_float=convert_to_float,
-                backend=backend,
-                keep_matlab_shapes=keep_matlab_shapes,
-                auto_show=auto_show,
-                extra_cli_options=extra_cli_options,
-                executable=executable,
-                load_octaverc=load_octaverc,
-                plot_format=plot_format,
-                plot_name=plot_name,
-                plot_width=plot_width,
-                plot_height=plot_height,
-                plot_res=plot_res,
-            ).items()
-            if v is not None
-        }
-        if _overrides:
-            settings = settings.model_copy(update=_overrides)
         self._settings = settings
-        # Copy all standard settings fields to private instance attrs.
+        # For each settings field, use the kwarg if given, else fall back to settings.
+        _locals = locals()
         for _field in Oct2PySettings.model_fields:
-            if _field not in ("executable", "auto_show"):
-                setattr(self, f"_{_field}", getattr(settings, _field))
+            if _field in ("executable", "auto_show"):
+                continue
+            _kwarg = _locals.get(_field)
+            setattr(self, f"_{_field}", _kwarg if _kwarg is not None else getattr(settings, _field))
         # executable needs a non-None fallback.
-        self._executable = settings.executable or ""
+        self._executable = executable or settings.executable or ""
         self._engine = None
         self._logger = None
         self.logger = logger
@@ -245,7 +224,7 @@ class Oct2Py:
         self._user_classes = {}
         self._function_ptrs = {}
         # auto_show has additional env-var detection when not explicitly set.
-        _auto_show = settings.auto_show
+        _auto_show = auto_show if auto_show is not None else settings.auto_show
         if _auto_show is None:
             _auto_show = bool(os.environ.get("PYCHARM_HOSTED"))
             if self._backend == "disable":
