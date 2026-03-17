@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 6.0.0rc1
+
+([Full Changelog](https://github.com/blink1073/oct2py/compare/v6.0.0rc0...35671a534a6ea374e18d3305543ec9c7929b8032))
+
+### Maintenance and upkeep improvements
+
+- Bump minimum dependency versions and fix tornado CVE [#401](https://github.com/blink1073/oct2py/pull/401) ([@blink1073](https://github.com/blink1073))
+- Add validate-pyproject pre-commit hook [#400](https://github.com/blink1073/oct2py/pull/400) ([@blink1073](https://github.com/blink1073), [@claude](https://github.com/claude))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2026-03-17&to=2026-03-17&type=c))
+
+@blink1073 ([activity](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2026-03-17..2026-03-17&type=Issues)) | @claude ([activity](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Aclaude+updated%3A2026-03-17..2026-03-17&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 6.0.0rc0
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.8.0...720aa6b912ca24ce979b3ae19995edb75296237f))
@@ -83,8 +103,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/blink1073/oct2py/graphs/contributors?from=2024-12-11&to=2026-03-17&type=c))
 
 @blink1073 ([activity](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Ablink1073+updated%3A2024-12-11..2026-03-17&type=Issues)) | @claude ([activity](https://github.com/search?q=repo%3Ablink1073%2Foct2py+involves%3Aclaude+updated%3A2024-12-11..2026-03-17&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 5.8.0
 
