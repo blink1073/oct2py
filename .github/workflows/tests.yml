@@ -28,9 +28,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - run: pipx install "poetry>=2.3,<3"
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
@@ -56,9 +57,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+      - run: pipx install "poetry>=2.3,<3"
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
@@ -90,7 +92,8 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/setup-python@v5
+      - run: pipx install "poetry>=2.3,<3"
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
@@ -109,9 +112,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+      - run: pipx install "poetry>=2.3,<3"
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
@@ -126,7 +130,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/setup-python@v5
+      - run: pipx install "poetry>=2.3,<3"
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - run: just docs
 
@@ -135,7 +140,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/setup-python@v5
+      - run: pipx install "poetry>=2.3,<3"
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - run: just pre-commit
       - name: Show diff on failure
@@ -147,7 +153,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - uses: actions/setup-python@v5
+      - run: pipx install "poetry>=2.3,<3"
       - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - run: just typing
 

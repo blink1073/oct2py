@@ -65,7 +65,7 @@ repos:
     rev: "v2.2.6"
     hooks:
       - id: codespell
-        args: ["-L", "ans,te,manuel"]
+        args: ["-L", "ans,te,manuel,astroid"]
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25
