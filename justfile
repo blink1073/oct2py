@@ -4,7 +4,7 @@ default:
 
 # Install the project with all development dependencies
 install:
-    poetry install --with test,cover,docs,bench,typing,dev
+    poetry install --with test,dev
     poetry run pre-commit install
 
 # Run tests
@@ -19,6 +19,7 @@ cover *args:
 
 # Run linters (ruff check + format)
 lint:
+    poetry install --with dev
     just pre-commit ruff-format
     just pre-commit ruff-check
     just pre-commit interrogate

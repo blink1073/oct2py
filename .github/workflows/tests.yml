@@ -90,6 +90,9 @@ jobs:
           - os: ubuntu-latest
             install-type: ubuntu-snap
       fail-fast: false
+    env:
+      # Place the virtualenv in the project dir so snap-confined Octave can access it
+      POETRY_VIRTUALENVS_IN_PROJECT: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
