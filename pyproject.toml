@@ -22,7 +22,8 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "numpy >=1.25.0",
-    "scipy >=1.11.0",
+    "scipy >=1.17.1 ; python_version >= '3.11'",
+    "scipy >=1.15.0,<1.16.0 ; python_version < '3.11'",
     "octave-kernel>=1.0.0rc0",
     "pydantic-settings>=2.0",
     "tornado>=6.5.5",
@@ -64,6 +65,9 @@ docs = [
 bench = [
     "asv",
     "virtualenv",
+]
+opencv = [
+    "opencv-python",
 ]
 
 [tool.jupyter-releaser.hooks]
