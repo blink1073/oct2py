@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling>=1.5"]
-build-backend = "hatchling.build"
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "oct2py"
-dynamic = ["version"]
+version = "6.0.0rc1"
 description = "'Python to GNU Octave bridge --> run m-files from python.'"
 license = {text = "MIT"}
 authors = [{name = "Steven Silvester", email = "steven.silvester@ieee.org"}]
@@ -34,7 +34,7 @@ homepage = "https://github.com/blink1073/oct2py"
 documentation = "https://blink1073.github.io/oct2py"
 
 [dependency-groups]
-dev = [ { include-group = "test" } ]
+dev = [ { include-group = "test" }, "pre-commit" ]
 typing = [
     { include-group = "test" },
     "mypy>=1.15",
@@ -69,9 +69,6 @@ bench = [
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
 before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
-
-[tool.hatch.version]
-path = "oct2py/_version.py"
 
 
 [tool.pytest.ini_options]

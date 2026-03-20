@@ -122,15 +122,6 @@ jobs:
       - name: Run benchmark comparison
         run: just benchmark-compare
 
-  check_release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@93556350e3433849ea434d68e8b8f7d9e9a402a4 # v1
-      - uses: jupyter-server/jupyter_releaser/.github/actions/check-release@3e74486d1011d24cd5e9977202fd349dece0db9c # v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   docs:
     runs-on: ubuntu-latest
     steps:
@@ -180,7 +171,6 @@ jobs:
       - typing
       - docs
       - check_links
-      - check_release
       - benchmark
     runs-on: ubuntu-latest
     steps:
