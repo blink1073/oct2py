@@ -65,6 +65,7 @@ benchmark-compare:
 # Test opencv/oct2py compatibility
 test-opencv:
     poetry install
+    poetry run pip install opencv-python
     poetry run python scripts/test-opencv.py
 
 # Run a pre-commit target

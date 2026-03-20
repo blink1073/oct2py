@@ -54,7 +54,10 @@ __all__ = [
 try:
     octave = Oct2Py()
 except Oct2PyError as e:
-    print(e)  # noqa
+    import traceback
+
+    traceback.print_exc()
+    print(f"oct2py: failed to create default session: {e}")  # noqa
 
 
 def configure(settings=None, **kwargs):

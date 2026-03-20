@@ -66,9 +66,7 @@ bench = [
     "asv",
     "virtualenv",
 ]
-opencv = [
-    "opencv-python",
-]
+
 
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
