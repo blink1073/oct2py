@@ -39,7 +39,8 @@ dev = [ { include-group = "test" }, "pre-commit" ]
 typing = [
     { include-group = "test" },
     "mypy>=1.15",
-    "ipython",
+    "ipython>=9.0 ; python_version >= '3.11'",
+    "ipython>=8.0,<9.0 ; python_version < '3.11'",
     "pip"
 ]
 test = [
@@ -50,6 +51,8 @@ test = [
     "nbconvert",
     "pytest-timeout",
     "matplotlib",
+    "ipython>=9.0 ; python_version >= '3.11'",
+    "ipython>=8.0,<9.0 ; python_version < '3.11'",
 ]
 cover = [
     { include-group = "test" },
