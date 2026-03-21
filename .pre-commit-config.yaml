@@ -11,10 +11,11 @@ repos:
       - id: name-tests-test
         args: ["--pytest-test-first"]
 
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.6.14
+  - repo: https://github.com/python-poetry/poetry
+    rev: 2.3.0
     hooks:
-      - id: uv-lock
+      - id: poetry-check
+      - id: poetry-lock
 
   - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
     rev: v1.7.7.23
@@ -64,7 +65,7 @@ repos:
     rev: "v2.2.6"
     hooks:
       - id: codespell
-        args: ["-L", "ans,te,manuel"]
+        args: ["-L", "ans,te,manuel,astroid"]
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25

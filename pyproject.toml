@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling>=1.5"]
-build-backend = "hatchling.build"
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "oct2py"
-dynamic = ["version"]
+version = "6.0.0rc1"
 description = "'Python to GNU Octave bridge --> run m-files from python.'"
 license = {text = "MIT"}
 authors = [{name = "Steven Silvester", email = "steven.silvester@ieee.org"}]
@@ -22,7 +22,8 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "numpy >=1.25.0",
-    "scipy >=1.11.0",
+    "scipy >=1.17.1 ; python_version >= '3.11'",
+    "scipy >=1.15.0,<1.16.0 ; python_version < '3.11'",
     "octave-kernel>=1.0.0rc0",
     "pydantic-settings>=2.0",
     "tornado>=6.5.5",
@@ -34,11 +35,12 @@ homepage = "https://github.com/blink1073/oct2py"
 documentation = "https://blink1073.github.io/oct2py"
 
 [dependency-groups]
-dev = [ { include-group = "test" } ]
+dev = [ { include-group = "test" }, "pre-commit" ]
 typing = [
     { include-group = "test" },
     "mypy>=1.15",
-    "ipython",
+    "ipython>=9.0 ; python_version >= '3.11'",
+    "ipython>=8.0,<9.0 ; python_version < '3.11'",
     "pip"
 ]
 test = [
@@ -49,6 +51,8 @@ test = [
     "nbconvert",
     "pytest-timeout",
     "matplotlib",
+    "ipython>=9.0 ; python_version >= '3.11'",
+    "ipython>=8.0,<9.0 ; python_version < '3.11'",
 ]
 cover = [
     { include-group = "test" },
@@ -59,19 +63,17 @@ docs = [
     "mkdocs>=1.5",
     "mkdocs-material>=9.0",
     "mkdocstrings[python]>=0.24",
-    "mkdocs-jupyter>=0.24",
+    "mkdocs-jupyter>=0.25",
 ]
 bench = [
     "asv",
     "virtualenv",
 ]
 
+
 [tool.jupyter-releaser.hooks]
 before-build-python = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
 before-check-links = ["sudo apt-get update", "sudo apt-get install -qq octave octave-signal octave-dev"]
-
-[tool.hatch.version]
-path = "oct2py/_version.py"
 
 
 [tool.pytest.ini_options]
