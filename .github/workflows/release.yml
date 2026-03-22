@@ -53,7 +53,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: hynek/build-and-inspect-python-package@v2
+      - uses: hynek/build-and-inspect-python-package@efb823f52190ad02594531168b7a2d5790e66516 # v2.14.0
 
   publish:
     needs: [build-package]
@@ -70,7 +70,7 @@ jobs:
           path: dist
 
       - name: Upload package to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: ${{ inputs.dry_run }}
@@ -78,6 +78,6 @@ jobs:
 
       - name: Upload package to PyPI
         if: ${{ !inputs.dry_run }}
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
         with:
           attestations: false
