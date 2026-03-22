@@ -27,6 +27,7 @@ jobs:
       fail-fast: false
 
     steps:
+      - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
           python-version: ${{ matrix.python-version }}
@@ -53,6 +54,7 @@ jobs:
       fail-fast: false
 
     steps:
+      - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
           python-version: "3.10"
@@ -88,6 +90,7 @@ jobs:
       # Place the virtualenv in the project dir so snap-confined Octave can access it
       POETRY_VIRTUALENVS_IN_PROJECT: "true"
     steps:
+      - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
