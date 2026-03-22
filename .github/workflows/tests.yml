@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   test:
-    needs: pre_commit
+    needs: docs
     runs-on: ubuntu-24.04
     strategy:
       matrix:
