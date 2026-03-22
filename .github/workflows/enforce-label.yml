@@ -7,5 +7,8 @@ jobs:
   enforce-label:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: enforce-triage-label
-        uses: jupyterlab/maintainer-tools/.github/actions/enforce-label@93556350e3433849ea434d68e8b8f7d9e9a402a4 # v1
+        uses: calysto/maintainer_tools/actions/enforce-label@v1
