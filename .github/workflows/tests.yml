@@ -121,6 +121,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - run: just docs
 
@@ -128,6 +129,7 @@ jobs:
     name: Pre-commit
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - run: just pre-commit --hook-stage=manual
       - name: Show diff on failure
@@ -138,6 +140,7 @@ jobs:
     name: Typing
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - run: just typing
 
