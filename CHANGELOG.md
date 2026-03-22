@@ -1,5 +1,16 @@
 # Release History
 
+## 6.0.0rc2
+
+## Maintenance and upkeep improvements
+
+- chore: add pre-commit autoupdate workflow and SchemaStore validation
+  - PR: #403
+- Migrate from uv to Poetry for dependency management
+  - PR: #404
+- Migrate from jupyterlab/maintainer-tools to calysto/maintainer_tools
+  - PR: #405
+
 <!-- <START NEW CHANGELOG ENTRY> -->
 
 ## 6.0.0rc1
