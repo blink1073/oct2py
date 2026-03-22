@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release"
+        required: true
+      dry_run:
+        description: "Dry run"
+        required: false
+        default: "false"
+        type: boolean
+  schedule:
+    # Run daily as a dry-run smoke test
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
+      - uses: calysto/maintainer_tools/actions/release@v1
+        with:
+          version: ${{ github.event.inputs.version }}
+          dry_run: ${{ github.event_name == 'schedule' || github.event.inputs.dry_run == 'true' }}
+
+  build-package:
+    needs: release
+    if: ${{ github.event_name != 'schedule' && github.event.inputs.dry_run != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ github.event.inputs.version }}
+          persist-credentials: false
+      - uses: hynek/build-and-inspect-python-package@v2
+
+  publish:
+    needs: build-package
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+      - name: Upload to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+      - name: Upload to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

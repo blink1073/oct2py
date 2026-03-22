@@ -79,3 +79,10 @@ repos:
     hooks:
       - id: sp-repo-review
         additional_dependencies: ["repo-review[cli]"]
+
+  - repo: https://github.com/tcort/markdown-link-check
+    rev: v3.12.2
+    hooks:
+      - id: markdown-link-check
+        stages: [manual]
+        args: ["--config", ".markdown_link_config.json"]

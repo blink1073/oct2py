@@ -27,12 +27,9 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pipx install "poetry>=2.3,<3"
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
         with:
@@ -56,12 +53,9 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
           python-version: "3.10"
-      - run: pipx install "poetry>=2.3,<3"
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
         with:
@@ -94,10 +88,7 @@ jobs:
       # Place the virtualenv in the project dir so snap-confined Octave can access it
       POETRY_VIRTUALENVS_IN_PROJECT: "true"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - run: pipx install "poetry>=2.3,<3"
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
         with:
@@ -115,11 +106,9 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
           python-version: "3.10"
-      - run: pipx install "poetry>=2.3,<3"
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
       - name: Install Octave
         uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
         with:
@@ -132,21 +121,15 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - run: pipx install "poetry>=2.3,<3"
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
       - run: just docs
 
   pre_commit:
     name: Pre-commit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - run: pipx install "poetry>=2.3,<3"
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
-      - run: just pre-commit
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
+      - run: just pre-commit --hook-stage=manual
       - name: Show diff on failure
         if: failure()
         run: git diff
@@ -155,21 +138,8 @@ jobs:
     name: Typing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - run: pipx install "poetry>=2.3,<3"
-      - uses: taiki-e/install-action@50f3b78f63bf0dade2b035ec8d367a592fa5d0ab # just
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
       - run: just typing
-
-  check_links:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@93556350e3433849ea434d68e8b8f7d9e9a402a4 # v1
-      - uses: jupyterlab/maintainer-tools/.github/actions/check-links@93556350e3433849ea434d68e8b8f7d9e9a402a4 # v1
-        with:
-          ignore_links: "https://github.com/blink1073/oct2py/blob/main/CHANGELOG.md https://nbviewer.org/*"
 
   tests_check: # This job does nothing and is only used for the branch protection
     if: always()
@@ -180,7 +150,6 @@ jobs:
       - pre_commit
       - typing
       - docs
-      - check_links
       - benchmark
     runs-on: ubuntu-latest
     steps:
