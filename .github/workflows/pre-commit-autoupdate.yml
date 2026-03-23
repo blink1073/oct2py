@@ -2,6 +2,7 @@
 name: Pre-commit autoupdate
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 9 * * 1'  # Every Monday at 9am
 
@@ -30,3 +31,4 @@ jobs:
           commit-message: 'chore: pre-commit autoupdate'
           title: 'chore: pre-commit autoupdate'
           branch: pre-commit-autoupdate
+          labels: maintenance
