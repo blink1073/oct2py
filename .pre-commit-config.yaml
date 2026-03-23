@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+,    rev: v6.0.0
     hooks:
       - id: check-ast
       - id: check-merge-conflict
@@ -65,7 +65,7 @@ repos:
     rev: "v2.4.2"
     hooks:
       - id: codespell
-        args: ["-L", "ans,te,manuel,astroid"]
+        args: ["-L", "ans,te,manuel,astroid,assignin"]
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.25
