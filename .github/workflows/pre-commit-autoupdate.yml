@@ -8,6 +8,7 @@ on:
 jobs:
   autoupdate:
     runs-on: ubuntu-latest
+    environment: release
     steps:
       - uses: actions/create-github-app-token@v1
         id: app-token
