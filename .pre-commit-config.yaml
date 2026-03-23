@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-ast
       - id: check-merge-conflict
@@ -12,13 +12,13 @@ repos:
         args: ["--pytest-test-first"]
 
   - repo: https://github.com/python-poetry/poetry
-    rev: 2.3.0
+    rev: 2.3.2
     hooks:
       - id: poetry-check
       - id: poetry-lock
 
   - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
-    rev: v1.7.7.23
+    rev: v1.7.11.24
     hooks:
       - id: actionlint
 
@@ -30,7 +30,7 @@ repos:
         exclude: ^docs/(index|api)\.md$
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.24.3
+    rev: v8.30.0
     hooks:
       - id: gitleaks
 
@@ -48,21 +48,21 @@ repos:
         args: ["--config", "./pyproject.toml"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.2
+    rev: v0.15.7
     hooks:
       - id: ruff-format
       - id: ruff-check
         args: ["--fix", "--show-fixes"]
 
   - repo: https://github.com/PyCQA/doc8
-    rev: "v1.1.2"
+    rev: "v2.0.0"
     hooks:
       - id: doc8
         args: ["--quiet", "--max-line-length=200"]
         files: ^(docs/.*|.*\.md)$
 
   - repo: https://github.com/codespell-project/codespell
-    rev: "v2.2.6"
+    rev: "v2.4.2"
     hooks:
       - id: codespell
         args: ["-L", "ans,te,manuel,astroid"]
@@ -75,13 +75,13 @@ repos:
         additional_dependencies: ["validate-pyproject-schema-store[all]"]
 
   - repo: https://github.com/scientific-python/cookie
-    rev: "2025.11.21"
+    rev: "2026.03.02"
     hooks:
       - id: sp-repo-review
         additional_dependencies: ["repo-review[cli]"]
 
   - repo: https://github.com/tcort/markdown-link-check
-    rev: v3.12.2
+    rev: v3.14.2
     hooks:
       - id: markdown-link-check
         stages: [manual]
