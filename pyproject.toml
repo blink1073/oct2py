@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "oct2py"
-version = "6.0.0"
+version = "6.0.1.dev0"
 description = "'Python to GNU Octave bridge --> run m-files from python.'"
 license = {text = "MIT"}
 authors = [{name = "Steven Silvester", email = "steven.silvester@ieee.org"}]
