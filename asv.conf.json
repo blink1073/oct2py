@@ -6,7 +6,7 @@
     "branches": ["main"],
     "environment_type": "virtualenv",
     "show_commit_url": "https://github.com/blink1073/oct2py/commit/",
-    "pythons": ["3.10"],
+    "pythons": ["3.11"],
     "benchmark_dir": "benchmarks",
     "matrix": {},
     "build_command": ["python -m pip wheel --no-deps -w {build_cache_dir} {build_dir}"]
