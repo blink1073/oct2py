@@ -1,5 +1,65 @@
 # Release History
 
+## 6.0.0
+
+oct2py 6.0 is a major release with substantial new features, a large number of
+bug fixes accumulated since 5.8, and a raised minimum of Python 3.11 and
+octave-kernel 1.0.
+
+Highlights include a new `Oct2PySettings` / `configure()`
+API for pydantic-based configuration, a `check()` diagnostic utility, an
+`Oct2Py.run()` method for executing `.m` scripts, inline plot display for IDEs,
+an opt-in macOS RAM disk for faster I/O,
+and support for Octave snap/flatpak installs.
+
+Numerous long-standing bugs around type conversion, session safety, and platform compatibility are also
+fixed.
+
+### Enhancements
+
+- Add `Oct2PySettings` and `configure()` for pydantic-settings-based configuration [#395](https://github.com/blink1073/oct2py/pull/395)
+- Add `check()` diagnostic utility for verifying the Octave installation [#396](https://github.com/blink1073/oct2py/pull/396)
+- Add `Oct2Py.run()` to execute `.m` scripts in the base workspace [#374](https://github.com/blink1073/oct2py/pull/374)
+- Add workspace proxy for MATLAB-style variable access (`oc.workspace.x`) [#375](https://github.com/blink1073/oct2py/pull/375)
+- Add `auto_show` and `show()` for inline plot display in PyCharm/IDEs [#385](https://github.com/blink1073/oct2py/pull/385)
+- Add `backend='disable'` to suppress all figure rendering [#390](https://github.com/blink1073/oct2py/pull/390)
+- Add `quiet` parameter to `eval()`/`feval()` to suppress output capture [#372](https://github.com/blink1073/oct2py/pull/372)
+- Add `expr=True` support to `get_pointer()` [#383](https://github.com/blink1073/oct2py/pull/383)
+- Add opt-in macOS RAM disk via `ramdisk_size_mb` for faster MAT file I/O [#398](https://github.com/blink1073/oct2py/pull/398)
+- Fix per-call overhead in Octave 7+ by passing `--no-line-editing` [#363](https://github.com/blink1073/oct2py/pull/363)
+- Add snap and flatpak Octave install support via `engine.tmp_dir` [#351](https://github.com/blink1073/oct2py/pull/351) [#352](https://github.com/blink1073/oct2py/pull/352)
+
+### Bugs Fixed
+
+- Fix Python `bool` → Octave `logical` conversion [#389](https://github.com/blink1073/oct2py/pull/389)
+- Fix `TypeError` when returning old-style Octave objects (e.g. `ss`) [#384](https://github.com/blink1073/oct2py/pull/384)
+- Fix `classdef` return for classes with required-argument constructors [#380](https://github.com/blink1073/oct2py/pull/380)
+- Fix calling `.m` scripts (not functions) via `feval` [#361](https://github.com/blink1073/oct2py/pull/361)
+- Fix deep recursion crashing Octave session [#365](https://github.com/blink1073/oct2py/pull/365)
+- Fix Octave subprocess leak in `ThreadPoolExecutor` [#364](https://github.com/blink1073/oct2py/pull/364)
+- Fix `multiprocessing.Pool` fork safety [#366](https://github.com/blink1073/oct2py/pull/366)
+- Fix `save_safe_struct` for function handles, integer types, and top-level objects [#370](https://github.com/blink1073/oct2py/pull/370)
+- Fix `SIGINT` handler preservation across engine startup [#381](https://github.com/blink1073/oct2py/pull/381)
+- Fix interactive figure display and exit `TypeError` [#379](https://github.com/blink1073/oct2py/pull/379)
+- Fix `scipy.io` `TypeError` for char encoding issues [#378](https://github.com/blink1073/oct2py/pull/378)
+- Fix Octave startup crash when `opencv-python` is imported on Linux [#391](https://github.com/blink1073/oct2py/pull/391)
+- Fix `system()` failures on Windows by augmenting `PATH` with MinGW/MSYS dirs [#392](https://github.com/blink1073/oct2py/pull/392)
+- Fix logging hygiene: remove `NullHandler`, add `Oct2PyWarning` [#397](https://github.com/blink1073/oct2py/pull/397)
+- Support Octave package namespace access (e.g. `signal.butter`) [#393](https://github.com/blink1073/oct2py/pull/393)
+
+### Backwards-Incompatible Changes
+
+- Requires Python ≥ 3.11 (follows [SPEC 0](https://scientific-python.org/specs/spec-0000/))
+- Requires `octave-kernel` ≥ 1.0
+
+### Maintenance
+
+- Switch from hatch/uv to Poetry for dependency management
+- Switch documentation from Sphinx to MkDocs
+- Migrate CI from `jupyterlab/maintainer-tools` to `calysto/maintainer_tools`
+- Add ASV benchmark suite and CI job
+- Add `check()` diagnostic and issue templates
+
 ## 5.8.0
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.7.2...e4b82b9c77e7730b56f2f0a0af0f695da7707635))
