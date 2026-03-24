@@ -143,7 +143,7 @@ class Struct(dict):  # type:ignore[type-arg]
         return self.copy()
 
 
-class StructArray(np.recarray):  # type: ignore[type-arg]
+class StructArray(np.recarray):
     """A Python representation of an Octave structure array.
 
     Notes
@@ -215,7 +215,7 @@ class StructArray(np.recarray):  # type: ignore[type-arg]
         return msg
 
 
-class Cell(np.ndarray):  # type: ignore[type-arg]
+class Cell(np.ndarray):
     """A Python representation of an Octave cell array.
 
     Notes

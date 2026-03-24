@@ -959,12 +959,19 @@ class Oct2Py:
             # instance, which would otherwise prevent __del__ / exit() from ever
             # being called and cause Octave subprocesses to accumulate.
             #
-            # Strip QT_QPA_PLATFORM_PLUGIN_PATH before spawning Octave.  When
-            # opencv-python is imported it injects its own bundled Qt plugin
-            # directory into this variable; pexpect inherits os.environ, so the
-            # Octave child process would pick up the incompatible path and crash
-            # with "Could not load the Qt platform plugin" (issue #240).
-            _qt_plugin_path = os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
+            # Strip QT_QPA_PLATFORM_PLUGIN_PATH before spawning Octave if it
+            # was injected by opencv-python.  opencv injects its own bundled
+            # Qt plugin directory (always under a "cv2" package path) into
+            # this variable; pexpect inherits os.environ, so the Octave child
+            # process would pick up the incompatible path and crash with
+            # "Could not load the Qt platform plugin" (issue #240).
+            # System-set paths (e.g. from the octave_kernel CI action on
+            # macOS) are safe to keep — stripping them breaks octave_kernel's
+            # _validate_executable, which needs to run octave successfully.
+            _qt_path = os.environ.get("QT_QPA_PLATFORM_PLUGIN_PATH", "")
+            _qt_plugin_path = (
+                os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH") if "cv2" in _qt_path else None
+            )
             _weak_self = weakref.ref(self)
 
             def _stdin_handler(line):

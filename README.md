@@ -67,6 +67,10 @@ trust a code translator, this is your library.
 - Supports logging of session commands.
 - Optional timeout command parameter to prevent runaway Octave sessions.
 
+## Supported Python and dependency versions
+
+This project follows [SPEC 0](https://scientific-python.org/specs/spec-0000/) for minimum supported Python and dependency versions.
+
 ## Installation
 
 You must have GNU Octave installed and in your `PATH` environment variable.
