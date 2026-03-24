@@ -1,9 +1,5 @@
 # Release History
 
-<!-- <START NEW CHANGELOG ENTRY> -->
-
-<!-- <END NEW CHANGELOG ENTRY> -->
-
 ## 5.8.0
 
 ([Full Changelog](https://github.com/blink1073/oct2py/compare/v5.7.2...e4b82b9c77e7730b56f2f0a0af0f695da7707635))
