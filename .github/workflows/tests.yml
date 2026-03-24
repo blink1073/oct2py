@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14", "3.14t"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.14t"]
       fail-fast: false
 
     steps:
@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Octave
-        uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -43,7 +43,7 @@ jobs:
       - name: Run example notebook
         run: just test-notebook
       - name: Test opencv compatibility
-        if: ${{ matrix.python-version == '3.10' }}
+        if: ${{ matrix.python-version == '3.11' }}
         run: just test-opencv
 
   cover:
@@ -57,9 +57,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
-          python-version: "3.10"
+          python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
         with:
           install-type: ${{ startsWith(matrix.os, 'ubuntu') && 'ubuntu' || startsWith(matrix.os, 'windows') && 'windows' || 'macos' }}
       - name: Install signal package
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
-        uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
         with:
           install-type: ${{ matrix.install-type }}
       - name: Run tests
@@ -111,9 +111,9 @@ jobs:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
-          python-version: "3.10"
+          python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_kernel@72a4e04a25ecd24b4d143782fb2313ef384f3e6b # v0.39.0
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
         with:
           install-type: "ubuntu"
       - name: Install signal package
