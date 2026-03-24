@@ -115,7 +115,7 @@ class OctaveMagics(Magics):
         """
         inputs = line.split(" ")
         assert self.shell is not None  # noqa: S101
-        for _input in inputs:  # type: ignore[unreachable]
+        for _input in inputs:
             self._oct.push(_input, self.shell.user_ns[_input])
 
     @skip_doctest
@@ -141,7 +141,7 @@ class OctaveMagics(Magics):
         """
         outputs = line.split(" ")
         assert self.shell is not None  # noqa: S101
-        for output in outputs:  # type: ignore[unreachable]
+        for output in outputs:
             self.shell.push({output: self._oct.pull(output)})
 
     @skip_doctest
@@ -246,7 +246,7 @@ class OctaveMagics(Magics):
             local_ns = {}
 
         assert self.shell is not None  # noqa: S101
-        if args.input:  # type: ignore[unreachable]
+        if args.input:
             for _input in ",".join(args.input).split(","):
                 try:
                     val = local_ns[_input]
