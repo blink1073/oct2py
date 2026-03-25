@@ -517,10 +517,10 @@ class Oct2Py:
 
         Examples
         --------
-        >>> import oct2py
-        >>> oc = oct2py.Oct2Py()
-        >>> _ = oc.plot([1, 2, 3])
-        >>> oc.show()  # displays the Octave figure inline
+        >>> import oct2py  # doctest: +SKIP
+        >>> oc = oct2py.Oct2Py()  # doctest: +SKIP
+        >>> _ = oc.plot([1, 2, 3])  # doctest: +SKIP
+        >>> oc.show()  # displays the Octave figure inline  # doctest: +SKIP
         """
         self._show_figures()
 
