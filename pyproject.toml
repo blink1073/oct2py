@@ -2,6 +2,11 @@
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry]
+include = [
+    { path = "tests", format = "sdist" },
+]
+
 [project]
 name = "oct2py"
 version = "6.0.1.dev0"
