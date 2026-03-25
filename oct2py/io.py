@@ -163,7 +163,7 @@ class StructArray(np.recarray):
     Cell([[1.0, 2.0]])
     >>> x['z']  # item access -> oct2py Cell
     Cell([[3.0, 4.0]])
-    >>> x[0, 0]['y']  # index access, y field
+    >>> x[0, 0].y  # index access, y field
     1.0
     >>> x[0, 1].z
     4.0
