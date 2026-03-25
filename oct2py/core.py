@@ -519,7 +519,7 @@ class Oct2Py:
         --------
         >>> import oct2py
         >>> oc = oct2py.Oct2Py()
-        >>> oc.plot([1, 2, 3])
+        >>> _ = oc.plot([1, 2, 3])
         >>> oc.show()  # displays the Octave figure inline
         """
         self._show_figures()
