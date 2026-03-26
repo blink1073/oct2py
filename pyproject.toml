@@ -2,6 +2,11 @@
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry]
+include = [
+    { path = "tests", format = "sdist" },
+]
+
 [project]
 name = "oct2py"
 version = "6.0.1.dev0"
@@ -79,7 +84,8 @@ log_level = "INFO"
 xfail_strict = true
 addopts = [
   "-ra", "--durations=10", "--color=yes", "--doctest-modules",
-   "--showlocals", "--strict-markers", "--strict-config"
+   "--showlocals", "--strict-markers", "--strict-config",
+   "--import-mode=importlib"
 ]
 testpaths = ["tests", "tests/ipython"]
 doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
@@ -90,8 +96,8 @@ filterwarnings= [
   # Fail on warnings
   "error",
   # Ignore our own user warnings
-  "ignore:Using deprecated:UserWarning:tests",
-  "ignore:Key - value pairs:UserWarning:tests",
+  "ignore:Using deprecated:UserWarning",
+  "ignore:Key - value pairs:UserWarning",
   "module:Jupyter is migrating its paths:DeprecationWarning",
   "module:datetime.datetime.utcf:DeprecationWarning",
   "ignore:(?s).*Pyarrow will become a required dependency of pandas:DeprecationWarning",  # pandas pyarrow (pandas<3.0),

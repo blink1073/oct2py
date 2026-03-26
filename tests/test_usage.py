@@ -200,9 +200,12 @@ class TestUsage:
         hdlr.setLevel(logging.DEBUG)
         self.oc.logger.addHandler(hdlr)
         self.oc.logger.setLevel(logging.DEBUG)
-        p1.display(verbose=True, nout=0)
-        text = hdlr.stream.getvalue().strip()
-        self.oc.logger.removeHandler(hdlr)
+        try:
+            p1.display(verbose=True, nout=0)
+            text = hdlr.stream.getvalue().strip()
+        finally:
+            self.oc.logger.removeHandler(hdlr)
+            self.oc.logger.setLevel(logging.NOTSET)
         assert "in poly display" in text
 
         self.oc.push("y", p0)

@@ -246,6 +246,8 @@ class TestResetInstancesAfterFork:
 
     def test_real_instance_fork_simulation(self):
         """Integration: a real Oct2Py instance is neutralised by _reset_instances_after_fork."""
+        import oct2py as _oct2py
+
         reset = self._get_reset_fn()
         oc = Oct2Py()
         assert oc._engine is not None
@@ -254,5 +256,8 @@ class TestResetInstancesAfterFork:
             assert oc._engine is None
             assert oc.settings.temp_dir is None
         finally:
-            # Instance is now dead — don't call exit(), just discard
-            pass
+            # Instance is now dead — don't call exit(), just discard.
+            # reset() also neutralised the global octave session; restore it
+            # so tests that run after this one can still use it.
+            if _oct2py.octave._engine is None:
+                _oct2py.octave.restart()

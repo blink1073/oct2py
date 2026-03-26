@@ -99,6 +99,23 @@ jobs:
       - name: Run tests
         run: just test tests/test_usage.py tests/test_misc.py
 
+  test-sequential:
+    needs: pre_commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
+      - name: Install Octave
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
+        with:
+          install-type: "ubuntu"
+      - name: Install signal package
+        run: sudo apt-get install -qq octave-signal
+      - name: Run tests sequentially
+        run: just test-seq tests/test_usage.py tests/test_misc.py
+
   benchmark:
     runs-on: ubuntu-24.04
     continue-on-error: true
@@ -147,6 +164,34 @@ jobs:
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - run: just typing
 
+  make_sdist:
+    name: Build and Inspect Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
+      - uses: hynek/build-and-inspect-python-package@efb823f52190ad02594531168b7a2d5790e66516 # v2.14.0
+
+  test_sdist:
+    name: Test SDist
+    needs: make_sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
+      - name: Install Octave
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
+        with:
+          install-type: "ubuntu"
+      - name: Install signal package
+        run: sudo apt-get install -qq octave-signal
+      - uses: calysto/maintainer_tools/actions/test-sdist@v1
+
   test_release:
     name: Test Release (Dry Run)
     if: github.event_name == 'pull_request'
@@ -170,10 +215,13 @@ jobs:
       - test
       - cover
       - test-other
+      - test-sequential
       - pre_commit
       - typing
       - docs
       - benchmark
+      - make_sdist
+      - test_sdist
       - test_release
     runs-on: ubuntu-latest
     steps:
