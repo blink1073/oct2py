@@ -930,10 +930,16 @@ class Oct2Py:
         """
         return OctaveWorkspaceProxy(self)
 
-    def restart(self):
+    def restart(self):  # noqa: PLR0912, PLR0915
         """Restart an Octave session in a clean state"""
         if self._engine:
             self._engine.repl.terminate()
+
+        # Close any open writer file handle — its path is tied to the old
+        # temp_dir and will be invalid after we create a new one below.
+        if self._out_fh and not self._out_fh.closed:
+            self._out_fh.close()
+        self._out_fh = None
 
         # Use the stored executable (may be empty, letting OctaveEngine resolve).
         _executable = self._settings.executable or ""
@@ -1025,7 +1031,7 @@ class Oct2Py:
 
         # Pre-open writer.mat so the file descriptor is reused across calls,
         # avoiding repeated open/close syscall overhead.
-        if self._out_fh is None or self._out_fh.closed:
+        if self._out_fh is None or self._out_fh.closed:  # type: ignore[unreachable]
             self._out_fh = open(osp.join(self._settings.temp_dir, "writer.mat"), "w+b")  # noqa: SIM115
 
         # Add local Octave scripts.
