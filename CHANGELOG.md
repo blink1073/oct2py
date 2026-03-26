@@ -1,5 +1,17 @@
 # Release History
 
+## 6.0.1
+
+### Bugs Fixed
+
+- Add test_sdist CI job to catch sdist packaging regressions
+  - PR: #412
+
+### Maintenance and upkeep improvements
+
+- Autofill test matrix from build-and-inspect-python-package classifiers
+  - PR: #413
+
 ## 6.0.0
 
 oct2py 6.0 is a major release with substantial new features, a large number of
