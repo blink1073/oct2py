@@ -84,7 +84,8 @@ log_level = "INFO"
 xfail_strict = true
 addopts = [
   "-ra", "--durations=10", "--color=yes", "--doctest-modules",
-   "--showlocals", "--strict-markers", "--strict-config"
+   "--showlocals", "--strict-markers", "--strict-config",
+   "--import-mode=importlib"
 ]
 testpaths = ["tests", "tests/ipython"]
 doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
