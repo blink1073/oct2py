@@ -99,6 +99,21 @@ jobs:
       - name: Run tests
         run: just test tests/test_usage.py tests/test_misc.py
 
+  test-sequential:
+    needs: pre_commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
+      - name: Install Octave
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
+        with:
+          install-type: "ubuntu"
+      - name: Install signal package
+        run: sudo apt-get install -qq octave-signal
+      - name: Run tests sequentially
+        run: just test-seq tests/test_usage.py tests/test_misc.py
+
   benchmark:
     runs-on: ubuntu-24.04
     continue-on-error: true
@@ -200,6 +215,7 @@ jobs:
       - test
       - cover
       - test-other
+      - test-sequential
       - pre_commit
       - typing
       - docs

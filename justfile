@@ -12,6 +12,11 @@ test *args:
     poetry install --with test
     poetry run python -m pytest -n auto --dist=loadscope -vv {{args}}
 
+# Run tests sequentially (no xdist) — mirrors the sdist test environment
+test-seq *args:
+    poetry install --with test
+    poetry run python -m pytest -v {{args}}
+
 # Run tests with coverage
 cover *args:
     poetry install --with cover
