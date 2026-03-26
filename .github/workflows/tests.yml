@@ -191,8 +191,6 @@ jobs:
       - name: Install signal package
         run: sudo apt-get install -qq octave-signal
       - uses: calysto/maintainer_tools/actions/test-sdist@v1
-        with:
-          test: pytest -v tests/test_usage.py tests/test_misc.py
 
   test_release:
     name: Test Release (Dry Run)
