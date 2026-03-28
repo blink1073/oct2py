@@ -106,7 +106,7 @@ class TestMisc:
         y = self.oc.pull("y")
         assert np.allclose(data.toarray(), y[0].toarray())
 
-    @flaky(condition=sys.platform == "win32")
+    @flaky(rerun_filter=lambda *_: sys.platform == "win32")
     def test_logging(self):
         # create a stringio and a handler to log to it
         def get_handler():
