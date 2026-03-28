@@ -13,6 +13,7 @@ from io import StringIO
 import numpy as np
 import pandas as pd
 import pytest
+from flaky import flaky
 
 import oct2py
 from oct2py import Oct2Py, Oct2PyError, Oct2PyWarning, StructArray
@@ -105,6 +106,7 @@ class TestMisc:
         y = self.oc.pull("y")
         assert np.allclose(data.toarray(), y[0].toarray())
 
+    @flaky(rerun_filter=lambda *_: sys.platform == "win32")
     def test_logging(self):
         # create a stringio and a handler to log to it
         def get_handler():

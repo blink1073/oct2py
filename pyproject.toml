@@ -54,6 +54,7 @@ typing = [
 test = [
     "pytest<8",
     "pytest-xdist",
+    "flaky",
     "pandas",
     "scipy",
     "nbconvert",
