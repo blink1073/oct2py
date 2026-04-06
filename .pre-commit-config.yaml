@@ -18,7 +18,7 @@ repos:
       - id: poetry-lock
 
   - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
-    rev: v1.7.11.24
+    rev: v1.7.12.24
     hooks:
       - id: actionlint
 
@@ -48,7 +48,7 @@ repos:
         args: ["--config", "./pyproject.toml"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.8
+    rev: v0.15.9
     hooks:
       - id: ruff-format
       - id: ruff-check
@@ -75,7 +75,7 @@ repos:
         additional_dependencies: ["validate-pyproject-schema-store[all]"]
 
   - repo: https://github.com/scientific-python/cookie
-    rev: "2026.03.02"
+    rev: "2026.04.04"
     hooks:
       - id: sp-repo-review
         additional_dependencies: ["repo-review[cli]"]
