@@ -1,5 +1,29 @@
 # Release History
 
+## 6.0.2
+
+### Bugs Fixed
+
+- Fix PermissionError on Windows at interpreter exit (writer.mat held open)
+  - PR: #422
+
+### Maintenance and upkeep improvements
+
+- Mark test_logging as flaky on Windows
+  - PR: #414
+- chore: pre-commit autoupdate
+  - PR: #415
+- chore: pre-commit autoupdate
+  - PR: #416
+- chore: pre-commit autoupdate
+  - PR: #417
+- chore: pre-commit autoupdate
+  - PR: #418
+- chore: pre-commit autoupdate
+  - PR: #419
+- chore: pre-commit autoupdate
+  - PR: #421
+
 ## 6.0.1
 
 ### Bugs Fixed
