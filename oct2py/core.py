@@ -285,27 +285,15 @@ class Oct2Py:
         except Exception:  # noqa: S110  # pragma: no cover
             pass
 
-    def _close_writer(self) -> None:
-        """Close the persistent writer.mat file handle.
-
-        Registered with atexit so it runs before shutil.rmtree fires at
-        interpreter exit.  On Windows, open files cannot be deleted, so the
-        handle must be released before the temp directory is removed
-        (PermissionError: [WinError 32]).
-        """
-        if self._out_fh and not self._out_fh.closed:
-            self._out_fh.close()
-            self._out_fh = None
-
     def exit(self):
         """Quits this octave session and cleans up."""
-        atexit.unregister(self._close_writer)
         if self._engine:
             if callable(atexit.unregister):
                 atexit.unregister(self._engine._cleanup)
             self._engine.repl.terminate()
         self._engine = None
         if self._out_fh and not self._out_fh.closed:
+            atexit.unregister(self._out_fh.close)
             self._out_fh.close()
             self._out_fh = None
         if self._temp_dir_owner and self._settings.temp_dir and osp.isdir(self._settings.temp_dir):
@@ -951,6 +939,7 @@ class Oct2Py:
         # Close any open writer file handle — its path is tied to the old
         # temp_dir and will be invalid after we create a new one below.
         if self._out_fh and not self._out_fh.closed:
+            atexit.unregister(self._out_fh.close)
             self._out_fh.close()
         self._out_fh = None
 
@@ -1049,10 +1038,11 @@ class Oct2Py:
         # Ensure the handle is closed before shutil.rmtree fires at interpreter
         # exit.  On Windows, open files cannot be deleted (PermissionError:
         # [WinError 32]).  atexit is LIFO, so registering here (after the
-        # engine's rmtree registration) guarantees _close_writer runs first.
-        # unregister first to avoid duplicate entries on restart.
-        atexit.unregister(self._close_writer)
-        atexit.register(self._close_writer)
+        # engine's rmtree registration) guarantees _out_fh.close runs first.
+        # Register the file handle's .close method directly — unlike a bound
+        # Oct2Py method, it does not hold a strong reference back to self, so
+        # __del__ can still fire normally when the session goes out of scope.
+        atexit.register(self._out_fh.close)
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
