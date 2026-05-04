@@ -285,8 +285,21 @@ class Oct2Py:
         except Exception:  # noqa: S110  # pragma: no cover
             pass
 
+    def _close_writer(self) -> None:
+        """Close the persistent writer.mat file handle.
+
+        Registered with atexit so it runs before shutil.rmtree fires at
+        interpreter exit.  On Windows, open files cannot be deleted, so the
+        handle must be released before the temp directory is removed
+        (PermissionError: [WinError 32]).
+        """
+        if self._out_fh and not self._out_fh.closed:
+            self._out_fh.close()
+            self._out_fh = None
+
     def exit(self):
         """Quits this octave session and cleans up."""
+        atexit.unregister(self._close_writer)
         if self._engine:
             if callable(atexit.unregister):
                 atexit.unregister(self._engine._cleanup)
@@ -1033,6 +1046,13 @@ class Oct2Py:
         # avoiding repeated open/close syscall overhead.
         if self._out_fh is None or self._out_fh.closed:  # type: ignore[unreachable]
             self._out_fh = open(osp.join(self._settings.temp_dir, "writer.mat"), "w+b")  # noqa: SIM115
+        # Ensure the handle is closed before shutil.rmtree fires at interpreter
+        # exit.  On Windows, open files cannot be deleted (PermissionError:
+        # [WinError 32]).  atexit is LIFO, so registering here (after the
+        # engine's rmtree registration) guarantees _close_writer runs first.
+        # unregister first to avoid duplicate entries on restart.
+        atexit.unregister(self._close_writer)
+        atexit.register(self._close_writer)
 
         # Add local Octave scripts.
         self._engine.eval('addpath("%s");' % HERE.replace(osp.sep, "/"))
