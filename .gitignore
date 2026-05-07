@@ -19,3 +19,5 @@ coverage.xml
 .uv/
 env/
 results/
+pyinstaller_test/build/
+pyinstaller_test/dist/

@@ -43,5 +43,6 @@ nav:
   - Type Conversions: conversions.md
   - Example Notebook: notebook.ipynb
   - Configuration: settings.md
+  - PyInstaller: pyinstaller.md
   - API Reference: api.md
   - Information: info.md
