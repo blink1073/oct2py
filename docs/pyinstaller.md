@@ -53,5 +53,3 @@ PyInstaller's own built-in hooks and do not need to be listed manually.
 - GNU Octave must still be installed and on `PATH` on the machine that runs
   the bundled executable — oct2py launches Octave as a subprocess and does
   not bundle the Octave interpreter itself.
-- Build artifacts (`pyinstaller_test/build/` and `pyinstaller_test/dist/`)
-  are git-ignored.
