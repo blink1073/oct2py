@@ -199,7 +199,11 @@ jobs:
 
   pyinstaller:
     name: PyInstaller
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -210,7 +214,7 @@ jobs:
       - name: Install Octave
         uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
         with:
-          install-type: "ubuntu"
+          install-type: ${{ startsWith(matrix.os, 'ubuntu') && 'ubuntu' || startsWith(matrix.os, 'windows') && 'windows' || 'macos' }}
       - name: Run PyInstaller test
         run: just pyinstaller-test
 
