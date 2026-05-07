@@ -1,5 +1,12 @@
 # Release History
 
+## 6.0.3
+
+### Bugs Fixed
+
+- Fix PackageNotFoundError when imported in PyInstaller bundle
+  - PR: #424
+
 ## 6.0.2
 
 ### Bugs Fixed
