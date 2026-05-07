@@ -2,11 +2,15 @@
 
 import re
 from collections import namedtuple
+from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version_metadata
 
 VersionInfo = namedtuple("VersionInfo", ["major", "minor", "micro", "releaselevel", "serial"])
 
-__version__ = _version_metadata("oct2py")
+try:
+    __version__ = _version_metadata("oct2py")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
 
 # Build up version_info tuple for backwards compatibility
 pattern = r"(?P<major>\d+).(?P<minor>\d+).(?P<micro>\d+)(?P<releaselevel>.*?)(?P<serial>\d*)"
