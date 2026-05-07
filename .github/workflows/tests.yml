@@ -197,6 +197,23 @@ jobs:
         run: sudo apt-get install -qq octave-signal
       - uses: calysto/maintainer_tools/actions/test-sdist@v1
 
+  pyinstaller:
+    name: PyInstaller
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: calysto/maintainer_tools/actions/base-setup@v1
+        with:
+          python-version: "3.11"
+      - name: Install Octave
+        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
+        with:
+          install-type: "ubuntu"
+      - name: Run PyInstaller test
+        run: just pyinstaller-test
+
   test_release:
     name: Test Release (Dry Run)
     if: github.event_name == 'pull_request'
@@ -228,6 +245,7 @@ jobs:
       - build
       - test_sdist
       - test_release
+      - pyinstaller
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed

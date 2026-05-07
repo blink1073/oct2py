@@ -74,6 +74,11 @@ test-opencv:
     poetry run pip install opencv-python
     poetry run python scripts/test-opencv.py
 
+# Build and run the PyInstaller test app
+pyinstaller-test:
+    poetry install --with pyinstaller
+    poetry run python pyinstaller_test/test_build.py
+
 # Run a pre-commit target
 pre-commit *args:
     poetry install --with dev
