@@ -150,11 +150,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: calysto/maintainer_tools/actions/base-setup@v1
-      - run: just pre-commit --hook-stage=manual
-      - name: Show diff on failure
-        if: failure()
-        run: git diff
+        with:
+          persist-credentials: false
+      - uses: calysto/maintainer_tools/actions/pre-commit-run@v1.3.0
 
   typing:
     name: Typing
