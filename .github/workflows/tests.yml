@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Octave
-        uses: calysto/octave_kernel@64a3888bac86006cba0aafb6fa9c8bf04abaaf8e # v1.0.0
+        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
         with:
           install-type: "ubuntu"
       - name: Install signal package
