@@ -40,7 +40,7 @@ jobs:
           sudo apt-get install -qq octave-signal
       - name: Install numpy nightly (Python 3.15+)
         if: ${{ startsWith(matrix.python-version, '3.15') }}
-        run: uv pip install --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
+        run: uv pip install --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy pillow
       - name: Run tests
         run: just test
       - name: Run example notebook
