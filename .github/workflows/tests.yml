@@ -28,13 +28,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Add nightly source and regenerate lock (Python 3.15+)
+      - uses: actions/setup-python@v5
+        if: ${{ startsWith(matrix.python-version, '3.15') }}
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Add nightly source and install (Python 3.15+)
         if: ${{ startsWith(matrix.python-version, '3.15') }}
         run: |
           pipx install poetry
           poetry source add --priority=primary scientific-python-nightly https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-          poetry lock
+          poetry install --only main,test --no-root
       - uses: calysto/maintainer_tools/actions/base-setup@v1
+        if: ${{ !startsWith(matrix.python-version, '3.15') }}
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Octave
