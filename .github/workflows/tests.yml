@@ -32,7 +32,7 @@ jobs:
         if: ${{ startsWith(matrix.python-version, '3.15') }}
         run: |
           pipx install poetry
-          poetry source add --priority=supplemental scientific-python-nightly https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
+          poetry source add --priority=primary scientific-python-nightly https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
           poetry lock
       - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
