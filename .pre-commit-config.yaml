@@ -42,13 +42,13 @@ repos:
         pass_filenames: false
 
   - repo: https://github.com/jsh9/pydoclint
-    rev: 0.8.6
+    rev: 0.8.7
     hooks:
       - id: pydoclint
         args: ["--config", "./pyproject.toml"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.17
+    rev: v0.15.18
     hooks:
       - id: ruff-format
       - id: ruff-check
@@ -75,7 +75,7 @@ repos:
         additional_dependencies: ["validate-pyproject-schema-store[all]"]
 
   - repo: https://github.com/scientific-python/cookie
-    rev: "2026.04.04"
+    rev: "2026.06.18"
     hooks:
       - id: sp-repo-review
         additional_dependencies: ["repo-review[cli]"]
