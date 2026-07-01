@@ -6,10 +6,14 @@ updates:
       interval: "weekly"
     cooldown:
       default-days: 7
+    ignore:
+      - dependency-name: "calysto/maintainer_tools"
+      - dependency-name: "calysto/octave_kernel"
     groups:
       actions:
         patterns:
           - "*"
+
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
