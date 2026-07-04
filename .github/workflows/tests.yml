@@ -66,6 +66,12 @@ jobs:
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: sudo apt-get install -qq octave-signal
       - name: Generate coverage report
+        env:
+          # macOS runners have no interactive window server, so Octave's
+          # default "qt" graphics toolkit segfaults creating a real figure
+          # window (e.g. test_interactive_figure). Force Qt's offscreen
+          # platform so figures are still created, just not displayed.
+          QT_QPA_PLATFORM: ${{ startsWith(matrix.os, 'macos') && 'offscreen' || '' }}
         run: ${{ startsWith(matrix.os, 'ubuntu') && 'just cover' || 'just cover tests/test_usage.py tests/test_misc.py tests/test_octavemagic.py' }}
       - name: Upload coverage to Codecov
         if: always()
