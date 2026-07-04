@@ -167,14 +167,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
-      supported_python_classifiers_json_array: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+      supported_python_classifiers_json_array: ${{ steps.build.outputs.python-versions }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
-      - uses: hynek/build-and-inspect-python-package@35116b25fb28e4b91149d761b2230d28ef49adc0 # v2.16.0
-        id: baipp
+      - uses: calysto/maintainer_tools/actions/build@v1
+        id: build
         with:
           include-free-threaded: "true"
 
