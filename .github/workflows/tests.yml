@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Octave
-        uses: calysto/octave_action@0b9212d3bf6ad0cdd288b60499ebd1bca45bafb4 # v1
+        uses: calysto/octave_action@2420ea4ef9645f2455685837d925c6b96c2c1c61 # v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -59,7 +59,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_action@0b9212d3bf6ad0cdd288b60499ebd1bca45bafb4 # v1
+        uses: calysto/octave_action@2420ea4ef9645f2455685837d925c6b96c2c1c61 # v1
         with:
           install-type: ${{ startsWith(matrix.os, 'ubuntu') && 'ubuntu' || startsWith(matrix.os, 'windows') && 'windows' || 'macos' }}
       - name: Install signal package
@@ -93,7 +93,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
-        uses: calysto/octave_action@0b9212d3bf6ad0cdd288b60499ebd1bca45bafb4 # v1
+        uses: calysto/octave_action@2420ea4ef9645f2455685837d925c6b96c2c1c61 # v1
         with:
           install-type: ${{ matrix.install-type }}
       - name: Run tests
@@ -108,7 +108,7 @@ jobs:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
-        uses: calysto/octave_action@0b9212d3bf6ad0cdd288b60499ebd1bca45bafb4 # v1
+        uses: calysto/octave_action@2420ea4ef9645f2455685837d925c6b96c2c1c61 # v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -130,7 +130,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_action@0b9212d3bf6ad0cdd288b60499ebd1bca45bafb4 # v1
+        uses: calysto/octave_action@2420ea4ef9645f2455685837d925c6b96c2c1c61 # v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -188,7 +188,7 @@ jobs:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
-        uses: calysto/octave_action@0b9212d3bf6ad0cdd288b60499ebd1bca45bafb4 # v1
+        uses: calysto/octave_action@2420ea4ef9645f2455685837d925c6b96c2c1c61 # v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -210,7 +210,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_action@0b9212d3bf6ad0cdd288b60499ebd1bca45bafb4 # v1
+        uses: calysto/octave_action@2420ea4ef9645f2455685837d925c6b96c2c1c61 # v1
         with:
           install-type: ${{ startsWith(matrix.os, 'ubuntu') && 'ubuntu' || startsWith(matrix.os, 'windows') && 'windows' || 'macos' }}
       - name: Run PyInstaller test
