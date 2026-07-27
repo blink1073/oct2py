@@ -275,6 +275,43 @@ class TestEnterDel:
         oc.__del__()  # should not raise
 
 
+class TestTerminateRepl:
+    """Tests for the ExceptionPexpect-tolerant termination helper."""
+
+    def test_exit_swallows_stale_alive_race(self):
+        """exit() should not raise when terminate() reports a stale-alive race."""
+        from pexpect.exceptions import ExceptionPexpect
+
+        oc = Oct2Py()
+        oc._engine.repl.terminate = MagicMock(
+            side_effect=ExceptionPexpect("Could not terminate the child.")
+        )
+        oc.exit()  # should not raise
+        assert oc._engine is None
+
+    def test_restart_swallows_stale_alive_race(self):
+        """restart() should tolerate the old engine's terminate() raising the same race."""
+        from pexpect.exceptions import ExceptionPexpect
+
+        oc = Oct2Py()
+        old_engine = oc._engine
+        old_engine.repl.terminate = MagicMock(
+            side_effect=ExceptionPexpect("Could not terminate the child.")
+        )
+        oc.restart()  # should not raise
+        assert oc._engine is not old_engine
+        oc.exit()
+
+    def test_terminate_repl_reraises_other_exceptions(self):
+        """Exceptions other than ExceptionPexpect should still propagate."""
+        oc = Oct2Py()
+        oc._engine.repl.terminate = MagicMock(side_effect=RuntimeError("boom"))
+        with pytest.raises(RuntimeError, match="boom"):
+            oc._terminate_repl()
+        oc._engine.repl.terminate = MagicMock()  # avoid raising again during exit()
+        oc.exit()
+
+
 class TestGetPointer:
     """Tests for all branches of Oct2Py.get_pointer."""
 
@@ -425,6 +462,24 @@ class TestRestart:
             pytest.raises(Oct2PyError, match="bad engine"),
         ):
             oc.restart()
+
+    def test_restart_widens_pexpect_delays(self):
+        """restart() should widen the child's delayafterclose/delayafterterminate."""
+        oc = Oct2Py()
+        child = oc._engine.repl.child
+        assert child.delayafterclose == 0.5
+        assert child.delayafterterminate == 0.5
+        oc.exit()
+
+    def test_restart_widens_pexpect_delays_skipped_without_child(self):
+        """restart() should not raise when the repl has no `.child` attribute."""
+        fake_engine = MagicMock()
+        fake_engine.repl = MagicMock(spec=["terminate"])
+        fake_engine.tmp_dir = tempfile.mkdtemp()
+        with patch("oct2py.core.OctaveEngine", return_value=fake_engine):
+            oc = Oct2Py()
+        assert oc._engine is fake_engine
+        oc.exit()
 
 
 class TestGetDoc:
