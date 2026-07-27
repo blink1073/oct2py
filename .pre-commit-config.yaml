@@ -48,7 +48,7 @@ repos:
         args: ["--config", "./pyproject.toml"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.21
+    rev: v0.15.22
     hooks:
       - id: ruff-format
       - id: ruff-check
@@ -62,7 +62,7 @@ repos:
         files: ^(docs/.*|.*\.md)$
 
   - repo: https://github.com/codespell-project/codespell
-    rev: "v2.4.2"
+    rev: "v2.4.3"
     hooks:
       - id: codespell
         args: ["-L", "ans,te,manuel,astroid,assignin"]
