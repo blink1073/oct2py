@@ -278,13 +278,31 @@ class TestEnterDel:
 class TestTerminateRepl:
     """Tests for the ExceptionPexpect-tolerant termination helper."""
 
+    @staticmethod
+    def _mock_terminate_after_real_call(repl, exc):
+        """Replace repl.terminate with a mock that still signals the real child.
+
+        Using a bare ``side_effect=exc`` would replace terminate() outright and
+        never send the OS signal, leaking the real Octave subprocess (it would
+        only die when the pytest process itself exits). Wrapping the real
+        method and raising *after* calling it exercises the same
+        exception-handling code path without leaking the process.
+        """
+        real_terminate = repl.terminate
+
+        def _raise_after_terminating(*args, **kwargs):
+            real_terminate(*args, **kwargs)
+            raise exc
+
+        repl.terminate = MagicMock(side_effect=_raise_after_terminating)
+
     def test_exit_swallows_stale_alive_race(self):
         """exit() should not raise when terminate() reports a stale-alive race."""
         from pexpect.exceptions import ExceptionPexpect
 
         oc = Oct2Py()
-        oc._engine.repl.terminate = MagicMock(
-            side_effect=ExceptionPexpect("Could not terminate the child.")
+        self._mock_terminate_after_real_call(
+            oc._engine.repl, ExceptionPexpect("Could not terminate the child.")
         )
         oc.exit()  # should not raise
         assert oc._engine is None
@@ -295,8 +313,8 @@ class TestTerminateRepl:
 
         oc = Oct2Py()
         old_engine = oc._engine
-        old_engine.repl.terminate = MagicMock(
-            side_effect=ExceptionPexpect("Could not terminate the child.")
+        self._mock_terminate_after_real_call(
+            old_engine.repl, ExceptionPexpect("Could not terminate the child.")
         )
         oc.restart()  # should not raise
         assert oc._engine is not old_engine
@@ -305,10 +323,10 @@ class TestTerminateRepl:
     def test_terminate_repl_reraises_other_exceptions(self):
         """Exceptions other than ExceptionPexpect should still propagate."""
         oc = Oct2Py()
-        oc._engine.repl.terminate = MagicMock(side_effect=RuntimeError("boom"))
+        self._mock_terminate_after_real_call(oc._engine.repl, RuntimeError("boom"))
         with pytest.raises(RuntimeError, match="boom"):
             oc._terminate_repl()
-        oc._engine.repl.terminate = MagicMock()  # avoid raising again during exit()
+        oc._engine.repl.terminate = MagicMock()  # already terminated; avoid raising again
         oc.exit()
 
 

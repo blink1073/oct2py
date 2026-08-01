@@ -955,6 +955,7 @@ class Oct2Py:
     def restart(self):  # noqa: PLR0912, PLR0915
         """Restart an Octave session in a clean state"""
         if self._engine:
+            atexit.unregister(self._engine._cleanup)
             self._terminate_repl()
 
         # Close any open writer file handle — its path is tied to the old
