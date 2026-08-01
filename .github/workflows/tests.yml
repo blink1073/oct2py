@@ -251,10 +251,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
-      - name: Install scipy build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -qq gfortran cmake ninja-build pkg-config libopenblas-dev
       - name: Add nightly source and install
         run: |
           pipx install poetry
