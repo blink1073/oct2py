@@ -256,7 +256,7 @@ jobs:
         run: |
           pipx install poetry
           poetry source add --priority=explicit scientific-python-nightly https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-          poetry add --source scientific-python-nightly numpy pillow
+          poetry add --source scientific-python-nightly numpy
           poetry install --only main,test --no-root
       - name: Install Octave
         uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
