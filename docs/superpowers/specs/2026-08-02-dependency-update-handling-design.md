@@ -83,6 +83,15 @@ disabling routine version-update PRs for an ecosystem while leaving
 security-update PRs unaffected (security updates ignore this limit). The
 `github-actions` entry is untouched.
 
+Note: a Dependabot security-update PR for a vulnerable dependency will
+still edit both `pyproject.toml` (bumping the version constraint) and
+`poetry.lock` (re-resolving against it) together, same as it does today —
+`open-pull-requests-limit: 0` only suppresses routine version-update PRs,
+not this. The weekly cron job below is narrower: it only runs
+`poetry update` within whatever constraints already exist in
+`pyproject.toml`, so it never touches `pyproject.toml` itself — the two
+mechanisms don't overlap in what they edit.
+
 ### 3. oct2py: weekly lock-update workflow
 
 New `.github/workflows/lock-update.yml`:
