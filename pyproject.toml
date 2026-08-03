@@ -44,13 +44,16 @@ homepage = "https://github.com/blink1073/oct2py"
 documentation = "https://blink1073.github.io/oct2py"
 
 [dependency-groups]
-dev = [ { include-group = "test" }, "pre-commit" ]
-typing = [
-    { include-group = "test" },
-    "mypy>=1.15",
-    "ipython>=9.0",
-    "pip"
-]
+# Every group below is kept homogeneous (all plain strings, or all
+# `{ include-group = ... }` tables) rather than mixing the two in one
+# array. Dependabot's toml-rb-based Poetry resolver assumes an array is a
+# uniform "table array" once its first element is a table, and crashes
+# (NoMethodError: undefined method 'keys' for an instance of String) on a
+# later plain-string element. See dependabot/dependabot-core#14517.
+dev-extra = ["pre-commit"]
+dev = [{ include-group = "test" }, { include-group = "dev-extra" }]
+typing-extra = ["mypy>=1.15", "ipython>=9.0", "pip"]
+typing = [{ include-group = "test" }, { include-group = "typing-extra" }]
 test = [
     "pytest<8",
     "pytest-xdist",
@@ -62,11 +65,8 @@ test = [
     "matplotlib",
     "ipython>=9.0",
 ]
-cover = [
-    { include-group = "test" },
-    "coverage",
-    "pytest-cov",
-]
+cover-extra = ["coverage", "pytest-cov"]
+cover = [{ include-group = "test" }, { include-group = "cover-extra" }]
 docs = [
     "mkdocs>=1.5",
     "mkdocs-material>=9.0",
