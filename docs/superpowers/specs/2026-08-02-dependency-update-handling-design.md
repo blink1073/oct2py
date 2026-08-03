@@ -55,10 +55,10 @@ in `CLAUDE.md` for the `release` action.
 **Steps**
 
 1. Generate app token (`actions/create-github-app-token@v3`) if `app-id`/`app-private-key` given.
-2. Run `poetry update --no-interaction` with `POETRY_SOLVER_MIN_RELEASE_AGE` set from `min-release-age-days`.
-3. If `git diff --quiet` on `poetry.lock`, exit early — no PR.
-4. Otherwise: parse old vs. new `poetry.lock` via a new `diff_lock.py` script (uses `tomllib` to build `name -> version` maps for each side and diff them — TOML, not YAML, so this can't reuse `pre-commit-autoupdate`'s `parse_diff.sh`), building an "Updated packages" list (`name: old -> new`).
-5. Commit `poetry.lock` to a new branch (`<branch>-<random suffix>`), push, and `gh pr create` with title `chore: update poetry.lock`, the generated body, and the given labels — same commit/push/PR mechanics as `pre-commit-autoupdate`'s `Create pull request` step.
+1. Run `poetry update --no-interaction` with `POETRY_SOLVER_MIN_RELEASE_AGE` set from `min-release-age-days`.
+1. If `git diff --quiet` on `poetry.lock`, exit early — no PR.
+1. Otherwise: parse old vs. new `poetry.lock` via a new `diff_lock.py` script (uses `tomllib` to build `name -> version` maps for each side and diff them — TOML, not YAML, so this can't reuse `pre-commit-autoupdate`'s `parse_diff.sh`), building an "Updated packages" list (`name: old -> new`).
+1. Commit `poetry.lock` to a new branch (`<branch>-<random suffix>`), push, and `gh pr create` with title `chore: update poetry.lock`, the generated body, and the given labels — same commit/push/PR mechanics as `pre-commit-autoupdate`'s `Create pull request` step.
 
 **Supporting files**
 
@@ -132,7 +132,7 @@ shared action.
    (`blink1073:poetry-lock-upgrade` → `Calysto/maintainer_tools:main`), get
    it merged, and let the `v1` floating tag move to it (per the existing
    `update-v1-tag` release job).
-2. Then open the `oct2py` PR with the dependabot change and the new
+1. Then open the `oct2py` PR with the dependabot change and the new
    `lock-update.yml`, which references `calysto/maintainer_tools/actions/poetry-lock-update@v1`
    directly — no branch-pinned placeholder to clean up later.
 
