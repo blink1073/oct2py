@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: '0 6 * * 1'  # Every Monday at 6am
 
+permissions:
+  contents: read
+
 jobs:
   lock-update:
     runs-on: ubuntu-latest
