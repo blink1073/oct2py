@@ -737,7 +737,7 @@ class Oct2Py:
             plot_dir=plot_dir,
         )
 
-    def eval(  # noqa: PLR0913
+    def eval(  # noqa: PLR0913, PLR0917
         self,
         cmds,
         verbose=True,
