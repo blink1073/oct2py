@@ -137,10 +137,12 @@ ignore_missing_imports = true
 line-length = 100
 
 [tool.ruff.lint]
-select = [
-  "A", "B", "C", "DTZ", "E", "EM", "F", "FBT", "I", "ICN", "N",
+# DTZ and YTT are omitted below since ruff 0.16's default rule set already
+# enables them in full; extend-select only needs to add what defaults miss.
+extend-select = [
+  "A", "B", "C", "E", "EM", "F", "FBT", "I", "ICN", "N",
   "PLC", "PLE", "PLR", "PLW", "Q", "RUF", "S", "SIM", "T", "TID", "UP",
-  "W", "YTT",
+  "W",
 ]
 external = [
   "DOC",  # pydoclint
@@ -155,7 +157,13 @@ ignore = [
 # C408 Unnecessary `dict` call (rewrite as a literal)
 "C408", "C409",
 # Unnecessary upgrades
-"UP031"
+"UP031",
+# BLE001 Do not catch blind exception - used intentionally for optional
+# imports and best-effort subprocess/session cleanup throughout the codebase
+"BLE001",
+# TRY002 Create your own exception - single occurrence, needs a design
+# decision on a dedicated exception type
+"TRY002",
 ]
 
 [tool.ruff.lint.per-file-ignores]
