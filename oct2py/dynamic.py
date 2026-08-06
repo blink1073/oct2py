@@ -100,7 +100,7 @@ class OctaveFunctionPtr(OctavePtr):
         ]
 
         extras = {}
-        for key, _ in kwargs.copy().items():
+        for key in kwargs.copy():
             if key not in allowed:
                 extras[key] = kwargs.pop(key)
 

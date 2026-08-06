@@ -12,13 +12,9 @@ import sys
 class Oct2PyError(Exception):
     """Called when we can't open Octave or Octave throws an error"""
 
-    pass
-
 
 class Oct2PyWarning(UserWarning):
     """Warning raised by oct2py for deprecations and other advisory conditions."""
-
-    pass
 
 
 def get_log(name=None):

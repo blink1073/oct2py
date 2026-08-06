@@ -856,7 +856,7 @@ class Oct2Py:
         prev_log_level = self.logger.level
 
         if kwargs.get("log") is False:
-            self.logger.setLevel(logging.WARN)
+            self.logger.setLevel(logging.WARNING)
 
         for name in ["log", "return_both"]:
             if name not in kwargs:
