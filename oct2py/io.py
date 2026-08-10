@@ -19,12 +19,8 @@ except Exception:  # pragma: no cover
     class Series:  # type:ignore[no-redef]
         """placeholder."""
 
-        pass
-
     class DataFrame:  # type:ignore[no-redef]
         """placeholder."""
-
-        pass
 
 
 from .dynamic import OctaveFunctionPtr, OctaveUserClass, OctaveVariablePtr

@@ -336,7 +336,7 @@ class TestMisc:
         finally:
             os.unlink(m_path)
 
-    def test_interactive_figure(self):
+    def test_interactive_figure(self, monkeypatch):
         """Test that figures created via eval() are accessible (issues #176, #158).
 
         Interactive figure display (drawnow expose) is handled inside _pyeval.m
@@ -347,6 +347,10 @@ class TestMisc:
         """
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
+        if sys.platform == "darwin" and os.environ.get("CI"):
+            # macOS CI runners have no interactive window server, so Octave's
+            # "qt" toolkit segfaults creating a real figure window here.
+            monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
         oc = Oct2Py(backend="default")
         oc.figure(1)
         n_figs = oc.eval("numel(get(0, 'children'))", nout=1)

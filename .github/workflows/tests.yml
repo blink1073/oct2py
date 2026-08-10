@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
+        uses: calysto/octave_action@v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -62,7 +62,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
+        uses: calysto/octave_action@v1
         with:
           install-type: ${{ startsWith(matrix.os, 'ubuntu') && 'ubuntu' || startsWith(matrix.os, 'windows') && 'windows' || 'macos' }}
       - name: Install signal package
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
+        uses: calysto/octave_action@v1
         with:
           install-type: ${{ matrix.install-type }}
       - name: Run tests
@@ -111,7 +111,7 @@ jobs:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
+        uses: calysto/octave_action@v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -133,7 +133,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
+        uses: calysto/octave_action@v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -170,16 +170,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
-      supported_python_classifiers_json_array: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+      supported_python_classifiers_json_array: ${{ steps.build.outputs.python-versions }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
-      - uses: hynek/build-and-inspect-python-package@35116b25fb28e4b91149d761b2230d28ef49adc0 # v2.16.0
-        id: baipp
-        with:
-          include-free-threaded: "true"
+      - uses: calysto/maintainer_tools/actions/build@v1
+        id: build
 
   test_sdist:
     name: Test SDist
@@ -191,7 +189,7 @@ jobs:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
+        uses: calysto/octave_action@v1
         with:
           install-type: "ubuntu"
       - name: Install signal package
@@ -213,7 +211,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
+        uses: calysto/octave_action@v1
         with:
           install-type: ${{ startsWith(matrix.os, 'ubuntu') && 'ubuntu' || startsWith(matrix.os, 'windows') && 'windows' || 'macos' }}
       - name: Run PyInstaller test
@@ -242,8 +240,6 @@ jobs:
       matrix:
         python-version: ["3.15", "3.15t"]
       fail-fast: false
-    env:
-      PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
 
     steps:
       - uses: actions/checkout@v4

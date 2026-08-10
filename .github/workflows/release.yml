@@ -75,13 +75,6 @@ jobs:
           name: Packages
           path: dist
 
-      - name: Upload package to Test PyPI
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
-        with:
-          repository-url: https://test.pypi.org/legacy/
-          skip-existing: ${{ github.event_name == 'schedule' || inputs.dry_run }}
-          verbose: ${{ github.event_name == 'schedule' || inputs.dry_run }}
-
       - name: Upload package to PyPI
         if: ${{ !(github.event_name == 'schedule' || inputs.dry_run) }}
         uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0

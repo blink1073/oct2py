@@ -275,6 +275,61 @@ class TestEnterDel:
         oc.__del__()  # should not raise
 
 
+class TestTerminateRepl:
+    """Tests for the ExceptionPexpect-tolerant termination helper."""
+
+    @staticmethod
+    def _mock_terminate_after_real_call(repl, exc):
+        """Replace repl.terminate with a mock that still signals the real child.
+
+        Using a bare ``side_effect=exc`` would replace terminate() outright and
+        never send the OS signal, leaking the real Octave subprocess (it would
+        only die when the pytest process itself exits). Wrapping the real
+        method and raising *after* calling it exercises the same
+        exception-handling code path without leaking the process.
+        """
+        real_terminate = repl.terminate
+
+        def _raise_after_terminating(*args, **kwargs):
+            real_terminate(*args, **kwargs)
+            raise exc
+
+        repl.terminate = MagicMock(side_effect=_raise_after_terminating)
+
+    def test_exit_swallows_stale_alive_race(self):
+        """exit() should not raise when terminate() reports a stale-alive race."""
+        from pexpect.exceptions import ExceptionPexpect
+
+        oc = Oct2Py()
+        self._mock_terminate_after_real_call(
+            oc._engine.repl, ExceptionPexpect("Could not terminate the child.")
+        )
+        oc.exit()  # should not raise
+        assert oc._engine is None
+
+    def test_restart_swallows_stale_alive_race(self):
+        """restart() should tolerate the old engine's terminate() raising the same race."""
+        from pexpect.exceptions import ExceptionPexpect
+
+        oc = Oct2Py()
+        old_engine = oc._engine
+        self._mock_terminate_after_real_call(
+            old_engine.repl, ExceptionPexpect("Could not terminate the child.")
+        )
+        oc.restart()  # should not raise
+        assert oc._engine is not old_engine
+        oc.exit()
+
+    def test_terminate_repl_reraises_other_exceptions(self):
+        """Exceptions other than ExceptionPexpect should still propagate."""
+        oc = Oct2Py()
+        self._mock_terminate_after_real_call(oc._engine.repl, RuntimeError("boom"))
+        with pytest.raises(RuntimeError, match="boom"):
+            oc._terminate_repl()
+        oc._engine.repl.terminate = MagicMock()  # already terminated; avoid raising again
+        oc.exit()
+
+
 class TestGetPointer:
     """Tests for all branches of Oct2Py.get_pointer."""
 
@@ -425,6 +480,24 @@ class TestRestart:
             pytest.raises(Oct2PyError, match="bad engine"),
         ):
             oc.restart()
+
+    def test_restart_widens_pexpect_delays(self):
+        """restart() should widen the child's delayafterclose/delayafterterminate."""
+        oc = Oct2Py()
+        child = oc._engine.repl.child
+        assert child.delayafterclose == 0.5
+        assert child.delayafterterminate == 0.5
+        oc.exit()
+
+    def test_restart_widens_pexpect_delays_skipped_without_child(self):
+        """restart() should not raise when the repl has no `.child` attribute."""
+        fake_engine = MagicMock()
+        fake_engine.repl = MagicMock(spec=["terminate"])
+        fake_engine.tmp_dir = tempfile.mkdtemp()
+        with patch("oct2py.core.OctaveEngine", return_value=fake_engine):
+            oc = Oct2Py()
+        assert oc._engine is fake_engine
+        oc.exit()
 
 
 class TestGetDoc:

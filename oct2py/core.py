@@ -20,6 +20,7 @@ import weakref
 import numpy as np
 from metakernel.pexpect import EOF, TIMEOUT
 from octave_kernel.kernel import STDIN_PROMPT, OctaveEngine
+from pexpect.exceptions import ExceptionPexpect
 
 from .dynamic import (
     OctaveNamespaceProxy,
@@ -285,12 +286,32 @@ class Oct2Py:
         except Exception:  # noqa: S110  # pragma: no cover
             pass
 
+    def _terminate_repl(self):
+        """Terminate the REPL's child process, tolerating a stale-alive race.
+
+        ptyprocess's close() sleeps `delayafterclose` (default 0.1s) then
+        checks isalive() before raising ExceptionPexpect; under the
+        free-threaded (no-GIL) build, process reaping can be slow enough that
+        isalive() still reports True right after the kill signal was sent.
+        The signal has already been delivered by the time this fires, so
+        treat it as a non-fatal cleanup race rather than a real failure to
+        terminate.
+        """
+        assert self._engine is not None  # noqa: S101
+        try:
+            self._engine.repl.terminate()
+        except ExceptionPexpect:
+            self.logger.debug(
+                "Octave child process did not confirm termination promptly; "
+                "continuing (signal was already sent)."
+            )
+
     def exit(self):
         """Quits this octave session and cleans up."""
         if self._engine:
             if callable(atexit.unregister):
                 atexit.unregister(self._engine._cleanup)
-            self._engine.repl.terminate()
+            self._terminate_repl()
         self._engine = None
         if self._out_fh and not self._out_fh.closed:
             atexit.unregister(self._out_fh.close)
@@ -716,7 +737,7 @@ class Oct2Py:
             plot_dir=plot_dir,
         )
 
-    def eval(  # noqa: PLR0913
+    def eval(  # noqa: PLR0913, PLR0917
         self,
         cmds,
         verbose=True,
@@ -835,7 +856,7 @@ class Oct2Py:
         prev_log_level = self.logger.level
 
         if kwargs.get("log") is False:
-            self.logger.setLevel(logging.WARN)
+            self.logger.setLevel(logging.WARNING)
 
         for name in ["log", "return_both"]:
             if name not in kwargs:
@@ -934,7 +955,8 @@ class Oct2Py:
     def restart(self):  # noqa: PLR0912, PLR0915
         """Restart an Octave session in a clean state"""
         if self._engine:
-            self._engine.repl.terminate()
+            atexit.unregister(self._engine._cleanup)
+            self._terminate_repl()
 
         # Close any open writer file handle — its path is tied to the old
         # temp_dir and will be invalid after we create a new one below.
@@ -995,6 +1017,16 @@ class Oct2Py:
                 cli_options=self._settings.extra_cli_options,
                 load_octaverc=self._settings.load_octaverc,
             )
+
+            # pexpect/ptyprocess' default delayafterclose (0.1s) is too tight
+            # on some runtimes -- observed flaky on the free-threaded Python
+            # 3.14t build, where isalive() can report a stale "still running"
+            # status right after the termination signal was sent. Give it
+            # more headroom.
+            _child = getattr(self._engine.repl, "child", None)
+            if _child is not None:
+                _child.delayafterclose = 0.5
+                _child.delayafterterminate = 0.5
         except Exception as e:
             raise Oct2PyError(str(e)) from None
         finally:
