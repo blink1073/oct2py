@@ -1934,14 +1934,14 @@ files = [
 
 [[package]]
 name = "metakernel"
-version = "1.0.0"
+version = "1.0.6"
 description = "A Jupyter/IPython Kernel base class in Python"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "metakernel-1.0.0-py3-none-any.whl", hash = "sha256:9f90660ce583baffe0235316f3e1a0abf75bbf60039e811ccbedd68ef612fa44"},
-    {file = "metakernel-1.0.0.tar.gz", hash = "sha256:76f2b8926cbad5a089deb6f727399c4e34e8915af97896a8bb7968ebe02da21c"},
+    {file = "metakernel-1.0.6-py3-none-any.whl", hash = "sha256:98844d70e015890ea3d3a9f8f67e3a799861609f0cace4cec986e1a3d6a7f36e"},
+    {file = "metakernel-1.0.6.tar.gz", hash = "sha256:09f898f50d037f1e69ca180f4238d330989c407f9c424808fc333592e6367883"},
 ]
 
 [package.dependencies]
@@ -2489,20 +2489,20 @@ files = [
 
 [[package]]
 name = "octave-kernel"
-version = "1.1.0"
+version = "1.1.1"
 description = "'A Jupyter kernel for Octave.'"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "octave_kernel-1.1.0-py3-none-any.whl", hash = "sha256:d08dd22d6a5907f48e1ddd81d726c8b487f86b358c9c7023b0d08dfc723488af"},
-    {file = "octave_kernel-1.1.0.tar.gz", hash = "sha256:2c6e907a126b2d1c9b37900460bf8c66442e7aea9071aaa7c4b4834d39554961"},
+    {file = "octave_kernel-1.1.1-py3-none-any.whl", hash = "sha256:1bf64b278659d1d082744c9c8d9fe8eb010ff798c8378f0924c9f311e4b9571c"},
+    {file = "octave_kernel-1.1.1.tar.gz", hash = "sha256:8c9821bf32dde6b3aae9b09c5663e035f0987530245257c7d31e3fcf0086195f"},
 ]
 
 [package.dependencies]
 ipykernel = ">=6.22.0"
 jupyter-client = ">=8.1.0"
-metakernel = ">=1.0"
+metakernel = ">=1.0.6"
 rpds-py = ">=2026.5.1"
 
 [[package]]
@@ -4236,4 +4236,4 @@ type = ["pytest-mypy (>=1.0.1) ; platform_python_implementation != \"PyPy\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "c65b6beef8b52babfdc221604e4239fb869ab83cae7e6a8b70b515548777aa87"
+content-hash = "7cf28e5f6ac9871c800232abcc17077a460c6f41feb96c5c42d28898f5381287"

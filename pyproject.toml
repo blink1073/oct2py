@@ -33,7 +33,9 @@ requires-python = ">=3.11"
 dependencies = [
     "numpy >=1.25.0",
     "scipy >=1.17.1",
-    "octave-kernel>=1.0",
+    # These floors terminate the Octave process when startup fails.
+    "octave-kernel>=1.1.1",
+    "metakernel>=1.0.6",  # imported directly by core.py
     "pydantic-settings>=2.0",
     "tornado>=6.5.5",
 ]
