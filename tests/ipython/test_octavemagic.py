@@ -1,6 +1,8 @@
 """Tests for Octave magics extension."""
 
 import codecs
+import os
+import shutil
 import sys
 import unittest
 from typing import Any
@@ -9,6 +11,7 @@ import numpy as np
 from IPython.display import SVG
 from IPython.testing.globalipapp import get_ipython
 
+import oct2py
 from oct2py import Oct2PyError
 
 
@@ -28,8 +31,23 @@ class OctaveMagicTest(unittest.TestCase):
         # This is just to get a minimally modified version of the changes
         # working
         cls.ip.run_line_magic("load_ext", "oct2py.ipython")
+        # Inline figures need the qt toolkit that octave-cli lacks. Setting
+        # the trait also rewrites OCTAVE_EXECUTABLE, hence the restore below.
+        cls._saved_executable = os.environ.get("OCTAVE_EXECUTABLE")  # type:ignore[attr-defined]
+        gui_octave = shutil.which("octave")
+        if cls._saved_executable and gui_octave:  # type:ignore[attr-defined]
+            cls.ip.find_cell_magic("octave").__self__.executable = gui_octave
         cls.ip.ex("import numpy as np")
         cls.svgs_generated = 0  # type:ignore[attr-defined]
+
+    @classmethod
+    def tearDownClass(cls):
+        """Close the magic's session and restore the suite's executable."""
+        magic = cls.ip.find_cell_magic("octave").__self__
+        if magic._oct is not oct2py.octave:
+            magic._oct.exit()
+        if cls._saved_executable is not None:  # type:ignore[attr-defined]
+            os.environ["OCTAVE_EXECUTABLE"] = cls._saved_executable  # type:ignore[attr-defined]
 
     def test_octave_inline(self):
         result = self.ip.run_line_magic("octave", "[1, 2, 3] + 1;")

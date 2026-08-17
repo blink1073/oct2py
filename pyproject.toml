@@ -99,6 +99,9 @@ addopts = [
    "--import-mode=importlib"
 ]
 testpaths = ["tests", "tests/ipython"]
+markers = [
+  "needs_octave_gui: needs the GUI-linked `octave` binary; octave-cli lacks the qt graphics toolkit",
+]
 doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
 timeout = 300
 # Restore this setting to debug failures

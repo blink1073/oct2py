@@ -195,6 +195,7 @@ class TestMisc:
         assert not any(issubclass(w.category, Oct2PyWarning) for w in caught)
         assert any(w.category is UserWarning for w in caught)
 
+    @pytest.mark.needs_octave_gui
     def test_demo(self):
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
@@ -213,6 +214,9 @@ class TestMisc:
         except TypeError:
             thread_check.thread_check()  # type:ignore[attr-defined]
 
+    # Six concurrent startups on a cold Windows runner can exceed pexpect's
+    # 30s startup wait, failing the session rather than the leak check.
+    @flaky(rerun_filter=lambda *_: sys.platform == "win32")
     def test_threadpool_no_process_leak(self):
         """Oct2Py sessions created in a ThreadPoolExecutor must not leak Octave
         subprocesses after the threads complete (issue #289)."""
@@ -282,13 +286,13 @@ class TestMisc:
         assert "Octave exe:" in out
         assert "Connection OK" in out
 
-    def test_plot(self):
+    def test_plot(self, gui_octave):
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
-        plot_dir = tempfile.mkdtemp(dir=self.oc.settings.temp_dir).replace("\\", "/")
-        self.oc.plot([1, 2, 3], plot_dir=plot_dir)
+        plot_dir = tempfile.mkdtemp(dir=gui_octave.settings.temp_dir).replace("\\", "/")
+        gui_octave.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
-        assert self.oc.extract_figures(plot_dir)
+        assert gui_octave.extract_figures(plot_dir)
 
     @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_plot_via_eval(self):
@@ -308,7 +312,7 @@ class TestMisc:
         assert glob.glob("%s/*" % plot_dir), "No figure files saved from eval() plot"
         assert self.oc.extract_figures(plot_dir), "extract_figures returned nothing"
 
-    def test_plot_from_inside_m_file(self):
+    def test_plot_from_inside_m_file(self, gui_octave):
         """Test that plots generated inside a .m function are captured via plot_dir (issue #172).
 
         When a .m file creates figures internally (e.g. clf/subplot/plot/pause),
@@ -317,8 +321,8 @@ class TestMisc:
         """
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
-        plot_dir = tempfile.mkdtemp(dir=self.oc.settings.temp_dir).replace("\\", "/")
-        m_path = os.path.join(self.oc.settings.temp_dir, "test_plot_inside.m")
+        plot_dir = tempfile.mkdtemp(dir=gui_octave.settings.temp_dir).replace("\\", "/")
+        m_path = os.path.join(gui_octave.settings.temp_dir, "test_plot_inside.m")
         with open(m_path, "w") as f:
             f.write(
                 "function test_plot_inside()\n"
@@ -330,12 +334,13 @@ class TestMisc:
                 "end\n"
             )
         try:
-            self.oc.feval(m_path, nout=0, plot_dir=plot_dir)
+            gui_octave.feval(m_path, nout=0, plot_dir=plot_dir)
             assert glob.glob("%s/*" % plot_dir), "No figure files saved from inside .m function"
-            assert self.oc.extract_figures(plot_dir), "extract_figures returned nothing"
+            assert gui_octave.extract_figures(plot_dir), "extract_figures returned nothing"
         finally:
             os.unlink(m_path)
 
+    @pytest.mark.needs_octave_gui
     def test_interactive_figure(self, monkeypatch):
         """Test that figures created via eval() are accessible (issues #176, #158).
 
@@ -347,23 +352,27 @@ class TestMisc:
         """
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
+        # Its own session, not the shared `gui_octave` one: opening a real
+        # figure window segfaults on macOS CI without an offscreen platform,
+        # and offscreen makes the file-rendering tests write empty images.
         if sys.platform == "darwin" and os.environ.get("CI"):
-            # macOS CI runners have no interactive window server, so Octave's
-            # "qt" toolkit segfaults creating a real figure window here.
             monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
-        oc = Oct2Py(backend="default")
-        oc.figure(1)
-        n_figs = oc.eval("numel(get(0, 'children'))", nout=1)
-        assert int(n_figs) >= 1, "Expected at least one open figure after figure(1)"
+        oc = Oct2Py()
+        try:
+            oc.figure(1)
+            n_figs = oc.eval("numel(get(0, 'children'))", nout=1)
+            assert int(n_figs) >= 1, "Expected at least one open figure after figure(1)"
 
-        # Verify that a plot created via eval() also registers as a figure (issue #158).
-        oc.eval("figure(2); plot([1, 2, 3]);")
-        n_figs_after = oc.eval("numel(get(0, 'children'))", nout=1)
-        assert int(n_figs_after) >= 2, "Expected at least two open figures after eval('plot(...)')"
+            # A plot created via eval() must register as a figure too (issue #158).
+            oc.eval("figure(2); plot([1, 2, 3]);")
+            n_figs_after = oc.eval("numel(get(0, 'children'))", nout=1)
+            assert int(n_figs_after) >= 2, "Expected two open figures after eval('plot(...)')"
 
-        oc.eval("close all")
-        oc.exit()
+            oc.eval("close all")
+        finally:
+            oc.exit()
 
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
     def test_show(self):
         """Test _show_figures() end-to-end using matplotlib's inline backend (issue #164).
 
