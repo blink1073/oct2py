@@ -57,7 +57,7 @@ dev = [{ include-group = "test" }, { include-group = "dev-extra" }]
 typing-extra = ["mypy>=1.15", "ipython>=9.0", "pip"]
 typing = [{ include-group = "test" }, { include-group = "typing-extra" }]
 test = [
-    "pytest<8",
+    "pytest>=9.0.3",
     "pytest-xdist",
     "flaky",
     "pandas",
