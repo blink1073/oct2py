@@ -1,0 +1,6 @@
+# Line endings are mixed throughout this repository's history. Storing files
+# byte for byte keeps git from renormalizing whole files into a diff.
+* -text
+
+# Pinned instead: a stray CRLF save rewrote the whole file in #455.
+justfile text eol=lf

@@ -1934,14 +1934,14 @@ files = [
 
 [[package]]
 name = "metakernel"
-version = "1.0.0"
+version = "1.0.6"
 description = "A Jupyter/IPython Kernel base class in Python"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "metakernel-1.0.0-py3-none-any.whl", hash = "sha256:9f90660ce583baffe0235316f3e1a0abf75bbf60039e811ccbedd68ef612fa44"},
-    {file = "metakernel-1.0.0.tar.gz", hash = "sha256:76f2b8926cbad5a089deb6f727399c4e34e8915af97896a8bb7968ebe02da21c"},
+    {file = "metakernel-1.0.6-py3-none-any.whl", hash = "sha256:98844d70e015890ea3d3a9f8f67e3a799861609f0cace4cec986e1a3d6a7f36e"},
+    {file = "metakernel-1.0.6.tar.gz", hash = "sha256:09f898f50d037f1e69ca180f4238d330989c407f9c424808fc333592e6367883"},
 ]
 
 [package.dependencies]
@@ -2489,20 +2489,20 @@ files = [
 
 [[package]]
 name = "octave-kernel"
-version = "1.1.0"
+version = "1.1.1"
 description = "'A Jupyter kernel for Octave.'"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "octave_kernel-1.1.0-py3-none-any.whl", hash = "sha256:d08dd22d6a5907f48e1ddd81d726c8b487f86b358c9c7023b0d08dfc723488af"},
-    {file = "octave_kernel-1.1.0.tar.gz", hash = "sha256:2c6e907a126b2d1c9b37900460bf8c66442e7aea9071aaa7c4b4834d39554961"},
+    {file = "octave_kernel-1.1.1-py3-none-any.whl", hash = "sha256:1bf64b278659d1d082744c9c8d9fe8eb010ff798c8378f0924c9f311e4b9571c"},
+    {file = "octave_kernel-1.1.1.tar.gz", hash = "sha256:8c9821bf32dde6b3aae9b09c5663e035f0987530245257c7d31e3fcf0086195f"},
 ]
 
 [package.dependencies]
 ipykernel = ">=6.22.0"
 jupyter-client = ">=8.1.0"
-metakernel = ">=1.0"
+metakernel = ">=1.0.6"
 rpds-py = ">=2026.5.1"
 
 [[package]]
@@ -3135,7 +3135,7 @@ version = "2.20.0"
 description = "Pygments is a syntax highlighting package written in Python."
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "cover", "dev", "docs", "test", "typing", "typing-extra"]
+groups = ["main", "cover", "cover-extra", "dev", "docs", "test", "typing", "typing-extra"]
 files = [
     {file = "pygments-2.20.0-py3-none-any.whl", hash = "sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176"},
     {file = "pygments-2.20.0.tar.gz", hash = "sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f"},
@@ -3260,24 +3260,25 @@ files = [
 
 [[package]]
 name = "pytest"
-version = "7.4.4"
+version = "9.1.1"
 description = "pytest: simple powerful testing with Python"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.10"
 groups = ["cover", "cover-extra", "dev", "test", "typing"]
 files = [
-    {file = "pytest-7.4.4-py3-none-any.whl", hash = "sha256:b090cdf5ed60bf4c45261be03239c2c1c22df034fbffe691abe93cd80cea01d8"},
-    {file = "pytest-7.4.4.tar.gz", hash = "sha256:2cf0005922c6ace4a3e2ec8b4080eb0d9753fdc93107415332f50ce9e7994280"},
+    {file = "pytest-9.1.1-py3-none-any.whl", hash = "sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"},
+    {file = "pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313"},
 ]
 
 [package.dependencies]
-colorama = {version = "*", markers = "sys_platform == \"win32\""}
-iniconfig = "*"
-packaging = "*"
-pluggy = ">=0.12,<2.0"
+colorama = {version = ">=0.4", markers = "sys_platform == \"win32\""}
+iniconfig = ">=1.0.1"
+packaging = ">=22"
+pluggy = ">=1.5,<2"
+pygments = ">=2.7.2"
 
 [package.extras]
-testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
+dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests", "setuptools", "xmlschema"]
 
 [[package]]
 name = "pytest-cov"
@@ -4236,4 +4237,4 @@ type = ["pytest-mypy (>=1.0.1) ; platform_python_implementation != \"PyPy\""]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "c65b6beef8b52babfdc221604e4239fb869ab83cae7e6a8b70b515548777aa87"
+content-hash = "38a41fafc5445a76235d102ea82bbfa9ad3456a0b1f77a4b446887e2e5c891dd"

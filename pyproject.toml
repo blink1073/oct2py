@@ -33,7 +33,9 @@ requires-python = ">=3.11"
 dependencies = [
     "numpy >=1.25.0",
     "scipy >=1.17.1",
-    "octave-kernel>=1.0",
+    # These floors terminate the Octave process when startup fails.
+    "octave-kernel>=1.1.1",
+    "metakernel>=1.0.6",  # imported directly by core.py
     "pydantic-settings>=2.0",
     "tornado>=6.5.5",
 ]
@@ -55,7 +57,7 @@ dev = [{ include-group = "test" }, { include-group = "dev-extra" }]
 typing-extra = ["mypy>=1.15", "ipython>=9.0", "pip"]
 typing = [{ include-group = "test" }, { include-group = "typing-extra" }]
 test = [
-    "pytest<8",
+    "pytest>=9.0.3",
     "pytest-xdist",
     "flaky",
     "pandas",
@@ -97,6 +99,9 @@ addopts = [
    "--import-mode=importlib"
 ]
 testpaths = ["tests", "tests/ipython"]
+markers = [
+  "needs_octave_gui: needs the GUI-linked `octave` binary; octave-cli lacks the qt graphics toolkit",
+]
 doctest_optionflags = "NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL"
 timeout = 300
 # Restore this setting to debug failures

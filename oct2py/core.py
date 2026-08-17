@@ -1028,6 +1028,8 @@ class Oct2Py:
                 _child.delayafterclose = 0.5
                 _child.delayafterterminate = 0.5
         except Exception as e:
+            # Any process the engine already spawned is terminated upstream;
+            # see the floors in pyproject.toml.
             raise Oct2PyError(str(e)) from None
         finally:
             if _saved_sigint is not None:
