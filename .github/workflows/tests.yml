@@ -24,9 +24,6 @@ jobs:
     strategy:
       matrix:
         python-version: ${{ fromJSON(needs.build.outputs.supported_python_classifiers_json_array) }}
-        exclude:
-          - python-version: "3.15"
-          - python-version: "3.15t"
       fail-fast: false
 
     steps:
@@ -234,35 +231,6 @@ jobs:
           dry_run: "true"
           ref: ${{ github.head_ref }}
 
-  test-nightly:
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version: ["3.15", "3.15t"]
-      fail-fast: false
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
-      - name: Add nightly source and install
-        run: |
-          pipx install poetry
-          poetry source add --priority=explicit scientific-python-nightly https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
-          poetry remove numpy --lock
-          poetry add --lock --source scientific-python-nightly "numpy; python_version>='3.15'" "pillow; python_version>='3.15'"
-          poetry install --only main,test --no-root
-      - name: Install Octave
-        uses: calysto/octave_kernel@7c58a0263754c5e774bbbc3c34ddea70978b0c86 # v1.0.4
-        with:
-          install-type: "ubuntu"
-      - name: Install signal package
-        run: sudo apt-get install -qq octave-signal
-      - name: Run tests
-        run: just test
-
   tests_check: # This job does nothing and is only used for the branch protection
     if: always()
     needs:
@@ -278,12 +246,11 @@ jobs:
       - test_sdist
       - test_release
       - pyinstaller
-      - test-nightly
     runs-on: ubuntu-latest
     steps:
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # release/v1
         with:
-          allowed-failures: benchmark, test-nightly
+          allowed-failures: benchmark
           allowed-skips: test_release
           jobs: ${{ toJSON(needs) }}
