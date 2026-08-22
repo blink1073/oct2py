@@ -1,5 +1,74 @@
 # Release History
 
+## 6.0.4
+
+### Enhancements Made
+
+- Add PyInstaller test and documentation
+  - PR: #426
+
+### Bugs Fixed
+
+- Tolerate flaky pexpect teardown race on free-threaded Python
+  - PR: #446
+- Stop leaking Octave processes when a session fails to start
+  - PR: #459
+
+### Maintenance and upkeep improvements
+
+- Use maintainer_tools v1.3.0 actions for pre-commit, zizmor, and codeql
+  - PR: #427
+- chore: pre-commit autoupdate
+  - PR: #428
+- chore: pre-commit autoupdate
+  - PR: #429
+- chore: pre-commit autoupdate
+  - PR: #430
+- ci: fix octave install on macos
+  - PR: #431
+- chore: pre-commit autoupdate
+  - PR: #432
+- chore: pre-commit autoupdate
+  - PR: #433
+- chore: pre-commit autoupdate
+  - PR: #434
+- chore: pre-commit autoupdate
+  - PR: #436
+- chore: pre-commit autoupdate
+  - PR: #437
+- Migrate CI from calysto/octave_kernel to calysto/octave_action
+  - PR: #440
+- Use maintainer_tools build action instead of build-and-inspect-python-package
+  - PR: #441
+- chore: pre-commit autoupdate
+  - PR: #442
+- chore: pre-commit autoupdate
+  - PR: #444
+- chore: pre-commit autoupdate
+  - PR: #445
+- Drop Test PyPI upload step from release workflow
+  - PR: #447
+- Fix leaked Octave subprocesses in TestTerminateRepl
+  - PR: #448
+- chore: security-only Dependabot + weekly poetry.lock update
+  - PR: #449
+- chore: update poetry.lock
+  - PR: #450
+- chore: pre-commit autoupdate
+  - PR: #451
+- chore: use extend-select for ruff rules
+  - PR: #452
+- chore: pre-commit autoupdate
+  - PR: #454
+- chore: update poetry.lock
+  - PR: #453
+- Standardize justfile targets
+  - PR: #455
+- chore: update poetry.lock
+  - PR: #457
+- chore: pre-commit autoupdate
+  - PR: #458
+
 ## 6.0.3
 
 ### Bugs Fixed

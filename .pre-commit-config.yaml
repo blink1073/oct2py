@@ -48,7 +48,7 @@ repos:
         args: ["--config", "./pyproject.toml"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.0
+    rev: v0.16.2
     hooks:
       - id: ruff-format
       - id: ruff-check
@@ -81,7 +81,7 @@ repos:
         additional_dependencies: ["repo-review[cli]"]
 
   - repo: https://github.com/tcort/markdown-link-check
-    rev: v3.14.2
+    rev: v3.15.0
     hooks:
       - id: markdown-link-check
         stages: [manual]
