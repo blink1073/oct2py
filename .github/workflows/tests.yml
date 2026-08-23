@@ -210,6 +210,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11"]
+        # Bundling breaks on python internals, so cover the newest version too.
+        include:
+          - os: ubuntu-latest
+            python-version: "3.15"
       fail-fast: false
     env:
       # The bundled app never plots, so it can skip the slower GUI binary.
@@ -221,7 +226,7 @@ jobs:
           persist-credentials: false
       - uses: calysto/maintainer_tools/actions/base-setup@v1
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
       - name: Install Octave
         uses: calysto/octave_action@v1
         with:
