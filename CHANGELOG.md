@@ -1,5 +1,12 @@
 # Release History
 
+## 6.1.1
+
+### Maintenance and upkeep improvements
+
+- Let Python 3.15 install pyinstaller
+  - PR: #460
+
 ## 6.1.0
 
 ### Enhancements Made
