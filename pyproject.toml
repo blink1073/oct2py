@@ -81,7 +81,8 @@ bench = [
     "virtualenv",
 ]
 pyinstaller = [
-    "pyinstaller>=6.15; python_version < '3.15'",
+    # Every pyinstaller release caps its own python range, so this needs an upper bound to stay solvable.
+    "pyinstaller>=6.15; python_version < '3.16'",
 ]
 
 
