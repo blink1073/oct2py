@@ -1,5 +1,12 @@
 # Release History
 
+## 6.1.0
+
+### Enhancements Made
+
+- feat: add Python 3.15 support
+  - PR: #435
+
 ## 6.0.4
 
 ### Enhancements Made
