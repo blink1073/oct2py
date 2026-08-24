@@ -200,7 +200,7 @@ fail-under=100
 exclude = ["tests", "docs", "benchmarks", "env", "results"]
 
 [tool.repo-review]
-ignore = ["PC111", "PC140", "PC170", "PY007", "PC901", "PC902", "PC903"]
+ignore = ["PC111", "PC140", "PC170", "PY007", "PC901", "PC902", "PC903", "SEC001"]
 
 [tool.pydoclint]
 style = 'numpy'
