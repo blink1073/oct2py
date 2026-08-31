@@ -48,7 +48,7 @@ repos:
         args: ["--config", "./pyproject.toml"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.3
+    rev: v0.16.4
     hooks:
       - id: ruff-format
       - id: ruff-check
@@ -68,7 +68,7 @@ repos:
         args: ["-L", "ans,te,manuel,astroid,assignin"]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.25
+    rev: "0.26"
     hooks:
       - id: validate-pyproject
         # Optional extra validations from SchemaStore:
