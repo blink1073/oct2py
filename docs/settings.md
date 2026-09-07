@@ -125,7 +125,7 @@ them on every `eval` or `feval` call:
 
 ```python
 oc = Oct2Py(plot_format="png", plot_width=1200, plot_height=900, plot_res=150)
-oc.eval("plot([1 2 3])", plot_dir="/tmp/figs")   # uses the instance defaults
+oc.eval("plot([1 2 3])", plot_dir="/tmp/figs")  # uses the instance defaults
 ```
 
 Per-call arguments still override the instance defaults:

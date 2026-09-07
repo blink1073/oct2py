@@ -75,11 +75,11 @@ without a round-trip through Python:
 
 ```pycon
 >>> from oct2py import octave
->>> ptr = octave.get_pointer('{@cos @sin}', expr=True)
+>>> ptr = octave.get_pointer("{@cos @sin}", expr=True)
 >>> type(ptr).__name__
 'OctaveVariablePtr'
 >>> # Pass the cell of function handles to an Octave function unchanged
->>> octave.feval('cellfun', '@(f) f(0)', ptr)  # doctest: +SKIP
+>>> octave.feval("cellfun", "@(f) f(0)", ptr)  # doctest: +SKIP
 array([1., 0.])
 ```
 
@@ -125,7 +125,7 @@ workspace**, so variables it assigns persist and can be retrieved with
 >>> oc = Oct2Py()
 >>> # myscript.m contains: result = [1, 2, 3];
 >>> oc.run("/path/to/myscript.m")  # doctest: +SKIP
->>> oc.pull("result")              # doctest: +SKIP
+>>> oc.pull("result")  # doctest: +SKIP
 array([1., 2., 3.])
 ```
 
@@ -205,6 +205,7 @@ To enable DEBUG output (useful for troubleshooting), use `logging.DEBUG`:
 
 ```python
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 ```
 
@@ -362,6 +363,7 @@ Use `oct2py.configure()` to reconfigure the default global instance:
 
 ```python
 import oct2py
+
 oct2py.configure(backend="disable", timeout=60)
 ```
 
@@ -448,7 +450,7 @@ You can also enable or disable `auto_show` explicitly regardless of the
 environment:
 
 ```pycon
->>> oc = Oct2Py(auto_show=True)   # always auto-display figures
+>>> oc = Oct2Py(auto_show=True)  # always auto-display figures
 >>> oc = Oct2Py(auto_show=False)  # never auto-display figures
 ```
 
@@ -464,7 +466,6 @@ the temporary m-files will be deleted when the Context Manager exits.
 >>> from oct2py import Oct2Py
 >>> with Oct2Py() as oc:  # doctest:+ELLIPSIS
 ...     oc.ones(10)
-...
 array([[1., 1., 1., 1., 1., 1., 1., 1., 1., 1.],
 ...
 ```
@@ -552,7 +553,7 @@ RAM disk for the duration of the session:
 ```python
 from oct2py import Oct2Py
 
-oc = Oct2Py(ramdisk_size_mb=256)   # 256 MiB RAM disk
+oc = Oct2Py(ramdisk_size_mb=256)  # 256 MiB RAM disk
 ```
 
 You can also set it via the environment variable `OCT2PY_RAMDISK_SIZE_MB`.

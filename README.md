@@ -117,6 +117,7 @@ Then configure oct2py to use the Qt backend in your notebook or script:
 
 ```python
 from oct2py import octave
+
 octave.eval("graphics_toolkit qt")
 ```
 
