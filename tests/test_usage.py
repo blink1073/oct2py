@@ -81,7 +81,7 @@ class TestUsage:
     def test_help(self):
         """Testing help command"""
         doc = self.oc.cos.__doc__
-        assert "Compute the cosine for each element of X in radians." in doc
+        assert "'cos' is a built-in function" in doc
 
     def test_dynamic(self):
         """Test the creation of a dynamic function"""
