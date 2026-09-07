@@ -15,7 +15,7 @@ add to the path, use:
 ```pycon
 >>> from oct2py import octave
 >>> import os
->>> _ = octave.addpath(os.path.expanduser('~'))
+>>> _ = octave.addpath(os.path.expanduser("~"))
 ```
 
 to add the directory in which your m-file is located to Octave's path.
@@ -37,12 +37,12 @@ function [x, class] = roundtrip(y)
 >>> from oct2py import octave
 >>> import numpy as np
 >>> x = np.array([[1, 2], [3, 4]], dtype=float)
->>> #use nout='max_nout' to automatically choose max possible nout
+>>> # use nout='max_nout' to automatically choose max possible nout
 >>> octave.eval("""function [x, class] = roundtrip(y)
 ... % returns the input variable and its class
 ... x = y
 ... class = class(x)""")
->>> out, oclass = octave.roundtrip(x,nout=2)
+>>> out, oclass = octave.roundtrip(x, nout=2)
 x =
     1   2
     3   4
@@ -155,7 +155,7 @@ end
 ```pycon
 >>> from oct2py import octave, __file__ as octave_path
 >>> import os
->>> _ = octave.addpath(os.path.join(os.path.dirname(octave_path), 'tests'))
+>>> _ = octave.addpath(os.path.join(os.path.dirname(octave_path), "tests"))
 >>> out = octave.test_datatypes()
 >>> import pprint
 >>> pprint.pprint(out)  # doctest:+ELLIPSIS
