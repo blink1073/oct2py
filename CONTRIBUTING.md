@@ -56,6 +56,12 @@ To run linters:
 just lint
 ```
 
+To also run manual-stage hooks:
+
+```
+just lint-all
+```
+
 To run type checking:
 
 ```
