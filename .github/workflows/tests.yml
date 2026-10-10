@@ -173,6 +173,15 @@ jobs:
       - uses: calysto/maintainer_tools/actions/base-setup@v1
       - run: just typing
 
+  test_markdown_link_check:
+    name: Test Markdown Link Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: calysto/maintainer_tools/actions/markdown-link-check@v1
+
   build:
     name: Build and Inspect Package
     runs-on: ubuntu-latest
@@ -260,6 +269,7 @@ jobs:
       - test-sequential
       - pre_commit
       - typing
+      - test_markdown_link_check
       - docs
       - benchmark
       - build

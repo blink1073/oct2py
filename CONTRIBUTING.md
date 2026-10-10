@@ -56,7 +56,7 @@ To run linters:
 just lint
 ```
 
-To also run manual-stage hooks (such as `markdown-link-check`):
+To also run manual-stage hooks:
 
 ```
 just lint-all
