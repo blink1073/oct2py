@@ -73,8 +73,3 @@ test-opencv:
 pyinstaller-test:
     poetry sync --only main,pyinstaller
     poetry run python pyinstaller_test/test_build.py
-
-# Run all pre-commit hooks, including manual-stage hooks
-lint-all *args:
-    poetry sync --only main,dev
-    poetry run pre-commit run --all-files --hook-stage manual {{args}}
