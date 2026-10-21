@@ -173,6 +173,7 @@ ignore = [
 # TRY002 Create your own exception - single occurrence, needs a design
 # decision on a dedicated exception type
 "TRY002",
+"ICN001",  # import datetime as dt
 ]
 
 [tool.ruff.lint.per-file-ignores]
