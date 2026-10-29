@@ -39,7 +39,7 @@ dependencies = [
     "octave-kernel>=1.1.1",
     "metakernel>=1.0.6",  # imported directly by core.py
     "pydantic-settings>=2.0",
-    "tornado>=6.5.5",
+    "tornado>=6.6",
 ]
 readme = "README.md"
 
