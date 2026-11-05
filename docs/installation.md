@@ -25,7 +25,7 @@ conda install -c conda-forge oct2py
 
 - On Linux platforms, try your package manager, or follow the
   instructions from
-  [Octave](https://octave.org/doc/interpreter/Installation.html). You
+  [Octave](https://octave.org/download). You
   must also have gnuplot installed, and gnuplot-x11 or gnuplot-qt, if
   available.
 
