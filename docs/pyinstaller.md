@@ -1,7 +1,7 @@
 # PyInstaller Support
 
 Oct2py can be bundled into a standalone executable using
-[PyInstaller](https://pyinstaller.org). The [`pyinstaller_test/`](https://github.com/blink1073/oct2py/tree/main/pyinstaller_test)
+[PyInstaller](https://pyinstaller.org). The `pyinstaller_test/`
 directory in the repository contains everything needed to verify this works.
 
 ## Files
