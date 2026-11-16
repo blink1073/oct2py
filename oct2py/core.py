@@ -546,6 +546,22 @@ class Oct2Py:
         """
         self._show_figures()
 
+    def _make_plot_dir(self):
+        """Create a temporary directory for Octave to save figures into.
+
+        Figures are not written to ``/dev/shm``: on Linux, Octave's gnuplot
+        toolkit has Ghostscript write the PNG, and Ubuntu 26.04's AppArmor
+        profile for ``gs`` only lets it write under ``$HOME``, ``/tmp``,
+        ``/var/tmp``, ``/mnt`` and ``/media``.  The denial is silent, so no
+        figure appears.  Any other ``temp_dir`` is kept, because snap and
+        flatpak Octave can only see that one.
+        """
+        temp_dir = self._settings.temp_dir
+        shm = "/dev/shm"  # noqa: S108
+        if temp_dir and osp.commonpath([osp.abspath(temp_dir), shm]) == shm:
+            temp_dir = None
+        return tempfile.mkdtemp(dir=temp_dir)
+
     def _show_figures(self):
         """Capture open Octave figures and display them via matplotlib."""
         if not self._engine:
@@ -558,7 +574,7 @@ class Oct2Py:
         except ImportError:  # pragma: no cover
             return
 
-        plot_dir = tempfile.mkdtemp(dir=self._settings.temp_dir)
+        plot_dir = self._make_plot_dir()
         try:
             # Temporarily switch to inline mode so _make_figures uses a
             # headless-compatible toolkit (gnuplot/qt offscreen) rather than
