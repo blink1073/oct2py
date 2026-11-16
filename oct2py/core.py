@@ -1223,17 +1223,17 @@ class Oct2Py:
         returns normally with an empty directory.  When that happens, tell the
         caller instead of failing silently (issue #498).
         """
-        if not self._engine:
-            return
+        engine = self._engine
+        assert engine is not None  # noqa: S101
         if not _is_under_dev_shm(plot_dir):
-            self._engine.make_figures(plot_dir)
+            engine.make_figures(plot_dir)
             return
         # Count the figures and any existing files before saving: a blocked
         # write leaves both unchanged, and _make_figures closes the figures, so
         # neither can be inspected afterwards.
         before = len(glob.glob(osp.join(plot_dir, "*")))
         open_figures = self._count_open_figures()
-        self._engine.make_figures(plot_dir)
+        engine.make_figures(plot_dir)
         if open_figures and len(glob.glob(osp.join(plot_dir, "*"))) <= before:
             msg = (
                 "No figures were written to plot_dir %r even though figures were "
@@ -1245,16 +1245,14 @@ class Oct2Py:
 
     def _count_open_figures(self):
         """Return the number of open Octave figures, or 0 if it cannot tell."""
-        if not self._engine:
-            return 0
+        engine = self._engine
+        assert engine is not None  # noqa: S101
         try:
-            raw = self._engine.eval('disp(numel(get(0, "children")));', silent=True)
+            raw = engine.eval('disp(numel(get(0, "children")));', silent=True)
         except Exception:  # pragma: no cover - eval failure should not break plotting
             return 0
+        # `disp` prints the bare value.
         raw = raw.strip()
-        # `disp` prints the bare value; an expression without `;` prints "ans = N".
-        if "=" in raw:
-            raw = raw.split("=")[-1].strip()
         return int(raw) if raw.isdigit() else 0
 
     def _parse_error(self, err):
