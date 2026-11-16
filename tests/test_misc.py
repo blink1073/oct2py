@@ -592,6 +592,39 @@ class TestMisc:
         finally:
             shutil.rmtree(plot_dir, ignore_errors=True)
 
+    def test_is_under_dev_shm_ignores_empty_path(self):
+        """A falsy path is never under /dev/shm."""
+        from oct2py import core
+
+        assert not core._is_under_dev_shm(None)
+
+    def test_count_open_figures(self, monkeypatch):
+        """_count_open_figures parses Octave's reply, defaulting to 0."""
+        monkeypatch.setattr(self.oc._engine, "eval", lambda *args, **kwargs: "3")
+        assert self.oc._count_open_figures() == 3
+        monkeypatch.setattr(self.oc._engine, "eval", lambda *args, **kwargs: "error: nope")
+        assert self.oc._count_open_figures() == 0
+
+    def test_save_figures_quiet_when_files_written(self, monkeypatch):
+        """A successful /dev/shm save does not warn (issue #498)."""
+        from oct2py import core
+
+        plot_dir = tempfile.mkdtemp()
+        monkeypatch.setattr(core, "_is_under_dev_shm", lambda path: True)
+        monkeypatch.setattr(self.oc, "_count_open_figures", lambda: 1)
+
+        def fake_make_figures(path):
+            with open(os.path.join(path, "Figure001.png"), "w") as f:
+                f.write("x")
+
+        monkeypatch.setattr(self.oc._engine, "make_figures", fake_make_figures)
+        try:
+            # filterwarnings=error turns any warning into a failure here.
+            self.oc._save_figures(plot_dir)
+            assert glob.glob(os.path.join(plot_dir, "*"))
+        finally:
+            shutil.rmtree(plot_dir, ignore_errors=True)
+
     def test_save_figures_warns_when_nothing_written(self, monkeypatch):
         """A blocked plot write is reported instead of failing silently (#498)."""
         from oct2py import core
