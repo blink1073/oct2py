@@ -289,7 +289,7 @@ class TestMisc:
     def test_plot(self, gui_octave):
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
-        plot_dir = tempfile.mkdtemp(dir=gui_octave.settings.temp_dir).replace("\\", "/")
+        plot_dir = gui_octave._make_plot_dir().replace("\\", "/")
         gui_octave.plot([1, 2, 3], plot_dir=plot_dir)
         assert glob.glob("%s/*" % plot_dir)
         assert gui_octave.extract_figures(plot_dir)
@@ -321,7 +321,7 @@ class TestMisc:
         """
         if self._flatpak:
             pytest.skip("not supported inside flatpak sandbox")
-        plot_dir = tempfile.mkdtemp(dir=gui_octave.settings.temp_dir).replace("\\", "/")
+        plot_dir = gui_octave._make_plot_dir().replace("\\", "/")
         m_path = os.path.join(gui_octave.settings.temp_dir, "test_plot_inside.m")
         with open(m_path, "w") as f:
             f.write(
@@ -571,6 +571,55 @@ class TestMisc:
         assert len(os.listdir(temp_dir))
         shutil.rmtree(temp_dir, ignore_errors=True)
         oc.exit()
+
+    def test_make_plot_dir_keeps_other_temp_dir(self, monkeypatch):
+        """A temp_dir outside /dev/shm is kept, so sandboxed Octave can see it."""
+        other = tempfile.mkdtemp()
+        monkeypatch.setattr(self.oc.settings, "temp_dir", other)
+        try:
+            assert os.path.dirname(self.oc._make_plot_dir()) == other
+        finally:
+            shutil.rmtree(other, ignore_errors=True)
+
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
+    def test_make_plot_dir_avoids_dev_shm(self, monkeypatch):
+        """Plot dirs leave /dev/shm, where Ubuntu 26.04's AppArmor blocks gs."""
+        monkeypatch.setattr(self.oc.settings, "temp_dir", "/dev/shm/oct2py_x")  # noqa: S108
+        plot_dir = self.oc._make_plot_dir()
+        try:
+            assert not plot_dir.startswith("/dev/shm")  # noqa: S108
+            assert os.path.dirname(plot_dir) == tempfile.gettempdir()
+        finally:
+            shutil.rmtree(plot_dir, ignore_errors=True)
+
+    def test_save_figures_warns_when_nothing_written(self, monkeypatch):
+        """A blocked plot write is reported instead of failing silently (#498)."""
+        from oct2py import core
+
+        plot_dir = tempfile.mkdtemp()
+        monkeypatch.setattr(core, "_is_under_dev_shm", lambda path: True)
+        monkeypatch.setattr(self.oc._engine, "eval", lambda *args, **kwargs: "1")
+        # Stand in for AppArmor: make_figures returns without writing anything.
+        monkeypatch.setattr(self.oc._engine, "make_figures", lambda *args, **kwargs: None)
+        try:
+            with pytest.warns(Oct2PyWarning, match="No figures were written"):
+                self.oc._save_figures(plot_dir)
+        finally:
+            shutil.rmtree(plot_dir, ignore_errors=True)
+
+    def test_save_figures_quiet_without_figures(self, monkeypatch):
+        """No warning for a /dev/shm plot_dir when no figures were open (#498)."""
+        from oct2py import core
+
+        plot_dir = tempfile.mkdtemp()
+        monkeypatch.setattr(core, "_is_under_dev_shm", lambda path: True)
+        monkeypatch.setattr(self.oc._engine, "eval", lambda *args, **kwargs: "0")
+        monkeypatch.setattr(self.oc._engine, "make_figures", lambda *args, **kwargs: None)
+        try:
+            # filterwarnings=error turns any warning into a failure here.
+            self.oc._save_figures(plot_dir)
+        finally:
+            shutil.rmtree(plot_dir, ignore_errors=True)
 
     def test_clear(self):
         """Make sure clearing variables does not mess anything up."""

@@ -84,6 +84,23 @@ if hasattr(os, "register_at_fork"):
     os.register_at_fork(after_in_child=_reset_instances_after_fork)
 
 
+def _is_under_dev_shm(path):
+    """Return whether *path* points inside Linux's ``/dev/shm``.
+
+    Ubuntu 26.04 ships an AppArmor profile that stops Ghostscript from writing
+    under ``/dev/shm``, which silently breaks headless figures rendered by
+    Octave's gnuplot toolkit (issues #497 and #498).  ``/dev/shm`` is
+    Linux-only, and this is a plain path check so it is safe on every platform.
+    """
+    if not path or not sys.platform.startswith("linux"):
+        return False
+    shm = "/dev/shm"  # noqa: S108
+    try:
+        return osp.commonpath([osp.abspath(path), shm]) == shm
+    except ValueError:  # pragma: no cover - only for uncomparable paths
+        return False
+
+
 class OctaveWorkspaceProxy:
     """Dict-like proxy for the Octave base workspace.
 
@@ -546,6 +563,21 @@ class Oct2Py:
         """
         self._show_figures()
 
+    def _make_plot_dir(self):
+        """Create a temporary directory for Octave to save figures into.
+
+        Figures are not written to ``/dev/shm``: on Linux, Octave's gnuplot
+        toolkit has Ghostscript write the PNG, and Ubuntu 26.04's AppArmor
+        profile for ``gs`` only lets it write under ``$HOME``, ``/tmp``,
+        ``/var/tmp``, ``/mnt`` and ``/media``.  The denial is silent, so no
+        figure appears.  Any other ``temp_dir`` is kept, because snap and
+        flatpak Octave can only see that one.
+        """
+        temp_dir = self._settings.temp_dir
+        if _is_under_dev_shm(temp_dir):
+            temp_dir = None
+        return tempfile.mkdtemp(dir=temp_dir)
+
     def _show_figures(self):
         """Capture open Octave figures and display them via matplotlib."""
         if not self._engine:
@@ -558,7 +590,7 @@ class Oct2Py:
         except ImportError:  # pragma: no cover
             return
 
-        plot_dir = tempfile.mkdtemp(dir=self._settings.temp_dir)
+        plot_dir = self._make_plot_dir()
         try:
             # Temporarily switch to inline mode so _make_figures uses a
             # headless-compatible toolkit (gnuplot/qt offscreen) rather than
@@ -1176,11 +1208,54 @@ class Oct2Py:
             result = None
 
         if plot_dir:
-            engine.make_figures(plot_dir)
+            self._save_figures(plot_dir)
         elif self._settings.auto_show:
             self._show_figures()
 
         return result
+
+    def _save_figures(self, plot_dir):
+        """Save open figures to *plot_dir*, warning if nothing was written.
+
+        On Linux, Octave's gnuplot toolkit renders figures with Ghostscript,
+        and Ubuntu 26.04's AppArmor profile blocks ``gs`` from writing under
+        ``/dev/shm``.  Octave's ``print`` ignores the failure, so the call
+        returns normally with an empty directory.  When that happens, tell the
+        caller instead of failing silently (issue #498).
+        """
+        if not self._engine:
+            return
+        if not _is_under_dev_shm(plot_dir):
+            self._engine.make_figures(plot_dir)
+            return
+        # Count the figures and any existing files before saving: a blocked
+        # write leaves both unchanged, and _make_figures closes the figures, so
+        # neither can be inspected afterwards.
+        before = len(glob.glob(osp.join(plot_dir, "*")))
+        open_figures = self._count_open_figures()
+        self._engine.make_figures(plot_dir)
+        if open_figures and len(glob.glob(osp.join(plot_dir, "*"))) <= before:
+            msg = (
+                "No figures were written to plot_dir %r even though figures were "
+                "open. On Linux, Octave's gnuplot toolkit saves figures with "
+                "Ghostscript, which Ubuntu 26.04's AppArmor profile blocks from "
+                "writing under /dev/shm. Use a plot_dir outside /dev/shm."
+            )
+            warnings.warn(msg % plot_dir, Oct2PyWarning, stacklevel=5)
+
+    def _count_open_figures(self):
+        """Return the number of open Octave figures, or 0 if it cannot tell."""
+        if not self._engine:
+            return 0
+        try:
+            raw = self._engine.eval('disp(numel(get(0, "children")));', silent=True)
+        except Exception:  # pragma: no cover - eval failure should not break plotting
+            return 0
+        raw = raw.strip()
+        # `disp` prints the bare value; an expression without `;` prints "ans = N".
+        if "=" in raw:
+            raw = raw.split("=")[-1].strip()
+        return int(raw) if raw.isdigit() else 0
 
     def _parse_error(self, err):
         """Create a traceback for an Octave evaluation error."""
